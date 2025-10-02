@@ -5,11 +5,11 @@ import api from "../lib/api";
 export default function OrgCreate() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
-    mission: "",
-    website: "",
-    address: "",
-    socials: ""
+    name: "F3 Capital",
+    mission: "Building better men through fitness, fellowship, and faith. Supporting our community through impactful events and service.",
+    website: "https://f3capital.com",
+    address: "Raleigh, NC",
+    socials: "https://twitter.com/f3capital, https://instagram.com/f3capital"
   });
   const [loading, setLoading] = useState(false);
 
