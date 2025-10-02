@@ -12,7 +12,10 @@ export default function OrgCreate() {
     city: "Washington",
     state: "DC",
     zip: "20500",
-    socials: "https://twitter.com/f3capital, https://instagram.com/f3capital"
+    x: "https://x.com/f3capital",
+    instagram: "https://instagram.com/f3capital",
+    facebook: "https://facebook.com/f3capital",
+    linkedin: "https://linkedin.com/company/f3capital"
   });
   const [loading, setLoading] = useState(false);
 
@@ -21,11 +24,6 @@ export default function OrgCreate() {
     setLoading(true);
 
     try {
-      const socialsArray = formData.socials
-        .split(",")
-        .map(s => s.trim())
-        .filter(s => s);
-
       const response = await api.post("/orgs", {
         name: formData.name,
         mission: formData.mission,
@@ -36,7 +34,12 @@ export default function OrgCreate() {
           state: formData.state,
           zip: formData.zip
         },
-        socials: socialsArray
+        socials: {
+          x: formData.x,
+          instagram: formData.instagram,
+          facebook: formData.facebook,
+          linkedin: formData.linkedin
+        }
       });
 
       navigate(`/org/success/${response.data._id}`);
@@ -150,17 +153,62 @@ export default function OrgCreate() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Social Links
-              </label>
-              <input
-                type="text"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                value={formData.socials}
-                onChange={(e) => setFormData({ ...formData, socials: e.target.value })}
-                placeholder="https://twitter.com/f3, https://instagram.com/f3 (comma separated)"
-              />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-900">Social Links</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    X (Twitter)
+                  </label>
+                  <input
+                    type="url"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    value={formData.x}
+                    onChange={(e) => setFormData({ ...formData, x: e.target.value })}
+                    placeholder="https://x.com/f3capital"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Instagram
+                  </label>
+                  <input
+                    type="url"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    value={formData.instagram}
+                    onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                    placeholder="https://instagram.com/f3capital"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Facebook
+                  </label>
+                  <input
+                    type="url"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    value={formData.facebook}
+                    onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                    placeholder="https://facebook.com/f3capital"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    LinkedIn
+                  </label>
+                  <input
+                    type="url"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    value={formData.linkedin}
+                    onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                    placeholder="https://linkedin.com/company/f3capital"
+                  />
+                </div>
+              </div>
             </div>
 
             <button
