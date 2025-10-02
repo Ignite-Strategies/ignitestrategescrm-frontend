@@ -38,7 +38,9 @@ Runs on **http://localhost:5173**
 ## Backend
 
 This frontend connects to:
-- **eventscrm-backend** (port 5001) - Event CRM operations
+- **eventscrm-backend** - Event CRM operations
+  - Local: http://localhost:5001
+  - Production: https://eventscrm-backend.onrender.com
 - **ignite-pay-backend** (port 5000) - Payment processing
 
 Configure backend URLs in `vite.config.js` proxy settings.

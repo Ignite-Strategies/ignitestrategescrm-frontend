@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import Home from "./pages/home.jsx";
 import OrgCreate from "./pages/org.create.jsx";
 import OrgSuccess from "./pages/org.success.jsx";
 import OrgUsers from "./pages/org.users.jsx";
@@ -11,22 +13,74 @@ import EventAudiences from "./pages/event.audiences.jsx";
 import EngageEmail from "./pages/engage.email.jsx";
 import MarketingAnalytics from "./pages/marketing.analytics.jsx";
 
+// Protected Route wrapper
+function ProtectedRoute({ children }) {
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+}
+
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const authStatus = localStorage.getItem("isAuthenticated") === "true";
+    setIsAuthenticated(authStatus);
+  }, []);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    setIsAuthenticated(false);
+  };
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/org/create" replace />} />
-        <Route path="/org/create" element={<OrgCreate />} />
-        <Route path="/org/success/:orgId" element={<OrgSuccess />} />
-        <Route path="/org/:orgId/users" element={<OrgUsers />} />
-        <Route path="/dashboard/:orgId" element={<Dashboard />} />
-        <Route path="/event/create/:orgId" element={<EventCreate />} />
-        <Route path="/event/success/:eventId" element={<EventSuccess />} />
-        <Route path="/event/:eventId/pipelines" element={<EventPipelines />} />
-        <Route path="/event/:eventId/pipeline-config" element={<EventPipelineConfig />} />
-        <Route path="/event/:eventId/audiences" element={<EventAudiences />} />
-        <Route path="/engage/email/:orgId" element={<EngageEmail />} />
-        <Route path="/marketing/analytics/:orgId" element={<MarketingAnalytics />} />
+        <Route path="/" element={
+          isAuthenticated ? <Navigate to="/org/create" replace /> : <Home onLogin={handleLogin} />
+        } />
+        
+        <Route path="/org/create" element={
+          <ProtectedRoute><OrgCreate /></ProtectedRoute>
+        } />
+        <Route path="/org/success/:orgId" element={
+          <ProtectedRoute><OrgSuccess /></ProtectedRoute>
+        } />
+        <Route path="/org/:orgId/users" element={
+          <ProtectedRoute><OrgUsers /></ProtectedRoute>
+        } />
+        <Route path="/dashboard/:orgId" element={
+          <ProtectedRoute><Dashboard /></ProtectedRoute>
+        } />
+        <Route path="/event/create/:orgId" element={
+          <ProtectedRoute><EventCreate /></ProtectedRoute>
+        } />
+        <Route path="/event/success/:eventId" element={
+          <ProtectedRoute><EventSuccess /></ProtectedRoute>
+        } />
+        <Route path="/event/:eventId/pipelines" element={
+          <ProtectedRoute><EventPipelines /></ProtectedRoute>
+        } />
+        <Route path="/event/:eventId/pipeline-config" element={
+          <ProtectedRoute><EventPipelineConfig /></ProtectedRoute>
+        } />
+        <Route path="/event/:eventId/audiences" element={
+          <ProtectedRoute><EventAudiences /></ProtectedRoute>
+        } />
+        <Route path="/engage/email/:orgId" element={
+          <ProtectedRoute><EngageEmail /></ProtectedRoute>
+        } />
+        <Route path="/marketing/analytics/:orgId" element={
+          <ProtectedRoute><MarketingAnalytics /></ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   );

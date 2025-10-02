@@ -7,7 +7,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5001',  // eventscrm-backend
+        target: 'http://localhost:5001',  // Local eventscrm-backend
+        // target: 'https://eventscrm-backend.onrender.com',  // Production
         changeOrigin: true
       }
     }
