@@ -8,7 +8,7 @@ export default function OrgCreate() {
     name: "F3 Capital",
     mission: "Building better men through fitness, fellowship, and faith. Supporting our community through impactful events and service.",
     website: "https://f3capital.com",
-    address: "Raleigh, NC",
+    address: "123 Fitness Lane, Raleigh, NC 27601",
     socials: "https://twitter.com/f3capital, https://instagram.com/f3capital"
   });
   const [loading, setLoading] = useState(false);
