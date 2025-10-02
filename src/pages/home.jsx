@@ -22,7 +22,7 @@ export default function Home({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-cyan-600 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
           <div className="text-center mb-8">
@@ -32,9 +32,13 @@ export default function Home({ onLogin }) {
               </svg>
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">Ignite Events CRM</h1>
-            <p className="text-white/80 text-sm">
+            <p className="text-white/80 text-sm mb-3">
               Enter the username and password<br/>provided by your organization
             </p>
+            <div className="bg-white/20 rounded-lg p-3 text-xs text-white/90">
+              <div className="font-mono">Username: <span className="font-semibold">admin</span></div>
+              <div className="font-mono">Password: <span className="font-semibold">igniteevents2025</span></div>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
