@@ -1,253 +1,143 @@
-# Ignite CRM - Event Management System
+# Ignite CRM - Frontend
 
-A comprehensive CRM system designed specifically for event management with pipeline automation, audience targeting, and champion tracking.
+React frontend for event management CRM with kanban pipeline management and audience targeting.
 
-## 🚀 Features
+## Features
 
-- **Master CRM**: Centralized contact management at the organization level
-- **Event Pipelines**: Kanban-style pipeline management with customizable stages
-- **Rules Engine**: Automatic stage transitions based on user actions
-- **Champion Tracking**: Identify and track high-engagement advocates
-- **Audience Segmentation**: Target specific groups for each event
-- **CSV Import**: Bulk upload contacts via CSV
-- **Email Campaigns**: Send targeted emails to pipeline segments
-- **Revenue Calculator**: Track ticket sales goals and progress
-- **Stripe Integration**: Automatic payment tracking via webhooks
+- Organization & contact management
+- Event creation with revenue calculator
+- Drag-and-drop kanban pipeline
+- Pipeline automation configuration
+- Audience segmentation
+- Email campaign builder
+- CSV contact import
+- Champion tracking with visual badges
 
-## 📋 Pipeline Stages
+## Tech Stack
 
-Default pipeline stages (customizable per event):
-- **SOP Entry**: First touch / ingestion success
-- **RSVP**: Expressed intent to attend
-- **Paid**: Treasury truth (payment confirmed)
-- **Attended**: Post-event reconciliation
-- **Champion**: Advocacy lane (high engagement)
-
-## 🛠️ Tech Stack
-
-### Backend
-- Node.js + Express
-- MongoDB + Mongoose
-- Stripe (payments)
-- CSV parsing
-- SendGrid/Nodemailer (email)
-
-### Frontend
 - React 18
 - Vite
-- Tailwind CSS
 - React Router
+- Tailwind CSS
 - Axios
 
-## 📦 Installation
+## Installation
 
-### Prerequisites
-- Node.js 18+ 
-- MongoDB (local or Atlas)
-- Stripe account (for payments)
-
-### Setup
-
-1. **Install dependencies**
 ```bash
-npm run install-all
+npm install
 ```
 
-2. **Configure Backend**
+## Development
+
 ```bash
-cd backend
-cp .env.example .env
-# Edit .env with your credentials
-```
-
-Required environment variables:
-```
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/ignite-crm
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-SENDGRID_API_KEY=SG...
-FRONTEND_URL=http://localhost:5173
-```
-
-3. **Start Development**
-```bash
-# From root directory
 npm run dev
 ```
 
-This runs both:
-- Backend: http://localhost:5000
-- Frontend: http://localhost:5173
+Runs on **http://localhost:5173**
 
-## 🔄 UX Flow
+## Backend
 
-### Organization Setup
-1. Create Organization → Upload Contacts → Dashboard
+This frontend connects to:
+- **eventscrm-backend** (port 5001) - Event CRM operations
+- **ignite-pay-backend** (port 5000) - Payment processing
 
-### Event Setup
-1. **Create Event** - Set name, date, location, revenue goals
-2. **Define Audiences** - Select target groups (org members, partners, etc.)
-3. **Configure Pipeline** - Set automation rules
-4. **Kanban Management** - Drag contacts through pipeline stages
-5. **Email Campaign** - Send targeted messages
+Configure backend URLs in `vite.config.js` proxy settings.
 
-## 🤖 Automation Rules
+## Environment
 
-### SOP Entry
-Auto-mark contacts as "SOP Entry" when they:
-- Fill out landing form
-- Are imported via CSV
-- Scan QR code
-- Added by admin
+The proxy is configured to forward `/api` requests to `http://localhost:5001` (eventscrm-backend).
 
-### RSVP
-Auto-advance to RSVP when:
-- Form checkbox selected
-- "I'm coming" button clicked
+```javascript
+// vite.config.js
+proxy: {
+  '/api': {
+    target: 'http://localhost:5001',  // eventscrm-backend
+    changeOrigin: true
+  }
+}
+```
 
-### Paid
-Auto-advance on Stripe webhook confirmation
+## Build
 
-### Champion
-Auto-flag when:
-- Engagement score ≥ threshold (default: 3)
-- Has qualifying tags (role:ao_q, shared_media, etc.)
-- Manual override allowed
+```bash
+npm run build
+```
 
-## 📡 API Endpoints
+Output: `dist/` folder ready for deployment.
 
-### Organizations
-- `POST /api/orgs` - Create organization
-- `GET /api/orgs/:orgId` - Get organization
-- `PATCH /api/orgs/:orgId` - Update organization
+## Deployment
 
-### Contacts
-- `POST /api/orgs/:orgId/contacts` - Upsert contact
-- `POST /api/orgs/:orgId/contacts/csv` - Bulk CSV upload
-- `GET /api/orgs/:orgId/contacts` - List contacts (search, filter)
+Deploy to:
+- **Vercel** (recommended)
+- **Netlify**
+- **Cloudflare Pages**
+- Any static host
 
-### Events
-- `POST /api/orgs/:orgId/events` - Create event
-- `GET /api/orgs/:orgId/events` - List events
-- `GET /api/events/:eventId` - Get event
-- `PATCH /api/events/:eventId` - Update event
-- `GET /api/events/:eventId/pipeline-config` - Get pipeline config
+Set environment variable:
+```
+VITE_API_URL=https://your-crm-backend.com
+```
 
-### Memberships
-- `POST /api/events/:eventId/memberships` - Add contacts to event
-- `POST /api/events/:eventId/memberships/from-form` - Landing form intake
-- `PATCH /api/memberships/:membershipId` - Update stage/tags
-- `POST /api/memberships/:membershipId/champion` - Mark as champion
-- `GET /api/events/:eventId/memberships` - List memberships (filter by stage)
+## Pages
 
-### Webhooks
-- `POST /api/webhooks/stripe` - Stripe payment webhook
-
-## 🎨 Frontend Pages
-
-- `/org/create` - Organization setup
-- `/org/success/:orgId` - Setup confirmation
-- `/org/:orgId/users` - Contact management
+- `/org/create` - Create organization
+- `/org/:orgId/users` - Manage contacts + CSV upload
 - `/dashboard/:orgId` - Main dashboard
 - `/event/create/:orgId` - Create event
-- `/event/success/:eventId` - Event creation success
-- `/event/:eventId/audiences` - Define audiences
-- `/event/:eventId/pipeline-config` - Configure automation
 - `/event/:eventId/pipelines` - Kanban board
+- `/event/:eventId/pipeline-config` - Configure automation
+- `/event/:eventId/audiences` - Select audiences
 - `/engage/email/:orgId` - Email campaigns
-- `/marketing/analytics/:orgId` - Analytics (placeholder)
 
-## 📊 Data Models
+## Key Features
 
-### Organization
-```js
-{
-  name, mission, website, socials, address,
-  pipelineDefaults: ["sop_entry", "rsvp", "paid", "attended", "champion"],
-  audienceDefaults: ["org_members", "friends_family", ...]
-}
-```
+### Revenue Calculator
+Live calculation of tickets needed based on:
+- Revenue target
+- Ticket price
+- Costs
 
-### Contact
-```js
-{
-  orgId, name, email, phone, tags: []
-}
-```
+### Pipeline Automation Config
+Visual interface to set up:
+- SOP entry triggers
+- RSVP triggers
+- Champion criteria
 
-### Event
-```js
-{
-  orgId, name, slug, date, location,
-  pipelines: [], // override org defaults
-  pipelineRules: { /* automation config */ },
-  goals: { revenueTarget, ticketPrice, costs }
-}
-```
+### Kanban Board
+- Drag-and-drop contacts between stages
+- Champion badges (⭐)
+- Payment amount display
+- RSVP indicators
+- Filter by champions only
 
-### ContactEventMembership
-```js
-{
-  orgId, eventId, contactId,
-  stage, tags, source,
-  rsvp, paid, amount,
-  champion, engagementScore
-}
-```
-
-## 🔌 Stripe Integration
-
-1. Create Stripe Checkout Session with `metadata.membershipId`
-2. Webhook triggers on `checkout.session.completed`
-3. System auto-advances membership to "paid" stage
-4. Records amount and updates engagement score
-
-## 📧 Email Integration
-
-Currently uses console logging. To integrate with SendGrid:
-
-```js
-// backend/services/emailService.js
-import sgMail from '@sendgrid/mail';
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-export async function sendCampaign(recipients, subject, message) {
-  await sgMail.send({
-    to: recipients.map(r => r.contactId.email),
-    from: 'events@yourorg.com',
-    subject,
-    text: message
-  });
-}
-```
-
-## 🚧 Future Enhancements
-
-- [ ] Google Analytics integration
-- [ ] UTM tracking
-- [ ] Advanced email templates
-- [ ] SMS campaigns
-- [ ] QR code check-in
-- [ ] Event analytics dashboard
-- [ ] Multi-user permissions
-- [ ] Audit logs
-
-## 📝 CSV Format
-
-Upload contacts with these columns:
-
+### CSV Upload
+Upload contacts with format:
 ```csv
 name,email,phone,tags
 John Doe,john@example.com,555-1234,"f3:ao,role:sponsor"
-Jane Smith,jane@example.com,555-5678,"community:leader"
 ```
 
-## 🤝 Contributing
+## Project Structure
 
-This is a custom CRM built for event management. For questions or support, contact the development team.
+```
+ignitestrategescrm-frontend/
+├── src/
+│   ├── pages/           # React pages
+│   ├── lib/             # API client
+│   ├── App.jsx          # Router
+│   ├── main.jsx         # Entry point
+│   └── index.css        # Tailwind styles
+├── index.html
+├── vite.config.js
+├── tailwind.config.js
+└── package.json
+```
 
-## 📄 License
+## Related Repos
 
-Proprietary - All rights reserved
+- **eventscrm-backend** - Event CRM API
+- **ignite-pay-backend** - Payment processing
 
+## License
+
+Proprietary
