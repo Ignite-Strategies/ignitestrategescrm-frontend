@@ -8,7 +8,10 @@ export default function OrgCreate() {
     name: "F3 Capital",
     mission: "Building better men through fitness, fellowship, and faith. Supporting our community through impactful events and service.",
     website: "https://f3capital.com",
-    address: "123 Fitness Lane, Raleigh, NC 27601",
+    street: "1600 Pennsylvania Avenue NW",
+    city: "Washington",
+    state: "DC",
+    zip: "20500",
     socials: "https://twitter.com/f3capital, https://instagram.com/f3capital"
   });
   const [loading, setLoading] = useState(false);
@@ -24,7 +27,15 @@ export default function OrgCreate() {
         .filter(s => s);
 
       const response = await api.post("/orgs", {
-        ...formData,
+        name: formData.name,
+        mission: formData.mission,
+        website: formData.website,
+        address: {
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          zip: formData.zip
+        },
         socials: socialsArray
       });
 
@@ -86,15 +97,57 @@ export default function OrgCreate() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address
+                Street Address
               </label>
               <input
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="123 Main St, City, State ZIP"
+                value={formData.street}
+                onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                placeholder="1600 Pennsylvania Avenue NW"
               />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  placeholder="Washington"
+                />
+              </div>
+
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  State
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  value={formData.state}
+                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  placeholder="DC"
+                  maxLength="2"
+                />
+              </div>
+
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ZIP Code
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  value={formData.zip}
+                  onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+                  placeholder="20500"
+                />
+              </div>
             </div>
 
             <div>
