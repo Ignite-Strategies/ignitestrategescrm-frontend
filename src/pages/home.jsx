@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Home({ onLogin }) {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("igniteevents2025");
   const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
@@ -32,13 +32,9 @@ export default function Home({ onLogin }) {
               </svg>
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">Ignite Events CRM</h1>
-            <p className="text-white/80 text-sm mb-3">
+            <p className="text-white/80 text-sm">
               Enter the username and password<br/>provided by your organization
             </p>
-            <div className="bg-white/20 rounded-lg p-3 text-xs text-white/90">
-              <div className="font-mono">Username: <span className="font-semibold">admin</span></div>
-              <div className="font-mono">Password: <span className="font-semibold">igniteevents2025</span></div>
-            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
