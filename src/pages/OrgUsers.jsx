@@ -163,7 +163,8 @@ export default function OrgUsers() {
                       className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Full Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Goes By</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employer</th>
@@ -183,26 +184,21 @@ export default function OrgUsers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      <div className="flex gap-2 items-center">
-                        <button
-                          onClick={() => navigate(`/contact/${contact._id}`)}
-                          className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
-                        >
-                          {contact.firstName} {contact.lastName}
-                        </button>
-                        {contact.goesBy && (
-                          <span className="text-gray-400 text-xs">({contact.goesBy})</span>
-                        )}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        <EditableField
-                          value={contact.goesBy}
-                          field="goesBy"
-                          supporterId={contact._id}
-                          onUpdate={handleFieldUpdate}
-                          placeholder="Nickname"
-                        />
-                      </div>
+                      <button
+                        onClick={() => navigate(`/contact/${contact._id}`)}
+                        className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
+                      >
+                        {contact.firstName} {contact.lastName}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <EditableField
+                        value={contact.goesBy}
+                        field="goesBy"
+                        supporterId={contact._id}
+                        onUpdate={handleFieldUpdate}
+                        placeholder="Nickname"
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <EditableField
