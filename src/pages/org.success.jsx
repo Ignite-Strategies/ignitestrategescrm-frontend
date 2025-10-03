@@ -17,21 +17,31 @@ export default function OrgSuccess() {
           </div>
 
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Organization Created!</h1>
-          <p className="text-gray-600 mb-8">Your CRM is ready. Time to create events and manage supporters.</p>
+          <p className="text-gray-600 mb-2">Your CRM is ready.</p>
+          
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+            <h2 className="text-lg font-semibold text-blue-900 mb-2">
+              📋 Let's get your current supporters into your CRM
+            </h2>
+            <p className="text-sm text-blue-700">
+              This is your <span className="font-semibold">master supporter list</span> - the foundation for all events.
+              Upload a CSV or add them manually later.
+            </p>
+          </div>
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate(`/dashboard/${orgId}`)}
+              onClick={() => navigate(`/org/${orgId}/users`)}
               className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
-              Go to Dashboard
+              Upload Supporters Now
             </button>
             
             <button
-              onClick={() => navigate(`/org/${orgId}/users`)}
-              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition"
+              onClick={() => navigate(`/dashboard/${orgId}`)}
+              className="w-full border-2 border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition"
             >
-              Upload Supporters First
+              Skip - I'll Add Them Later
             </button>
           </div>
         </div>
