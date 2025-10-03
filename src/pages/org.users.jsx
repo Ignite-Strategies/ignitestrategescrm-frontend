@@ -15,10 +15,10 @@ export default function OrgUsers() {
 
   const loadContacts = async () => {
     try {
-      const response = await api.get(`/orgs/${orgId}/contacts`);
+      const response = await api.get(`/orgs/${orgId}/supporters`);
       setContacts(response.data);
     } catch (error) {
-      console.error("Error loading contacts:", error);
+      console.error("Error loading supporters:", error);
     }
   };
 
@@ -31,7 +31,7 @@ export default function OrgUsers() {
     formData.append("file", file);
 
     try {
-      const response = await api.post(`/orgs/${orgId}/contacts/csv`, formData, {
+      const response = await api.post(`/orgs/${orgId}/supporters/csv`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
@@ -52,10 +52,13 @@ export default function OrgUsers() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Master Contacts</h1>
-            <p className="text-gray-600 mt-1">Upload and manage your organization's contacts</p>
+            <h1 className="text-3xl font-bold text-gray-900">Your Organization's Supporters</h1>
+            <p className="text-gray-600 mt-2 max-w-3xl">
+              Take the time to ingest your members—those who give for official membership, 
+              regularly donate, or just support your cause on a routine basis.
+            </p>
           </div>
           <button
             onClick={() => navigate(`/dashboard/${orgId}`)}
@@ -135,7 +138,7 @@ export default function OrgUsers() {
 
           {filteredContacts.length === 0 && (
             <div className="text-center py-12 text-gray-500">
-              {contacts.length === 0 ? "No contacts yet. Upload a CSV to get started." : "No contacts match your search."}
+              {contacts.length === 0 ? "No supporters yet. Upload a CSV to get started." : "No supporters match your search."}
             </div>
           )}
         </div>
