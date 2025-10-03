@@ -9,8 +9,13 @@ const api = axios.create({
   }
 });
 
-// Log API calls for debugging
+// Add Firebase token to requests
 api.interceptors.request.use(request => {
+  const firebaseToken = localStorage.getItem('firebaseToken');
+  if (firebaseToken) {
+    request.headers.Authorization = `Bearer ${firebaseToken}`;
+  }
+  
   console.log('API Request:', request.method.toUpperCase(), request.url, request.data);
   return request;
 });
