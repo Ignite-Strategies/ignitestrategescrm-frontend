@@ -34,28 +34,23 @@ export default function OrgUsers() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Your Organization's Supporters</h1>
-            <p className="text-gray-600 mt-2 max-w-3xl">
-              Take the time to ingest your members—those who give for official membership, 
-              regularly donate, or just support your cause on a routine basis.
+            <h1 className="text-3xl font-bold text-gray-900">Manage Supporters</h1>
+            <p className="text-gray-600 mt-2">
+              Your organization's master contact list ({contacts.length} supporters)
             </p>
           </div>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-200 transition"
-          >
-            Return to Dashboard
-          </button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+          <div className="flex gap-3">
             <button
               onClick={() => navigate("/supporters/upload")}
-              className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+              className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
-              📥 Upload CSV
+              + Upload CSV
+            </button>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-200 transition"
+            >
+              Dashboard
             </button>
           </div>
         </div>
