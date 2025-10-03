@@ -4,7 +4,7 @@ import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 import EditableField from "../components/EditableField";
 
-export default function OrgUsers() {
+export default function Supporters() {
   const orgId = getOrgId();
   const navigate = useNavigate();
   const [contacts, setContacts] = useState([]);

@@ -3,7 +3,7 @@ import Home from "./pages/Home.jsx";
 import Welcome from "./pages/Welcome.jsx";
 import OrgCreate from "./pages/OrgCreate.jsx";
 import OrgSuccess from "./pages/OrgSuccess.jsx";
-import OrgUsers from "./pages/OrgUsers.jsx";
+import Supporters from "./pages/Supporters.jsx";
 import UploadSupportersCSV from "./pages/UploadSupportersCSV.jsx";
 import UploadPreview from "./pages/UploadPreview.jsx";
 import ContactValidation from "./pages/ContactValidation.jsx";
@@ -54,7 +54,7 @@ export default function App() {
           <ProtectedRoute><OrgSuccess /></ProtectedRoute>
         } />
         <Route path="/supporters" element={
-          <ProtectedRoute><OrgUsers /></ProtectedRoute>
+          <ProtectedRoute><Supporters /></ProtectedRoute>
         } />
         <Route path="/supporters/upload" element={
           <ProtectedRoute><UploadSupportersCSV /></ProtectedRoute>
