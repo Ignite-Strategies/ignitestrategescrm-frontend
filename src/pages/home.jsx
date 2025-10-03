@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../lib/api";
 
 export default function Home({ onLogin }) {
   const navigate = useNavigate();
@@ -7,14 +8,23 @@ export default function Home({ onLogin }) {
   const [password, setPassword] = useState("igniteevents2025");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Hardcoded credentials
     if (username === "admin" && password === "igniteevents2025") {
       localStorage.setItem("isAuthenticated", "true");
       onLogin();
-      navigate("/org/create");
+      
+      // Check if org already exists
+      try {
+        const response = await api.get("/orgs/first");
+        // Org exists, go to dashboard
+        navigate(`/dashboard/${response.data._id}`);
+      } catch (error) {
+        // No org yet, go to create
+        navigate("/org/create");
+      }
     } else {
       setError("Invalid credentials. Please contact your organization for access.");
       setPassword("");

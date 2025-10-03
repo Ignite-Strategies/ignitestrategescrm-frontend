@@ -17,21 +17,21 @@ export default function OrgSuccess() {
           </div>
 
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Organization Created!</h1>
-          <p className="text-gray-600 mb-8">Your CRM is ready. Let's add your contacts.</p>
+          <p className="text-gray-600 mb-8">Your CRM is ready. Time to create events and manage supporters.</p>
 
-          <div className="space-y-4">
-            <button
-              onClick={() => navigate(`/org/${orgId}/users`)}
-              className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
-            >
-              Upload Contacts
-            </button>
-
+          <div className="space-y-3">
             <button
               onClick={() => navigate(`/dashboard/${orgId}`)}
-              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition"
+              className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
               Go to Dashboard
+            </button>
+            
+            <button
+              onClick={() => navigate(`/org/${orgId}/users`)}
+              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition"
+            >
+              Upload Supporters First
             </button>
           </div>
         </div>
