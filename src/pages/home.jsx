@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 
-export default function Home({ onLogin }) {
+export default function Home() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("igniteevents2025");
@@ -14,15 +14,15 @@ export default function Home({ onLogin }) {
     // Hardcoded credentials
     if (username === "admin" && password === "igniteevents2025") {
       localStorage.setItem("isAuthenticated", "true");
-      onLogin();
       
-      // Check if org already exists
+      // Check if org exists
       try {
         const response = await api.get("/orgs/first");
-        // Org exists, go to dashboard
-        navigate(`/dashboard/${response.data._id}`);
+        localStorage.setItem("orgId", response.data._id);
+        localStorage.setItem("orgName", response.data.name);
+        navigate("/welcome");
       } catch (error) {
-        // No org yet, go to create
+        // No org yet, go create one
         navigate("/org/create");
       }
     } else {

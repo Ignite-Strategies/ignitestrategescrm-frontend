@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 export default function Dashboard() {
-  const { orgId } = useParams();
+  const orgId = getOrgId();
   const navigate = useNavigate();
   const [org, setOrg] = useState(null);
   const [events, setEvents] = useState([]);
+
+  const [supporterCount, setSupporterCount] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -14,12 +17,14 @@ export default function Dashboard() {
 
   const loadData = async () => {
     try {
-      const [orgRes, eventsRes] = await Promise.all([
+      const [orgRes, eventsRes, supportersRes] = await Promise.all([
         api.get(`/orgs/${orgId}`),
-        api.get(`/orgs/${orgId}/events`)
+        api.get(`/orgs/${orgId}/events`),
+        api.get(`/orgs/${orgId}/supporters`)
       ]);
       setOrg(orgRes.data);
       setEvents(eventsRes.data);
+      setSupporterCount(supportersRes.data.length);
     } catch (error) {
       console.error("Error loading dashboard:", error);
     }
@@ -35,9 +40,33 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Setup Warning */}
+        {supporterCount === 0 && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm text-yellow-700">
+                  <span className="font-semibold">Setup incomplete:</span> You haven't uploaded any supporters yet. 
+                  <button
+                    onClick={() => navigate("/supporters")}
+                    className="font-semibold underline ml-1 hover:text-yellow-900"
+                  >
+                    Upload your master supporter list now
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <button
-            onClick={() => navigate(`/event/create/${orgId}`)}
+            onClick={() => navigate("/event/create")}
             className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition border-2 border-transparent hover:border-indigo-500 text-left"
           >
             <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
@@ -50,7 +79,7 @@ export default function Dashboard() {
           </button>
 
           <button
-            onClick={() => navigate(`/org/${orgId}/users`)}
+            onClick={() => navigate("/supporters")}
             className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition border-2 border-transparent hover:border-green-500 text-left"
           >
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
@@ -63,7 +92,7 @@ export default function Dashboard() {
           </button>
 
           <button
-            onClick={() => navigate(`/engage/email/${orgId}`)}
+            onClick={() => navigate("/email")}
             className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition border-2 border-transparent hover:border-purple-500 text-left"
           >
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">

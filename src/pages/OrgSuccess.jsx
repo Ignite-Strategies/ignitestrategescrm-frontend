@@ -1,7 +1,8 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { getOrgId } from "../lib/org";
 
 export default function OrgSuccess() {
-  const { orgId } = useParams();
+  const orgId = getOrgId();
   const navigate = useNavigate();
 
   return (
@@ -31,14 +32,14 @@ export default function OrgSuccess() {
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate(`/org/${orgId}/users`)}
+              onClick={() => navigate("/supporters")}
               className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
               Upload Supporters Now
             </button>
             
             <button
-              onClick={() => navigate(`/dashboard/${orgId}`)}
+              onClick={() => navigate("/dashboard")}
               className="w-full border-2 border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition"
             >
               Skip - I'll Add Them Later

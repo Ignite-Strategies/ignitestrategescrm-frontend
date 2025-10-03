@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 export default function OrgUsers() {
-  const { orgId } = useParams();
+  const orgId = getOrgId();
   const navigate = useNavigate();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,6 +23,21 @@ export default function OrgUsers() {
     }
   };
 
+  const downloadTemplate = () => {
+    const template = `name,email,phone,type,tags
+John Doe,john@example.com,555-1234,individual,"f3:ao,monthly_donor"
+Jane Smith,jane@example.com,555-5678,individual,"volunteer"
+Acme Corp,contact@acme.com,555-9999,corporate,"sponsor,local_business"`;
+    
+    const blob = new Blob([template], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'supporters_template.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -38,7 +54,10 @@ export default function OrgUsers() {
       alert(`Success! Inserted: ${response.data.inserted}, Updated: ${response.data.updated}`);
       loadContacts();
     } catch (error) {
-      alert("Error uploading CSV: " + error.message);
+      const errorMsg = error.response?.data?.details 
+        ? `Errors found:\n${error.response.data.details.map(e => `Line ${e.line}: ${e.error}`).join('\n')}`
+        : error.message;
+      alert("Error uploading CSV:\n" + errorMsg);
     } finally {
       setLoading(false);
     }
@@ -61,7 +80,7 @@ export default function OrgUsers() {
             </p>
           </div>
           <button
-            onClick={() => navigate(`/dashboard/${orgId}`)}
+            onClick={() => navigate("/dashboard")}
             className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-200 transition"
           >
             Return to Dashboard
@@ -69,10 +88,34 @@ export default function OrgUsers() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">Upload Supporters via CSV</h3>
+              <button
+                onClick={downloadTemplate}
+                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                📥 Download Template
+              </button>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-900 mb-2 font-semibold">Required Fields:</p>
+              <ul className="text-xs text-blue-800 space-y-1 ml-4">
+                <li>• <code className="bg-blue-100 px-1 rounded">name</code> - Full name</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">email</code> - Email address (must be unique)</li>
+              </ul>
+              <p className="text-sm text-blue-900 mt-3 mb-2 font-semibold">Optional Fields:</p>
+              <ul className="text-xs text-blue-800 space-y-1 ml-4">
+                <li>• <code className="bg-blue-100 px-1 rounded">phone</code> - Phone number</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">type</code> - individual | family | corporate | foundation</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">tags</code> - Tags in quotes: "f3:ao,monthly_donor"</li>
+              </ul>
+            </div>
+            
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload CSV
+                Select CSV File
               </label>
               <input
                 type="file"
@@ -81,9 +124,6 @@ export default function OrgUsers() {
                 disabled={loading}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                CSV should have columns: name, email, phone (optional), tags (optional, comma-separated)
-              </p>
             </div>
           </div>
         </div>
@@ -92,7 +132,7 @@ export default function OrgUsers() {
           <div className="p-6 border-b border-gray-200">
             <input
               type="text"
-              placeholder="Search contacts..."
+              placeholder="Search supporters..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg"
               value={search}
               onChange={(e) => setSearch(e.target.value)}

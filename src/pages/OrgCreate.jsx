@@ -42,7 +42,11 @@ export default function OrgCreate() {
         }
       });
 
-      navigate(`/org/success/${response.data._id}`);
+      // Store orgId globally
+      localStorage.setItem("orgId", response.data._id);
+      localStorage.setItem("orgName", response.data.name);
+      
+      navigate("/org/success");
     } catch (error) {
       alert("Error creating organization: " + error.message);
     } finally {

@@ -1,69 +1,62 @@
-import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Home from "./pages/home.jsx";
-import OrgCreate from "./pages/org.create.jsx";
-import OrgSuccess from "./pages/org.success.jsx";
-import OrgUsers from "./pages/org.users.jsx";
-import Dashboard from "./pages/dashboard.jsx";
-import EventCreate from "./pages/event.create.jsx";
-import EventSuccess from "./pages/event.success.jsx";
-import EventPipelines from "./pages/event.pipelines.jsx";
-import EventPipelineConfig from "./pages/event.pipeline-config.jsx";
-import EventAudiences from "./pages/event.audiences.jsx";
-import EngageEmail from "./pages/engage.email.jsx";
-import MarketingAnalytics from "./pages/marketing.analytics.jsx";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/Home.jsx";
+import Welcome from "./pages/Welcome.jsx";
+import OrgCreate from "./pages/OrgCreate.jsx";
+import OrgSuccess from "./pages/OrgSuccess.jsx";
+import OrgUsers from "./pages/OrgUsers.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import EventCreate from "./pages/EventCreate.jsx";
+import EventSuccess from "./pages/EventSuccess.jsx";
+import EventPipelines from "./pages/EventPipelines.jsx";
+import EventPipelineConfig from "./pages/EventPipelineConfig.jsx";
+import EventAudiences from "./pages/EventAudiences.jsx";
+import EngageEmail from "./pages/EngageEmail.jsx";
+import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
 
-// Protected Route wrapper
+// Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
   
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   
   return children;
 }
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const authStatus = localStorage.getItem("isAuthenticated") === "true";
-    setIsAuthenticated(authStatus);
-  }, []);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    setIsAuthenticated(false);
-  };
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  const orgId = localStorage.getItem("orgId");
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={
-          isAuthenticated ? <Navigate to="/org/create" replace /> : <Home onLogin={handleLogin} />
+          isAuthenticated && orgId ? <Navigate to="/welcome" replace /> : 
+          isAuthenticated && !orgId ? <Navigate to="/org/create" replace /> :
+          <Home />
+        } />
+        
+        <Route path="/welcome" element={
+          <ProtectedRoute><Welcome /></ProtectedRoute>
         } />
         
         <Route path="/org/create" element={
           <ProtectedRoute><OrgCreate /></ProtectedRoute>
         } />
-        <Route path="/org/success/:orgId" element={
+        <Route path="/org/success" element={
           <ProtectedRoute><OrgSuccess /></ProtectedRoute>
         } />
-        <Route path="/org/:orgId/users" element={
+        <Route path="/supporters" element={
           <ProtectedRoute><OrgUsers /></ProtectedRoute>
         } />
-        <Route path="/dashboard/:orgId" element={
+        <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />
-        <Route path="/event/create/:orgId" element={
+        <Route path="/event/create" element={
           <ProtectedRoute><EventCreate /></ProtectedRoute>
         } />
-        <Route path="/event/success/:eventId" element={
+        <Route path="/event/:eventId/success" element={
           <ProtectedRoute><EventSuccess /></ProtectedRoute>
         } />
         <Route path="/event/:eventId/pipelines" element={
@@ -75,10 +68,10 @@ export default function App() {
         <Route path="/event/:eventId/audiences" element={
           <ProtectedRoute><EventAudiences /></ProtectedRoute>
         } />
-        <Route path="/engage/email/:orgId" element={
+        <Route path="/email" element={
           <ProtectedRoute><EngageEmail /></ProtectedRoute>
         } />
-        <Route path="/marketing/analytics/:orgId" element={
+        <Route path="/analytics" element={
           <ProtectedRoute><MarketingAnalytics /></ProtectedRoute>
         } />
       </Routes>
