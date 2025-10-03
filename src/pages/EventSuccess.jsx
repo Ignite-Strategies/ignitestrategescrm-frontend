@@ -26,43 +26,43 @@ export default function EventSuccess() {
             <div className="space-y-2 text-sm text-blue-800">
               <div className="flex items-start">
                 <span className="font-semibold mr-2">1.</span>
-                <span>Set your fundraising goals and calculate ticket targets</span>
+                <span>Set up your event pipeline to start targeting supporters</span>
               </div>
               <div className="flex items-start">
                 <span className="font-semibold mr-2">2.</span>
-                <span>Define audience segments with conversion rates (Members: 25%, Friends: 15%, Ads: 5%)</span>
+                <span>Push supporters into the funnel and track their progress</span>
               </div>
               <div className="flex items-start">
                 <span className="font-semibold mr-2">3.</span>
-                <span>Calculate total outreach targets needed to hit your goals</span>
+                <span>Move people through stages: Member → Soft Commit → Paid</span>
               </div>
               <div className="flex items-start">
                 <span className="font-semibold mr-2">4.</span>
-                <span>Start managing your event pipeline and tracking progress</span>
+                <span>Optional: Set goals and audience targets for planning</span>
               </div>
             </div>
           </div>
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate(`/event/${eventId}/engagement-advisory`)}
+              onClick={() => navigate(`/event/${eventId}/pipelines`)}
               className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
-              Set Goals & Audience Targets →
+              Set Up Pipelines →
             </button>
 
             <button
-              onClick={() => navigate(`/event/${eventId}/pipelines`)}
-              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition"
+              onClick={() => navigate(`/event/${eventId}/engagement-advisory`)}
+              className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition"
             >
-              Skip to Event Pipeline
+              Goals & Audience Advisory
             </button>
 
             <button
               onClick={() => navigate("/dashboard")}
               className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition"
             >
-              Back to Dashboard
+              Return Home
             </button>
           </div>
         </div>

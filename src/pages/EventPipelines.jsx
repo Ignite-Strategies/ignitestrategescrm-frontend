@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 const PIPELINES = [
   { id: "org_member", label: "Org Member" },
@@ -19,9 +20,13 @@ const STAGES = [
 export default function EventPipelines() {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const orgId = getOrgId();
   const [event, setEvent] = useState(null);
-  const [attendees, setAttendees] = useState([]);
+  const [pipelineRecords, setPipelineRecords] = useState([]);
+  const [supporters, setSupporters] = useState([]);
   const [selectedPipeline, setSelectedPipeline] = useState("org_member");
+  const [showAddSupporters, setShowAddSupporters] = useState(false);
+  const [selectedSupporters, setSelectedSupporters] = useState(new Set());
 
   useEffect(() => {
     loadData();

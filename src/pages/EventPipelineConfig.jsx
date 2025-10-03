@@ -1,23 +1,45 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { getOrgId } from "../lib/org";
+
+// MVP1: Focus on F3 Members only
+const SUGGESTED_PIPELINES = [
+  {
+    id: "org_member",
+    name: "F3 Members",
+    description: "Your core F3 brothers - highest conversion rate",
+    conversionRate: "25%",
+    color: "green",
+    suggested: true,
+    mvp1: true
+  }
+  // Future audience types (MVP2+):
+  // {
+  //   id: "friend_spouse", 
+  //   name: "Friends & Spouses",
+  //   description: "Friends, family, and spouses of F3 members",
+  //   conversionRate: "15%",
+  //   color: "blue",
+  //   suggested: true
+  // },
+  // {
+  //   id: "community_partner",
+  //   name: "Community Partners", 
+  //   description: "Local businesses and community connections",
+  //   conversionRate: "10%",
+  //   color: "purple",
+  //   suggested: true
+  // }
+];
 
 export default function EventPipelineConfig() {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const orgId = getOrgId();
   const [event, setEvent] = useState(null);
-  const [pipelines, setPipelines] = useState(["sop_entry", "rsvp", "paid", "attended", "champion"]);
-  const [rules, setRules] = useState({
-    autoSopOnIntake: true,
-    sopTriggers: ["landing_form", "csv"],
-    rsvpTriggers: ["form_rsvp"],
-    paidTriggers: ["stripe_webhook"],
-    championCriteria: {
-      minEngagement: 3,
-      tagsAny: ["role:ao_q", "shared_media"],
-      manualOverrideAllowed: true
-    }
-  });
+  const [selectedPipelines, setSelectedPipelines] = useState(new Set(["org_member"]));
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadEvent();
@@ -28,203 +50,140 @@ export default function EventPipelineConfig() {
       const response = await api.get(`/events/${eventId}`);
       setEvent(response.data);
       
-      if (response.data.pipelines) {
-        setPipelines(response.data.pipelines);
-      }
-      if (response.data.pipelineRules) {
-        setRules(response.data.pipelineRules);
+      // Load existing pipeline config if any
+      if (response.data.pipelines && response.data.pipelines.length > 0) {
+        setSelectedPipelines(new Set(response.data.pipelines));
       }
     } catch (error) {
       console.error("Error loading event:", error);
     }
   };
 
+  const togglePipeline = (pipelineId) => {
+    setSelectedPipelines(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(pipelineId)) {
+        newSet.delete(pipelineId);
+      } else {
+        newSet.add(pipelineId);
+      }
+      return newSet;
+    });
+  };
+
   const handleSave = async () => {
+    if (selectedPipelines.size === 0) {
+      alert("Please select at least one pipeline!");
+      return;
+    }
+
+    setLoading(true);
     try {
+      // Save pipeline configuration to event
       await api.patch(`/events/${eventId}`, {
-        pipelines,
-        pipelineRules: rules
+        pipelines: Array.from(selectedPipelines)
       });
       
-      alert("Pipeline configuration saved!");
+      // Create pipeline collections for each selected audience type
+      const pipelineArray = Array.from(selectedPipelines);
+      const result = await api.post(`/events/${eventId}/pipelines/create`, {
+        orgId,
+        audienceTypes: pipelineArray
+      });
+      
+      alert(`Pipeline configuration saved! Created ${pipelineArray.length} audience pipelines.`);
       navigate(`/event/${eventId}/pipelines`);
     } catch (error) {
       alert("Error saving config: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const toggleTrigger = (type, trigger) => {
-    setRules(prev => {
-      const triggers = prev[type] || [];
-      const newTriggers = triggers.includes(trigger)
-        ? triggers.filter(t => t !== trigger)
-        : [...triggers, trigger];
-      return { ...prev, [type]: newTriggers };
-    });
-  };
-
-  const toggleChampionTag = (tag) => {
-    setRules(prev => {
-      const tags = prev.championCriteria?.tagsAny || [];
-      const newTags = tags.includes(tag)
-        ? tags.filter(t => t !== tag)
-        : [...tags, tag];
-      return {
-        ...prev,
-        championCriteria: { ...prev.championCriteria, tagsAny: newTags }
-      };
-    });
+  const getColorClasses = (color) => {
+    const colors = {
+      green: "bg-green-50 border-green-200 text-green-800",
+      blue: "bg-blue-50 border-blue-200 text-blue-800", 
+      purple: "bg-purple-50 border-purple-200 text-purple-800",
+      orange: "bg-orange-50 border-orange-200 text-orange-800",
+      red: "bg-red-50 border-red-200 text-red-800"
+    };
+    return colors[color] || "bg-gray-50 border-gray-200 text-gray-800";
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Configure Pipeline</h1>
-          <p className="text-gray-600 mt-1">Set up automation rules for {event?.name}</p>
-        </div>
-
-        <div className="space-y-6">
-          {/* Stages */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Pipeline Stages</h2>
-            <div className="flex flex-wrap gap-2">
-              {pipelines.map((stage) => (
-                <span
-                  key={stage}
-                  className="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full font-medium"
-                >
-                  {stage}
-                </span>
-              ))}
-            </div>
-            <p className="text-sm text-gray-500 mt-3">
-              These are your default stages. Contacts will flow through these as they engage.
-            </p>
-          </div>
-
-          {/* Auto Rules */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Auto Rules</h2>
-            
-            <div className="space-y-6">
-              <div>
-                <label className="flex items-center gap-2 mb-3">
-                  <input
-                    type="checkbox"
-                    checked={rules.autoSopOnIntake}
-                    onChange={(e) => setRules({ ...rules, autoSopOnIntake: e.target.checked })}
-                    className="w-4 h-4 text-indigo-600 rounded"
-                  />
-                  <span className="font-medium text-gray-700">Auto-mark SOP Entry on intake</span>
-                </label>
-                
-                <p className="text-sm text-gray-600 mb-2">Mark new contacts as "SOP Entry" when source is:</p>
-                <div className="flex flex-wrap gap-2">
-                  {["landing_form", "csv", "qr", "admin_add"].map(trigger => (
-                    <label key={trigger} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={rules.sopTriggers?.includes(trigger)}
-                        onChange={() => toggleTrigger("sopTriggers", trigger)}
-                        className="w-4 h-4 text-indigo-600 rounded"
-                      />
-                      <span className="text-sm text-gray-700">{trigger}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Advance to RSVP when:</p>
-                <div className="flex flex-wrap gap-2">
-                  {["form_rsvp", "button_click"].map(trigger => (
-                    <label key={trigger} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={rules.rsvpTriggers?.includes(trigger)}
-                        onChange={() => toggleTrigger("rsvpTriggers", trigger)}
-                        className="w-4 h-4 text-indigo-600 rounded"
-                      />
-                      <span className="text-sm text-gray-700">{trigger}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t pt-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-900">
-                    ℹ️ Contacts automatically advance to "Paid" when Stripe webhook confirms payment
-                  </p>
-                </div>
-              </div>
+        <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Set Up Your F3 Member Pipeline</h1>
+            <p className="text-gray-600">Start with your core F3 brothers for {event?.name}</p>
+            <div className="mt-4 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg inline-block">
+              <p className="text-sm text-blue-800">
+                <strong>MVP1:</strong> Focus on F3 Members first. Additional audience types coming in MVP2!
+              </p>
             </div>
           </div>
 
-          {/* Champion Logic */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Champion Logic</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Minimum Engagement Score: {rules.championCriteria?.minEngagement || 3}
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="10"
-                  value={rules.championCriteria?.minEngagement || 3}
-                  onChange={(e) => setRules({
-                    ...rules,
-                    championCriteria: {
-                      ...rules.championCriteria,
-                      minEngagement: parseInt(e.target.value)
-                    }
-                  })}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>0</span>
-                  <span>5</span>
-                  <span>10</span>
+          <div className="space-y-4 mb-8">
+            {SUGGESTED_PIPELINES.map((pipeline) => (
+              <div
+                key={pipeline.id}
+                className={`border-2 rounded-lg p-6 cursor-pointer transition-all ${
+                  selectedPipelines.has(pipeline.id)
+                    ? `${getColorClasses(pipeline.color)} border-opacity-100`
+                    : "bg-white border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => togglePipeline(pipeline.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedPipelines.has(pipeline.id)}
+                      onChange={() => togglePipeline(pipeline.id)}
+                      className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                    />
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{pipeline.name}</h3>
+                        {pipeline.suggested && (
+                          <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-full">
+                            Suggested
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-gray-600 text-sm mt-1">{pipeline.description}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900">{pipeline.conversionRate}</div>
+                    <div className="text-xs text-gray-500">conversion rate</div>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
 
+          {/* Summary */}
+          <div className="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 className="font-semibold text-gray-900 mb-3">Pipeline Summary</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Tags that qualify as Champion:</p>
-                <div className="flex flex-wrap gap-2">
-                  {["role:ao_q", "role:influencer", "shared_media", "referred_5+"].map(tag => (
-                    <label key={tag} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={rules.championCriteria?.tagsAny?.includes(tag)}
-                        onChange={() => toggleChampionTag(tag)}
-                        className="w-4 h-4 text-indigo-600 rounded"
-                      />
-                      <span className="text-sm text-gray-700">{tag}</span>
-                    </label>
-                  ))}
+                <span className="text-gray-600">Selected Pipelines:</span>
+                <div className="font-semibold text-gray-900">{selectedPipelines.size}</div>
+              </div>
+              <div>
+                <span className="text-gray-600">Audience Types:</span>
+                <div className="font-semibold text-gray-900">
+                  {Array.from(selectedPipelines).map(id => 
+                    SUGGESTED_PIPELINES.find(p => p.id === id)?.name
+                  ).join(", ")}
                 </div>
               </div>
-
               <div>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={rules.championCriteria?.manualOverrideAllowed}
-                    onChange={(e) => setRules({
-                      ...rules,
-                      championCriteria: {
-                        ...rules.championCriteria,
-                        manualOverrideAllowed: e.target.checked
-                      }
-                    })}
-                    className="w-4 h-4 text-indigo-600 rounded"
-                  />
-                  <span className="text-sm text-gray-700">Allow manual mark as Champion</span>
-                </label>
+                <span className="text-gray-600">Stages per Pipeline:</span>
+                <div className="font-semibold text-gray-900">Member → Soft Commit → Paid</div>
               </div>
             </div>
           </div>
@@ -232,9 +191,10 @@ export default function EventPipelineConfig() {
           <div className="flex gap-4">
             <button
               onClick={handleSave}
-              className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
+              disabled={loading || selectedPipelines.size === 0}
+              className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Save & Continue
+              {loading ? "Creating Pipelines..." : `Create ${selectedPipelines.size} Pipelines →`}
             </button>
             <button
               onClick={() => navigate(`/event/${eventId}/pipelines`)}
