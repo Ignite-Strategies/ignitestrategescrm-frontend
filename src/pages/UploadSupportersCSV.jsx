@@ -127,7 +127,11 @@ Bob,Wilson,bob@example.com,555-9999,789 Elm St,Chapel Hill,NC,27514,Local Busine
         {/* Step 1: Upload */}
         {step === 1 && (
           <div className="bg-white rounded-lg shadow p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Upload Supporters CSV</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Supporters CSV</h2>
+            <p className="text-gray-600 mb-6">
+              These are your <span className="font-semibold text-indigo-600">organization-level supporters</span> (master CRM), 
+              not event-specific contacts. You'll push these to event pipelines later.
+            </p>
             
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <p className="text-sm text-blue-900 mb-2 font-semibold">Required Fields:</p>

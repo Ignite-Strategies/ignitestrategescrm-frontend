@@ -8,8 +8,10 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [org, setOrg] = useState(null);
   const [events, setEvents] = useState([]);
-
   const [supporterCount, setSupporterCount] = useState(0);
+  const [dismissedWarning, setDismissedWarning] = useState(
+    localStorage.getItem("dismissedSupporterWarning") === "true"
+  );
 
   useEffect(() => {
     loadData();
@@ -41,30 +43,56 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Setup Warning */}
-        {supporterCount === 0 && (
+        {supporterCount === 0 && !dismissedWarning && (
           <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <div className="flex justify-between items-start">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3 flex-1">
+                  <p className="text-sm text-yellow-700">
+                    <span className="font-semibold">Setup incomplete:</span> You haven't uploaded any supporters yet. 
+                    <button
+                      onClick={() => navigate("/supporters/upload")}
+                      className="font-semibold underline ml-1 hover:text-yellow-900"
+                    >
+                      Upload your master supporter list now
+                    </button>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setDismissedWarning(true);
+                  localStorage.setItem("dismissedSupporterWarning", "true");
+                }}
+                className="text-yellow-600 hover:text-yellow-800"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
-              </div>
-              <div className="ml-3 flex-1">
-                <p className="text-sm text-yellow-700">
-                  <span className="font-semibold">Setup incomplete:</span> You haven't uploaded any supporters yet. 
-                  <button
-                    onClick={() => navigate("/supporters")}
-                    className="font-semibold underline ml-1 hover:text-yellow-900"
-                  >
-                    Upload your master supporter list now
-                  </button>
-                </p>
-              </div>
+              </button>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <button
+            onClick={() => navigate("/supporters/upload")}
+            className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition border-2 border-transparent hover:border-blue-500 text-left"
+          >
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Upload Supporters</h3>
+            <p className="text-sm text-gray-600">Add your org's master supporter list</p>
+          </button>
+
           <button
             onClick={() => navigate("/event/create")}
             className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition border-2 border-transparent hover:border-indigo-500 text-left"
