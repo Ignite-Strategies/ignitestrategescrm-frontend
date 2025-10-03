@@ -82,6 +82,42 @@ export default function EventPipelines() {
     }
   };
 
+  const handlePushAllSupporters = async () => {
+    if (supporters.length === 0) {
+      alert("No supporters available to add!");
+      return;
+    }
+
+    if (!confirm(`Add all ${supporters.length} supporters to the pipeline?`)) {
+      return;
+    }
+
+    try {
+      const result = await api.post(`/events/${eventId}/pipeline/push-all`, {
+        orgId,
+        audienceType: selectedPipeline,
+        stage: "member",
+        source: "bulk_add"
+      });
+      
+      alert(`Successfully added ${result.data.success.length} supporters to pipeline!`);
+      setShowAddSupporters(false);
+      loadData();
+    } catch (error) {
+      alert("Error adding all supporters: " + error.message);
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedSupporters.size === supporters.length) {
+      // Deselect all
+      setSelectedSupporters(new Set());
+    } else {
+      // Select all
+      setSelectedSupporters(new Set(supporters.map(s => s._id)));
+    }
+  };
+
   const getPipelineRecordsForStage = (stage) => {
     return pipelineRecords.filter(record => 
       record.audienceType === selectedPipeline && 
@@ -114,10 +150,10 @@ export default function EventPipelines() {
                 + Add Supporters
               </button>
               <button
-                onClick={() => navigate(`/event/${eventId}/pipeline-config`)}
+                onClick={() => navigate("/dashboard")}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
               >
-                Configure
+                ← Dashboard
               </button>
             </div>
           </div>
@@ -145,10 +181,27 @@ export default function EventPipelines() {
       {showAddSupporters && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Add Supporters to Pipeline</h3>
-            <div className="space-y-2 mb-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Add Supporters to Pipeline</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSelectAll}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200"
+                >
+                  {selectedSupporters.size === supporters.length ? "Deselect All" : "Select All"}
+                </button>
+                <button
+                  onClick={handlePushAllSupporters}
+                  className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm hover:bg-green-200"
+                >
+                  Add All ({supporters.length})
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-2 mb-4 max-h-60 overflow-y-auto">
               {supporters.map((supporter) => (
-                <label key={supporter._id} className="flex items-center space-x-2">
+                <label key={supporter._id} className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded">
                   <input
                     type="checkbox"
                     checked={selectedSupporters.has(supporter._id)}
@@ -169,12 +222,14 @@ export default function EventPipelines() {
                 </label>
               ))}
             </div>
+            
             <div className="flex gap-2">
               <button
                 onClick={handlePushSupporters}
-                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                disabled={selectedSupporters.size === 0}
+                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add {selectedSupporters.size} Supporters
+                Add {selectedSupporters.size} Selected
               </button>
               <button
                 onClick={() => setShowAddSupporters(false)}
