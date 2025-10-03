@@ -21,7 +21,7 @@ export default function EditableField({
 
     setLoading(true);
     try {
-      const response = await api.patch(`/supporters/${supporterId}`, {
+      const response = await api.post(`/supporters/${supporterId}/update`, {
         field,
         value: editValue
       });
