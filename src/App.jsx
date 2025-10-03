@@ -18,6 +18,7 @@ import EventPipelineConfig from "./pages/EventPipelineConfig.jsx";
 import EventAudiences from "./pages/EventAudiences.jsx";
 import EventEngagementAdvisory from "./pages/EventEngagementAdvisory.jsx";
 import EventPipelineSuccess from "./pages/EventPipelineSuccess.jsx";
+import EventEdit from "./pages/EventEdit.jsx";
 import EngageEmail from "./pages/EngageEmail.jsx";
 import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
 
@@ -99,6 +100,9 @@ export default function App() {
         } />
         <Route path="/event/:eventId/pipeline-success" element={
           <ProtectedRoute><EventPipelineSuccess /></ProtectedRoute>
+        } />
+        <Route path="/event/:eventId/edit" element={
+          <ProtectedRoute><EventEdit /></ProtectedRoute>
         } />
         <Route path="/email" element={
           <ProtectedRoute><EngageEmail /></ProtectedRoute>
