@@ -8,8 +8,8 @@ export default function UploadSupportersCSV() {
   const orgId = getOrgId();
   const [step, setStep] = useState(1); // 1: Upload, 2: Preview/Validate, 3: Confirm
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState({ valid: [], errors: [] });
   const [uploading, setUploading] = useState(false);
+  const [uploadResults, setUploadResults] = useState(null);
 
   const downloadTemplate = () => {
     const template = `First Name,Goes By,Last Name,Email,Phone,Street,City,State,Zip,Employer,Years With Organization`;
@@ -29,49 +29,11 @@ export default function UploadSupportersCSV() {
 
     setFile(selectedFile);
     
-    // Parse and validate CSV client-side
-    const text = await selectedFile.text();
-    const lines = text.split('\n').filter(l => l.trim());
-    const headers = lines[0].split(',').map(h => h.trim());
-    
-    const valid = [];
-    const errors = [];
-    
-    lines.slice(1).forEach((line, index) => {
-      const lineNum = index + 2;
-      const values = line.split(',');
-      
-      const row = {};
-      headers.forEach((header, i) => {
-        row[header] = values[i]?.trim() || '';
-      });
-      
-      // Validate required fields
-      if (!row.firstName || !row.lastName || !row.email) {
-        errors.push({
-          line: lineNum,
-          data: row,
-          error: !row.firstName ? 'Missing firstName' : !row.lastName ? 'Missing lastName' : 'Missing email'
-        });
-      } else if (!row.email.includes('@')) {
-        errors.push({
-          line: lineNum,
-          data: row,
-          error: 'Invalid email format'
-        });
-      } else {
-        valid.push({
-          line: lineNum,
-          data: row
-        });
-      }
-    });
-    
-    setPreview({ valid, errors });
+    // Skip client-side parsing - let backend handle it
     setStep(2);
   };
 
-  const handleUpload = async (skipErrors = false) => {
+  const handleUpload = async () => {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -81,12 +43,14 @@ export default function UploadSupportersCSV() {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
+      setUploadResults(response.data);
       setStep(3);
       setTimeout(() => {
         navigate("/supporters");
-      }, 2000);
+      }, 3000);
     } catch (error) {
-      alert("Error uploading: " + error.message);
+      const errorMsg = error.response?.data?.error || error.message;
+      alert("Error uploading: " + errorMsg);
     } finally {
       setUploading(false);
     }
@@ -185,78 +149,32 @@ export default function UploadSupportersCSV() {
           </div>
         )}
 
-        {/* Step 2: Preview & Validate */}
+        {/* Step 2: Confirm Upload */}
         {step === 2 && (
           <div className="bg-white rounded-lg shadow p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Review & Validate</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Confirm Upload</h2>
             
-            {/* Summary */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="text-2xl font-bold text-green-700">{preview.valid.length}</div>
-                <div className="text-sm text-green-600">Valid Rows</div>
-              </div>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="text-2xl font-bold text-red-700">{preview.errors.length}</div>
-                <div className="text-sm text-red-600">Errors Found</div>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="text-2xl font-bold text-blue-700">{preview.valid.length + preview.errors.length}</div>
-                <div className="text-sm text-blue-600">Total Rows</div>
-              </div>
-            </div>
-
-            {/* Errors */}
-            {preview.errors.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">⚠️ Rows with Errors</h3>
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-h-60 overflow-y-auto">
-                  {preview.errors.map((err, idx) => (
-                    <div key={idx} className="text-sm text-red-800 mb-2">
-                      <span className="font-semibold">Line {err.line}:</span> {err.error}
-                      <span className="text-xs text-red-600 ml-2">({err.data.name || 'no name'} - {err.data.email || 'no email'})</span>
-                    </div>
-                  ))}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  These rows will be <span className="font-semibold">skipped</span>. Only valid rows will be imported.
-                </p>
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-900">Ready to Upload</h3>
+                  <p className="text-sm text-blue-700">File: {file?.name}</p>
+                </div>
               </div>
-            )}
-
-            {/* Valid Preview */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">✅ Valid Rows (Preview)</h3>
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Line</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Name</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Email</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Phone</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Category</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Pipeline</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {preview.valid.slice(0, 10).map((row, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 text-gray-600">{row.line}</td>
-                        <td className="px-4 py-2 text-gray-900">{row.data.firstName} {row.data.lastName}</td>
-                        <td className="px-4 py-2 text-gray-600">{row.data.email}</td>
-                        <td className="px-4 py-2 text-gray-600">{row.data.phone || '-'}</td>
-                        <td className="px-4 py-2 text-gray-600">{row.data.categoryOfEngagement || 'general'}</td>
-                        <td className="px-4 py-2 text-gray-600">{row.data.pipeline || 'prospect'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {preview.valid.length > 10 && (
-                  <div className="bg-gray-50 px-4 py-2 text-sm text-gray-600 text-center">
-                    ... and {preview.valid.length - 10} more rows
-                  </div>
-                )}
+              
+              <div className="text-sm text-blue-800">
+                <p className="mb-2">The backend will validate your CSV and:</p>
+                <ul className="list-disc list-inside space-y-1 ml-4">
+                  <li>Parse all rows and validate required fields</li>
+                  <li>Skip any rows with errors and show you what went wrong</li>
+                  <li>Import all valid supporters to your organization</li>
+                  <li>Set category to "general" for all imported supporters</li>
+                </ul>
               </div>
             </div>
 
@@ -270,10 +188,10 @@ export default function UploadSupportersCSV() {
               </button>
               <button
                 onClick={() => handleUpload()}
-                disabled={uploading || preview.valid.length === 0}
+                disabled={uploading}
                 className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
               >
-                {uploading ? "Uploading..." : `Import ${preview.valid.length} Supporters`}
+                {uploading ? "Uploading..." : "Upload CSV"}
               </button>
             </div>
           </div>
@@ -290,9 +208,15 @@ export default function UploadSupportersCSV() {
               </div>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Complete!</h2>
-            <p className="text-gray-600 mb-4">
-              Successfully imported {preview.valid.length} supporters
-            </p>
+            {uploadResults && (
+              <div className="text-gray-600 mb-4">
+                <p>Successfully imported {uploadResults.inserted || 0} supporters</p>
+                {uploadResults.updated > 0 && <p>Updated {uploadResults.updated} existing supporters</p>}
+                {uploadResults.errors && uploadResults.errors.length > 0 && (
+                  <p className="text-orange-600">{uploadResults.errors.length} rows had errors and were skipped</p>
+                )}
+              </div>
+            )}
             <p className="text-sm text-gray-500">Redirecting to supporters page...</p>
           </div>
         )}
