@@ -12,10 +12,10 @@ export default function UploadSupportersCSV() {
   const [uploading, setUploading] = useState(false);
 
   const downloadTemplate = () => {
-    const template = `name,email,phone,type,tags
-John Doe,john@example.com,555-1234,individual,"f3:ao,monthly_donor"
-Jane Smith,jane@example.com,555-5678,individual,"volunteer"
-Acme Corp,contact@acme.com,555-9999,corporate,"sponsor,local_business"`;
+    const template = `firstName,lastName,email,phone,street,city,state,zip,employer,yearsWithOrganization,eventsAttended,categoryOfEngagement,pipeline,tags
+John,Doe,john@example.com,555-1234,123 Main St,Raleigh,NC,27601,Acme Corp,5,12,member,active,"f3:ao,monthly_donor"
+Jane,Smith,jane@example.com,555-5678,456 Oak Ave,Durham,NC,27707,Self-Employed,2,3,volunteer,active,"volunteer,community:leader"
+Bob,Wilson,bob@example.com,555-9999,789 Elm St,Chapel Hill,NC,27514,Local Business,10,25,champion,champion,"role:sponsor,major_donor"`;
     
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -50,11 +50,11 @@ Acme Corp,contact@acme.com,555-9999,corporate,"sponsor,local_business"`;
       });
       
       // Validate required fields
-      if (!row.name || !row.email) {
+      if (!row.firstName || !row.lastName || !row.email) {
         errors.push({
           line: lineNum,
           data: row,
-          error: !row.name ? 'Missing name' : 'Missing email'
+          error: !row.firstName ? 'Missing firstName' : !row.lastName ? 'Missing lastName' : 'Missing email'
         });
       } else if (!row.email.includes('@')) {
         errors.push({
@@ -132,13 +132,18 @@ Acme Corp,contact@acme.com,555-9999,corporate,"sponsor,local_business"`;
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <p className="text-sm text-blue-900 mb-2 font-semibold">Required Fields:</p>
               <ul className="text-xs text-blue-800 space-y-1 ml-4">
-                <li>• <code className="bg-blue-100 px-1 rounded">name</code> - Full name</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">firstName</code>, <code className="bg-blue-100 px-1 rounded">lastName</code> - Name fields</li>
                 <li>• <code className="bg-blue-100 px-1 rounded">email</code> - Email address (must be unique)</li>
               </ul>
               <p className="text-sm text-blue-900 mt-3 mb-2 font-semibold">Optional Fields:</p>
               <ul className="text-xs text-blue-800 space-y-1 ml-4">
                 <li>• <code className="bg-blue-100 px-1 rounded">phone</code> - Phone number</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">type</code> - individual | family | corporate | foundation</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">street, city, state, zip</code> - Address fields</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">employer</code> - Company/employer name</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">yearsWithOrganization</code> - Number of years</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">eventsAttended</code> - Number of events</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">categoryOfEngagement</code> - member, donor, volunteer, sponsor, partner, general</li>
+                <li>• <code className="bg-blue-100 px-1 rounded">pipeline</code> - prospect, active, champion, inactive</li>
                 <li>• <code className="bg-blue-100 px-1 rounded">tags</code> - Tags in quotes: "f3:ao,monthly_donor"</li>
               </ul>
             </div>
@@ -220,17 +225,19 @@ Acme Corp,contact@acme.com,555-9999,corporate,"sponsor,local_business"`;
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Name</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Email</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Phone</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Type</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Category</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Pipeline</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {preview.valid.slice(0, 10).map((row, idx) => (
                       <tr key={idx} className="hover:bg-gray-50">
                         <td className="px-4 py-2 text-gray-600">{row.line}</td>
-                        <td className="px-4 py-2 text-gray-900">{row.data.name}</td>
+                        <td className="px-4 py-2 text-gray-900">{row.data.firstName} {row.data.lastName}</td>
                         <td className="px-4 py-2 text-gray-600">{row.data.email}</td>
                         <td className="px-4 py-2 text-gray-600">{row.data.phone || '-'}</td>
-                        <td className="px-4 py-2 text-gray-600">{row.data.type || 'individual'}</td>
+                        <td className="px-4 py-2 text-gray-600">{row.data.categoryOfEngagement || 'general'}</td>
+                        <td className="px-4 py-2 text-gray-600">{row.data.pipeline || 'prospect'}</td>
                       </tr>
                     ))}
                   </tbody>
