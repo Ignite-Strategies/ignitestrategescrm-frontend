@@ -90,13 +90,15 @@ export default function UploadPreview() {
 
       setUploadResults(response.data);
       
-      // Clean up localStorage
+      // Save results for validation page
+      localStorage.setItem('uploadResults', JSON.stringify(response.data));
+      
+      // Clean up other localStorage
       localStorage.removeItem('uploadFile');
       localStorage.removeItem('fieldMapping');
       
-      setTimeout(() => {
-        navigate("/supporters");
-      }, 3000);
+      // Navigate to validation page
+      navigate("/supporters/upload/validation");
     } catch (error) {
       const errorMsg = error.response?.data?.error || error.message;
       alert("Error uploading: " + errorMsg);
