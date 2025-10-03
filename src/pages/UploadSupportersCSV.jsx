@@ -127,59 +127,54 @@ Bob,Wilson,bob@example.com,555-9999,789 Elm St,Chapel Hill,NC,27514,Local Busine
         {/* Step 1: Upload */}
         {step === 1 && (
           <div className="bg-white rounded-lg shadow p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Supporters CSV</h2>
-            <p className="text-gray-600 mb-6">
-              These are your <span className="font-semibold text-indigo-600">organization-level supporters</span> (master CRM), 
-              not event-specific contacts. You'll push these to event pipelines later.
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Add Supporters</h2>
+            <p className="text-gray-600 mb-8">
+              Add your organization's master supporter list to the CRM.
             </p>
             
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-900 mb-2 font-semibold">Required Fields:</p>
-              <ul className="text-xs text-blue-800 space-y-1 ml-4">
-                <li>• <code className="bg-blue-100 px-1 rounded">firstName</code>, <code className="bg-blue-100 px-1 rounded">lastName</code> - Name fields</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">email</code> - Email address (must be unique)</li>
-              </ul>
-              <p className="text-sm text-blue-900 mt-3 mb-2 font-semibold">Optional Fields:</p>
-              <ul className="text-xs text-blue-800 space-y-1 ml-4">
-                <li>• <code className="bg-blue-100 px-1 rounded">phone</code> - Phone number</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">street, city, state, zip</code> - Address fields</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">employer</code> - Company/employer name</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">yearsWithOrganization</code> - Number of years</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">eventsAttended</code> - Number of events</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">categoryOfEngagement</code> - member, donor, volunteer, sponsor, partner, general</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">pipeline</code> - prospect, active, champion, inactive</li>
-                <li>• <code className="bg-blue-100 px-1 rounded">tags</code> - Tags in quotes: "f3:ao,monthly_donor"</li>
-              </ul>
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Manual Entry */}
+              <button
+                onClick={() => navigate("/supporters")}
+                className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-indigo-400 hover:shadow-lg transition text-left"
+              >
+                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Manually Enter</h3>
+                <p className="text-sm text-gray-600">Add supporters one by one through the interface</p>
+              </button>
 
-            <div className="mb-6">
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-lg p-6 mb-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold text-indigo-900 mb-1">Need a template?</h3>
-                    <p className="text-sm text-indigo-700">Download an example CSV with all the correct headers</p>
-                  </div>
+              {/* CSV Upload */}
+              <div className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-indigo-400 hover:shadow-lg transition">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload CSV</h3>
+                <p className="text-sm text-gray-600 mb-4">Bulk import from a CSV file</p>
+                
+                <div className="space-y-3">
                   <button
                     onClick={downloadTemplate}
-                    className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center gap-2"
+                    className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition text-sm"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Download Example
+                    Download Template
                   </button>
+                  
+                  <label className="block">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFileSelect}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg hover:border-indigo-400 transition cursor-pointer text-sm"
+                    />
+                  </label>
                 </div>
               </div>
-              
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Your CSV File
-              </label>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileSelect}
-                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-400 transition cursor-pointer"
-              />
             </div>
 
             <div className="flex gap-4">
