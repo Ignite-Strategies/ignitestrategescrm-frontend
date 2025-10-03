@@ -23,6 +23,20 @@ export default function OrgUsers() {
     }
   };
 
+  const handleDelete = async (supporterId, name) => {
+    if (!confirm(`Are you sure you want to delete ${name}? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await api.delete(`/supporters/${supporterId}`);
+      alert(`${name} has been removed from your supporters.`);
+      loadContacts();
+    } catch (error) {
+      alert("Error deleting supporter: " + error.message);
+    }
+  };
+
 
   const filteredContacts = contacts.filter(c =>
     `${c.firstName} ${c.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
@@ -77,6 +91,7 @@ export default function OrgUsers() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pipeline</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Events</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -111,6 +126,14 @@ export default function OrgUsers() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                       {contact.eventsAttended || 0}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <button
+                        onClick={() => handleDelete(contact._id, `${contact.firstName} ${contact.lastName}`)}
+                        className="text-red-600 hover:text-red-800 font-medium"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
