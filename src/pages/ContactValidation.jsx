@@ -85,6 +85,7 @@ export default function ContactValidation() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-blue-700 mb-2">{uploadResults.updated}</div>
               <div className="text-sm text-blue-600">Existing Contacts Updated</div>
+              <div className="text-xs text-blue-500 mt-1">Same email = updated info</div>
             </div>
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
               <div className="text-3xl font-bold text-red-700 mb-2">{errorCount}</div>
