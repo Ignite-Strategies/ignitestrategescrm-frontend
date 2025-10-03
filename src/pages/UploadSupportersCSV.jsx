@@ -12,10 +12,7 @@ export default function UploadSupportersCSV() {
   const [uploading, setUploading] = useState(false);
 
   const downloadTemplate = () => {
-    const template = `firstName,lastName,email,phone,street,city,state,zip,employer,yearsWithOrganization,eventsAttended,categoryOfEngagement,pipeline,tags
-John,Doe,john@example.com,555-1234,123 Main St,Raleigh,NC,27601,Acme Corp,5,12,member,active,"f3:ao,monthly_donor"
-Jane,Smith,jane@example.com,555-5678,456 Oak Ave,Durham,NC,27707,Self-Employed,2,3,volunteer,active,"volunteer,community:leader"
-Bob,Wilson,bob@example.com,555-9999,789 Elm St,Chapel Hill,NC,27514,Local Business,10,25,champion,champion,"role:sponsor,major_donor"`;
+    const template = `firstName,lastName,email,phone,street,city,state,zip,employer,yearsWithOrganization,categoryOfEngagement`;
     
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);

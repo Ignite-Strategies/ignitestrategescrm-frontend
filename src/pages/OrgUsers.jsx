@@ -89,8 +89,6 @@ export default function OrgUsers() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employer</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pipeline</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Events</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -113,19 +111,6 @@ export default function OrgUsers() {
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                         {contact.categoryOfEngagement || "general"}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        contact.pipeline === 'champion' ? 'bg-yellow-100 text-yellow-800' :
-                        contact.pipeline === 'active' ? 'bg-green-100 text-green-800' :
-                        contact.pipeline === 'prospect' ? 'bg-gray-100 text-gray-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {contact.pipeline || "prospect"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                      {contact.eventsAttended || 0}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button
