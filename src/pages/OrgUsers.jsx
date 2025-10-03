@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
+import EditableField from "../components/EditableField";
 
 export default function OrgUsers() {
   const orgId = getOrgId();
@@ -36,6 +37,21 @@ export default function OrgUsers() {
       alert("Error deleting supporter: " + error.message);
     }
   };
+
+  const handleFieldUpdate = (updatedSupporter) => {
+    setContacts(prev => prev.map(contact => 
+      contact._id === updatedSupporter._id ? updatedSupporter : contact
+    ));
+  };
+
+  const engagementOptions = [
+    { value: 'general', label: 'General' },
+    { value: 'member', label: 'Member' },
+    { value: 'donor', label: 'Donor' },
+    { value: 'volunteer', label: 'Volunteer' },
+    { value: 'sponsor', label: 'Sponsor' },
+    { value: 'partner', label: 'Partner' }
+  ];
 
 
   const filteredContacts = contacts.filter(c =>
@@ -96,21 +112,55 @@ export default function OrgUsers() {
                 {filteredContacts.map((contact) => (
                   <tr key={contact._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {contact.firstName} {contact.lastName}
+                      <div className="flex gap-2">
+                        <EditableField
+                          value={contact.firstName}
+                          field="firstName"
+                          supporterId={contact._id}
+                          onUpdate={handleFieldUpdate}
+                        />
+                        <EditableField
+                          value={contact.lastName}
+                          field="lastName"
+                          supporterId={contact._id}
+                          onUpdate={handleFieldUpdate}
+                        />
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {contact.email}
+                      <EditableField
+                        value={contact.email}
+                        field="email"
+                        supporterId={contact._id}
+                        type="email"
+                        onUpdate={handleFieldUpdate}
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {contact.phone || "-"}
+                      <EditableField
+                        value={contact.phone}
+                        field="phone"
+                        supporterId={contact._id}
+                        type="tel"
+                        onUpdate={handleFieldUpdate}
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {contact.employer || "-"}
+                      <EditableField
+                        value={contact.employer}
+                        field="employer"
+                        supporterId={contact._id}
+                        onUpdate={handleFieldUpdate}
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                        {contact.categoryOfEngagement || "general"}
-                      </span>
+                      <EditableField
+                        value={contact.categoryOfEngagement || "general"}
+                        field="categoryOfEngagement"
+                        supporterId={contact._id}
+                        options={engagementOptions}
+                        onUpdate={handleFieldUpdate}
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <button
