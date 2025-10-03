@@ -46,12 +46,10 @@ export default function Supporters() {
   };
 
   const engagementOptions = [
-    { value: 'general', label: 'General' },
-    { value: 'member', label: 'Member' },
-    { value: 'donor', label: 'Donor' },
-    { value: 'volunteer', label: 'Volunteer' },
-    { value: 'sponsor', label: 'Sponsor' },
-    { value: 'partner', label: 'Partner' }
+    { value: 'high', label: 'High' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'low', label: 'Low' },
+    { value: 'inactive', label: 'Inactive' }
   ];
 
   const handleSelectContact = (contactId) => {
@@ -228,7 +226,7 @@ export default function Supporters() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <EditableField
-                        value={contact.categoryOfEngagement || "general"}
+                        value={contact.categoryOfEngagement || "medium"}
                         field="categoryOfEngagement"
                         supporterId={contact._id}
                         options={engagementOptions}

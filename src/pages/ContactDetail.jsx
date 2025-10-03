@@ -245,16 +245,14 @@ export default function ContactDetail() {
           <div className="mt-6 pt-6 border-t border-gray-200">
             <label className="block text-sm font-medium text-gray-700 mb-1">Engagement Category</label>
             <EditableField
-              value={contact.categoryOfEngagement || "general"}
+              value={contact.categoryOfEngagement || "medium"}
               field="categoryOfEngagement"
               supporterId={contact._id}
               options={[
-                { value: 'general', label: 'General' },
-                { value: 'member', label: 'Member' },
-                { value: 'donor', label: 'Donor' },
-                { value: 'volunteer', label: 'Volunteer' },
-                { value: 'sponsor', label: 'Sponsor' },
-                { value: 'partner', label: 'Partner' }
+                { value: 'high', label: 'High' },
+                { value: 'medium', label: 'Medium' },
+                { value: 'low', label: 'Low' },
+                { value: 'inactive', label: 'Inactive' }
               ]}
               onUpdate={handleFieldUpdate}
             />
