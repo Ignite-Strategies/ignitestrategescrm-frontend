@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 export default function EventCreate() {
-  const { orgId } = useParams();
+  const orgId = getOrgId();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -35,7 +36,7 @@ export default function EventCreate() {
         }
       });
 
-      navigate(`/event/success/${response.data._id}`);
+      navigate(`/event/${response.data._id}/success`);
     } catch (error) {
       alert("Error creating event: " + error.message);
     }
@@ -45,8 +46,18 @@ export default function EventCreate() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Event</h1>
-          <p className="text-gray-600 mb-8">Set up your event with goals and targets</p>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Event</h1>
+              <p className="text-gray-600">Set up your event with goals and targets</p>
+            </div>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+            >
+              ← Back to Dashboard
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-6">
