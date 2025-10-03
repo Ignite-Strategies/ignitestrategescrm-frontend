@@ -23,7 +23,7 @@ export default function EventPipelines() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   const [event, setEvent] = useState(null);
-  const [pipelineRecords, setPipelineRecords] = useState([]);
+  const [registryData, setRegistryData] = useState([]); // New registry format
   const [supporters, setSupporters] = useState([]);
   const [selectedPipeline, setSelectedPipeline] = useState("org_member");
   const [showAddSupporters, setShowAddSupporters] = useState(false);
@@ -33,27 +33,42 @@ export default function EventPipelines() {
     loadData();
   }, [eventId]);
 
+  useEffect(() => {
+    if (eventId) {
+      loadData();
+    }
+  }, [selectedPipeline]);
+
   const loadData = async () => {
     try {
-      const [eventRes, pipelineRes, supportersRes] = await Promise.all([
+      const [eventRes, registryRes, supportersRes] = await Promise.all([
         api.get(`/events/${eventId}`),
-        api.get(`/events/${eventId}/pipeline`),
+        api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`),
         api.get(`/orgs/${orgId}/supporters`)
       ]);
       
       setEvent(eventRes.data);
-      setPipelineRecords(pipelineRes.data);
+      setRegistryData(registryRes.data); // New registry format
       setSupporters(supportersRes.data);
+      
+      console.log('📋 FRONTEND: Loaded registry data:', registryRes.data);
     } catch (error) {
       console.error("Error loading data:", error);
     }
   };
 
-  const handleStageUpdate = async (pipelineId, newStage) => {
+  const handleStageUpdate = async (supporterId, fromStage, toStage) => {
     try {
-      await api.patch(`/events/pipeline/${pipelineId}`, { stage: newStage });
+      console.log('🔄 FRONTEND: Moving supporter', supporterId, 'from', fromStage, 'to', toStage);
+      await api.patch(`/events/${eventId}/pipeline/move`, {
+        supporterId,
+        fromStage,
+        toStage,
+        audienceType: selectedPipeline
+      });
       loadData();
     } catch (error) {
+      console.error('❌ FRONTEND: Error moving supporter:', error);
       alert("Error moving contact: " + error.message);
     }
   };
@@ -118,17 +133,16 @@ export default function EventPipelines() {
     }
   };
 
-  const getPipelineRecordsForStage = (stage) => {
-    return pipelineRecords.filter(record => 
-      record.audienceType === selectedPipeline && 
-      record.stage === stage
-    );
+  const getSupportersForStage = (stage) => {
+    const stageData = registryData.find(stageData => stageData.stage === stage);
+    return stageData ? stageData.supporters : [];
   };
 
   const getPipelineCounts = () => {
     return PIPELINES.map(pipeline => ({
       ...pipeline,
-      count: pipelineRecords.filter(record => record.audienceType === pipeline.id).length
+      count: pipeline.id === selectedPipeline ? 
+        registryData.reduce((total, stage) => total + stage.count, 0) : 0
     }));
   };
 
@@ -242,95 +256,90 @@ export default function EventPipelines() {
         </div>
       )}
 
-      {/* HubSpot-style Stages */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-3 gap-6">
-          {STAGES.map((stage, index) => {
-            const stageRecords = getPipelineRecordsForStage(stage.id);
-            
-            return (
-              <div key={stage.id} className="flex flex-col">
-                {/* Stage Header */}
-                <div className="bg-white rounded-t-lg border border-gray-200 px-4 py-3">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{stage.label}</h3>
-                      <p className="text-xs text-gray-500">{stage.description}</p>
-                    </div>
-                    <span className="text-sm text-gray-500 font-medium">
-                      {stageRecords.length}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Stage Column */}
-                <div className="flex-1 bg-gray-50 rounded-b-lg border-x border-b border-gray-200 p-4 min-h-[600px]">
-                  <div className="space-y-3">
-                    {stageRecords.map((record) => (
-                      <div
-                        key={record._id}
-                        className="bg-white rounded-lg p-4 shadow-sm border border-gray-200"
-                      >
-                        <div className="font-medium text-gray-900 mb-1">
-                          {record.name}
-                        </div>
-                        <div className="text-xs text-gray-600 mb-2">
-                          {record.email}
-                        </div>
-                        
-                        {/* Status Badges */}
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {record.rsvp && (
-                            <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded">
-                              RSVP
+              {/* HubSpot-style Stages */}
+              <div className="max-w-7xl mx-auto px-6 py-8">
+                <div className="grid grid-cols-3 gap-6">
+                  {STAGES.map((stage, index) => {
+                    const stageSupporters = getSupportersForStage(stage.id);
+                    
+                    return (
+                      <div key={stage.id} className="flex flex-col">
+                        {/* Stage Header */}
+                        <div className="bg-white rounded-t-lg border border-gray-200 px-4 py-3">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{stage.label}</h3>
+                              <p className="text-xs text-gray-500">{stage.description}</p>
+                            </div>
+                            <span className="text-sm text-gray-500 font-medium">
+                              {stageSupporters.length}
                             </span>
-                          )}
-                          {record.paid && (
-                            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
-                              ${record.amount}
-                            </span>
-                          )}
-                          {record.source && (
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
-                              {record.source}
-                            </span>
-                          )}
+                          </div>
                         </div>
 
-                        {/* Stage Progression Buttons */}
-                        <div className="flex gap-1">
-                          {index > 0 && (
-                            <button
-                              onClick={() => handleStageUpdate(record._id, STAGES[index - 1].id)}
-                              className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
-                            >
-                              ← {STAGES[index - 1].label}
-                            </button>
-                          )}
-                          {index < STAGES.length - 1 && (
-                            <button
-                              onClick={() => handleStageUpdate(record._id, STAGES[index + 1].id)}
-                              className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded hover:bg-indigo-200"
-                            >
-                              {STAGES[index + 1].label} →
-                            </button>
+                        {/* Stage Column */}
+                        <div className="flex-1 bg-gray-50 rounded-b-lg border-x border-b border-gray-200 p-4 min-h-[600px]">
+                          <div className="space-y-3">
+                            {stageSupporters.map((supporter) => (
+                              <div
+                                key={supporter._id}
+                                className="bg-white rounded-lg p-4 shadow-sm border border-gray-200"
+                              >
+                                <div className="font-medium text-gray-900 mb-1">
+                                  {supporter.firstName} {supporter.lastName}
+                                </div>
+                                <div className="text-xs text-gray-600 mb-2">
+                                  {supporter.email}
+                                </div>
+                                
+                                {/* Status Badges */}
+                                <div className="flex flex-wrap gap-1 mb-3">
+                                  {supporter.categoryOfEngagement && (
+                                    <span className={`px-2 py-0.5 text-xs rounded ${
+                                      supporter.categoryOfEngagement === 'high' ? 'bg-green-100 text-green-700' :
+                                      supporter.categoryOfEngagement === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                      supporter.categoryOfEngagement === 'low' ? 'bg-red-100 text-red-700' :
+                                      'bg-gray-100 text-gray-700'
+                                    }`}>
+                                      {supporter.categoryOfEngagement}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Stage Progression Buttons */}
+                                <div className="flex gap-1">
+                                  {index > 0 && (
+                                    <button
+                                      onClick={() => handleStageUpdate(supporter._id, stage.id, STAGES[index - 1].id)}
+                                      className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
+                                    >
+                                      ← {STAGES[index - 1].label}
+                                    </button>
+                                  )}
+                                  {index < STAGES.length - 1 && (
+                                    <button
+                                      onClick={() => handleStageUpdate(supporter._id, stage.id, STAGES[index + 1].id)}
+                                      className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded hover:bg-indigo-200"
+                                    >
+                                      {STAGES[index + 1].label} →
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {stageSupporters.length === 0 && (
+                            <div className="text-center py-12 text-gray-400 text-sm">
+                              No contacts in this stage
+                            </div>
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-
-                  {stageRecords.length === 0 && (
-                    <div className="text-center py-12 text-gray-400 text-sm">
-                      No contacts in this stage
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }
