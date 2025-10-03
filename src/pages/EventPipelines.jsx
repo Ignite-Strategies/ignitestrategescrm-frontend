@@ -15,7 +15,8 @@ const PIPELINES = [
 const STAGES = [
   { id: "member", label: "Prospective Attendee", description: "New supporters added to event" },
   { id: "soft_commit", label: "Soft Commit", description: "Showed interest/RSVP" },
-  { id: "paid", label: "Paid", description: "Payment confirmed" }
+  { id: "paid", label: "Paid", description: "Payment confirmed" },
+  { id: "lost", label: "Can't Make It", description: "Deal lost - won't attend" }
 ];
 
 export default function EventPipelines() {
@@ -260,7 +261,7 @@ export default function EventPipelines() {
 
               {/* HubSpot-style Stages */}
               <div className="max-w-7xl mx-auto px-6 py-8">
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-4 gap-6">
                   {STAGES.map((stage, index) => {
                     const stageSupporters = getSupportersForStage(stage.id);
                     
@@ -287,9 +288,12 @@ export default function EventPipelines() {
                                 key={supporter._id}
                                 className="bg-white rounded-lg p-4 shadow-sm border border-gray-200"
                               >
-                                <div className="font-medium text-gray-900 mb-1">
+                                <button
+                                  onClick={() => navigate(`/contact/${supporter._id}`)}
+                                  className="font-medium text-indigo-600 hover:text-indigo-800 mb-1 text-left w-full"
+                                >
                                   {supporter.firstName} {supporter.lastName}
-                                </div>
+                                </button>
                                 <div className="text-xs text-gray-600 mb-2">
                                   {supporter.email}
                                 </div>
