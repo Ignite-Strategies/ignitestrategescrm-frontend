@@ -21,6 +21,8 @@ import EventPipelineSuccess from "./pages/EventPipelineSuccess.jsx";
 import EventEdit from "./pages/EventEdit.jsx";
 import EngageEmail from "./pages/EngageEmail.jsx";
 import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
+import ComposeMessage from "./pages/ComposeMessage.jsx";
+import ListManagement from "./pages/ListManagement.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -109,6 +111,12 @@ export default function App() {
         } />
         <Route path="/analytics" element={
           <ProtectedRoute><MarketingAnalytics /></ProtectedRoute>
+        } />
+        <Route path="/compose" element={
+          <ProtectedRoute><ComposeMessage /></ProtectedRoute>
+        } />
+        <Route path="/lists" element={
+          <ProtectedRoute><ListManagement /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
