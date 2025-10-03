@@ -132,7 +132,7 @@ export default function UploadSupportersCSV() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {/* Manual Entry */}
               <button
-                onClick={() => navigate("/supporters")}
+                onClick={() => navigate("/supporters/manual")}
                 className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-indigo-400 hover:shadow-lg transition text-left"
               >
                 <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
