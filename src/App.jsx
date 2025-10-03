@@ -16,6 +16,7 @@ import EventSuccess from "./pages/EventSuccess.jsx";
 import EventPipelines from "./pages/EventPipelines.jsx";
 import EventPipelineConfig from "./pages/EventPipelineConfig.jsx";
 import EventAudiences from "./pages/EventAudiences.jsx";
+import EventEngagementAdvisory from "./pages/EventEngagementAdvisory.jsx";
 import EngageEmail from "./pages/EngageEmail.jsx";
 import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
 
@@ -91,6 +92,9 @@ export default function App() {
         } />
         <Route path="/event/:eventId/audiences" element={
           <ProtectedRoute><EventAudiences /></ProtectedRoute>
+        } />
+        <Route path="/event/:eventId/engagement-advisory" element={
+          <ProtectedRoute><EventEngagementAdvisory /></ProtectedRoute>
         } />
         <Route path="/email" element={
           <ProtectedRoute><EngageEmail /></ProtectedRoute>

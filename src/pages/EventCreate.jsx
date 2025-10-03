@@ -9,16 +9,13 @@ export default function EventCreate() {
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
+    description: "",
     date: "",
+    time: "",
     location: "",
-    ticketPrice: 0,
-    revenueTarget: 0,
-    costs: 0
+    hasTickets: false,
+    ticketCost: 0
   });
-
-  const ticketsNeeded = formData.ticketPrice > 0 
-    ? Math.ceil(Math.max((formData.revenueTarget || 0) - (formData.costs || 0), 0) / formData.ticketPrice)
-    : 0;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,13 +24,12 @@ export default function EventCreate() {
       const response = await api.post(`/orgs/${orgId}/events`, {
         name: formData.name,
         slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
+        description: formData.description,
         date: formData.date,
+        time: formData.time,
         location: formData.location,
-        goals: {
-          revenueTarget: parseFloat(formData.revenueTarget) || 0,
-          ticketPrice: parseFloat(formData.ticketPrice) || 0,
-          costs: parseFloat(formData.costs) || 0
-        }
+        hasTickets: formData.hasTickets,
+        ticketCost: parseFloat(formData.ticketCost) || 0
       });
 
       navigate(`/event/${response.data._id}/success`);
@@ -60,101 +56,115 @@ export default function EventCreate() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Event Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Bros & Brews 2025"
-                />
-              </div>
+            {/* Basic Event Info */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-900">Event Details</h3>
+              
+              <div className="grid grid-cols-1 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Bros & Brews 2025"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Join us for an evening of networking, craft beer, and community building..."
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder="Downtown Brewery"
-                />
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Time
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      value={formData.time}
+                      onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                      placeholder="7:00 PM"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    placeholder="Downtown Brewery"
+                  />
+                </div>
               </div>
             </div>
 
+            {/* Ticket Options */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Calculator</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Ticket Options</h3>
               
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ticket Price ($)
-                  </label>
+              <div className="space-y-4">
+                <div className="flex items-center">
                   <input
-                    type="number"
-                    step="0.01"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                    value={formData.ticketPrice}
-                    onChange={(e) => setFormData({ ...formData, ticketPrice: e.target.value })}
+                    type="checkbox"
+                    id="hasTickets"
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    checked={formData.hasTickets}
+                    onChange={(e) => setFormData({ ...formData, hasTickets: e.target.checked })}
                   />
+                  <label htmlFor="hasTickets" className="ml-2 block text-sm font-medium text-gray-700">
+                    This event requires tickets
+                  </label>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Revenue Target ($)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                    value={formData.revenueTarget}
-                    onChange={(e) => setFormData({ ...formData, revenueTarget: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Costs ($)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                    value={formData.costs}
-                    onChange={(e) => setFormData({ ...formData, costs: e.target.value })}
-                  />
-                </div>
+                {formData.hasTickets && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ticket Cost ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      value={formData.ticketCost}
+                      onChange={(e) => setFormData({ ...formData, ticketCost: e.target.value })}
+                      placeholder="25.00"
+                    />
+                  </div>
+                )}
               </div>
-
-              {ticketsNeeded > 0 && (
-                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                  <p className="text-indigo-900 font-semibold text-lg">
-                    🎯 You need to sell <span className="text-2xl">{ticketsNeeded}</span> tickets
-                  </p>
-                  <p className="text-indigo-700 text-sm mt-1">
-                    Net target: ${(formData.revenueTarget - formData.costs).toLocaleString()} ÷ ${formData.ticketPrice} per ticket
-                  </p>
-                </div>
-              )}
             </div>
 
             <button

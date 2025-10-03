@@ -16,31 +16,53 @@ export default function EventSuccess() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Created!</h1>
-          <p className="text-gray-600 mb-8">
-            Your event is ready. Now let's set up audiences and pipelines so you can target the right people.
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Created Successfully! 🎉</h1>
+          <p className="text-gray-600 mb-6">
+            Great! Your event is now set up in the system.
           </p>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h3 className="font-semibold text-blue-900 mb-3">What happens next?</h3>
+            <div className="space-y-2 text-sm text-blue-800">
+              <div className="flex items-start">
+                <span className="font-semibold mr-2">1.</span>
+                <span>Set your fundraising goals and calculate ticket targets</span>
+              </div>
+              <div className="flex items-start">
+                <span className="font-semibold mr-2">2.</span>
+                <span>Define audience segments with conversion rates (Members: 25%, Friends: 15%, Ads: 5%)</span>
+              </div>
+              <div className="flex items-start">
+                <span className="font-semibold mr-2">3.</span>
+                <span>Calculate total outreach targets needed to hit your goals</span>
+              </div>
+              <div className="flex items-start">
+                <span className="font-semibold mr-2">4.</span>
+                <span>Start managing your event pipeline and tracking progress</span>
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate(`/event/${eventId}/audiences`)}
+              onClick={() => navigate(`/event/${eventId}/engagement-advisory`)}
               className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
-              Define Audiences
-            </button>
-
-            <button
-              onClick={() => navigate(`/event/${eventId}/pipeline-config`)}
-              className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition"
-            >
-              Configure Pipeline
+              Set Goals & Audience Targets →
             </button>
 
             <button
               onClick={() => navigate(`/event/${eventId}/pipelines`)}
               className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition"
             >
-              Go to Event CRM (Kanban)
+              Skip to Event Pipeline
+            </button>
+
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-200 transition"
+            >
+              Back to Dashboard
             </button>
           </div>
         </div>
