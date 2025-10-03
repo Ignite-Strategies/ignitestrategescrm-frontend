@@ -5,6 +5,7 @@ import OrgCreate from "./pages/OrgCreate.jsx";
 import OrgSuccess from "./pages/OrgSuccess.jsx";
 import OrgUsers from "./pages/OrgUsers.jsx";
 import UploadSupportersCSV from "./pages/UploadSupportersCSV.jsx";
+import UploadPreview from "./pages/UploadPreview.jsx";
 import SupporterManual from "./pages/SupporterManual.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
@@ -54,6 +55,9 @@ export default function App() {
         } />
         <Route path="/supporters/upload" element={
           <ProtectedRoute><UploadSupportersCSV /></ProtectedRoute>
+        } />
+        <Route path="/supporters/upload/preview" element={
+          <ProtectedRoute><UploadPreview /></ProtectedRoute>
         } />
         <Route path="/supporters/manual" element={
           <ProtectedRoute><SupporterManual /></ProtectedRoute>
