@@ -9,6 +9,7 @@ import UploadPreview from "./pages/UploadPreview.jsx";
 import ContactValidation from "./pages/ContactValidation.jsx";
 import ResolveErrors from "./pages/ResolveErrors.jsx";
 import SupporterManual from "./pages/SupporterManual.jsx";
+import ContactDetail from "./pages/ContactDetail.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
 import EventSuccess from "./pages/EventSuccess.jsx";
@@ -69,6 +70,9 @@ export default function App() {
         } />
         <Route path="/supporters/manual" element={
           <ProtectedRoute><SupporterManual /></ProtectedRoute>
+        } />
+        <Route path="/contact/:contactId" element={
+          <ProtectedRoute><ContactDetail /></ProtectedRoute>
         } />
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
