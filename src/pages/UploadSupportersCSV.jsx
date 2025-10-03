@@ -153,18 +153,32 @@ Bob,Wilson,bob@example.com,555-9999,789 Elm St,Chapel Hill,NC,27514,Local Busine
             </div>
 
             <div className="mb-6">
-              <button
-                onClick={downloadTemplate}
-                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium mb-4 block"
-              >
-                📥 Download Template CSV
-              </button>
+              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-lg p-6 mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-indigo-900 mb-1">Need a template?</h3>
+                    <p className="text-sm text-indigo-700">Download an example CSV with all the correct headers</p>
+                  </div>
+                  <button
+                    onClick={downloadTemplate}
+                    className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Download Example
+                  </button>
+                </div>
+              </div>
               
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload Your CSV File
+              </label>
               <input
                 type="file"
                 accept=".csv"
                 onChange={handleFileSelect}
-                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-400 transition"
+                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-400 transition cursor-pointer"
               />
             </div>
 
