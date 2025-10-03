@@ -20,6 +20,28 @@ export default function UploadPreview() {
     return savedMapping ? JSON.parse(savedMapping) : [];
   });
 
+  const availableFields = [
+    { value: 'unmapped', label: 'Ignore this column' },
+    { value: 'firstName', label: 'First Name' },
+    { value: 'goesBy', label: 'Goes By (Nickname)' },
+    { value: 'lastName', label: 'Last Name' },
+    { value: 'email', label: 'Email Address' },
+    { value: 'phone', label: 'Phone Number' },
+    { value: 'street', label: 'Street Address' },
+    { value: 'city', label: 'City' },
+    { value: 'state', label: 'State' },
+    { value: 'zip', label: 'ZIP Code' },
+    { value: 'employer', label: 'Employer/Company' },
+    { value: 'yearsWithOrganization', label: 'Years With Organization' }
+  ];
+
+  const handleFieldMappingChange = (index, newField) => {
+    const updatedMapping = [...fieldMapping];
+    updatedMapping[index].mappedField = newField;
+    setFieldMapping(updatedMapping);
+    localStorage.setItem('fieldMapping', JSON.stringify(updatedMapping));
+  };
+
   const mapHeaderToField = (header) => {
     const normalized = header.toLowerCase().trim();
     const fieldMap = {
@@ -124,8 +146,8 @@ export default function UploadPreview() {
               <h3 className="text-sm font-semibold text-blue-900">CSV Field Detection</h3>
             </div>
             <p className="text-sm text-blue-800">
-              We detected these columns in your CSV. Required fields are marked with *. 
-              Unmapped fields will be ignored.
+              We detected these columns in your CSV. Use the dropdowns to map your columns to our fields. 
+              Green checkmarks show successful mappings.
             </p>
           </div>
 
@@ -134,9 +156,9 @@ export default function UploadPreview() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">CSV Column</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Maps To</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Your CSV Column</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Maps To Our Field</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mapping Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -146,23 +168,29 @@ export default function UploadPreview() {
                       {field.csvHeader}
                     </td>
                     <td className="px-4 py-3 text-gray-600">
-                      {field.mappedField === 'unmapped' ? (
-                        <span className="text-gray-400 italic">Not mapped</span>
-                      ) : (
-                        <span className="font-medium">{field.mappedField}</span>
-                      )}
+                      <select
+                        value={field.mappedField}
+                        onChange={(e) => handleFieldMappingChange(idx, e.target.value)}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        {availableFields.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-4 py-3">
                       {field.mappedField === 'unmapped' ? (
                         <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                          Ignored
+                          Not Recognized
                         </span>
                       ) : (
                         <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full flex items-center gap-1">
                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
-                          Mapped
+                          ✓ Mapped
                         </span>
                       )}
                     </td>
