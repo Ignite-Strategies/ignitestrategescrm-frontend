@@ -4,11 +4,8 @@ import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
 const PIPELINES = [
-  { id: "org_member", label: "Org Member" },
-  { id: "friend_spouse", label: "Friend/Spouse" },
-  { id: "community_partner", label: "Community Partner" },
-  { id: "business_sponsor", label: "Business Sponsor" },
-  { id: "champion", label: "Champion" }
+  { id: "org_member", label: "F3 Members", description: "Your core F3 brothers" },
+  { id: "family_prospect", label: "Friends & Family", description: "Friends, co-workers, neighbors" }
 ];
 
 // MVP1: Hardcoded stages (not editable like HubSpot)
@@ -157,14 +154,16 @@ export default function EventPipelines() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{event?.name || "Event Pipeline"}</h1>
-              <p className="text-gray-600 text-sm mt-1">Manage your F3 Member pipeline</p>
+              <p className="text-gray-600 text-sm mt-1">
+                {selectedPipeline === "org_member" ? "Manage your F3 Member pipeline" : "Manage your Friends & Family pipeline"}
+              </p>
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowAddSupporters(!showAddSupporters)}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
               >
-                + Add Supporters
+                {selectedPipeline === "org_member" ? "+ Add F3 Members" : "+ Add Friends & Family"}
               </button>
               <button
                 onClick={() => navigate("/dashboard")}
@@ -176,18 +175,20 @@ export default function EventPipelines() {
           </div>
 
           {/* Pipeline Selector */}
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             {getPipelineCounts().map((pipeline) => (
               <button
                 key={pipeline.id}
                 onClick={() => setSelectedPipeline(pipeline.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                className={`px-6 py-3 rounded-lg text-sm font-medium transition text-left ${
                   selectedPipeline === pipeline.id
                     ? "bg-indigo-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {pipeline.label} ({pipeline.count})
+                <div className="font-semibold">{pipeline.label}</div>
+                <div className="text-xs opacity-75">{pipeline.description}</div>
+                <div className="text-xs mt-1">({pipeline.count} contacts)</div>
               </button>
             ))}
           </div>
@@ -199,7 +200,9 @@ export default function EventPipelines() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Add Supporters to Pipeline</h3>
+              <h3 className="text-lg font-semibold">
+                {selectedPipeline === "org_member" ? "Add F3 Members to Pipeline" : "Add Friends & Family to Pipeline"}
+              </h3>
               <div className="flex gap-2">
                 <button
                   onClick={handleSelectAll}
