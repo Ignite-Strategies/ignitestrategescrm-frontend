@@ -241,6 +241,111 @@ export default function ContactDetail() {
             </div>
           </div>
 
+          {/* Personal Information */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Birthday</label>
+                <EditableField
+                  value={contact.birthday}
+                  field="birthday"
+                  supporterId={contact._id}
+                  onUpdate={handleFieldUpdate}
+                />
+                <p className="text-xs text-gray-500 mt-1">Format: MM/DD (e.g., 03/15)</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Married</label>
+                <EditableField
+                  value={contact.married}
+                  field="married"
+                  supporterId={contact._id}
+                  options={[
+                    { value: true, label: 'Yes' },
+                    { value: false, label: 'No' }
+                  ]}
+                  onUpdate={handleFieldUpdate}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Spouse Name</label>
+                <EditableField
+                  value={contact.spouseName}
+                  field="spouseName"
+                  supporterId={contact._id}
+                  onUpdate={handleFieldUpdate}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Number of Kids</label>
+                <EditableField
+                  value={contact.numberOfKids}
+                  field="numberOfKids"
+                  supporterId={contact._id}
+                  type="number"
+                  onUpdate={handleFieldUpdate}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Story & Notes */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Story & Notes</h3>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Origin Story</label>
+                <EditableField
+                  value={contact.originStory}
+                  field="originStory"
+                  supporterId={contact._id}
+                  onUpdate={handleFieldUpdate}
+                />
+                <p className="text-xs text-gray-500 mt-1">How they came to F3/this area</p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">General Notes</label>
+                <EditableField
+                  value={contact.notes}
+                  field="notes"
+                  supporterId={contact._id}
+                  onUpdate={handleFieldUpdate}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Future Fields (Placeholder) */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Event History</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pipelines</label>
+                <div className="text-sm text-gray-500 italic">
+                  {contact.pipelines && contact.pipelines.length > 0 
+                    ? contact.pipelines.join(', ') 
+                    : 'No active pipelines (coming soon)'
+                  }
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Events Attended</label>
+                <div className="text-sm text-gray-500 italic">
+                  {contact.events && contact.events.length > 0 
+                    ? contact.events.join(', ') 
+                    : 'No events attended yet (coming soon)'
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Engagement Category */}
           <div className="mt-6 pt-6 border-t border-gray-200">
             <label className="block text-sm font-medium text-gray-700 mb-1">Engagement Category</label>

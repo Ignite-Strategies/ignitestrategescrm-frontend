@@ -93,6 +93,7 @@ export default function EditableField({
       const option = options.find(opt => opt.value === value);
       return option ? option.label : value || '-';
     }
+    if (type === 'number' && value === 0) return '0';
     return value || '-';
   };
 
