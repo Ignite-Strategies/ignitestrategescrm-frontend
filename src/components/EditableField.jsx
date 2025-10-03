@@ -87,13 +87,22 @@ export default function EditableField({
     );
   }
 
+  // Get display value (label for dropdowns, value for text)
+  const getDisplayValue = () => {
+    if (options) {
+      const option = options.find(opt => opt.value === value);
+      return option ? option.label : value || '-';
+    }
+    return value || '-';
+  };
+
   return (
     <span
       onClick={() => setIsEditing(true)}
       className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded transition-colors"
       title="Click to edit"
     >
-      {value || '-'}
+      {getDisplayValue()}
     </span>
   );
 }

@@ -6,9 +6,14 @@ These categories help classify supporters based on their relationship and engage
 ## Current Categories
 
 ### **General** (Default)
-- **Purpose**: Default category for new supporters
-- **When to use**: New contacts, unknown engagement level
-- **Examples**: People who signed up for newsletter, general inquiries
+- **Purpose**: Default category for new supporters who haven't been classified yet
+- **When to use**: New contacts, unknown engagement level, haven't attended events yet
+- **Examples**: 
+  - People who signed up for newsletter but haven't attended events
+  - General inquiries about F3 Capital
+  - New contacts from CSV uploads
+  - People who expressed interest but haven't engaged further
+- **Next Steps**: Move to "Member" when they attend their first F3 workout
 
 ### **Member**
 - **Purpose**: Active organization members
