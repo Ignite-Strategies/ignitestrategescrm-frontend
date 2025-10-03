@@ -13,7 +13,7 @@ const PIPELINES = [
 
 // MVP1: Hardcoded stages (not editable like HubSpot)
 const STAGES = [
-  { id: "member", label: "Member", description: "Added to pipeline" },
+  { id: "member", label: "Pipeline Entry", description: "New supporters added to event" },
   { id: "soft_commit", label: "Soft Commit", description: "Showed interest/RSVP" },
   { id: "paid", label: "Paid", description: "Payment confirmed" }
 ];
@@ -88,7 +88,8 @@ export default function EventPipelines() {
         source: "admin_add"
       });
       
-      alert(`Successfully added ${result.data.success.length} supporters to pipeline!`);
+      // Show success message inline instead of popup
+      console.log(`✅ Successfully added ${result.data.success.length} supporters to pipeline!`);
       setSelectedSupporters(new Set());
       setShowAddSupporters(false);
       loadData();
@@ -115,7 +116,8 @@ export default function EventPipelines() {
         source: "bulk_add"
       });
       
-      alert(`Successfully added ${result.data.success.length} supporters to pipeline!`);
+      // Show success message inline instead of popup
+      console.log(`✅ Successfully added ${result.data.success.length} supporters to pipeline!`);
       setShowAddSupporters(false);
       loadData();
     } catch (error) {
