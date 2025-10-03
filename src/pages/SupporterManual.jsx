@@ -9,6 +9,7 @@ export default function SupporterManual() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
+    goesBy: "",
     lastName: "",
     email: "",
     phone: "",
@@ -66,7 +67,7 @@ export default function SupporterManual() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h3 className="text-sm font-semibold text-blue-900 mb-3">Required Information</h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     First Name *
@@ -77,6 +78,20 @@ export default function SupporterManual() {
                     value={formData.firstName}
                     onChange={handleChange}
                     required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Goes By
+                  </label>
+                  <input
+                    type="text"
+                    name="goesBy"
+                    value={formData.goesBy}
+                    onChange={handleChange}
+                    placeholder="Nickname"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>
@@ -95,7 +110,7 @@ export default function SupporterManual() {
                   />
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="md:col-span-3">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Email Address *
                   </label>
