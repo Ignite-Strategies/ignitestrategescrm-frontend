@@ -92,7 +92,7 @@ export default function EventPipelineConfig() {
       });
       
       alert(`Pipeline configuration saved! Created ${pipelineArray.length} audience pipelines.`);
-      navigate(`/event/${eventId}/pipelines`);
+      navigate(`/event/${eventId}/pipeline-success`);
     } catch (error) {
       alert("Error saving config: " + error.message);
     } finally {

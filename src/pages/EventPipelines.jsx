@@ -11,10 +11,11 @@ const PIPELINES = [
   { id: "champion", label: "Champion" }
 ];
 
+// MVP1: Hardcoded stages (not editable like HubSpot)
 const STAGES = [
-  { id: "member", label: "Member" },
-  { id: "soft_commit", label: "Soft Commit" },
-  { id: "paid", label: "Paid" }
+  { id: "member", label: "Member", description: "Added to pipeline" },
+  { id: "soft_commit", label: "Soft Commit", description: "Showed interest/RSVP" },
+  { id: "paid", label: "Paid", description: "Payment confirmed" }
 ];
 
 export default function EventPipelines() {
@@ -34,45 +35,64 @@ export default function EventPipelines() {
 
   const loadData = async () => {
     try {
-      const [eventRes, attendeesRes] = await Promise.all([
+      const [eventRes, pipelineRes, supportersRes] = await Promise.all([
         api.get(`/events/${eventId}`),
-        api.get(`/events/${eventId}/attendees`)
+        api.get(`/events/${eventId}/pipeline`),
+        api.get(`/orgs/${orgId}/supporters`)
       ]);
       
       setEvent(eventRes.data);
-      setAttendees(attendeesRes.data);
+      setPipelineRecords(pipelineRes.data);
+      setSupporters(supportersRes.data);
     } catch (error) {
       console.error("Error loading data:", error);
     }
   };
 
-  const handleDragStart = (e, attendeeId) => {
-    e.dataTransfer.setData("attendeeId", attendeeId);
-  };
-
-  const handleDrop = async (e, newStage) => {
-    e.preventDefault();
-    const attendeeId = e.dataTransfer.getData("attendeeId");
-    
+  const handleStageUpdate = async (pipelineId, newStage) => {
     try {
-      await api.patch(`/attendees/${attendeeId}`, { stage: newStage });
+      await api.patch(`/events/pipeline/${pipelineId}`, { stage: newStage });
       loadData();
     } catch (error) {
-      alert("Error moving attendee: " + error.message);
+      alert("Error moving contact: " + error.message);
     }
   };
 
-  const getAttendeesForStage = (stage) => {
-    return attendees.filter(a => 
-      a.audienceType === selectedPipeline && 
-      a.stage === stage
+  const handlePushSupporters = async () => {
+    if (selectedSupporters.size === 0) {
+      alert("Please select supporters to add to the pipeline!");
+      return;
+    }
+
+    try {
+      const result = await api.post(`/events/${eventId}/pipeline/push`, {
+        orgId,
+        supporterIds: Array.from(selectedSupporters),
+        audienceType: selectedPipeline,
+        stage: "member",
+        source: "admin_add"
+      });
+      
+      alert(`Successfully added ${result.data.success.length} supporters to pipeline!`);
+      setSelectedSupporters(new Set());
+      setShowAddSupporters(false);
+      loadData();
+    } catch (error) {
+      alert("Error adding supporters: " + error.message);
+    }
+  };
+
+  const getPipelineRecordsForStage = (stage) => {
+    return pipelineRecords.filter(record => 
+      record.audienceType === selectedPipeline && 
+      record.stage === stage
     );
   };
 
   const getPipelineCounts = () => {
     return PIPELINES.map(pipeline => ({
       ...pipeline,
-      count: attendees.filter(a => a.audienceType === pipeline.id).length
+      count: pipelineRecords.filter(record => record.audienceType === pipeline.id).length
     }));
   };
 
@@ -84,14 +104,22 @@ export default function EventPipelines() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{event?.name || "Event Pipeline"}</h1>
-              <p className="text-gray-600 text-sm mt-1">Drag attendees between stages</p>
+              <p className="text-gray-600 text-sm mt-1">Manage your F3 Member pipeline</p>
             </div>
-            <button
-              onClick={() => navigate(`/event/${eventId}/pipeline-config`)}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
-            >
-              Configure
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowAddSupporters(!showAddSupporters)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
+              >
+                + Add Supporters
+              </button>
+              <button
+                onClick={() => navigate(`/event/${eventId}/pipeline-config`)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
+              >
+                Configure
+              </button>
+            </div>
           </div>
 
           {/* Pipeline Selector */}
@@ -113,70 +141,133 @@ export default function EventPipelines() {
         </div>
       </div>
 
+      {/* Add Supporters Modal */}
+      {showAddSupporters && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold mb-4">Add Supporters to Pipeline</h3>
+            <div className="space-y-2 mb-4">
+              {supporters.map((supporter) => (
+                <label key={supporter._id} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedSupporters.has(supporter._id)}
+                    onChange={() => {
+                      const newSet = new Set(selectedSupporters);
+                      if (newSet.has(supporter._id)) {
+                        newSet.delete(supporter._id);
+                      } else {
+                        newSet.add(supporter._id);
+                      }
+                      setSelectedSupporters(newSet);
+                    }}
+                    className="rounded"
+                  />
+                  <span className="text-sm">
+                    {supporter.firstName} {supporter.lastName} ({supporter.email})
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handlePushSupporters}
+                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                Add {selectedSupporters.size} Supporters
+              </button>
+              <button
+                onClick={() => setShowAddSupporters(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* HubSpot-style Stages */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-3 gap-6">
-          {STAGES.map((stage) => {
-            const stageAttendees = getAttendeesForStage(stage.id);
+          {STAGES.map((stage, index) => {
+            const stageRecords = getPipelineRecordsForStage(stage.id);
             
             return (
               <div key={stage.id} className="flex flex-col">
                 {/* Stage Header */}
                 <div className="bg-white rounded-t-lg border border-gray-200 px-4 py-3">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-900">{stage.label}</h3>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{stage.label}</h3>
+                      <p className="text-xs text-gray-500">{stage.description}</p>
+                    </div>
                     <span className="text-sm text-gray-500 font-medium">
-                      {stageAttendees.length}
+                      {stageRecords.length}
                     </span>
                   </div>
                 </div>
 
                 {/* Stage Column */}
-                <div
-                  className="flex-1 bg-gray-50 rounded-b-lg border-x border-b border-gray-200 p-4 min-h-[600px]"
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => handleDrop(e, stage.id)}
-                >
+                <div className="flex-1 bg-gray-50 rounded-b-lg border-x border-b border-gray-200 p-4 min-h-[600px]">
                   <div className="space-y-3">
-                    {stageAttendees.map((attendee) => (
+                    {stageRecords.map((record) => (
                       <div
-                        key={attendee._id}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, attendee._id)}
-                        className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition cursor-move border border-gray-200 hover:border-indigo-300"
+                        key={record._id}
+                        className="bg-white rounded-lg p-4 shadow-sm border border-gray-200"
                       >
                         <div className="font-medium text-gray-900 mb-1">
-                          {attendee.name}
+                          {record.name}
                         </div>
                         <div className="text-xs text-gray-600 mb-2">
-                          {attendee.email}
+                          {record.email}
                         </div>
                         
                         {/* Status Badges */}
-                        <div className="flex flex-wrap gap-1">
-                          {attendee.rsvp && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {record.rsvp && (
                             <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded">
                               RSVP
                             </span>
                           )}
-                          {attendee.paid && (
+                          {record.paid && (
                             <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
-                              ${attendee.amount}
+                              ${record.amount}
                             </span>
                           )}
-                          {attendee.source && (
+                          {record.source && (
                             <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
-                              {attendee.source}
+                              {record.source}
                             </span>
+                          )}
+                        </div>
+
+                        {/* Stage Progression Buttons */}
+                        <div className="flex gap-1">
+                          {index > 0 && (
+                            <button
+                              onClick={() => handleStageUpdate(record._id, STAGES[index - 1].id)}
+                              className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
+                            >
+                              ← {STAGES[index - 1].label}
+                            </button>
+                          )}
+                          {index < STAGES.length - 1 && (
+                            <button
+                              onClick={() => handleStageUpdate(record._id, STAGES[index + 1].id)}
+                              className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded hover:bg-indigo-200"
+                            >
+                              {STAGES[index + 1].label} →
+                            </button>
                           )}
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  {stageAttendees.length === 0 && (
+                  {stageRecords.length === 0 && (
                     <div className="text-center py-12 text-gray-400 text-sm">
-                      Drag attendees here
+                      No contacts in this stage
                     </div>
                   )}
                 </div>
