@@ -56,8 +56,9 @@ export default function UploadPreview() {
     setUploading(true);
     const formData = new FormData();
     
-    // Create a new File object from the saved file data
-    const fileObj = new File([file.content], file.name, { type: file.type });
+    // Create a proper File object from the saved file data
+    const blob = new Blob([file.content], { type: 'text/csv' });
+    const fileObj = new File([blob], file.name, { type: 'text/csv' });
     formData.append("file", fileObj);
 
     try {
@@ -156,12 +157,11 @@ export default function UploadPreview() {
                         <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
                           Ignored
                         </span>
-                      ) : ['firstName', 'lastName', 'email'].includes(field.mappedField) ? (
-                        <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
-                          Required *
-                        </span>
                       ) : (
-                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
                           Mapped
                         </span>
                       )}
@@ -207,7 +207,7 @@ export default function UploadPreview() {
               disabled={uploading}
               className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
             >
-              {uploading ? "Uploading..." : "Upload CSV"}
+              {uploading ? "Importing..." : "Import My Contacts"}
             </button>
           </div>
         </div>
