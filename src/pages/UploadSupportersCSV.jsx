@@ -12,7 +12,7 @@ export default function UploadSupportersCSV() {
   const [uploading, setUploading] = useState(false);
 
   const downloadTemplate = () => {
-    const template = `firstName,lastName,email,phone,street,city,state,zip,employer,yearsWithOrganization,categoryOfEngagement`;
+    const template = `First Name,Last Name,Email,Phone,Street,City,State,Zip,Employer,Years With Organization,Category of Engagement`;
     
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
