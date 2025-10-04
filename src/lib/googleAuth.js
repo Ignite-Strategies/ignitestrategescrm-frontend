@@ -1,5 +1,5 @@
 // Clean Google OAuth implementation
-const GOOGLE_CLIENT_ID = import.meta.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = import.meta.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "156240197681-29v1fodqm59f3igas7j9np989q3shbc6.apps.googleusercontent.com";
 
 console.log("Google Client ID from env:", GOOGLE_CLIENT_ID);
 console.log("All env vars:", import.meta.env);
