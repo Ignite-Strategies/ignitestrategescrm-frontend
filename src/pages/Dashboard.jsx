@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
+import { signOutUser } from "../lib/firebase";
 
 export default function Dashboard() {
   const orgId = getOrgId();
@@ -36,8 +37,22 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">{org?.name || "Dashboard"}</h1>
-          <p className="text-gray-600 mt-1">{org?.mission}</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{org?.name || "Dashboard"}</h1>
+              <p className="text-gray-600 mt-1">{org?.mission}</p>
+            </div>
+            <button
+              onClick={async () => {
+                await signOutUser();
+                localStorage.clear();
+                navigate("/");
+              }}
+              className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </div>
 
