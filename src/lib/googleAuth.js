@@ -10,7 +10,7 @@ if (!GOOGLE_CLIENT_ID) {
 // Load Google API
 const loadGoogleAPI = () => {
   return new Promise((resolve, reject) => {
-    if (window.gapi) {
+    if (window.gapi && window.gapi.auth2) {
       console.log("Google API already loaded");
       resolve(window.gapi);
       return;
@@ -49,6 +49,10 @@ export const signInWithGoogle = async () => {
     
     const authInstance = window.gapi.auth2.getAuthInstance();
     
+    if (!authInstance) {
+      throw new Error('Google Auth2 instance not available. Please refresh the page and try again.');
+    }
+    
     // Force account selection and prompt for consent
     const authResult = await authInstance.signIn({
       scope: 'https://www.googleapis.com/auth/gmail.send',
@@ -86,7 +90,9 @@ export const signOutUser = async () => {
   try {
     if (window.gapi && window.gapi.auth2) {
       const authInstance = window.gapi.auth2.getAuthInstance();
-      await authInstance.signOut();
+      if (authInstance) {
+        await authInstance.signOut();
+      }
     }
     
     // Clear stored tokens
@@ -106,7 +112,9 @@ export const clearAllGoogleAuth = async () => {
     // Sign out from Google
     if (window.gapi && window.gapi.auth2) {
       const authInstance = window.gapi.auth2.getAuthInstance();
-      await authInstance.signOut();
+      if (authInstance) {
+        await authInstance.signOut();
+      }
     }
     
     // Clear all stored data
