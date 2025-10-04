@@ -1,12 +1,12 @@
-// Google Identity Services (GIS) implementation for Vite
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "156240197681-29v1fodqm59f3igas7j9np989q3shbc6.apps.googleusercontent.com";
+// Google Identity Services (GIS) implementation for Vercel
+const GOOGLE_CLIENT_ID = import.meta.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 console.log("Google Client ID from env:", GOOGLE_CLIENT_ID);
 console.log("All import.meta.env keys:", Object.keys(import.meta.env));
 console.log("MODE:", import.meta.env.MODE);
 
 if (!GOOGLE_CLIENT_ID) {
-  console.error("VITE_GOOGLE_CLIENT_ID environment variable is not set!");
+  console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable is not set!");
   console.error("Available env vars:", Object.keys(import.meta.env).filter(key => key.includes('GOOGLE')));
 }
 
