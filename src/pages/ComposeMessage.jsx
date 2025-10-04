@@ -78,13 +78,15 @@ export default function ComposeMessage() {
 
   const handleGmailAuth = async () => {
     try {
+      console.log("Starting Gmail auth from ComposeMessage...");
       // Clear any existing auth first to force account selection
       await clearAllGoogleAuth();
       
-      const { email, accessToken } = await signInWithGoogle();
-      setUserEmail(email);
+      const result = await signInWithGoogle();
+      console.log("Gmail auth result:", result);
+      setUserEmail(result.email);
       setGmailAuthenticated(true);
-      alert(`Authenticated with ${email}! You can now send emails.`);
+      alert(`Authenticated with ${result.email}! You can now send emails.`);
     } catch (error) {
       console.error("Gmail auth error:", error);
       alert("Failed to authenticate with Gmail. Please try again.");
