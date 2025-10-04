@@ -44,9 +44,17 @@ export default function Dashboard() {
             </div>
             <button
               onClick={async () => {
-                await signOutUser();
-                localStorage.clear();
-                navigate("/");
+                try {
+                  await signOutUser();
+                  localStorage.clear();
+                  // Use window.location instead of navigate to avoid React Router issues
+                  window.location.href = "/";
+                } catch (error) {
+                  console.error("Sign out error:", error);
+                  // Force redirect even if signOut fails
+                  localStorage.clear();
+                  window.location.href = "/";
+                }
               }}
               className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium"
             >
