@@ -23,6 +23,7 @@ import EngageEmail from "./pages/EngageEmail.jsx";
 import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
 import ComposeMessage from "./pages/ComposeMessage.jsx";
 import ListManagement from "./pages/ListManagement.jsx";
+import TestAuth from "./pages/TestAuth.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -117,6 +118,9 @@ export default function App() {
         } />
         <Route path="/lists" element={
           <ProtectedRoute><ListManagement /></ProtectedRoute>
+        } />
+        <Route path="/test-auth" element={
+          <TestAuth />
         } />
       </Routes>
     </BrowserRouter>
