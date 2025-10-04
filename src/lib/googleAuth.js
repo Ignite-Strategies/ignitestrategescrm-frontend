@@ -1,10 +1,13 @@
 // Clean Google OAuth implementation
-const GOOGLE_CLIENT_ID = import.meta.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 console.log("Google Client ID from env:", GOOGLE_CLIENT_ID);
+console.log("All env vars:", import.meta.env);
+console.log("VITE env vars:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
 if (!GOOGLE_CLIENT_ID) {
-  console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable is not set!");
+  console.error("VITE_GOOGLE_CLIENT_ID environment variable is not set!");
+  console.error("Available env vars:", Object.keys(import.meta.env));
 }
 
 // Completely fresh Google API load
