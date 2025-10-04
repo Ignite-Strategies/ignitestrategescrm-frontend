@@ -76,21 +76,9 @@ export default function ComposeMessage() {
     }));
   };
 
-  const handleGmailAuth = async () => {
-    try {
-      console.log("Starting Gmail auth from ComposeMessage...");
-      // Clear any existing auth first to force account selection
-      await clearAllGoogleAuth();
-      
-      const result = await signInWithGoogle();
-      console.log("Gmail auth result:", result);
-      setUserEmail(result.email);
-      setGmailAuthenticated(true);
-      alert(`Authenticated with ${result.email}! You can now send emails.`);
-    } catch (error) {
-      console.error("Gmail auth error:", error);
-      alert("Failed to authenticate with Gmail. Please try again.");
-    }
+  const handleGmailAuth = () => {
+    // Navigate to the clean authentication page
+    navigate("/authenticate");
   };
 
   const handleSend = async () => {
@@ -178,12 +166,12 @@ export default function ComposeMessage() {
                   <span className="text-red-700 font-medium">Gmail Not Authenticated</span>
                   <span className="text-gray-600">Sign in to send emails</span>
                 </div>
-                <button
-                  onClick={handleGmailAuth}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                >
-                  Authenticate Gmail
-                </button>
+                        <button
+                          onClick={handleGmailAuth}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        >
+                          Go to Gmail Auth
+                        </button>
               </div>
             )}
           </div>
