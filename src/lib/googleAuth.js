@@ -7,11 +7,12 @@ if (!GOOGLE_CLIENT_ID) {
   console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable is not set!");
 }
 
-// Load Google API
+// Load Google API with proper initialization
 const loadGoogleAPI = () => {
   return new Promise((resolve, reject) => {
-    if (window.gapi && window.gapi.auth2) {
-      console.log("Google API already loaded");
+    // Check if already loaded and initialized
+    if (window.gapi && window.gapi.auth2 && window.gapi.auth2.getAuthInstance()) {
+      console.log("Google API already loaded and initialized");
       resolve(window.gapi);
       return;
     }
@@ -27,7 +28,14 @@ const loadGoogleAPI = () => {
           client_id: GOOGLE_CLIENT_ID
         }).then(() => {
           console.log("Google Auth2 initialized successfully");
-          resolve(window.gapi);
+          // Verify the instance is available
+          const authInstance = window.gapi.auth2.getAuthInstance();
+          if (authInstance) {
+            console.log("Auth instance verified");
+            resolve(window.gapi);
+          } else {
+            reject(new Error("Auth instance not available after initialization"));
+          }
         }).catch((error) => {
           console.error("Google Auth2 init error:", error);
           reject(error);
@@ -45,14 +53,20 @@ const loadGoogleAPI = () => {
 // Sign in with Google (for Gmail access)
 export const signInWithGoogle = async () => {
   try {
+    console.log('Starting Google sign-in process...');
     await loadGoogleAPI();
     
+    // Wait a bit for the API to be fully ready
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const authInstance = window.gapi.auth2.getAuthInstance();
+    console.log('Auth instance:', authInstance);
     
     if (!authInstance) {
       throw new Error('Google Auth2 instance not available. Please refresh the page and try again.');
     }
     
+    console.log('Attempting to sign in...');
     // Force account selection and prompt for consent
     const authResult = await authInstance.signIn({
       scope: 'https://www.googleapis.com/auth/gmail.send',
@@ -81,6 +95,7 @@ export const signInWithGoogle = async () => {
   } catch (error) {
     console.error('Error signing in with Google:', error);
     console.error('Error details:', error.error, error.details);
+    console.error('Full error object:', error);
     throw error;
   }
 };
