@@ -1,4 +1,4 @@
-// Pure Google OAuth for Gmail API access
+// Clean Google OAuth implementation
 const GOOGLE_CLIENT_ID = import.meta.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 console.log("Google Client ID from env:", GOOGLE_CLIENT_ID);
@@ -7,17 +7,19 @@ if (!GOOGLE_CLIENT_ID) {
   console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable is not set!");
 }
 
-// Load Google API with proper initialization
+// Completely fresh Google API load
 const loadGoogleAPI = () => {
   return new Promise((resolve, reject) => {
-    // Check if already loaded and initialized
-    if (window.gapi && window.gapi.auth2 && window.gapi.auth2.getAuthInstance()) {
-      console.log("Google API already loaded and initialized");
-      resolve(window.gapi);
-      return;
+    // Nuke any existing Google API state
+    if (window.gapi) {
+      delete window.gapi;
     }
-
-    console.log("Loading Google API...");
+    
+    // Remove any existing Google API scripts
+    const existingScripts = document.querySelectorAll('script[src*="apis.google.com"]');
+    existingScripts.forEach(script => script.remove());
+    
+    console.log("Loading fresh Google API...");
     const script = document.createElement('script');
     script.src = 'https://apis.google.com/js/api.js';
     script.onload = () => {
@@ -28,14 +30,7 @@ const loadGoogleAPI = () => {
           client_id: GOOGLE_CLIENT_ID
         }).then(() => {
           console.log("Google Auth2 initialized successfully");
-          // Verify the instance is available
-          const authInstance = window.gapi.auth2.getAuthInstance();
-          if (authInstance) {
-            console.log("Auth instance verified");
-            resolve(window.gapi);
-          } else {
-            reject(new Error("Auth instance not available after initialization"));
-          }
+          resolve();
         }).catch((error) => {
           console.error("Google Auth2 init error:", error);
           reject(error);
@@ -50,37 +45,30 @@ const loadGoogleAPI = () => {
   });
 };
 
-// Sign in with Google (for Gmail access)
+// Sign in with Google
 export const signInWithGoogle = async () => {
   try {
-    console.log('Starting Google sign-in process...');
+    console.log('Starting fresh Google sign-in...');
     await loadGoogleAPI();
-    
-    // Wait a bit for the API to be fully ready
-    await new Promise(resolve => setTimeout(resolve, 100));
     
     const authInstance = window.gapi.auth2.getAuthInstance();
     console.log('Auth instance:', authInstance);
     
     if (!authInstance) {
-      throw new Error('Google Auth2 instance not available. Please refresh the page and try again.');
+      throw new Error('Auth instance not available');
     }
     
-    console.log('Attempting to sign in...');
-    // Force account selection and prompt for consent
     const authResult = await authInstance.signIn({
       scope: 'https://www.googleapis.com/auth/gmail.send',
-      prompt: 'select_account', // Force account selection
-      include_granted_scopes: true
+      prompt: 'select_account'
     });
     
     const user = authResult.getBasicProfile();
     const authResponse = authResult.getAuthResponse();
     
     console.log('Auth successful for:', user.getEmail());
-    console.log('Access token received:', !!authResponse.access_token);
     
-    // Store the access token for Gmail API
+    // Store tokens
     localStorage.setItem('gmailAccessToken', authResponse.access_token);
     localStorage.setItem('userEmail', user.getEmail());
     localStorage.setItem('userName', user.getName());
@@ -93,9 +81,7 @@ export const signInWithGoogle = async () => {
       accessToken: authResponse.access_token
     };
   } catch (error) {
-    console.error('Error signing in with Google:', error);
-    console.error('Error details:', error.error, error.details);
-    console.error('Full error object:', error);
+    console.error('Google sign-in error:', error);
     throw error;
   }
 };
@@ -109,39 +95,21 @@ export const signOutUser = async () => {
         await authInstance.signOut();
       }
     }
-    
-    // Clear stored tokens
-    localStorage.removeItem('gmailAccessToken');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userPhoto');
   } catch (error) {
-    console.error('Error signing out:', error);
-    throw error;
+    console.error('Sign out error:', error);
   }
+  
+  // Clear all stored data
+  localStorage.removeItem('gmailAccessToken');
+  localStorage.removeItem('userEmail');
+  localStorage.removeItem('userName');
+  localStorage.removeItem('userPhoto');
 };
 
-// Clear all Google auth state (for account switching)
+// Clear all Google auth state
 export const clearAllGoogleAuth = async () => {
-  try {
-    // Sign out from Google
-    if (window.gapi && window.gapi.auth2) {
-      const authInstance = window.gapi.auth2.getAuthInstance();
-      if (authInstance) {
-        await authInstance.signOut();
-      }
-    }
-    
-    // Clear all stored data
-    localStorage.removeItem('gmailAccessToken');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userPhoto');
-    
-    console.log('All Google auth state cleared');
-  } catch (error) {
-    console.error('Error clearing Google auth:', error);
-  }
+  await signOutUser();
+  console.log('All Google auth state cleared');
 };
 
 // Get current Gmail access token
