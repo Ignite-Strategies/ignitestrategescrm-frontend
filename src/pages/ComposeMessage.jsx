@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
+import { signInWithGoogle, getGmailAccessToken, isSignedIn } from "../lib/firebase";
 
 export default function ComposeMessage() {
   const navigate = useNavigate();
@@ -16,11 +17,22 @@ export default function ComposeMessage() {
     variables: {}
   });
   const [loading, setLoading] = useState(false);
+  const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     loadTemplates();
     loadContactLists();
+    checkGmailAuth();
   }, []);
+
+  const checkGmailAuth = () => {
+    const authenticated = isSignedIn();
+    setGmailAuthenticated(authenticated);
+    if (authenticated) {
+      setUserEmail(localStorage.getItem('userEmail') || '');
+    }
+  };
 
   const loadTemplates = async () => {
     try {
@@ -64,7 +76,25 @@ export default function ComposeMessage() {
     }));
   };
 
+  const handleGmailAuth = async () => {
+    try {
+      const { email, accessToken } = await signInWithGoogle();
+      setUserEmail(email);
+      setGmailAuthenticated(true);
+      alert(`Authenticated with ${email}! You can now send emails.`);
+    } catch (error) {
+      console.error("Gmail auth error:", error);
+      alert("Failed to authenticate with Gmail. Please try again.");
+    }
+  };
+
   const handleSend = async () => {
+    // Check if Gmail is authenticated
+    if (!gmailAuthenticated) {
+      alert("Please authenticate with Gmail first to send emails.");
+      return;
+    }
+
     setLoading(true);
     try {
       // Get contacts from selected list
@@ -92,7 +122,7 @@ export default function ComposeMessage() {
         variables: composeData.variables
       });
 
-      alert(`Email sent successfully! ${emailResponse.data.totalSent} emails sent.`);
+      alert(`Email sent successfully from ${userEmail}! ${emailResponse.data.totalSent} emails sent.`);
       navigate("/dashboard");
     } catch (error) {
       console.error("Error sending email:", error);
@@ -118,6 +148,39 @@ export default function ComposeMessage() {
             >
               ← Back to Dashboard
             </button>
+          </div>
+
+          {/* Gmail Authentication Status */}
+          <div className="mb-8 p-4 rounded-lg border">
+            {gmailAuthenticated ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-green-700 font-medium">Gmail Authenticated</span>
+                  <span className="text-gray-600">({userEmail})</span>
+                </div>
+                <button
+                  onClick={handleGmailAuth}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition"
+                >
+                  Switch Account
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span className="text-red-700 font-medium">Gmail Not Authenticated</span>
+                  <span className="text-gray-600">Sign in to send emails</span>
+                </div>
+                <button
+                  onClick={handleGmailAuth}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                >
+                  Authenticate Gmail
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Progress Steps */}
