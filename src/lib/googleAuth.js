@@ -1,10 +1,13 @@
-// Google Identity Services (GIS) implementation for Next.js
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+// Google Identity Services (GIS) implementation for Vite
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 console.log("Google Client ID from env:", GOOGLE_CLIENT_ID);
+console.log("All import.meta.env keys:", Object.keys(import.meta.env));
+console.log("MODE:", import.meta.env.MODE);
 
 if (!GOOGLE_CLIENT_ID) {
-  console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable is not set!");
+  console.error("VITE_GOOGLE_CLIENT_ID environment variable is not set!");
+  console.error("Available env vars:", Object.keys(import.meta.env).filter(key => key.includes('GOOGLE')));
 }
 
 // Global token client instance
