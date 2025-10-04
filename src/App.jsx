@@ -24,6 +24,7 @@ import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
 import ComposeMessage from "./pages/ComposeMessage.jsx";
 import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
+import Authenticate from "./pages/Authenticate.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -121,6 +122,9 @@ export default function App() {
         } />
         <Route path="/test-auth" element={
           <TestAuth />
+        } />
+        <Route path="/authenticate" element={
+          <ProtectedRoute><Authenticate /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
