@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, getGmailAccessToken, isSignedIn } from "../lib/googleAuth";
+import { signInWithGoogle, getGmailAccessToken, isSignedIn, clearAllGoogleAuth } from "../lib/googleAuth";
 
 export default function ComposeMessage() {
   const navigate = useNavigate();
@@ -78,6 +78,9 @@ export default function ComposeMessage() {
 
   const handleGmailAuth = async () => {
     try {
+      // Clear any existing auth first to force account selection
+      await clearAllGoogleAuth();
+      
       const { email, accessToken } = await signInWithGoogle();
       setUserEmail(email);
       setGmailAuthenticated(true);

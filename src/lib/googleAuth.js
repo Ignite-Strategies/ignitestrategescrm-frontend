@@ -48,12 +48,19 @@ export const signInWithGoogle = async () => {
     await loadGoogleAPI();
     
     const authInstance = window.gapi.auth2.getAuthInstance();
+    
+    // Force account selection and prompt for consent
     const authResult = await authInstance.signIn({
-      scope: 'https://www.googleapis.com/auth/gmail.send'
+      scope: 'https://www.googleapis.com/auth/gmail.send',
+      prompt: 'select_account', // Force account selection
+      include_granted_scopes: true
     });
     
     const user = authResult.getBasicProfile();
     const authResponse = authResult.getAuthResponse();
+    
+    console.log('Auth successful for:', user.getEmail());
+    console.log('Access token received:', !!authResponse.access_token);
     
     // Store the access token for Gmail API
     localStorage.setItem('gmailAccessToken', authResponse.access_token);
@@ -69,6 +76,7 @@ export const signInWithGoogle = async () => {
     };
   } catch (error) {
     console.error('Error signing in with Google:', error);
+    console.error('Error details:', error.error, error.details);
     throw error;
   }
 };
@@ -89,6 +97,27 @@ export const signOutUser = async () => {
   } catch (error) {
     console.error('Error signing out:', error);
     throw error;
+  }
+};
+
+// Clear all Google auth state (for account switching)
+export const clearAllGoogleAuth = async () => {
+  try {
+    // Sign out from Google
+    if (window.gapi && window.gapi.auth2) {
+      const authInstance = window.gapi.auth2.getAuthInstance();
+      await authInstance.signOut();
+    }
+    
+    // Clear all stored data
+    localStorage.removeItem('gmailAccessToken');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userPhoto');
+    
+    console.log('All Google auth state cleared');
+  } catch (error) {
+    console.error('Error clearing Google auth:', error);
   }
 };
 
