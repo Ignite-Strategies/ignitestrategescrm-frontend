@@ -1,88 +1,100 @@
-// Clean Google OAuth implementation
-const GOOGLE_CLIENT_ID = import.meta.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "156240197681-29v1fodqm59f3igas7j9np989q3shbc6.apps.googleusercontent.com";
+// Google Identity Services (GIS) implementation for Next.js
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 console.log("Google Client ID from env:", GOOGLE_CLIENT_ID);
-console.log("All env vars:", import.meta.env);
-console.log("VITE env vars:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
 
 if (!GOOGLE_CLIENT_ID) {
   console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable is not set!");
-  console.error("Available env vars:", Object.keys(import.meta.env));
 }
 
-// Completely fresh Google API load
+// Load Google Identity Services
 const loadGoogleAPI = () => {
   return new Promise((resolve, reject) => {
-    // Nuke any existing Google API state
-    if (window.gapi) {
-      delete window.gapi;
+    if (window.google && window.google.accounts) {
+      console.log("Google Identity Services already loaded");
+      resolve();
+      return;
     }
-    
-    // Remove any existing Google API scripts
-    const existingScripts = document.querySelectorAll('script[src*="apis.google.com"]');
-    existingScripts.forEach(script => script.remove());
-    
-    console.log("Loading fresh Google API...");
+
+    console.log("Loading Google Identity Services...");
     const script = document.createElement('script');
-    script.src = 'https://apis.google.com/js/api.js';
+    script.src = 'https://accounts.google.com/gsi/client';
     script.onload = () => {
-      console.log("Google API script loaded");
-      window.gapi.load('auth2', () => {
-        console.log("Google Auth2 loaded, initializing...");
-        window.gapi.auth2.init({
-          client_id: GOOGLE_CLIENT_ID
-        }).then(() => {
-          console.log("Google Auth2 initialized successfully");
-          resolve();
-        }).catch((error) => {
-          console.error("Google Auth2 init error:", error);
-          reject(error);
-        });
-      });
+      console.log("Google Identity Services loaded");
+      resolve();
     };
     script.onerror = (error) => {
-      console.error("Failed to load Google API script:", error);
+      console.error("Failed to load Google Identity Services:", error);
       reject(error);
     };
     document.head.appendChild(script);
   });
 };
 
-// Sign in with Google
+// Sign in with Google using GIS
 export const signInWithGoogle = async () => {
   try {
-    console.log('Starting fresh Google sign-in...');
+    console.log('Starting Google sign-in with GIS...');
     await loadGoogleAPI();
     
-    const authInstance = window.gapi.auth2.getAuthInstance();
-    console.log('Auth instance:', authInstance);
-    
-    if (!authInstance) {
-      throw new Error('Auth instance not available');
+    if (!window.google || !window.google.accounts) {
+      throw new Error('Google Identity Services not available');
     }
-    
-    const authResult = await authInstance.signIn({
-      scope: 'https://www.googleapis.com/auth/gmail.send',
-      prompt: 'select_account'
+
+    return new Promise((resolve, reject) => {
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: 'openid email profile https://www.googleapis.com/auth/gmail.send',
+        callback: (response) => {
+          console.log('Token response:', response);
+          
+          if (response.error) {
+            reject(new Error(response.error));
+            return;
+          }
+
+          // Get user info
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: (credentialResponse) => {
+              try {
+                const payload = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
+                console.log('User info:', payload);
+                
+                // Store tokens and user info
+                localStorage.setItem('gmailAccessToken', response.access_token);
+                localStorage.setItem('userEmail', payload.email);
+                localStorage.setItem('userName', payload.name);
+                localStorage.setItem('userPhoto', payload.picture);
+                
+                resolve({
+                  email: payload.email,
+                  name: payload.name,
+                  photoURL: payload.picture,
+                  accessToken: response.access_token
+                });
+              } catch (error) {
+                console.error('Error parsing user info:', error);
+                // Still resolve with basic info
+                localStorage.setItem('gmailAccessToken', response.access_token);
+                resolve({
+                  email: 'user@example.com',
+                  name: 'User',
+                  photoURL: '',
+                  accessToken: response.access_token
+                });
+              }
+            }
+          });
+          
+          // Trigger the ID flow to get user info
+          window.google.accounts.id.prompt();
+        }
+      });
+
+      // Request access token
+      client.requestAccessToken();
     });
-    
-    const user = authResult.getBasicProfile();
-    const authResponse = authResult.getAuthResponse();
-    
-    console.log('Auth successful for:', user.getEmail());
-    
-    // Store tokens
-    localStorage.setItem('gmailAccessToken', authResponse.access_token);
-    localStorage.setItem('userEmail', user.getEmail());
-    localStorage.setItem('userName', user.getName());
-    localStorage.setItem('userPhoto', user.getImageUrl());
-    
-    return {
-      email: user.getEmail(),
-      name: user.getName(),
-      photoURL: user.getImageUrl(),
-      accessToken: authResponse.access_token
-    };
   } catch (error) {
     console.error('Google sign-in error:', error);
     throw error;
@@ -92,11 +104,8 @@ export const signInWithGoogle = async () => {
 // Sign out
 export const signOutUser = async () => {
   try {
-    if (window.gapi && window.gapi.auth2) {
-      const authInstance = window.gapi.auth2.getAuthInstance();
-      if (authInstance) {
-        await authInstance.signOut();
-      }
+    if (window.google && window.google.accounts) {
+      window.google.accounts.id.disableAutoSelect();
     }
   } catch (error) {
     console.error('Sign out error:', error);
