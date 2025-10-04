@@ -45,6 +45,33 @@ Token: ${token ? 'Present' : 'Missing'}
 Email: ${email || 'None'}`);
   };
 
+  const handleSwitchAccount = async () => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+    
+    try {
+      console.log("Switching Google account...");
+      
+      // Use the same signInWithGoogle function - it will force account selection
+      const result = await signInWithGoogle();
+      console.log("Account switched to:", result);
+      
+      setSuccess(`Switched to ${result.email}!`);
+      
+      // Wait a moment then redirect
+      setTimeout(() => {
+        navigate("/compose");
+      }, 2000);
+      
+    } catch (error) {
+      console.error("Account switch error:", error);
+      setError(`Account switch failed: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
@@ -105,6 +132,16 @@ Email: ${email || 'None'}`);
                 Check Status
               </button>
               
+              <button
+                onClick={handleSwitchAccount}
+                disabled={loading}
+                className="flex-1 bg-orange-100 text-orange-700 py-2 px-4 rounded-lg hover:bg-orange-200 transition text-sm disabled:opacity-50"
+              >
+                Switch Account
+              </button>
+            </div>
+
+            <div className="flex gap-3">
               <button
                 onClick={() => navigate("/compose")}
                 className="flex-1 bg-green-100 text-green-700 py-2 px-4 rounded-lg hover:bg-green-200 transition text-sm"
