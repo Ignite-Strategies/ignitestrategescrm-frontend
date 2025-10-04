@@ -16,10 +16,7 @@ export default function Authenticate() {
     try {
       console.log("Starting Google authentication...");
       
-      // Clear any existing auth first
-      await clearAllGoogleAuth();
-      
-      // Sign in with Google
+      // Sign in with Google (no pre-clearing)
       const result = await signInWithGoogle();
       console.log("Authentication successful:", result);
       
