@@ -9,11 +9,11 @@ const api = axios.create({
   }
 });
 
-// Add Firebase token to requests
+// Add Gmail access token to requests
 api.interceptors.request.use(request => {
-  const firebaseToken = localStorage.getItem('firebaseToken');
-  if (firebaseToken) {
-    request.headers.Authorization = `Bearer ${firebaseToken}`;
+  const gmailAccessToken = localStorage.getItem('gmailAccessToken');
+  if (gmailAccessToken) {
+    request.headers.Authorization = `Bearer ${gmailAccessToken}`;
   }
   
   console.log('API Request:', request.method.toUpperCase(), request.url, request.data);

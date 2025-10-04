@@ -1,44 +1,54 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+// Simple Google OAuth for Gmail API access
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "156240197681-29v1fodqm59f3igas7j9np989q3shbc6.apps.googleusercontent.com";
 
-// Firebase configuration
-// You'll need to replace these with your actual Firebase config
-const firebaseConfig = {
-  apiKey: "your-api-key",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
+// Load Google API
+const loadGoogleAPI = () => {
+  return new Promise((resolve, reject) => {
+    if (window.gapi) {
+      resolve(window.gapi);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://apis.google.com/js/api.js';
+    script.onload = () => {
+      window.gapi.load('auth2', () => {
+        window.gapi.auth2.init({
+          client_id: GOOGLE_CLIENT_ID
+        }).then(() => {
+          resolve(window.gapi);
+        }).catch(reject);
+      });
+    };
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Authentication and get a reference to the service
-export const auth = getAuth(app);
-
-// Initialize Google Auth Provider
-export const googleProvider = new GoogleAuthProvider();
-
-// Add Gmail scope for email sending
-googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
-
-// Sign in with Google
+// Sign in with Google (for Gmail access)
 export const signInWithGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
+    await loadGoogleAPI();
     
-    // Get the ID token for backend authentication
-    const idToken = await user.getIdToken();
+    const authInstance = window.gapi.auth2.getAuthInstance();
+    const authResult = await authInstance.signIn({
+      scope: 'https://www.googleapis.com/auth/gmail.send'
+    });
+    
+    const user = authResult.getBasicProfile();
+    const authResponse = authResult.getAuthResponse();
+    
+    // Store the access token for Gmail API
+    localStorage.setItem('gmailAccessToken', authResponse.access_token);
+    localStorage.setItem('userEmail', user.getEmail());
+    localStorage.setItem('userName', user.getName());
+    localStorage.setItem('userPhoto', user.getImageUrl());
     
     return {
-      user,
-      idToken,
-      email: user.email,
-      name: user.displayName,
-      photoURL: user.photoURL
+      email: user.getEmail(),
+      name: user.getName(),
+      photoURL: user.getImageUrl(),
+      accessToken: authResponse.access_token
     };
   } catch (error) {
     console.error('Error signing in with Google:', error);
@@ -49,20 +59,28 @@ export const signInWithGoogle = async () => {
 // Sign out
 export const signOutUser = async () => {
   try {
-    await signOut(auth);
+    if (window.gapi && window.gapi.auth2) {
+      const authInstance = window.gapi.auth2.getAuthInstance();
+      await authInstance.signOut();
+    }
+    
+    // Clear stored tokens
+    localStorage.removeItem('gmailAccessToken');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userPhoto');
   } catch (error) {
     console.error('Error signing out:', error);
     throw error;
   }
 };
 
-// Get current user token
-export const getCurrentUserToken = async () => {
-  const user = auth.currentUser;
-  if (user) {
-    return await user.getIdToken();
-  }
-  return null;
+// Get current Gmail access token
+export const getGmailAccessToken = () => {
+  return localStorage.getItem('gmailAccessToken');
 };
 
-export default app;
+// Check if user is signed in
+export const isSignedIn = () => {
+  return !!localStorage.getItem('gmailAccessToken');
+};
