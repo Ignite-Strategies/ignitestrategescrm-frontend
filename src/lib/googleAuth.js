@@ -42,6 +42,7 @@ export const signInWithGoogle = async () => {
     }
 
     return new Promise((resolve, reject) => {
+      // Initialize the token client
       const client = window.google.accounts.oauth2.initTokenClient({
         client_id: GOOGLE_CLIENT_ID,
         scope: 'openid email profile https://www.googleapis.com/auth/gmail.send',
@@ -49,50 +50,47 @@ export const signInWithGoogle = async () => {
           console.log('Token response:', response);
           
           if (response.error) {
+            console.error('Token error:', response.error);
             reject(new Error(response.error));
             return;
           }
 
-          // Get user info
-          window.google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: (credentialResponse) => {
-              try {
-                const payload = JSON.parse(atob(credentialResponse.credential.split('.')[1]));
-                console.log('User info:', payload);
-                
-                // Store tokens and user info
-                localStorage.setItem('gmailAccessToken', response.access_token);
-                localStorage.setItem('userEmail', payload.email);
-                localStorage.setItem('userName', payload.name);
-                localStorage.setItem('userPhoto', payload.picture);
-                
-                resolve({
-                  email: payload.email,
-                  name: payload.name,
-                  photoURL: payload.picture,
-                  accessToken: response.access_token
-                });
-              } catch (error) {
-                console.error('Error parsing user info:', error);
-                // Still resolve with basic info
-                localStorage.setItem('gmailAccessToken', response.access_token);
-                resolve({
-                  email: 'user@example.com',
-                  name: 'User',
-                  photoURL: '',
-                  accessToken: response.access_token
-                });
-              }
-            }
-          });
+          // Store the access token
+          localStorage.setItem('gmailAccessToken', response.access_token);
           
-          // Trigger the ID flow to get user info
-          window.google.accounts.id.prompt();
+          // Get user info using the access token
+          fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${response.access_token}`)
+            .then(res => res.json())
+            .then(userInfo => {
+              console.log('User info:', userInfo);
+              
+              // Store user info
+              localStorage.setItem('userEmail', userInfo.email);
+              localStorage.setItem('userName', userInfo.name);
+              localStorage.setItem('userPhoto', userInfo.picture);
+              
+              resolve({
+                email: userInfo.email,
+                name: userInfo.name,
+                photoURL: userInfo.picture,
+                accessToken: response.access_token
+              });
+            })
+            .catch(error => {
+              console.error('Error fetching user info:', error);
+              // Still resolve with basic info
+              resolve({
+                email: 'user@example.com',
+                name: 'User',
+                photoURL: '',
+                accessToken: response.access_token
+              });
+            });
         }
       });
 
       // Request access token
+      console.log('Requesting access token...');
       client.requestAccessToken();
     });
   } catch (error) {
