@@ -1,26 +1,39 @@
 // Simple Google OAuth for Gmail API access
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "156240197681-29v1fodqm59f3igas7j9np989q3shbc6.apps.googleusercontent.com";
 
+console.log("Google Client ID:", GOOGLE_CLIENT_ID);
+
 // Load Google API
 const loadGoogleAPI = () => {
   return new Promise((resolve, reject) => {
     if (window.gapi) {
+      console.log("Google API already loaded");
       resolve(window.gapi);
       return;
     }
 
+    console.log("Loading Google API...");
     const script = document.createElement('script');
     script.src = 'https://apis.google.com/js/api.js';
     script.onload = () => {
+      console.log("Google API script loaded");
       window.gapi.load('auth2', () => {
+        console.log("Google Auth2 loaded, initializing...");
         window.gapi.auth2.init({
           client_id: GOOGLE_CLIENT_ID
         }).then(() => {
+          console.log("Google Auth2 initialized successfully");
           resolve(window.gapi);
-        }).catch(reject);
+        }).catch((error) => {
+          console.error("Google Auth2 init error:", error);
+          reject(error);
+        });
       });
     };
-    script.onerror = reject;
+    script.onerror = (error) => {
+      console.error("Failed to load Google API script:", error);
+      reject(error);
+    };
     document.head.appendChild(script);
   });
 };
