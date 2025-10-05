@@ -161,37 +161,37 @@ export default function ComposeMessage() {
 
           {/* Gmail Authentication Status */}
           <div className="mb-8 p-4 rounded-lg border">
-            {gmailAuthenticated ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-green-700 font-medium">Gmail Authenticated</span>
-                  <span className="text-gray-600">({userEmail})</span>
-                </div>
-                        <button
-                          onClick={handleGmailAuth}
-                          disabled={loading}
-                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition disabled:opacity-50"
-                        >
-                          {loading ? "Switching..." : "Switch Account"}
-                        </button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-red-700 font-medium">Gmail Not Authenticated</span>
-                  <span className="text-gray-600">Sign in to send emails</span>
-                </div>
-                        <button
-                          onClick={handleGmailAuth}
-                          disabled={loading}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-                        >
-                          {loading ? "Authenticating..." : "Authenticate Gmail"}
-                        </button>
-              </div>
-            )}
+                  {gmailAuthenticated ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span className="text-green-700 font-medium">Gmail Authenticated</span>
+                        <span className="text-gray-600">({userEmail})</span>
+                      </div>
+                      <button
+                        onClick={handleGmailAuth}
+                        disabled={loading}
+                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition disabled:opacity-50"
+                      >
+                        {loading ? "Re-authenticating..." : "Re-authenticate"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        <span className="text-red-700 font-medium">Gmail Not Authenticated</span>
+                        <span className="text-gray-600">Sign in to send emails</span>
+                      </div>
+                      <button
+                        onClick={handleGmailAuth}
+                        disabled={loading}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                      >
+                        {loading ? "Authenticating..." : "Authenticate Gmail"}
+                      </button>
+                    </div>
+                  )}
           </div>
 
           {/* Progress Steps */}
