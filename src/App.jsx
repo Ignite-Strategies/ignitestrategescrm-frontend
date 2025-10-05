@@ -27,6 +27,7 @@ import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactList from "./pages/ContactList.jsx";
 import EmailCampaigns from "./pages/EmailCampaigns.jsx";
+import CreateListOptions from "./pages/CreateListOptions.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -133,6 +134,9 @@ export default function App() {
         } />
         <Route path="/campaigns" element={
           <ProtectedRoute><EmailCampaigns /></ProtectedRoute>
+        } />
+        <Route path="/create-list" element={
+          <ProtectedRoute><CreateListOptions /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>

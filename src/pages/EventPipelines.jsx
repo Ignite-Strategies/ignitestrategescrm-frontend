@@ -10,7 +10,8 @@ const PIPELINES = [
 
 // MVP1: Hardcoded stages (not editable like HubSpot)
 const STAGES = [
-  { id: "member", label: "Prospective Attendee", description: "New supporters added to event" },
+  { id: "aware", label: "Aware", description: "Heard about it at COT/workout" },
+  { id: "member", label: "Prospective Attendee", description: "Direct outreach / cold contact" },
   { id: "soft_commit", label: "Soft Commit", description: "Showed interest/RSVP" },
   { id: "paid", label: "Paid", description: "Payment confirmed" },
   { id: "lost", label: "Can't Make It", description: "Deal lost - won't attend" }

@@ -31,6 +31,7 @@ export default function ContactListSelect() {
 
   // Stage options
   const STAGE_OPTIONS = [
+    { value: "aware", label: "Aware" },
     { value: "member", label: "Prospective Attendee" },
     { value: "soft_commit", label: "Soft Commit" },
     { value: "paid", label: "Paid" },
