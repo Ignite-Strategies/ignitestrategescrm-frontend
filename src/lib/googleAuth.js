@@ -47,6 +47,7 @@ const initializeTokenClient = () => {
     client_id: GOOGLE_CLIENT_ID,
     scope: "openid email profile https://www.googleapis.com/auth/gmail.send",
     prompt: "", // try silent first, then use select_account in requestAccessToken
+    redirect_uri: "https://ignitestrategiescrm-frontend.vercel.app/authenticate",
     callback: (response) => {
       console.log('Token response:', response);
       
