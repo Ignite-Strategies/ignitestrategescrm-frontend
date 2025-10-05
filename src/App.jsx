@@ -25,6 +25,7 @@ import ComposeMessage from "./pages/ComposeMessage.jsx";
 import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
+import ContactList from "./pages/ContactList.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -125,6 +126,9 @@ export default function App() {
         } />
         <Route path="/authenticate" element={
           <ProtectedRoute><Authenticate /></ProtectedRoute>
+        } />
+        <Route path="/contact-lists" element={
+          <ProtectedRoute><ContactList /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
