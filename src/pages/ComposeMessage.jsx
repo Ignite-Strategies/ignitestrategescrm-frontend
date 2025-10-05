@@ -6,23 +6,25 @@ import { signInWithGoogle, getGmailAccessToken, isSignedIn, clearAllGoogleAuth }
 
 export default function ComposeMessage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1: Template, 2: Audience, 3: Compose, 4: Send
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [selectedList, setSelectedList] = useState(null);
-  const [templates, setTemplates] = useState([]);
-  const [contactLists, setContactLists] = useState([]);
-  const [composeData, setComposeData] = useState({
+  const [campaignData, setCampaignData] = useState({
+    title: "",
+    audience: null,
+    template: null,
     subject: "",
     body: "",
-    variables: {}
+    scheduleType: "now", // "now" or "schedule"
+    scheduledDate: "",
+    scheduledTime: "",
+    autoFollowUp: false,
+    followUpDays: 4
   });
+  const [templates, setTemplates] = useState([]);
+  const [contactLists, setContactLists] = useState([]);
   const [loading, setLoading] = useState(false);
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
-    loadTemplates();
-    loadContactLists();
     checkGmailAuth();
   }, []);
 
@@ -41,6 +43,7 @@ export default function ComposeMessage() {
       setTemplates(response.data);
     } catch (error) {
       console.error("Error loading templates:", error);
+      // Don't show error to user, just log it
     }
   };
 
@@ -51,34 +54,29 @@ export default function ComposeMessage() {
       setContactLists(response.data);
     } catch (error) {
       console.error("Error loading contact lists:", error);
+      // Don't show error to user, just log it
     }
   };
 
-  const handleTemplateSelect = (template) => {
-    setSelectedTemplate(template);
-    setComposeData({
-      subject: template.subject,
-      body: template.body,
-      variables: {}
-    });
-    setStep(2);
-  };
-
-  const handleListSelect = (list) => {
-    setSelectedList(list);
-    setStep(3);
-  };
-
-  const handleComposeChange = (field, value) => {
-    setComposeData(prev => ({
+  const updateCampaignData = (field, value) => {
+    setCampaignData(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
+  const handleTemplateSelect = (template) => {
+    updateCampaignData("template", template);
+    updateCampaignData("subject", template.subject);
+    updateCampaignData("body", template.body);
+  };
+
+  const handleAudienceSelect = (list) => {
+    updateCampaignData("audience", list);
+  };
+
   const handleGmailAuth = async () => {
     setLoading(true);
-    setError("");
     
     try {
       console.log("Starting Gmail auth from ComposeMessage...");
@@ -107,7 +105,7 @@ export default function ComposeMessage() {
     setLoading(true);
     try {
       // Get contacts from selected list
-      const listResponse = await api.get(`/contact-lists/${selectedList._id}/contacts`);
+      const listResponse = await api.get(`/contact-lists/${campaignData.audience._id}/contacts`);
       const contacts = listResponse.data;
 
       // Prepare recipients with variables
@@ -125,10 +123,15 @@ export default function ComposeMessage() {
       // Send bulk email
       const emailResponse = await api.post("/email/send-bulk", {
         recipients,
-        subject: composeData.subject,
-        body: composeData.body,
-        templateId: selectedTemplate?._id,
-        variables: composeData.variables
+        subject: campaignData.subject,
+        body: campaignData.body,
+        templateId: campaignData.template?._id,
+        campaignTitle: campaignData.title,
+        scheduleType: campaignData.scheduleType,
+        scheduledDate: campaignData.scheduledDate,
+        scheduledTime: campaignData.scheduledTime,
+        autoFollowUp: campaignData.autoFollowUp,
+        followUpDays: campaignData.followUpDays
       });
 
       alert(`Email sent successfully from ${userEmail}! ${emailResponse.data.totalSent} emails sent.`);
@@ -143,13 +146,13 @@ export default function ComposeMessage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Compose Message</h1>
-              <p className="text-gray-600">Send targeted emails to your contacts</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Email Campaign</h1>
+              <p className="text-gray-600">Create and send targeted email campaigns</p>
             </div>
             <button
               onClick={() => navigate("/dashboard")}
@@ -161,226 +164,262 @@ export default function ComposeMessage() {
 
           {/* Gmail Authentication Status */}
           <div className="mb-8 p-4 rounded-lg border">
-                  {gmailAuthenticated ? (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="text-green-700 font-medium">Gmail Authenticated</span>
-                        <span className="text-gray-600">({userEmail})</span>
-                      </div>
-                      <button
-                        onClick={handleGmailAuth}
-                        disabled={loading}
-                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition disabled:opacity-50"
-                      >
-                        {loading ? "Re-authenticating..." : "Re-authenticate"}
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                        <span className="text-red-700 font-medium">Gmail Not Authenticated</span>
-                        <span className="text-gray-600">Sign in to send emails</span>
-                      </div>
-                      <button
-                        onClick={handleGmailAuth}
-                        disabled={loading}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
-                      >
-                        {loading ? "Authenticating..." : "Authenticate Gmail"}
-                      </button>
-                    </div>
-                  )}
-          </div>
-
-          {/* Progress Steps */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex items-center space-x-4">
-              {[1, 2, 3, 4].map((stepNum) => (
-                <div key={stepNum} className="flex items-center">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step >= stepNum 
-                      ? "bg-indigo-600 text-white" 
-                      : "bg-gray-200 text-gray-600"
-                  }`}>
-                    {stepNum}
-                  </div>
-                  {stepNum < 4 && (
-                    <div className={`w-16 h-1 mx-2 ${
-                      step > stepNum ? "bg-indigo-600" : "bg-gray-200"
-                    }`} />
-                  )}
+            {gmailAuthenticated ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-green-700 font-medium">Gmail Authenticated</span>
+                  <span className="text-gray-600">({userEmail})</span>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Step 1: Choose Template */}
-          {step === 1 && (
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Choose Your Template</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {templates.map((template) => (
-                  <div
-                    key={template._id}
-                    onClick={() => handleTemplateSelect(template)}
-                    className="border border-gray-200 rounded-lg p-6 hover:border-indigo-500 hover:shadow-md transition cursor-pointer"
-                  >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{template.name}</h3>
-                    <p className="text-gray-600 text-sm mb-3">{template.description}</p>
-                    <div className="text-sm text-gray-500">
-                      <p><strong>Subject:</strong> {template.subject}</p>
-                      <p className="mt-1"><strong>Used:</strong> {template.usageCount} times</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6">
                 <button
-                  onClick={() => navigate("/templates")}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                >
-                  + Create New Template
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Choose Audience */}
-          {step === 2 && (
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Choose Your Audience</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {contactLists.map((list) => (
-                  <div
-                    key={list._id}
-                    onClick={() => handleListSelect(list)}
-                    className="border border-gray-200 rounded-lg p-6 hover:border-indigo-500 hover:shadow-md transition cursor-pointer"
-                  >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{list.name}</h3>
-                    <p className="text-gray-600 text-sm mb-3">{list.description}</p>
-                    <div className="text-sm text-gray-500">
-                      <p><strong>Contacts:</strong> {list.totalContacts}</p>
-                      <p><strong>Type:</strong> {list.type}</p>
-                      <p><strong>Last Updated:</strong> {new Date(list.lastUpdated).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6">
-                <button
-                  onClick={() => navigate("/lists")}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                >
-                  + Create New List
-                </button>
-              </div>
-              <div className="mt-4">
-                <button
-                  onClick={() => setStep(1)}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-                >
-                  ← Back to Templates
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Compose */}
-          {step === 3 && (
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Compose Your Message</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject Line
-                  </label>
-                  <input
-                    type="text"
-                    value={composeData.subject}
-                    onChange={(e) => handleComposeChange("subject", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Enter email subject..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Message Body
-                  </label>
-                  <textarea
-                    rows={12}
-                    value={composeData.body}
-                    onChange={(e) => handleComposeChange("body", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Enter your message... Use {{firstName}} for personalization"
-                  />
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">Available Variables:</h4>
-                  <div className="text-sm text-blue-800">
-                    <p><code>{{firstName}}</code> - Contact's first name</p>
-                    <p><code>{{lastName}}</code> - Contact's last name</p>
-                    <p><code>{{fullName}}</code> - Full name</p>
-                    <p><code>{{goesBy}}</code> - Preferred name/nickname</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 flex gap-4">
-                <button
-                  onClick={() => setStep(2)}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-                >
-                  ← Back to Audience
-                </button>
-                <button
-                  onClick={() => setStep(4)}
-                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-                >
-                  Preview & Send →
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Preview & Send */}
-          {step === 4 && (
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-6">Preview & Send</h2>
-              
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Email Preview:</h3>
-                <div className="bg-white border border-gray-200 rounded p-4">
-                  <p className="text-sm text-gray-600 mb-2">To: {selectedList?.totalContacts} contacts</p>
-                  <p className="font-semibold mb-2">Subject: {composeData.subject}</p>
-                  <div 
-                    className="prose max-w-none"
-                    dangerouslySetInnerHTML={{ __html: composeData.body }}
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setStep(3)}
-                  className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-                >
-                  ← Back to Compose
-                </button>
-                <button
-                  onClick={handleSend}
+                  onClick={handleGmailAuth}
                   disabled={loading}
-                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm hover:bg-gray-200 transition disabled:opacity-50"
                 >
-                  {loading ? "Sending..." : `Send to ${selectedList?.totalContacts} Contacts`}
+                  {loading ? "Re-authenticating..." : "Re-authenticate"}
                 </button>
               </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span className="text-red-700 font-medium">Gmail Not Authenticated</span>
+                  <span className="text-gray-600">Sign in to send emails</span>
+                </div>
+                <button
+                  onClick={handleGmailAuth}
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                >
+                  {loading ? "Authenticating..." : "Authenticate Gmail"}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Apollo-style Campaign Builder */}
+          <div className="space-y-8">
+            {/* 1. Campaign Title */}
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">1. Campaign Title</h3>
+              <input
+                type="text"
+                value={campaignData.title}
+                onChange={(e) => updateCampaignData("title", e.target.value)}
+                placeholder="Enter campaign title (e.g., 'Q1 Fundraising Campaign')"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
             </div>
-          )}
+
+            {/* 2. Audience Selection */}
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">2. Audience</h3>
+              {campaignData.audience ? (
+                <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                  <div>
+                    <h4 className="font-medium text-gray-900">{campaignData.audience.name}</h4>
+                    <p className="text-sm text-gray-600">{campaignData.audience.contacts?.length || 0} contacts</p>
+                  </div>
+                  <button
+                    onClick={() => updateCampaignData("audience", null)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <button
+                    onClick={() => {
+                      loadContactLists();
+                      // Show contact list modal
+                    }}
+                    className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      <span className="text-gray-600">Select Contact List</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => navigate("/contact-lists")}
+                    className="text-indigo-600 hover:text-indigo-700 text-sm"
+                  >
+                    + Create New List
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Template Selection */}
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">3. Template</h3>
+              {campaignData.template ? (
+                <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                  <div>
+                    <h4 className="font-medium text-gray-900">{campaignData.template.name}</h4>
+                    <p className="text-sm text-gray-600">{campaignData.template.subject}</p>
+                  </div>
+                  <button
+                    onClick={() => updateCampaignData("template", null)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <button
+                    onClick={() => {
+                      loadTemplates();
+                      // Show template modal
+                    }}
+                    className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-500 transition text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="text-gray-600">Choose Template</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => navigate("/templates/create")}
+                    className="text-indigo-600 hover:text-indigo-700 text-sm"
+                  >
+                    + Create New Template
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 4. Message Content */}
+            {(campaignData.template || campaignData.subject || campaignData.body) && (
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Message Content</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
+                    <input
+                      type="text"
+                      value={campaignData.subject}
+                      onChange={(e) => updateCampaignData("subject", e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Enter email subject"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Message Body</label>
+                    <textarea
+                      rows={8}
+                      value={campaignData.body}
+                      onChange={(e) => updateCampaignData("body", e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Write your email message here (HTML supported)"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 5. Send Options */}
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">4. Send Options</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">When to Send</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="scheduleType"
+                        value="now"
+                        checked={campaignData.scheduleType === "now"}
+                        onChange={(e) => updateCampaignData("scheduleType", e.target.value)}
+                        className="mr-2"
+                      />
+                      Send Now
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="scheduleType"
+                        value="schedule"
+                        checked={campaignData.scheduleType === "schedule"}
+                        onChange={(e) => updateCampaignData("scheduleType", e.target.value)}
+                        className="mr-2"
+                      />
+                      Schedule for Later
+                    </label>
+                  </div>
+                </div>
+
+                {campaignData.scheduleType === "schedule" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                      <input
+                        type="date"
+                        value={campaignData.scheduledDate}
+                        onChange={(e) => updateCampaignData("scheduledDate", e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                      <input
+                        type="time"
+                        value={campaignData.scheduledTime}
+                        onChange={(e) => updateCampaignData("scheduledTime", e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="border-t pt-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={campaignData.autoFollowUp}
+                      onChange={(e) => updateCampaignData("autoFollowUp", e.target.checked)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Auto-follow up if no response</span>
+                  </label>
+                  {campaignData.autoFollowUp && (
+                    <div className="mt-2 ml-6">
+                      <label className="block text-sm text-gray-600 mb-1">Follow up after</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          value={campaignData.followUpDays}
+                          onChange={(e) => updateCampaignData("followUpDays", parseInt(e.target.value))}
+                          className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          min="1"
+                          max="30"
+                        />
+                        <span className="text-sm text-gray-600">days</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Send Button */}
+            <div className="flex justify-end">
+              <button
+                onClick={handleSend}
+                disabled={loading || !gmailAuthenticated || !campaignData.title || !campaignData.audience || !campaignData.subject || !campaignData.body}
+                className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Sending..." : campaignData.scheduleType === "now" ? "Send Campaign" : "Schedule Campaign"}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
