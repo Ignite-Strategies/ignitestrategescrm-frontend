@@ -143,7 +143,7 @@ export default function Dashboard() {
           </button>
 
           <button
-            onClick={() => navigate("/compose")}
+            onClick={() => navigate("/campaigns")}
             className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition border-2 border-transparent hover:border-purple-500 text-left"
           >
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
@@ -152,7 +152,7 @@ export default function Dashboard() {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-1">Email Campaigns</h3>
-            <p className="text-sm text-gray-600">Compose and send targeted emails to your contacts</p>
+            <p className="text-sm text-gray-600">View running campaigns or start a new campaign</p>
           </button>
 
           <button
