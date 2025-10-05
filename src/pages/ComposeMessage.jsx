@@ -76,9 +76,25 @@ export default function ComposeMessage() {
     }));
   };
 
-  const handleGmailAuth = () => {
-    // Navigate to the clean authentication page
-    navigate("/authenticate");
+  const handleGmailAuth = async () => {
+    setLoading(true);
+    setError("");
+    
+    try {
+      console.log("Starting Gmail auth from ComposeMessage...");
+      
+      // Use the working Google Auth directly
+      const result = await signInWithGoogle();
+      console.log("Gmail auth result:", result);
+      setUserEmail(result.email);
+      setGmailAuthenticated(true);
+      alert(`Authenticated with ${result.email}! You can now send emails.`);
+    } catch (error) {
+      console.error("Gmail auth error:", error);
+      alert("Failed to authenticate with Gmail. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSend = async () => {
@@ -152,12 +168,13 @@ export default function ComposeMessage() {
                   <span className="text-green-700 font-medium">Gmail Authenticated</span>
                   <span className="text-gray-600">({userEmail})</span>
                 </div>
-                <button
-                  onClick={handleGmailAuth}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition"
-                >
-                  Switch Account
-                </button>
+                        <button
+                          onClick={handleGmailAuth}
+                          disabled={loading}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition disabled:opacity-50"
+                        >
+                          {loading ? "Switching..." : "Switch Account"}
+                        </button>
               </div>
             ) : (
               <div className="flex items-center justify-between">
@@ -168,9 +185,10 @@ export default function ComposeMessage() {
                 </div>
                         <button
                           onClick={handleGmailAuth}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                          disabled={loading}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                         >
-                          Go to Gmail Auth
+                          {loading ? "Authenticating..." : "Authenticate Gmail"}
                         </button>
               </div>
             )}
