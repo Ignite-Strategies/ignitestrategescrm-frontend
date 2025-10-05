@@ -28,6 +28,7 @@ import Authenticate from "./pages/Authenticate.jsx";
 import ContactList from "./pages/ContactList.jsx";
 import EmailCampaigns from "./pages/EmailCampaigns.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
+import Templates from "./pages/Templates.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -137,6 +138,9 @@ export default function App() {
         } />
         <Route path="/create-list" element={
           <ProtectedRoute><CreateListOptions /></ProtectedRoute>
+        } />
+        <Route path="/templates" element={
+          <ProtectedRoute><Templates /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
