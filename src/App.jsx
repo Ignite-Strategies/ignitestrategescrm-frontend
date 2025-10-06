@@ -15,7 +15,6 @@ import ContactValidation from "./pages/ContactValidation.jsx";
 import ResolveErrors from "./pages/ResolveErrors.jsx";
 import SupporterManual from "./pages/SupporterManual.jsx";
 import ContactDetail from "./pages/ContactDetail.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
 import EventSuccess from "./pages/EventSuccess.jsx";
 import EventPipelines from "./pages/EventPipelines.jsx";
