@@ -1,6 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Home from "./pages/Home.jsx";
-import Welcome from "./pages/Welcome.jsx";
+import Landing from "./pages/Landing.jsx";
+import Signup from "./pages/Signup.jsx";
+import Signin from "./pages/Signin.jsx";
+import AuthCheck from "./pages/AuthCheck.jsx";
+import ProfileSetup from "./pages/ProfileSetup.jsx";
+import OrgChoose from "./pages/OrgChoose.jsx";
 import OrgCreate from "./pages/OrgCreate.jsx";
 import OrgSuccess from "./pages/OrgSuccess.jsx";
 import Supporters from "./pages/Supporters.jsx";
@@ -35,8 +39,12 @@ import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
 import EventTaskSuggestions from "./pages/EventTaskSuggestions.jsx";
 
-// NO AUTH FOR NOW - Just protect routes
+// Protected Route - Check for googleId
 function ProtectedRoute({ children }) {
+  const googleId = localStorage.getItem("googleId");
+  if (!googleId) {
+    return <Navigate to="/signup" replace />;
+  }
   return children;
 }
 
@@ -44,11 +52,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Welcome />} />
+        {/* Public Routes */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/signin" element={<Signin />} />
         
-        <Route path="/welcome" element={
-          <ProtectedRoute><Welcome /></ProtectedRoute>
-        } />
+        {/* Auth Flow */}
+        <Route path="/auth/check" element={<AuthCheck />} />
+        <Route path="/profile-setup" element={<ProfileSetup />} />
+        <Route path="/org/choose" element={<ProtectedRoute><OrgChoose /></ProtectedRoute>} />
         
         <Route path="/org/create" element={
           <ProtectedRoute><OrgCreate /></ProtectedRoute>
