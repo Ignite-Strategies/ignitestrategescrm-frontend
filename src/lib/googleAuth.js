@@ -1,173 +1,57 @@
-// Google Identity Services (GIS) implementation for Vite
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+import { auth } from "../firebase";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
-console.log("Google Client ID from env:", GOOGLE_CLIENT_ID);
-console.log("All import.meta.env keys:", Object.keys(import.meta.env));
-console.log("MODE:", import.meta.env.MODE);
+const googleProvider = new GoogleAuthProvider();
 
-if (!GOOGLE_CLIENT_ID) {
-  console.error("VITE_GOOGLE_CLIENT_ID environment variable is not set!");
-  console.error("Available env vars:", Object.keys(import.meta.env).filter(key => key.includes('GOOGLE')));
-}
+// Add Gmail scopes for email sending
+googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
+googleProvider.addScope('https://www.googleapis.com/auth/gmail.readonly');
 
-// Global token client instance
-let tokenClient = null;
-
-// Load Google Identity Services
-const loadGoogleAPI = () => {
-  return new Promise((resolve, reject) => {
-    if (window.google && window.google.accounts) {
-      console.log("Google Identity Services already loaded");
-      resolve();
-      return;
-    }
-
-    console.log("Loading Google Identity Services...");
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.onload = () => {
-      console.log("Google Identity Services loaded");
-      resolve();
-    };
-    script.onerror = (error) => {
-      console.error("Failed to load Google Identity Services:", error);
-      reject(error);
-    };
-    document.head.appendChild(script);
-  });
-};
-
-// Initialize the token client once (on page load)
-const initializeTokenClient = () => {
-  if (tokenClient) {
-    return tokenClient;
-  }
-
-  tokenClient = window.google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: "openid email profile https://www.googleapis.com/auth/gmail.send",
-    prompt: "", // try silent first, then use select_account in requestAccessToken
-    redirect_uri: "https://ignitestrategiescrm-frontend.vercel.app/authenticate",
-    callback: (response) => {
-      console.log('Token response:', response);
-      
-      if (response.error) {
-        console.error('Token error:', response.error);
-        window.dispatchEvent(new CustomEvent('googleAuthError', {
-          detail: response.error
-        }));
-        return;
-      }
-
-      // Store the access token
-      localStorage.setItem('gmailAccessToken', response.access_token);
-      
-      // Get user info using the access token
-      fetch(`https://www.googleapis.com/oauth2/v2/userinfo?access_token=${response.access_token}`)
-        .then(res => res.json())
-        .then(userInfo => {
-          console.log('User info:', userInfo);
-          
-          // Store user info
-          localStorage.setItem('userEmail', userInfo.email);
-          localStorage.setItem('userName', userInfo.name);
-          localStorage.setItem('userPhoto', userInfo.picture);
-          
-          // Trigger success event
-          window.dispatchEvent(new CustomEvent('googleAuthSuccess', {
-            detail: {
-              email: userInfo.email,
-              name: userInfo.name,
-              photoURL: userInfo.picture,
-              accessToken: response.access_token
-            }
-          }));
-        })
-        .catch(error => {
-          console.error('Error fetching user info:', error);
-          window.dispatchEvent(new CustomEvent('googleAuthError', {
-            detail: 'Failed to fetch user info'
-          }));
-        });
-    }
-  });
-
-  return tokenClient;
-};
-
-// Sign in with Google using GIS
-export const signInWithGoogle = async () => {
+/**
+ * Sign in with Google using Firebase
+ */
+export async function signInWithGoogle() {
   try {
-    console.log('Starting Google sign-in with GIS...');
-    await loadGoogleAPI();
+    console.log("🔐 Initiating Google sign-in via Firebase...");
     
-    if (!window.google || !window.google.accounts) {
-      throw new Error('Google Identity Services not available');
-    }
-
-    return new Promise((resolve, reject) => {
-      // Initialize the token client (only once)
-      const client = initializeTokenClient();
-      
-      // Set up success listener
-      const handleSuccess = (event) => {
-        window.removeEventListener('googleAuthSuccess', handleSuccess);
-        window.removeEventListener('googleAuthError', handleError);
-        resolve(event.detail);
-      };
-      
-      const handleError = (event) => {
-        window.removeEventListener('googleAuthSuccess', handleSuccess);
-        window.removeEventListener('googleAuthError', handleError);
-        reject(new Error(event.detail));
-      };
-      
-      window.addEventListener('googleAuthSuccess', handleSuccess);
-      window.addEventListener('googleAuthError', handleError);
-
-      // Request access token with account chooser (this is the "switch account" pattern)
-      console.log('Requesting access token with account chooser...');
-      client.requestAccessToken({ prompt: "select_account" });
-    });
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    
+    console.log("✅ Firebase auth successful");
+    console.log("📧 Email:", user.email);
+    console.log("🆔 UID:", user.uid);
+    
+    return {
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName,
+      photoURL: user.photoURL,
+      accessToken: credential?.accessToken || null
+    };
   } catch (error) {
-    console.error('Google sign-in error:', error);
+    console.error("❌ Google sign-in error:", error);
     throw error;
   }
-};
+}
 
-// Sign out
-export const signOutUser = async () => {
+/**
+ * Sign out user
+ */
+export async function signOutUser() {
   try {
-    if (window.google && window.google.accounts) {
-      window.google.accounts.id.disableAutoSelect();
-    }
+    await signOut(auth);
+    localStorage.clear();
+    console.log("✅ User signed out");
   } catch (error) {
-    console.error('Sign out error:', error);
+    console.error("❌ Sign out error:", error);
+    throw error;
   }
-  
-  // Clear all stored data
-  localStorage.removeItem('gmailAccessToken');
-  localStorage.removeItem('userEmail');
-  localStorage.removeItem('userName');
-  localStorage.removeItem('userPhoto');
-};
+}
 
-// Clear all Google auth state (only localStorage, keep GIS client)
-export const clearAllGoogleAuth = async () => {
-  // Only clear localStorage, don't touch the GIS client
-  localStorage.removeItem('gmailAccessToken');
-  localStorage.removeItem('userEmail');
-  localStorage.removeItem('userName');
-  localStorage.removeItem('userPhoto');
-  console.log('Google auth localStorage cleared');
-};
-
-// Get current Gmail access token
-export const getGmailAccessToken = () => {
-  return localStorage.getItem('gmailAccessToken');
-};
-
-// Check if user is signed in
-export const isSignedIn = () => {
-  return !!localStorage.getItem('gmailAccessToken');
-};
+/**
+ * Get current user
+ */
+export function getCurrentUser() {
+  return auth.currentUser;
+}
