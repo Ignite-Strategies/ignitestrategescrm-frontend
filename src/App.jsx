@@ -30,6 +30,7 @@ import EmailCampaigns from "./pages/EmailCampaigns.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
 import Templates from "./pages/Templates.jsx";
 import SendEmail from "./pages/SendEmail.jsx";
+import Events from "./pages/Events.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -88,6 +89,9 @@ export default function App() {
         } />
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
+        } />
+        <Route path="/events" element={
+          <ProtectedRoute><Events /></ProtectedRoute>
         } />
         <Route path="/event/create" element={
           <ProtectedRoute><EventCreate /></ProtectedRoute>
