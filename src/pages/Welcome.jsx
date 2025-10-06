@@ -70,10 +70,10 @@ export default function Welcome() {
       setOrgName(org.name);
       setLoading(false);
       
-      // Redirect to dashboard
+      // Redirect to dashboard (give time to read org ID)
       setTimeout(() => {
         navigate("/dashboard");
-      }, 800);
+      }, 5000); // 5 seconds to copy org ID
     } catch (error) {
       console.error("❌ Hydration error:", error);
       // Still redirect even if error
