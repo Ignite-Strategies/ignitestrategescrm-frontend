@@ -55,3 +55,29 @@ export async function signOutUser() {
 export function getCurrentUser() {
   return auth.currentUser;
 }
+
+/**
+ * Check if user is signed in
+ */
+export function isSignedIn() {
+  return auth.currentUser !== null;
+}
+
+/**
+ * Get Gmail access token (stub for now)
+ */
+export function getGmailAccessToken() {
+  // TODO: Implement Gmail API token refresh
+  return localStorage.getItem("gmailAccessToken") || null;
+}
+
+/**
+ * Clear all Google auth data
+ */
+export function clearAllGoogleAuth() {
+  localStorage.removeItem("googleId");
+  localStorage.removeItem("email");
+  localStorage.removeItem("gmailAccessToken");
+  localStorage.removeItem("orgId");
+  localStorage.removeItem("orgName");
+}
