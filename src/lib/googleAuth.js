@@ -3,10 +3,6 @@ import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
 const googleProvider = new GoogleAuthProvider();
 
-// Add Gmail scopes for email sending
-googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
-googleProvider.addScope('https://www.googleapis.com/auth/gmail.readonly');
-
 /**
  * Sign in with Google using Firebase
  */
@@ -64,11 +60,10 @@ export function isSignedIn() {
 }
 
 /**
- * Get Gmail access token (stub for now)
+ * Get Gmail access token (deprecated - using SendGrid now)
  */
 export function getGmailAccessToken() {
-  // TODO: Implement Gmail API token refresh
-  return localStorage.getItem("gmailAccessToken") || null;
+  return null;
 }
 
 /**
