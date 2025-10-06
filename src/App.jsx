@@ -35,7 +35,7 @@ import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
 import EventTaskSuggestions from "./pages/EventTaskSuggestions.jsx";
 
-// NO AUTH FOR NOW - Just redirect to dashboard
+// NO AUTH FOR NOW - Just protect routes
 function ProtectedRoute({ children }) {
   return children;
 }
@@ -44,7 +44,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Welcome />} />
         
         <Route path="/welcome" element={
           <ProtectedRoute><Welcome /></ProtectedRoute>

@@ -1,19 +1,41 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getOrgName } from "../lib/org";
+import api from "../lib/api";
 
 export default function Welcome() {
   const navigate = useNavigate();
-  const orgName = getOrgName();
+  const [orgName, setOrgName] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Redirect to dashboard after 1.5 seconds
-    const timer = setTimeout(() => {
-      navigate("/dashboard");
-    }, 1500);
+    hydrateOrg();
+  }, []);
 
-    return () => clearTimeout(timer);
-  }, [navigate]);
+  const hydrateOrg = async () => {
+    try {
+      // Fetch first org (auto-hydrate)
+      const orgRes = await api.get('/orgs/first');
+      const org = orgRes.data;
+      
+      // Store in localStorage
+      localStorage.setItem('orgId', org.id);
+      localStorage.setItem('orgName', org.name);
+      
+      setOrgName(org.name);
+      setLoading(false);
+      
+      // Redirect to dashboard after 1 second
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
+    } catch (error) {
+      console.error("Error hydrating org:", error);
+      // Still redirect even if error
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center px-4">
