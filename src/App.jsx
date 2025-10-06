@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Landing from "./pages/Landing.jsx";
+import Splash from "./pages/Splash.jsx";
 import Signup from "./pages/Signup.jsx";
 import Signin from "./pages/Signin.jsx";
 import AuthCheck from "./pages/AuthCheck.jsx";
@@ -7,6 +7,7 @@ import ProfileSetup from "./pages/ProfileSetup.jsx";
 import OrgChoose from "./pages/OrgChoose.jsx";
 import OrgCreate from "./pages/OrgCreate.jsx";
 import OrgSuccess from "./pages/OrgSuccess.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 import Supporters from "./pages/Supporters.jsx";
 import UploadSupportersCSV from "./pages/UploadSupportersCSV.jsx";
 import UploadPreview from "./pages/UploadPreview.jsx";
@@ -52,8 +53,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Landing />} />
+        {/* Splash Screen (checks auth) */}
+        <Route path="/" element={<Splash />} />
+        
+        {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         
