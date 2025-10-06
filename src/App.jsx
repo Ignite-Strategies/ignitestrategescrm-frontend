@@ -35,29 +35,16 @@ import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
 import EventTaskSuggestions from "./pages/EventTaskSuggestions.jsx";
 
-// Protected Route - simple localStorage check
+// NO AUTH FOR NOW - Just redirect to dashboard
 function ProtectedRoute({ children }) {
-  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-  
   return children;
 }
 
 export default function App() {
-  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-  const orgId = localStorage.getItem("orgId");
-
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={
-          isAuthenticated && orgId ? <Navigate to="/welcome" replace /> : 
-          isAuthenticated && !orgId ? <Navigate to="/org/create" replace /> :
-          <Home />
-        } />
+        <Route path="/" element={<Dashboard />} />
         
         <Route path="/welcome" element={
           <ProtectedRoute><Welcome /></ProtectedRoute>
