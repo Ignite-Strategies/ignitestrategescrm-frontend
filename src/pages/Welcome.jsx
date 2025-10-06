@@ -95,7 +95,15 @@ export default function Welcome() {
         </div>
         
         <h1 className="text-4xl font-bold text-white mb-2">Welcome Back!</h1>
-        <p className="text-xl text-white/80 mb-8">Taking you to your {orgName || "organization"} dashboard...</p>
+        <p className="text-xl text-white/80 mb-4">Taking you to your {orgName || "organization"} dashboard...</p>
+        
+        {/* Show org ID for debugging */}
+        <div className="bg-white/10 backdrop-blur rounded-lg p-4 mb-8 max-w-md mx-auto">
+          <p className="text-xs text-white/60 mb-1">Org ID (for debugging):</p>
+          <p className="text-sm text-white/90 font-mono break-all">
+            {localStorage.getItem('orgId') || 'Loading...'}
+          </p>
+        </div>
         
         <div className="flex justify-center">
           <div className="w-64 h-1 bg-white/30 rounded-full overflow-hidden">
