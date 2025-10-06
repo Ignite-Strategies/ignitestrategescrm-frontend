@@ -11,7 +11,10 @@ export default function EventCreate() {
     slug: "",
     description: "",
     date: "",
-    time: "",
+    startTime: "",
+    startPeriod: "PM",
+    endTime: "",
+    endPeriod: "PM",
     eventVenueName: "",
     eventStreet: "",
     eventCity: "",
@@ -27,12 +30,17 @@ export default function EventCreate() {
     e.preventDefault();
 
     try {
+      // Build time string from separate inputs (guided UX)
+      const startTimeString = `${formData.startTime} ${formData.startPeriod}`;
+      const endTimeString = formData.endTime ? `${formData.endTime} ${formData.endPeriod}` : null;
+      const timeString = endTimeString ? `${startTimeString} - ${endTimeString}` : startTimeString;
+
       const response = await api.post(`/orgs/${orgId}/events`, {
         name: formData.name,
         slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
         description: formData.description,
         date: formData.date,
-        time: formData.time,
+        time: timeString,
         eventVenueName: formData.eventVenueName,
         eventStreet: formData.eventStreet,
         eventCity: formData.eventCity,
@@ -113,19 +121,53 @@ export default function EventCreate() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Event Time
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    placeholder="6:00 PM - 9:00 PM"
-                    required
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Enter time in any format (e.g., "6 PM - 9 PM", "18:00-21:00")</p>
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Start Time
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        value={formData.startTime}
+                        onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                        placeholder="6:00"
+                        required
+                      />
+                      <select
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        value={formData.startPeriod}
+                        onChange={(e) => setFormData({ ...formData, startPeriod: e.target.value })}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      End Time (Optional)
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        value={formData.endTime}
+                        onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                        placeholder="9:00"
+                      />
+                      <select
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        value={formData.endPeriod}
+                        onChange={(e) => setFormData({ ...formData, endPeriod: e.target.value })}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
