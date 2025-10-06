@@ -31,6 +31,7 @@ import CreateListOptions from "./pages/CreateListOptions.jsx";
 import Templates from "./pages/Templates.jsx";
 import SendEmail from "./pages/SendEmail.jsx";
 import Events from "./pages/Events.jsx";
+import Tasks from "./pages/Tasks.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -116,6 +117,9 @@ export default function App() {
         } />
         <Route path="/event/:eventId/edit" element={
           <ProtectedRoute><EventEdit /></ProtectedRoute>
+        } />
+        <Route path="/event/:eventId/tasks" element={
+          <ProtectedRoute><Tasks /></ProtectedRoute>
         } />
         <Route path="/email" element={
           <ProtectedRoute><EngageEmail /></ProtectedRoute>
