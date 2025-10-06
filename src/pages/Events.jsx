@@ -300,7 +300,32 @@ export default function Events() {
                     {/* Action Buttons */}
                     <div className="flex gap-3">
                       <button
-                        onClick={() => navigate(`/event/${event.id}/tasks`)}
+                        onClick={async () => {
+                          // Smart routing: Check if pretask survey done, if tasks exist
+                          try {
+                            const tasksRes = await api.get(`/events/${event.id}/tasks`);
+                            const hasTasks = tasksRes.data && tasksRes.data.length > 0;
+                            
+                            if (hasTasks) {
+                              // Has tasks → Go to task dashboard
+                              navigate(`/event/${event.id}/tasks`);
+                            } else {
+                              // No tasks → Check if survey done
+                              const surveyRes = await api.get(`/events/${event.id}/pretask-survey`).catch(() => null);
+                              
+                              if (surveyRes && surveyRes.data) {
+                                // Survey done → Go pick tasks
+                                navigate(`/event/${event.id}/task-suggestions`);
+                              } else {
+                                // No survey → Start with baseline
+                                navigate(`/event/${event.id}/setup`);
+                              }
+                            }
+                          } catch (error) {
+                            // Error → Default to setup survey
+                            navigate(`/event/${event.id}/setup`);
+                          }
+                        }}
                         className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium"
                       >
                         📋 View Tasks
