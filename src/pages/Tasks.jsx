@@ -16,29 +16,31 @@ export default function Tasks() {
   const loadTasks = async () => {
     try {
       setLoading(true);
-      const [tasksRes, statsRes] = await Promise.all([
-        api.get(`/events/${eventId}/tasks?grouped=true`),
-        api.get(`/events/${eventId}/tasks/stats`)
-      ]);
-      setTasks(tasksRes.data);
-      setStats(statsRes.data);
+      const tasksRes = await api.get(`/events/${eventId}/tasks`);
+      
+      // Group tasks by category
+      const grouped = (tasksRes.data || []).reduce((acc, task) => {
+        if (!acc[task.category]) acc[task.category] = [];
+        acc[task.category].push(task);
+        return acc;
+      }, {});
+      
+      setTasks(grouped);
+      
+      // Calculate stats
+      const allTasks = tasksRes.data || [];
+      const completed = allTasks.filter(t => t.completed).length;
+      setStats({
+        total: allTasks.length,
+        completed,
+        percentage: allTasks.length > 0 ? Math.round((completed / allTasks.length) * 100) : 0
+      });
     } catch (error) {
       console.error("Error loading tasks:", error);
-      // If no tasks exist, generate initial ones
-      if (error.response?.status === 404 || Object.keys(tasks).length === 0) {
-        await generateTasks();
-      }
+      setTasks({});
+      setStats({ total: 0, completed: 0, percentage: 0 });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const generateTasks = async () => {
-    try {
-      await api.post(`/events/${eventId}/tasks/generate`);
-      await loadTasks();
-    } catch (error) {
-      console.error("Error generating tasks:", error);
     }
   };
 
@@ -96,8 +98,56 @@ export default function Tasks() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* No Tasks Yet - Show Funnel */}
+        {stats && stats.total === 0 ? (
+          <div className="bg-white rounded-lg shadow-xl p-12 text-center">
+            <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Let's Build Your Task List!</h2>
+            <p className="text-gray-600 mb-8">Choose how you want to set up your event tasks</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {/* Option 1: Baseline Survey */}
+              <button
+                onClick={() => navigate(`/event/${eventId}/setup`)}
+                className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-8 rounded-xl hover:from-purple-600 hover:to-purple-700 transition text-left"
+              >
+                <div className="text-4xl mb-4">📋</div>
+                <h3 className="text-xl font-bold mb-2">Baseline Survey</h3>
+                <p className="text-purple-100 text-sm">Answer questions to get personalized task suggestions</p>
+              </button>
+
+              {/* Option 2: Pick Sample Tasks */}
+              <button
+                onClick={() => navigate(`/event/${eventId}/task-suggestions`)}
+                className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-8 rounded-xl hover:from-indigo-600 hover:to-indigo-700 transition text-left"
+              >
+                <div className="text-4xl mb-4">✅</div>
+                <h3 className="text-xl font-bold mb-2">Pick Sample Tasks</h3>
+                <p className="text-indigo-100 text-sm">Choose from our curated task list</p>
+              </button>
+
+              {/* Option 3: Create Your Own */}
+              <button
+                onClick={() => {
+                  // TODO: Create custom task modal
+                  alert("Custom task creation coming soon!");
+                }}
+                className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-8 rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition text-left"
+              >
+                <div className="text-4xl mb-4">✏️</div>
+                <h3 className="text-xl font-bold mb-2">Create Your Own</h3>
+                <p className="text-emerald-100 text-sm">Build a custom task list from scratch</p>
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {/* Progress Overview */}
-        {stats && (
+        {stats && stats.total > 0 && (
           <div className="bg-white rounded-lg shadow p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
