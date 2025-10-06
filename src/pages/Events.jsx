@@ -300,22 +300,22 @@ export default function Events() {
                     {/* Action Buttons */}
                     <div className="flex gap-3">
                       <button
+                        onClick={() => navigate(`/event/${event.id}/tasks`)}
+                        className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium"
+                      >
+                        📋 View Tasks
+                      </button>
+                      <button
                         onClick={() => navigate(`/event/${event.id}/pipelines`)}
                         className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
                       >
-                        Manage Pipeline
+                        Pipeline
                       </button>
                       <button
                         onClick={() => navigate(`/event/${event.id}/edit`)}
                         className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
                       >
                         Edit
-                      </button>
-                      <button
-                        onClick={() => navigate(`/event/${event.id}/pipeline-config`)}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
-                      >
-                        Settings
                       </button>
                     </div>
                   </div>
