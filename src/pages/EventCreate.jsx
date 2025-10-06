@@ -11,8 +11,15 @@ export default function EventCreate() {
     slug: "",
     description: "",
     date: "",
-    time: "",
-    location: "",
+    startTime: "",
+    startPeriod: "PM",
+    endTime: "",
+    endPeriod: "PM",
+    venueName: "",
+    street: "",
+    city: "",
+    state: "",
+    zip: "",
     hasTickets: false,
     ticketCost: 0
   });
@@ -21,13 +28,22 @@ export default function EventCreate() {
     e.preventDefault();
 
     try {
+      // Build time string
+      const startTimeString = `${formData.startTime} ${formData.startPeriod}`;
+      const endTimeString = formData.endTime ? `${formData.endTime} ${formData.endPeriod}` : null;
+      const timeString = endTimeString ? `${startTimeString} - ${endTimeString}` : startTimeString;
+
       const response = await api.post(`/orgs/${orgId}/events`, {
         name: formData.name,
         slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
         description: formData.description,
         date: formData.date,
-        time: formData.time,
-        location: formData.location,
+        time: timeString,
+        venueName: formData.venueName,
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        zip: formData.zip,
         hasTickets: formData.hasTickets,
         ticketCost: parseFloat(formData.ticketCost) || 0
       });
@@ -88,44 +104,147 @@ export default function EventCreate() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    required
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date
+                      Start Time
                     </label>
-                    <input
-                      type="date"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                      value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        value={formData.startTime}
+                        onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                        placeholder="6:00"
+                        required
+                      />
+                      <select
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        value={formData.startPeriod}
+                        onChange={(e) => setFormData({ ...formData, startPeriod: e.target.value })}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Time
+                      End Time (Optional)
                     </label>
-                    <input
-                      type="text"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                      value={formData.time}
-                      onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                      placeholder="7:00 PM"
-                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        value={formData.endTime}
+                        onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                        placeholder="9:00"
+                      />
+                      <select
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                        value={formData.endPeriod}
+                        onChange={(e) => setFormData({ ...formData, endPeriod: e.target.value })}
+                      >
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
 
+            {/* Location Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Event Location</h3>
+              
+              <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location
+                    Venue Name
                   </label>
                   <input
                     type="text"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="Downtown Brewery"
+                    value={formData.venueName}
+                    onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
+                    placeholder="Port City Brewing"
+                    required
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Street Address
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    value={formData.street}
+                    onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                    placeholder="123 Main Street"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-6 gap-4">
+                  <div className="col-span-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      placeholder="Alexandria"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      value={formData.state}
+                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                      placeholder="VA"
+                      maxLength="2"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ZIP
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      value={formData.zip}
+                      onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+                      placeholder="22314"
+                      maxLength="5"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
             </div>
