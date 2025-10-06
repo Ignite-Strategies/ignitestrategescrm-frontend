@@ -102,17 +102,17 @@ export default function EventSuccess() {
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate(`/event/${eventId}/pipelines`)}
+              onClick={() => navigate(`/event/${eventId}/setup`)}
               className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
-              Set Up Pipelines →
+              Set Up Event Tasks →
             </button>
 
             <button
-              onClick={() => navigate(`/event/${eventId}/engagement-advisory`)}
+              onClick={() => navigate(`/event/${eventId}/pipelines`)}
               className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 transition"
             >
-              Goals & Audience Advisory
+              Start Inviting People
             </button>
 
             <button
