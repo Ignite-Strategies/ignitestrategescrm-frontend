@@ -5,7 +5,6 @@ import { getOrgId } from "../lib/org";
 import { signOutUser } from "../lib/googleAuth";
 
 export default function Dashboard() {
-  const orgId = getOrgId();
   const navigate = useNavigate();
   const [org, setOrg] = useState(null);
   const [events, setEvents] = useState([]);
@@ -13,10 +12,27 @@ export default function Dashboard() {
   const [upcomingEvent, setUpcomingEvent] = useState(null);
 
   useEffect(() => {
-    loadData();
-  }, [orgId]);
+    hydrateOrg();
+  }, []);
 
-  const loadData = async () => {
+  const hydrateOrg = async () => {
+    try {
+      // Fetch first org (auto-hydrate orgId)
+      const orgRes = await api.get('/orgs/first');
+      const fetchedOrg = orgRes.data;
+      
+      // Store in localStorage
+      localStorage.setItem('orgId', fetchedOrg.id);
+      localStorage.setItem('orgName', fetchedOrg.name);
+      
+      // Load rest of dashboard data
+      loadData(fetchedOrg.id);
+    } catch (error) {
+      console.error("Error hydrating org:", error);
+    }
+  };
+
+  const loadData = async (orgId) => {
     try {
       const [orgRes, eventsRes, supportersRes] = await Promise.all([
         api.get(`/orgs/${orgId}`),
