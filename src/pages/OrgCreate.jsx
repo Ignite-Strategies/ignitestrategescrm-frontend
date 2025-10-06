@@ -26,27 +26,25 @@ export default function OrgCreate() {
     try {
       const response = await api.post("/orgs", {
         name: formData.name,
+        slug: formData.name.toLowerCase().replace(/\s+/g, '-'),
         mission: formData.mission,
         website: formData.website,
-        address: {
-          street: formData.street,
-          city: formData.city,
-          state: formData.state,
-          zip: formData.zip
-        },
-        socials: {
-          x: formData.x,
-          instagram: formData.instagram,
-          facebook: formData.facebook,
-          linkedin: formData.linkedin
-        }
+        // Flat fields (matches Prisma Organization model)
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        zip: formData.zip,
+        x: formData.x,
+        instagram: formData.instagram,
+        facebook: formData.facebook,
+        linkedin: formData.linkedin
       });
 
       // Store orgId globally
-      localStorage.setItem("orgId", response.data._id);
+      localStorage.setItem("orgId", response.data.id);
       localStorage.setItem("orgName", response.data.name);
       
-      navigate("/org/success");
+      navigate("/welcome");
     } catch (error) {
       alert("Error creating organization: " + error.message);
     } finally {
