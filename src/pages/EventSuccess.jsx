@@ -1,8 +1,42 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 export default function EventSuccess() {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const orgId = getOrgId();
+  const [event, setEvent] = useState(null);
+  const [goals, setGoals] = useState(null);
+
+  useEffect(() => {
+    loadEventAndCalculateGoals();
+  }, [eventId]);
+
+  const loadEventAndCalculateGoals = async () => {
+    try {
+      const response = await api.get(`/orgs/${orgId}/events/${eventId}`);
+      const eventData = response.data;
+      setEvent(eventData);
+
+      // Calculate goals if fundraising goal is set
+      if (eventData.fundraisingGoal > 0 && eventData.ticketCost > 0) {
+        const totalNeeded = eventData.fundraisingGoal + (eventData.additionalExpenses || 0);
+        const ticketsNeeded = Math.ceil(totalNeeded / eventData.ticketCost);
+        const invitesNeeded = Math.ceil(ticketsNeeded / 0.25); // 25% conversion rate
+
+        setGoals({
+          totalNeeded,
+          ticketsNeeded,
+          invitesNeeded,
+          conversionRate: 25
+        });
+      }
+    } catch (error) {
+      console.error("Error loading event:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4">
@@ -18,12 +52,35 @@ export default function EventSuccess() {
 
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Event Created Successfully! 🎉</h1>
           <p className="text-gray-600 mb-6">
-            Great! Your event is now set up in the system.
+            {event ? event.name : "Your event"} is now set up in the system.
           </p>
+
+          {/* Goal Calculations */}
+          {goals && (
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-6 mb-6">
+              <h3 className="font-semibold text-green-900 mb-4 text-lg">🎯 Your Goals Breakdown</h3>
+              <div className="space-y-3 text-left">
+                <div className="bg-white p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Total Needed (Goal + Expenses)</p>
+                  <p className="text-2xl font-bold text-gray-900">${goals.totalNeeded.toLocaleString()}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Tickets You Need to Sell</p>
+                  <p className="text-2xl font-bold text-indigo-600">{goals.ticketsNeeded} tickets</p>
+                  <p className="text-xs text-gray-500 mt-1">@ ${event.ticketCost} per ticket</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg">
+                  <p className="text-sm text-gray-600">Invites You Need to Send</p>
+                  <p className="text-2xl font-bold text-purple-600">{goals.invitesNeeded} invites</p>
+                  <p className="text-xs text-gray-500 mt-1">Assuming {goals.conversionRate}% conversion rate</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
             <h3 className="font-semibold text-blue-900 mb-3">What happens next?</h3>
-            <div className="space-y-2 text-sm text-blue-800">
+            <div className="space-y-2 text-sm text-blue-800 text-left">
               <div className="flex items-start">
                 <span className="font-semibold mr-2">1.</span>
                 <span>Set up your event pipeline to start targeting supporters</span>
@@ -34,11 +91,11 @@ export default function EventSuccess() {
               </div>
               <div className="flex items-start">
                 <span className="font-semibold mr-2">3.</span>
-                <span>Move people through stages: Member → Soft Commit → Paid</span>
+                <span>Move people through stages: In Funnel → Personal Invite → Paid</span>
               </div>
               <div className="flex items-start">
                 <span className="font-semibold mr-2">4.</span>
-                <span>Optional: Set goals and audience targets for planning</span>
+                <span>Track invites sent and tickets sold toward your goal</span>
               </div>
             </div>
           </div>

@@ -29,13 +29,15 @@ export default function ContactListSelect() {
     { value: "family_prospect", label: "Family Prospects", description: "Friends, family, co-workers, neighbors" }
   ];
 
-  // Stage options
+  // Stage options (New 7-stage funnel)
   const STAGE_OPTIONS = [
-    { value: "aware", label: "Aware" },
-    { value: "member", label: "Prospective Attendee" },
+    { value: "in_funnel", label: "In Funnel" },
+    { value: "general_awareness", label: "General Awareness" },
+    { value: "personal_invite", label: "Personal Invite" },
+    { value: "expressed_interest", label: "Expressed Interest" },
     { value: "soft_commit", label: "Soft Commit" },
     { value: "paid", label: "Paid" },
-    { value: "lost", label: "Can't Make It" }
+    { value: "cant_attend", label: "Can't Attend" }
   ];
 
   useEffect(() => {

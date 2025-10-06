@@ -21,7 +21,9 @@ export default function EventCreate() {
     state: "",
     zip: "",
     hasTickets: false,
-    ticketCost: 0
+    ticketCost: 0,
+    fundraisingGoal: 0,
+    additionalExpenses: 0
   });
 
   const handleSubmit = async (e) => {
@@ -45,7 +47,9 @@ export default function EventCreate() {
         state: formData.state,
         zip: formData.zip,
         hasTickets: formData.hasTickets,
-        ticketCost: parseFloat(formData.ticketCost) || 0
+        ticketCost: parseFloat(formData.ticketCost) || 0,
+        fundraisingGoal: parseFloat(formData.fundraisingGoal) || 0,
+        additionalExpenses: parseFloat(formData.additionalExpenses) || 0
       });
 
       navigate(`/event/${response.data._id}/success`);
@@ -249,9 +253,62 @@ export default function EventCreate() {
               </div>
             </div>
 
+            {/* Fundraising Goals */}
+            <div className="border-t pt-6">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-lg border-2 border-green-200 mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">💰 Fundraising Goals</h3>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Fundraising Goal
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        value={formData.fundraisingGoal}
+                        onChange={(e) => setFormData({ ...formData, fundraisingGoal: e.target.value })}
+                        placeholder="5000"
+                        min="0"
+                        step="100"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Additional Expenses
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <input
+                        type="number"
+                        className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                        value={formData.additionalExpenses}
+                        onChange={(e) => setFormData({ ...formData, additionalExpenses: e.target.value })}
+                        placeholder="500"
+                        min="0"
+                        step="50"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {formData.fundraisingGoal > 0 && (
+                  <div className="bg-white p-4 rounded-lg border border-green-200">
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold">Total Needed:</span> ${(parseFloat(formData.fundraisingGoal) + parseFloat(formData.additionalExpenses || 0)).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Ticket Options */}
             <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Ticket Options</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">🎟️ Ticket Options</h3>
               
               <div className="space-y-4">
                 <div className="flex items-center">
