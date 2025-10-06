@@ -19,9 +19,9 @@ export default function Welcome() {
 
   const hydrateOrg = async () => {
     try {
-      console.log('🚀 MASSIVE HYDRATION STARTING...');
+      console.log('🔍 Checking for organization...');
       
-      // 1. Fetch org first
+      // Fetch first org
       const orgRes = await api.get('/orgs/first').catch(() => null);
       
       // No org exists - redirect to create one
@@ -32,57 +32,20 @@ export default function Welcome() {
       }
       
       const org = orgRes.data;
-      
-      console.log('✅ Org loaded:', org.name);
+      console.log('✅ Org found:', org.name);
+      console.log('📋 Org ID:', org.id);
       
       // Store org in localStorage
       localStorage.setItem('orgId', org.id);
       localStorage.setItem('orgName', org.name);
       
-      // 2. LOAD EVERYTHING IN PARALLEL
-      const [eventsRes, supportersRes, templatesRes, contactListsRes] = await Promise.all([
-        api.get(`/orgs/${org.id}/events`).catch(() => ({ data: [] })),
-        api.get(`/orgs/${org.id}/supporters`).catch(() => ({ data: [] })),
-        api.get(`/orgs/${org.id}/templates`).catch(() => ({ data: [] })),
-        api.get(`/orgs/${org.id}/contact-lists`).catch(() => ({ data: [] }))
-      ]);
-      
-      console.log(`✅ Events: ${eventsRes.data.length}`);
-      console.log(`✅ Supporters: ${supportersRes.data.length}`);
-      console.log(`✅ Templates: ${templatesRes.data.length}`);
-      console.log(`✅ Contact Lists: ${contactListsRes.data.length}`);
-      
-      // 3. Store everything in localStorage for instant access
-      localStorage.setItem('events', JSON.stringify(eventsRes.data));
-      localStorage.setItem('supporters', JSON.stringify(supportersRes.data));
-      localStorage.setItem('templates', JSON.stringify(templatesRes.data));
-      localStorage.setItem('contactLists', JSON.stringify(contactListsRes.data));
-      
-      // 4. Store counts for dashboard
-      localStorage.setItem('eventCount', eventsRes.data.length);
-      localStorage.setItem('supporterCount', supportersRes.data.length);
-      
-      // 5. Find upcoming event
-      const now = new Date();
-      const upcomingEvent = eventsRes.data
-        .filter(e => e.date && new Date(e.date) >= now)
-        .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
-      
-      if (upcomingEvent) {
-        localStorage.setItem('upcomingEvent', JSON.stringify(upcomingEvent));
-        console.log('✅ Upcoming event:', upcomingEvent.name);
-      }
-      
-      console.log('🎉 HYDRATION COMPLETE! APP IS LOADED!');
-      
       setOrgName(org.name);
       setLoading(false);
+      
+      console.log('✅ Hydration complete!');
     } catch (error) {
       console.error("❌ Hydration error:", error);
-      // Still redirect even if error
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1000);
+      navigate('/org/create');
     }
   };
 
