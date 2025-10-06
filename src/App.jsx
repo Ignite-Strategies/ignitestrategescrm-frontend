@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Home from "./pages/Home.jsx";
+import Splash from "./pages/Splash.jsx";
 import Signup from "./pages/Signup.jsx";
 import Signin from "./pages/Signin.jsx";
 import Welcome from "./pages/Welcome.jsx";
@@ -53,7 +53,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         {/* Splash Screen (checks auth) */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Splash />} />
         
         {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />
