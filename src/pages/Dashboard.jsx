@@ -78,7 +78,7 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total Contacts */}
           <button
             onClick={() => navigate("/supporters")}
@@ -93,10 +93,10 @@ export default function Dashboard() {
               </div>
             </div>
             <p className="text-3xl font-bold text-gray-900">{supporterCount.toLocaleString()}</p>
-            <p className="text-sm text-gray-500 mt-1">Click to view all contacts</p>
+            <p className="text-sm text-gray-500 mt-1">All contacts</p>
           </button>
 
-          {/* Upcoming Event */}
+          {/* Next Event */}
           <button
             onClick={() => upcomingEvent && navigate(`/event/${upcomingEvent.id}/pipelines`)}
             disabled={!upcomingEvent}
@@ -107,7 +107,7 @@ export default function Dashboard() {
             }`}
           >
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Upcoming Event</h3>
+              <h3 className="text-sm font-medium text-gray-600">Next Event</h3>
               <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -127,10 +127,10 @@ export default function Dashboard() {
             )}
           </button>
 
-          {/* Pipeline Progress (TODO: calculate actual invites sent) */}
+          {/* Total Invited */}
           <div className="bg-white p-6 rounded-lg shadow text-left border-2 border-transparent">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Campaign Activity</h3>
+              <h3 className="text-sm font-medium text-gray-600">Total Invited</h3>
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -138,160 +138,121 @@ export default function Dashboard() {
               </div>
             </div>
             <p className="text-3xl font-bold text-gray-900">—</p>
-            <p className="text-sm text-gray-500 mt-1">Campaigns coming soon</p>
+            <p className="text-sm text-gray-500 mt-1">Coming soon</p>
+          </div>
+
+          {/* Progress to Goal */}
+          <div className="bg-white p-6 rounded-lg shadow text-left border-2 border-transparent">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-gray-600">Progress to Goal</h3>
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-gray-900">—</p>
+            <p className="text-sm text-gray-500 mt-1">Coming soon</p>
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow mb-8 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={() => navigate("/event/create")}
-              className="px-6 py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Create Event
-            </button>
-            <button
-              onClick={() => navigate("/supporters/upload")}
-              className="px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              Upload Contacts
-            </button>
-            <button
-              onClick={() => navigate("/campaigns")}
-              className="px-6 py-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              Start Campaign
-            </button>
-          </div>
-        </div>
-
-        {/* Section Navigation */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Events Section */}
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer" onClick={() => navigate("/events")}>
+        {/* HubSpot-Style Main Navigation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          {/* Org Member Management */}
+          <button
+            onClick={() => navigate("/supporters")}
+            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+          >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Events</h3>
-              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Org Member Management</h2>
+            <p className="text-blue-100 text-sm mb-4">Master contact list, upload, search, and organize members</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">View Contacts</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Upload</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Master List</span>
+            </div>
+          </button>
+
+          {/* Event Management */}
+          <button
+            onClick={() => navigate("/events")}
+            className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
+              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </div>
-            <p className="text-2xl font-bold text-gray-900 mb-2">{events.length}</p>
-            <p className="text-sm text-gray-600 mb-4">Total events</p>
-            <div className="space-y-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/event/create");
-                }}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-              >
-                → Create Event
-              </button>
-              <br />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/events");
-                }}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
-              >
-                → View All Events
-              </button>
+            <h2 className="text-2xl font-bold mb-2">Event Management</h2>
+            <p className="text-indigo-100 text-sm mb-4">Create events, set goals, manage venues, and access pipelines</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Create Event</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">View All</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Pipelines</span>
             </div>
-          </div>
+          </button>
 
-          {/* Contacts Section */}
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer" onClick={() => navigate("/supporters")}>
+          {/* Pipeline Management */}
+          <button
+            onClick={() => navigate("/events")}
+            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+          >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Contacts</h3>
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
+              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </div>
-            <p className="text-2xl font-bold text-gray-900 mb-2">{supporterCount.toLocaleString()}</p>
-            <p className="text-sm text-gray-600 mb-4">Total contacts</p>
-            <div className="space-y-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/supporters/upload");
-                }}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-              >
-                → Upload Contacts
-              </button>
-              <br />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/supporters");
-                }}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-              >
-                → View Master List
-              </button>
+            <h2 className="text-2xl font-bold mb-2">Pipeline Management</h2>
+            <p className="text-purple-100 text-sm mb-4">Manage funnels, move contacts through stages, track progress</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">View Pipelines</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Move Stages</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Track Progress</span>
             </div>
-          </div>
+          </button>
 
-          {/* Campaigns Section */}
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer" onClick={() => navigate("/campaigns")}>
+          {/* Campaign Management */}
+          <button
+            onClick={() => navigate("/campaigns")}
+            className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+          >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Campaigns</h3>
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
+              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </div>
-            <p className="text-2xl font-bold text-gray-900 mb-2">—</p>
-            <p className="text-sm text-gray-600 mb-4">Active campaigns</p>
-            <div className="space-y-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/campaigns");
-                }}
-                className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-              >
-                → Start Campaign
-              </button>
-              <br />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/contact-lists");
-                }}
-                className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-              >
-                → Manage Lists
-              </button>
-              <br />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/templates");
-                }}
-                className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-              >
-                → Templates
-              </button>
+            <h2 className="text-2xl font-bold mb-2">Campaign Management</h2>
+            <p className="text-emerald-100 text-sm mb-4">Email campaigns, create lists, manage templates, and track</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Start Campaign</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Lists</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Templates</span>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Recent Events List (simplified) */}
