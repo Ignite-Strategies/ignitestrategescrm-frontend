@@ -23,21 +23,16 @@ export default function SetupEvent() {
   const handleGenerate = async () => {
     setLoading(true);
     try {
-      // Generate tasks based on survey answers
-      const taskConfig = {
-        venueReserved: answers.venueReserved,
-        announcementSent: answers.announcementSent,
-        teamSize: parseInt(answers.teamSize) || 1,
-        hasCommittee: answers.hasCommittee,
-        daysUntilEvent: parseInt(answers.daysUntilEvent) || 30,
-        collateralNeeded: answers.collateralNeeded
-      };
-
-      await api.post(`/events/${eventId}/tasks/generate`, taskConfig);
-      navigate(`/event/${eventId}/tasks`);
+      // Future: OpenAI call here to generate smart task suggestions
+      // const aiSuggestions = await openai.generateTasks(taskConfig);
+      
+      // For now: Navigate to suggestions page with survey answers
+      navigate(`/event/${eventId}/task-suggestions`, {
+        state: { answers }
+      });
     } catch (error) {
-      console.error("Error generating tasks:", error);
-      alert("Failed to generate tasks. Please try again.");
+      console.error("Error:", error);
+      alert("Failed to proceed. Please try again.");
     } finally {
       setLoading(false);
     }
