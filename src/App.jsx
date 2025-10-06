@@ -29,6 +29,7 @@ import ContactList from "./pages/ContactList.jsx";
 import EmailCampaigns from "./pages/EmailCampaigns.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
 import Templates from "./pages/Templates.jsx";
+import SendEmail from "./pages/SendEmail.jsx";
 
 // Protected Route - simple localStorage check
 function ProtectedRoute({ children }) {
@@ -141,6 +142,9 @@ export default function App() {
         } />
         <Route path="/templates" element={
           <ProtectedRoute><Templates /></ProtectedRoute>
+        } />
+        <Route path="/send-email" element={
+          <ProtectedRoute><SendEmail /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
