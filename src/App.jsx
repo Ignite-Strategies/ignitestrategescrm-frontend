@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Splash from "./pages/Splash.jsx";
+import Home from "./pages/Home.jsx";
 import Signup from "./pages/Signup.jsx";
 import Signin from "./pages/Signin.jsx";
-import AuthCheck from "./pages/AuthCheck.jsx";
+import Welcome from "./pages/Welcome.jsx";
 import ProfileSetup from "./pages/ProfileSetup.jsx";
 import OrgChoose from "./pages/OrgChoose.jsx";
 import OrgCreate from "./pages/OrgCreate.jsx";
@@ -53,14 +53,16 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         {/* Splash Screen (checks auth) */}
-        <Route path="/" element={<Splash />} />
+        <Route path="/" element={<Home />} />
         
         {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         
-        {/* Auth Flow */}
-        <Route path="/auth/check" element={<AuthCheck />} />
+        {/* Universal Hydrator */}
+        <Route path="/welcome" element={<Welcome />} />
+        
+        {/* Profile/Org Setup */}
         <Route path="/profile-setup" element={<ProfileSetup />} />
         <Route path="/org/choose" element={<ProtectedRoute><OrgChoose /></ProtectedRoute>} />
         

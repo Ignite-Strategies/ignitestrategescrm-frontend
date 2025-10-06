@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "../lib/googleAuth";
+import api from "../lib/api";
 
 export default function Signin() {
   const navigate = useNavigate();
@@ -16,13 +17,25 @@ export default function Signin() {
       
       console.log("✅ Google sign-in successful:", result.email);
       
-      // Store Google auth data
-      localStorage.setItem("googleId", result.uid);
-      localStorage.setItem("email", result.email);
+      // Call backend findOrCreate
+      const res = await api.post("/auth/findOrCreate", {
+        firebaseId: result.uid,
+        email: result.email,
+        firstName: result.name?.split(' ')[0] || '',
+        lastName: result.name?.split(' ').slice(1).join(' ') || '',
+        photoURL: result.photoURL
+      });
       
-      // Existing user → Check if they have profile/org
-      console.log("✅ Routing to auth check...");
-      navigate("/auth/check");
+      const orgMember = res.data;
+      console.log("✅ OrgMember:", orgMember.id);
+      
+      // Store auth data
+      localStorage.setItem("firebaseId", result.uid);
+      localStorage.setItem("orgMemberId", orgMember.id);
+      
+      // Go to Welcome (universal hydrator)
+      console.log("✅ Routing to Welcome...");
+      navigate("/welcome");
       
     } catch (error) {
       console.error("❌ Sign-in failed:", error);

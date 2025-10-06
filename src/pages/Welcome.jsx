@@ -19,23 +19,35 @@ export default function Welcome() {
 
   const hydrateOrg = async () => {
     try {
-      console.log('🔍 Checking for organization...');
+      console.log('🚀 UNIVERSAL HYDRATOR STARTING...');
       
-      // Fetch first org
-      const orgRes = await api.get('/orgs/first').catch(() => null);
-      
-      // No org exists - redirect to create one
-      if (!orgRes || !orgRes.data) {
-        console.log('⚠️ No org found - redirecting to create org');
-        navigate('/org/create');
+      const orgMemberId = localStorage.getItem("orgMemberId");
+      if (!orgMemberId) {
+        console.log('❌ No orgMemberId, go to signup');
+        navigate('/signup');
         return;
       }
       
-      const org = orgRes.data;
-      console.log('✅ Org found:', org.name);
-      console.log('📋 Org ID:', org.id);
+      // Get OrgMember to check if they have an org
+      const memberRes = await api.get(`/org-members/${orgMemberId}`);
+      const orgMember = memberRes.data;
       
-      // Store org in localStorage
+      console.log('✅ OrgMember loaded:', orgMember.email);
+      
+      if (!orgMember.orgId) {
+        // Has profile but no org → Choose create or join
+        console.log('⚠️ No org linked, go to org/choose');
+        navigate('/org/choose');
+        return;
+      }
+      
+      // Has org → Load org data
+      const orgRes = await api.get(`/orgs/${orgMember.orgId}`);
+      const org = orgRes.data;
+      
+      console.log('✅ Org loaded:', org.name);
+      
+      // Store in localStorage
       localStorage.setItem('orgId', org.id);
       localStorage.setItem('orgName', org.name);
       
@@ -45,7 +57,7 @@ export default function Welcome() {
       console.log('✅ Hydration complete!');
     } catch (error) {
       console.error("❌ Hydration error:", error);
-      navigate('/org/create');
+      navigate('/signup');
     }
   };
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "../lib/googleAuth";
+import api from "../lib/api";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -16,16 +17,29 @@ export default function Signup() {
       
       console.log("✅ Google sign-in successful:", result.email);
       
-      // Store Google auth data
-      localStorage.setItem("googleId", result.uid);
-      localStorage.setItem("email", result.email);
-      localStorage.setItem("firstName", result.name?.split(' ')[0] || '');
-      localStorage.setItem("lastName", result.name?.split(' ').slice(1).join(' ') || '');
-      localStorage.setItem("photoURL", result.photoURL || '');
+      // Call backend findOrCreate
+      const firstName = result.name?.split(' ')[0] || '';
+      const lastName = result.name?.split(' ').slice(1).join(' ') || '';
       
-      // New user → Go to profile setup
-      console.log("✅ Routing to profile setup...");
-      navigate("/profile-setup");
+      const res = await api.post("/auth/findOrCreate", {
+        firebaseId: result.uid,
+        email: result.email,
+        firstName,
+        lastName,
+        photoURL: result.photoURL
+      });
+      
+      const orgMember = res.data;
+      console.log("✅ OrgMember:", orgMember.id);
+      
+      // Store auth data
+      localStorage.setItem("firebaseId", result.uid);
+      localStorage.setItem("orgMemberId", orgMember.id);
+      localStorage.setItem("email", orgMember.email);
+      
+      // Route to Welcome (universal hydrator)
+      console.log("✅ Routing to Welcome...");
+      navigate("/welcome");
       
     } catch (error) {
       console.error("❌ Signup failed:", error);
