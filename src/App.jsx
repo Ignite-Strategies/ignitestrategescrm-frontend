@@ -62,11 +62,17 @@ export default function App() {
         <Route path="/profile-setup" element={<ProfileSetup />} />
         <Route path="/org/choose" element={<ProtectedRoute><OrgChoose /></ProtectedRoute>} />
         
+        {/* Org Management */}
         <Route path="/org/create" element={
           <ProtectedRoute><OrgCreate /></ProtectedRoute>
         } />
         <Route path="/org/success" element={
           <ProtectedRoute><OrgSuccess /></ProtectedRoute>
+        } />
+        
+        {/* Main App */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />
         <Route path="/supporters" element={
           <ProtectedRoute><Supporters /></ProtectedRoute>
