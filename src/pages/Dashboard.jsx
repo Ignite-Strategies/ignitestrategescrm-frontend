@@ -255,6 +255,30 @@ export default function Dashboard() {
               <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Templates</span>
             </div>
           </button>
+
+          {/* Forms - NEW! 🔥 */}
+          <button
+            onClick={() => navigate("/forms")}
+            className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Forms 🆕</h2>
+            <p className="text-cyan-100 text-sm mb-4">Create custom forms, collect submissions, drive pipeline intake</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Create Form</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Submissions</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Embed Code</span>
+            </div>
+          </button>
         </div>
 
         {/* Recent Events List (simplified) */}

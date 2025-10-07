@@ -39,6 +39,8 @@ import Events from "./pages/Events.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
 import EventTaskSuggestions from "./pages/EventTaskSuggestions.jsx";
+import Forms from "./pages/Forms.jsx";
+import FormBuilder from "./pages/FormBuilder.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -171,6 +173,12 @@ export default function App() {
         } />
         <Route path="/send-email" element={
           <ProtectedRoute><SendEmail /></ProtectedRoute>
+        } />
+        <Route path="/forms" element={
+          <ProtectedRoute><Forms /></ProtectedRoute>
+        } />
+        <Route path="/forms/create" element={
+          <ProtectedRoute><FormBuilder /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
