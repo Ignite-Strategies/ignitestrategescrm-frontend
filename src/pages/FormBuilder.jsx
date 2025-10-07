@@ -21,12 +21,16 @@ export default function FormBuilder() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   
-  // Form config
+  // Form config - Internal
   const [formName, setFormName] = useState("");
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(""); // Internal notes
   const [selectedEvent, setSelectedEvent] = useState("");
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const [targetStage, setTargetStage] = useState("soft_commit");
+  
+  // Form config - Public Facing
+  const [publicTitle, setPublicTitle] = useState("");
+  const [publicDescription, setPublicDescription] = useState("");
   const [fields, setFields] = useState([
     { ...FIELD_TEMPLATES.text, id: "name", label: "Full Name", required: true, order: 1 },
     { ...FIELD_TEMPLATES.email, id: "email", order: 2 },
@@ -119,8 +123,8 @@ export default function FormBuilder() {
         audienceType: selectedPipeline, // Backend will find/create pipeline
         name: formName,
         slug,
-        publicTitle: formName, // Default to same as internal name
-        publicDescription: description,
+        publicTitle: publicTitle || formName, // Use public title or fallback to internal name
+        publicDescription: publicDescription || description,
         targetStage,
         fields: fields.map(f => ({
           id: f.id,
@@ -196,15 +200,48 @@ export default function FormBuilder() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
+                    Internal Notes
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Public soft commit form for Bros & Brews"
-                    rows="3"
+                    placeholder="Internal notes about this form"
+                    rows="2"
                   />
+                </div>
+                
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-bold text-gray-900 mb-3">Public Facing (what people see)</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Public Title *
+                      </label>
+                      <input
+                        type="text"
+                        value={publicTitle}
+                        onChange={(e) => setPublicTitle(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        placeholder="Sign up for Bros & Brews!"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Explainer Text
+                      </label>
+                      <textarea
+                        value={publicDescription}
+                        onChange={(e) => setPublicDescription(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        placeholder="Fill out the form below to let us know you're coming..."
+                        rows="3"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
