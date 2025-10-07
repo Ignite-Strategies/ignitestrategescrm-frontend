@@ -17,7 +17,7 @@ export default function Signin() {
       
       console.log("✅ Google sign-in successful:", result.email);
       
-      // Call backend findOrCreate
+      // Call backend findOrCreate (will find existing user)
       const res = await api.post("/auth/findOrCreate", {
         firebaseId: result.uid,
         email: result.email,
@@ -27,14 +27,15 @@ export default function Signin() {
       });
       
       const orgMember = res.data;
-      console.log("✅ OrgMember:", orgMember.id);
+      console.log("✅ Returning user found:", orgMember.id);
       
       // Store auth data
       localStorage.setItem("firebaseId", result.uid);
       localStorage.setItem("orgMemberId", orgMember.id);
+      localStorage.setItem("email", orgMember.email);
       
-      // Go to Welcome (universal hydrator)
-      console.log("✅ Routing to Welcome...");
+      // Returning user → Go to Welcome (universal hydrator)
+      console.log("✅ Routing to Welcome (hydrator)...");
       navigate("/welcome");
       
     } catch (error) {

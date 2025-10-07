@@ -10,10 +10,10 @@ export default function Splash() {
       try {
         const unsub = auth.onAuthStateChanged((firebaseUser) => {
           if (firebaseUser) {
-            console.log("✅ User authenticated → Welcome");
-            navigate("/welcome");
+            console.log("✅ Firebase user detected → Signin");
+            navigate("/signin");
           } else {
-            console.log("❌ No user → Signup");
+            console.log("❌ No Firebase user → Signup");
             navigate("/signup");
           }
         });
