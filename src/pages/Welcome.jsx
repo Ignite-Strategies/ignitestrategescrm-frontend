@@ -116,37 +116,19 @@ export default function Welcome() {
           </div>
         </div>
         
-        {loading ? (
-          <>
-            <h1 className="text-5xl font-bold text-white mb-3 drop-shadow-lg">
-              Welcome back!
-            </h1>
-            <p className="text-xl text-white/90 mb-8">
-              Getting things ready for you...
-            </p>
-            <div className="flex justify-center">
-              <div className="w-64 h-1.5 bg-white/30 rounded-full overflow-hidden">
-                <div className="h-full bg-white rounded-full animate-[loading_1.5s_ease-in-out]"></div>
-              </div>
+        <>
+          <h1 className="text-5xl font-bold text-white mb-3 drop-shadow-lg">
+            Welcome back!
+          </h1>
+          <p className="text-xl text-white/90 mb-8">
+            Getting things ready for you...
+          </p>
+          <div className="flex justify-center">
+            <div className="w-64 h-1.5 bg-white/30 rounded-full overflow-hidden">
+              <div className="h-full bg-white rounded-full animate-[loading_1.5s_ease-in-out]"></div>
             </div>
-          </>
-        ) : (
-          <>
-            <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">
-              Let's go engage {orgName}!
-            </h1>
-            <p className="text-2xl text-white/90 mb-8 font-medium">
-              Your dashboard is ready 🚀
-            </p>
-            
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="bg-white text-cyan-600 px-10 py-4 rounded-xl font-bold text-lg hover:bg-white/95 hover:scale-105 transition-all shadow-2xl"
-            >
-              Open Dashboard →
-            </button>
-          </>
-        )}
+          </div>
+        </>
       </div>
     </div>
   );

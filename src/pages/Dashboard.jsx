@@ -27,7 +27,10 @@ export default function Dashboard() {
       ]);
       setOrg(orgRes.data);
       setEvents(eventsRes.data);
-      setSupporterCount(supportersRes.data.length);
+      
+      // Filter out app users (people with firebaseId) - they're not "contacts"
+      const actualContacts = supportersRes.data.filter(s => !s.firebaseId);
+      setSupporterCount(actualContacts.length);
 
       // Find next upcoming event
       const now = new Date();
