@@ -341,8 +341,17 @@ export default function Dashboard() {
 
           {/* Forms - NEW! 🔥 */}
           <button
-            onClick={() => navigate("/forms")}
-            className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            onClick={() => {
+              if (upcomingEvent) {
+                navigate(`/event/${upcomingEvent.id}/forms`);
+              } else {
+                alert('Please create an event first!');
+              }
+            }}
+            disabled={!upcomingEvent}
+            className={`bg-gradient-to-br from-cyan-500 to-cyan-600 text-white rounded-xl shadow-lg transition-all p-8 text-left group ${
+              !upcomingEvent ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-2xl'
+            }`}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
