@@ -210,39 +210,6 @@ export default function FormBuilder() {
                     rows="2"
                   />
                 </div>
-                
-                <div className="border-t pt-4">
-                  <h3 className="text-sm font-bold text-gray-900 mb-3">Public Facing (what people see)</h3>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Public Title *
-                      </label>
-                      <input
-                        type="text"
-                        value={publicTitle}
-                        onChange={(e) => setPublicTitle(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                        placeholder="Sign up for Bros & Brews!"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Explainer Text
-                      </label>
-                      <textarea
-                        value={publicDescription}
-                        onChange={(e) => setPublicDescription(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                        placeholder="Fill out the form below to let us know you're coming..."
-                        rows="3"
-                      />
-                    </div>
-                  </div>
-                </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -322,10 +289,20 @@ export default function FormBuilder() {
             </div>
           </div>
 
-          {/* Right: Form Builder */}
+          {/* Right: Public Facing Preview */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Form Preview</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Public Preview (What People See)</h2>
+              
+              {/* Public Title & Description */}
+              <div className="mb-6 p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {publicTitle || "Your Form Title Here"}
+                </h3>
+                <p className="text-gray-600">
+                  {publicDescription || "Add explainer text to help people understand what to do..."}
+                </p>
+              </div>
               
               {fields.length === 0 ? (
                 <div className="text-center py-12 text-gray-400">
