@@ -4,17 +4,22 @@ import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
 const PIPELINES = [
-  { id: "org_member", label: "F3 Members", description: "Your core F3 brothers" },
-  { id: "family_prospect", label: "Friends & Family", description: "Friends, co-workers, neighbors" }
+  { id: "org_members", label: "Org Members", description: "Your organization members" },
+  { id: "friends_family", label: "Friends & Family", description: "Friends, co-workers, neighbors" },
+  { id: "landing_page_public", label: "Public Contacts", description: "Landing page submissions" },
+  { id: "community_partners", label: "Community Partners", description: "Partner organizations" },
+  { id: "cold_outreach", label: "Cold Outreach", description: "Cold contacts" }
 ];
 
-// MVP1: Hardcoded stages (not editable like HubSpot)
+// 7-Stage Funnel (matches backend STAGE_HIERARCHY)
 const STAGES = [
-  { id: "aware", label: "Aware", description: "Heard about it at COT/workout" },
-  { id: "member", label: "Prospective Attendee", description: "Direct outreach / cold contact" },
-  { id: "soft_commit", label: "Soft Commit", description: "Showed interest/RSVP" },
-  { id: "paid", label: "Paid", description: "Payment confirmed" },
-  { id: "lost", label: "Can't Make It", description: "Deal lost - won't attend" }
+  { id: "in_funnel", label: "In Funnel", description: "Just entered the pipeline", color: "#6B7280", icon: "🎯" },
+  { id: "general_awareness", label: "General Awareness", description: "Knows about the event", color: "#3B82F6", icon: "👁️" },
+  { id: "personal_invite", label: "Personal Invite", description: "Received personal invitation", color: "#8B5CF6", icon: "📧" },
+  { id: "expressed_interest", label: "Expressed Interest", description: "Showed interest in attending", color: "#F59E0B", icon: "🤔" },
+  { id: "soft_commit", label: "Soft Commit", description: "Committed to attend (not paid)", color: "#10B981", icon: "🤝" },
+  { id: "paid", label: "Paid", description: "Purchased ticket/paid", color: "#059669", icon: "💰" },
+  { id: "cant_attend", label: "Can't Attend", description: "Opted out or declined", color: "#EF4444", icon: "❌" }
 ];
 
 export default function EventPipelines() {
@@ -24,7 +29,7 @@ export default function EventPipelines() {
   const [event, setEvent] = useState(null);
   const [registryData, setRegistryData] = useState([]); // New registry format
   const [supporters, setSupporters] = useState([]);
-  const [selectedPipeline, setSelectedPipeline] = useState("org_member");
+  const [selectedPipeline, setSelectedPipeline] = useState("org_members");
   const [showAddSupporters, setShowAddSupporters] = useState(false);
   const [selectedSupporters, setSelectedSupporters] = useState(new Set());
 
