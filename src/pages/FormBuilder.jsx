@@ -271,40 +271,6 @@ export default function FormBuilder() {
               </div>
             </div>
 
-            {/* Public Facing Content */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Public Facing</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Public Title * (what people see)
-                  </label>
-                  <input
-                    type="text"
-                    value={publicTitle}
-                    onChange={(e) => setPublicTitle(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Sign up for Bros & Brews!"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Explainer Text (optional)
-                  </label>
-                  <textarea
-                    value={publicDescription}
-                    onChange={(e) => setPublicDescription(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Fill out the form below to let us know you're coming..."
-                    rows="3"
-                  />
-                </div>
-              </div>
-            </div>
-            
             {/* Field Library */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Add Fields</h2>
