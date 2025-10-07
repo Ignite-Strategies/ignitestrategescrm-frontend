@@ -23,8 +23,8 @@ import EventPipelineConfig from "./pages/EventPipelineConfig.jsx";
 import EventAudiences from "./pages/EventAudiences.jsx";
 import EventEngagementAdvisory from "./pages/EventEngagementAdvisory.jsx";
 import EventPipelineSuccess from "./pages/EventPipelineSuccess.jsx";
-import EventPipelineSetup from "./pages/EventPipelineSetup.jsx";
-import StagePipelineReview from "./pages/StagePipelineReview.jsx";
+// import EventPipelineSetup from "./pages/EventPipelineSetup.jsx"; // REMOVED - deprecated
+// import StagePipelineReview from "./pages/StagePipelineReview.jsx"; // REMOVED - deprecated
 import EventEdit from "./pages/EventEdit.jsx";
 import EngageEmail from "./pages/EngageEmail.jsx";
 import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
@@ -134,12 +134,6 @@ export default function App() {
         } />
         <Route path="/event/:eventId/pipeline-success" element={
           <ProtectedRoute><EventPipelineSuccess /></ProtectedRoute>
-        } />
-        <Route path="/event/:eventId/pipeline-setup" element={
-          <ProtectedRoute><EventPipelineSetup /></ProtectedRoute>
-        } />
-        <Route path="/event/:eventId/pipeline/:audienceType/review" element={
-          <ProtectedRoute><StagePipelineReview /></ProtectedRoute>
         } />
         <Route path="/event/:eventId/edit" element={
           <ProtectedRoute><EventEdit /></ProtectedRoute>
