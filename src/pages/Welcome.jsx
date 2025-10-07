@@ -34,22 +34,35 @@ export default function Welcome() {
       
       console.log('✅ OrgMember loaded:', orgMember.email);
       
-      // Check if phone number is set (profile complete)
-      if (!orgMember.phone) {
-        console.log('⚠️ No phone, complete profile first');
-        navigate('/profile-setup');
-        return;
-      }
+      // Wait 1800ms before routing (smooth transition, no yank!)
+      setTimeout(() => {
+        // Check if phone number is set (profile complete)
+        if (!orgMember.phone) {
+          console.log('⚠️ No phone, complete profile first');
+          navigate('/profile-setup');
+          return;
+        }
+        
+        if (!orgMember.orgId) {
+          // Has profile but no org → Choose create or join
+          console.log('⚠️ No org linked, go to org/choose');
+          navigate('/org/choose');
+          return;
+        }
+        
+        // Has org → Load org data and go to dashboard
+        loadOrgAndNavigate(orgMember.orgId);
+      }, 1800);
       
-      if (!orgMember.orgId) {
-        // Has profile but no org → Choose create or join
-        console.log('⚠️ No org linked, go to org/choose');
-        navigate('/org/choose');
-        return;
-      }
-      
-      // Has org → Load org data
-      const orgRes = await api.get(`/orgs/${orgMember.orgId}`);
+    } catch (error) {
+      console.error("❌ Hydration error:", error);
+      navigate('/signup');
+    }
+  };
+  
+  const loadOrgAndNavigate = async (orgId) => {
+    try {
+      const orgRes = await api.get(`/orgs/${orgId}`);
       const org = orgRes.data;
       
       console.log('✅ Org loaded:', org.name);
