@@ -34,6 +34,13 @@ export default function Welcome() {
       
       console.log('✅ OrgMember loaded:', orgMember.email);
       
+      // Check if phone number is set (profile complete)
+      if (!orgMember.phone) {
+        console.log('⚠️ No phone, complete profile first');
+        navigate('/profile-setup');
+        return;
+      }
+      
       if (!orgMember.orgId) {
         // Has profile but no org → Choose create or join
         console.log('⚠️ No org linked, go to org/choose');

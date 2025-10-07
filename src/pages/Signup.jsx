@@ -37,9 +37,9 @@ export default function Signup() {
       localStorage.setItem("orgMemberId", orgMember.id);
       localStorage.setItem("email", orgMember.email);
       
-      // Route to Welcome (universal hydrator)
-      console.log("✅ Routing to Welcome...");
-      navigate("/welcome");
+      // NEW USER → Profile setup FIRST!
+      console.log("✅ New user → Profile setup");
+      navigate("/profile-setup");
       
     } catch (error) {
       console.error("❌ Signup failed:", error);

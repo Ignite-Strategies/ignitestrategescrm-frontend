@@ -16,27 +16,24 @@ export default function ProfileSetup() {
     setLoading(true);
 
     try {
-      const googleId = localStorage.getItem("googleId");
-      const email = localStorage.getItem("email");
-      const photoURL = localStorage.getItem("photoURL");
-
-      console.log("📝 Creating OrgMember profile...");
+      const orgMemberId = localStorage.getItem("orgMemberId");
       
-      // Create OrgMember (no orgId yet)
-      const res = await api.post("/org-members", {
-        googleId,
-        email,
+      if (!orgMemberId) {
+        alert("Session expired. Please sign in again.");
+        navigate("/signup");
+        return;
+      }
+
+      console.log("📝 Updating OrgMember profile with phone...");
+      
+      // Update OrgMember with phone number
+      await api.patch(`/org-members/${orgMemberId}`, {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        phone: formData.phone,
-        photoURL,
-        role: null // No role until they create/join org
+        phone: formData.phone
       });
 
-      const orgMember = res.data;
-      console.log("✅ OrgMember created:", orgMember.id);
-      
-      localStorage.setItem("orgMemberId", orgMember.id);
+      console.log("✅ Profile updated!");
       
       // Go to create/join org
       navigate("/org/choose");
@@ -52,44 +49,47 @@ export default function ProfileSetup() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 py-12 px-4">
       <div className="max-w-md mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Complete Your Profile</h1>
-          <p className="text-gray-600 mb-8">Tell us a bit about yourself</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to High Impact Events!</h1>
+          <p className="text-gray-600 mb-8">Please finish setting up your profile so you can create your org and start creating magical events.</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                First Name *
+                Name *
               </label>
               <input
                 type="text"
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                placeholder="John"
+                value={formData.firstName + ' ' + formData.lastName}
+                disabled
+                placeholder="From Google"
               />
+              <p className="text-xs text-gray-500 mt-1">From your Google account</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Last Name *
+                Email *
               </label>
               <input
-                type="text"
+                type="email"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                placeholder="Smith"
+                disabled
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50"
+                value={localStorage.getItem("email") || ""}
+                placeholder="From Google"
               />
+              <p className="text-xs text-gray-500 mt-1">From your Google account</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone (Optional)
+                Phone *
               </label>
               <input
                 type="tel"
+                required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
