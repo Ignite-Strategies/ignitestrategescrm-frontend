@@ -28,9 +28,8 @@ export default function Dashboard() {
       setOrg(orgRes.data);
       setEvents(eventsRes.data);
       
-      // Filter out app users (people with firebaseId) - they're not "contacts"
-      const actualContacts = supportersRes.data.filter(s => !s.firebaseId);
-      setSupporterCount(actualContacts.length);
+      // Show ALL OrgMembers (including app users)
+      setSupporterCount(supportersRes.data.length);
 
       // Find next upcoming event
       const now = new Date();
@@ -83,7 +82,7 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Smart Onboarding Banners */}
-        {supporterCount === 0 && (
+        {supporterCount <= 1 && (
           <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
             <div className="flex items-start gap-6">
               <div className="flex-shrink-0">
@@ -94,9 +93,9 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-2">👋 Welcome! Let's add your master contact list</h2>
+                <h2 className="text-2xl font-bold mb-2">👋 Let's add your org members</h2>
                 <p className="text-white/90 mb-4">
-                  Upload your org members to build your foundation. These contacts will auto-populate into events as you create them.
+                  Upload your member list to build your foundation. Members will auto-populate into events as you create them.
                 </p>
                 <div className="flex gap-3">
                   <button
@@ -164,13 +163,13 @@ export default function Dashboard() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Contacts */}
+          {/* Org Members */}
           <button
             onClick={() => navigate("/supporters")}
             className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition text-left border-2 border-transparent hover:border-blue-500"
           >
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Contacts</h3>
+              <h3 className="text-sm font-medium text-gray-600">Org Members</h3>
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -178,7 +177,7 @@ export default function Dashboard() {
               </div>
             </div>
             <p className="text-3xl font-bold text-gray-900">{supporterCount.toLocaleString()}</p>
-            <p className="text-sm text-gray-500 mt-1">All contacts</p>
+            <p className="text-sm text-gray-500 mt-1">Everyone in your org</p>
           </button>
 
           {/* Next Event */}
