@@ -153,6 +153,12 @@ export default function App() {
         <Route path="/event/:eventId/task-suggestions" element={
           <ProtectedRoute><EventTaskSuggestions /></ProtectedRoute>
         } />
+        <Route path="/event/:eventId/forms" element={
+          <ProtectedRoute><Forms /></ProtectedRoute>
+        } />
+        <Route path="/event/:eventId/forms/create" element={
+          <ProtectedRoute><FormBuilder /></ProtectedRoute>
+        } />
         <Route path="/email" element={
           <ProtectedRoute><EngageEmail /></ProtectedRoute>
         } />
