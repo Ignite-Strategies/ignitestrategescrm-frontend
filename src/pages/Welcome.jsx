@@ -93,10 +93,10 @@ export default function Welcome() {
         </div>
         
         <h1 className="text-4xl font-bold text-white mb-2">
-          {loading ? "Loading..." : `Welcome to ${orgName}!`}
+          {loading ? "Welcome!" : `Welcome to ${orgName}!`}
         </h1>
         <p className="text-xl text-white/80 mb-4">
-          {loading ? "Hydrating your CRM..." : "Ready to go!"}
+          {loading ? "We're getting you set up to engage your community!" : "Ready to go!"}
         </p>
         
         {/* Show org ID for debugging */}
