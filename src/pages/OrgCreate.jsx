@@ -67,8 +67,8 @@ export default function OrgCreate() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your Organization</h1>
-          <p className="text-gray-600 mb-8">Set up your master CRM in minutes</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Set Up Your Organization</h1>
+          <p className="text-gray-600 mb-8">Set up your organization so you and your members can thrive creating impactful events together</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
