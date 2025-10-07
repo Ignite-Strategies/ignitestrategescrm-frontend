@@ -116,10 +116,11 @@ export default function FormBuilder() {
       const formConfig = {
         orgId,
         eventId: selectedEvent,
-        pipelineId: selectedPipeline,
+        audienceType: selectedPipeline, // Backend will find/create pipeline
         name: formName,
         slug,
-        description,
+        publicTitle: formName, // Default to same as internal name
+        publicDescription: description,
         targetStage,
         fields: fields.map(f => ({
           id: f.id,
@@ -228,7 +229,7 @@ export default function FormBuilder() {
                 {selectedEvent && (
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Pipeline *
+                      Audience Type *
                     </label>
                     <select
                       value={selectedPipeline}
@@ -236,12 +237,12 @@ export default function FormBuilder() {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                       required
                     >
-                      <option value="">Select pipeline...</option>
-                      {pipelines.map(pipeline => (
-                        <option key={pipeline.id} value={pipeline.id}>
-                          {pipeline.audienceType}
-                        </option>
-                      ))}
+                      <option value="">Select audience...</option>
+                      <option value="org_members">Org Members</option>
+                      <option value="friends_family">Friends & Family</option>
+                      <option value="landing_page_public">Public Contacts</option>
+                      <option value="community_partners">Community Partners</option>
+                      <option value="cold_outreach">Cold Outreach</option>
                     </select>
                   </div>
                 )}
