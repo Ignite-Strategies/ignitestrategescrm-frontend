@@ -28,8 +28,9 @@ export default function Dashboard() {
       setOrg(orgRes.data);
       setEvents(eventsRes.data);
       
-      // Show ALL OrgMembers (including app users)
-      setSupporterCount(supportersRes.data.length);
+      // Count OrgMembers minus admins (people with firebaseId/role)
+      const nonAdminMembers = supportersRes.data.filter(s => !s.firebaseId && !s.role);
+      setSupporterCount(nonAdminMembers.length);
 
       // Find next upcoming event
       const now = new Date();
@@ -82,7 +83,7 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Smart Onboarding Banners */}
-        {supporterCount <= 1 && (
+        {supporterCount === 0 && (
           <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
             <div className="flex items-start gap-6">
               <div className="flex-shrink-0">
@@ -177,7 +178,7 @@ export default function Dashboard() {
               </div>
             </div>
             <p className="text-3xl font-bold text-gray-900">{supporterCount.toLocaleString()}</p>
-            <p className="text-sm text-gray-500 mt-1">Everyone in your org</p>
+            <p className="text-sm text-gray-500 mt-1">Members (excl. admins)</p>
           </button>
 
           {/* Next Event */}
