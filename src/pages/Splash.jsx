@@ -9,7 +9,7 @@ export default function Splash() {
   useEffect(() => {
     const timer = setTimeout(() => {
       checkAuthAndRoute();
-    }, 1500); // 1.5s splash
+    }, 1200); // 1.2s splash
     return () => clearTimeout(timer);
   }, [navigate]);
 
