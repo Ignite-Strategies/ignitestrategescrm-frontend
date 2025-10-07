@@ -6,6 +6,7 @@ import Welcome from "./pages/Welcome.jsx";
 import ProfileSetup from "./pages/ProfileSetup.jsx";
 import OrgChoose from "./pages/OrgChoose.jsx";
 import OrgCreate from "./pages/OrgCreate.jsx";
+import OrgJoin from "./pages/OrgJoin.jsx";
 import OrgSuccess from "./pages/OrgSuccess.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Supporters from "./pages/Supporters.jsx";
@@ -39,10 +40,10 @@ import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
 import EventTaskSuggestions from "./pages/EventTaskSuggestions.jsx";
 
-// Protected Route - Check for googleId
+// Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
-  const googleId = localStorage.getItem("googleId");
-  if (!googleId) {
+  const firebaseId = localStorage.getItem("firebaseId");
+  if (!firebaseId) {
     return <Navigate to="/signup" replace />;
   }
   return children;
