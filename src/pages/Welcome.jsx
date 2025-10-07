@@ -6,6 +6,8 @@ export default function Welcome() {
   const navigate = useNavigate();
   const [orgName, setOrgName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [hasEvents, setHasEvents] = useState(false);
+  const [supporterCount, setSupporterCount] = useState(0);
 
   useEffect(() => {
     // Clear any stale org IDs before hydrating
@@ -62,19 +64,40 @@ export default function Welcome() {
   
   const loadOrgAndNavigate = async (orgId) => {
     try {
-      const orgRes = await api.get(`/orgs/${orgId}`);
+      // Load org, events, and contacts in parallel
+      const [orgRes, eventsRes, supportersRes] = await Promise.all([
+        api.get(`/orgs/${orgId}`),
+        api.get(`/orgs/${orgId}/events`),
+        api.get(`/orgs/${orgId}/supporters`)
+      ]);
+      
       const org = orgRes.data;
+      const events = eventsRes.data || [];
+      const supporters = supportersRes.data || [];
       
       console.log('✅ Org loaded:', org.name);
+      console.log('✅ Events:', events.length);
+      console.log('✅ Contacts:', supporters.length);
       
       // Store in localStorage
       localStorage.setItem('orgId', org.id);
       localStorage.setItem('orgName', org.name);
       
       setOrgName(org.name);
+      setHasEvents(events.length > 0);
+      setSupporterCount(supporters.length);
       setLoading(false);
       
-      console.log('✅ Hydration complete!');
+      // If first time (no events, no contacts), route to PostOrgCreate fork
+      if (events.length === 0 && supporters.length === 0) {
+        console.log('📍 First time setup → Routing to post-create fork');
+        setTimeout(() => {
+          navigate('/org/post-create');
+        }, 1500);
+      } else {
+        console.log('✅ Returning user → Dashboard ready');
+      }
+      
     } catch (error) {
       console.error("❌ Hydration error:", error);
       navigate('/signup');

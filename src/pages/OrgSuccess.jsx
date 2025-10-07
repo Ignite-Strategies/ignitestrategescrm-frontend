@@ -32,17 +32,10 @@ export default function OrgSuccess() {
 
           <div className="space-y-3">
             <button
-              onClick={() => navigate("/supporters")}
+              onClick={() => navigate("/org/post-create")}
               className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
-              Upload Supporters Now
-            </button>
-            
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="w-full border-2 border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition"
-            >
-              Skip - I'll Add Them Later
+              Continue →
             </button>
           </div>
         </div>

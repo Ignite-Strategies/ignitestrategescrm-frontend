@@ -79,6 +79,86 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Smart Onboarding Banners */}
+        {supporterCount === 0 && (
+          <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
+            <div className="flex items-start gap-6">
+              <div className="flex-shrink-0">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold mb-2">👋 Welcome! Let's add your master contact list</h2>
+                <p className="text-white/90 mb-4">
+                  Upload your org members to build your foundation. These contacts will auto-populate into events as you create them.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => navigate("/supporters/upload")}
+                    className="bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"
+                  >
+                    📤 Upload CSV
+                  </button>
+                  <button
+                    onClick={() => navigate("/supporters/manual")}
+                    className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition border-2 border-white/30"
+                  >
+                    ➕ Add Manually
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  // Dismiss banner (save to localStorage)
+                  localStorage.setItem('dismissedContactsBanner', 'true');
+                  window.location.reload();
+                }}
+                className="text-white/60 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
+        {supporterCount > 0 && events.length === 0 && (
+          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
+            <div className="flex items-start gap-6">
+              <div className="flex-shrink-0">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold mb-2">🎉 Great! You have {supporterCount} contacts. Ready to create your first event?</h2>
+                <p className="text-white/90 mb-4">
+                  Events are the heart of your CRM. Your contacts will auto-populate into the event pipeline when you create one.
+                </p>
+                <button
+                  onClick={() => navigate("/event/create")}
+                  className="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"
+                >
+                  🚀 Create Your First Event
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  localStorage.setItem('dismissedEventsBanner', 'true');
+                  window.location.reload();
+                }}
+                className="text-white/60 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total Contacts */}
