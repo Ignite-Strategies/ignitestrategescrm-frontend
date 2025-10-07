@@ -88,14 +88,17 @@ export default function Welcome() {
       setSupporterCount(supporters.length);
       setLoading(false);
       
-      // If first time (no events, no contacts), route to PostOrgCreate fork
-      if (events.length === 0 && supporters.length === 0) {
-        console.log('📍 First time setup → Routing to post-create fork');
+      // Route based on whether they have an active event
+      if (events.length === 0) {
+        console.log('📍 No events → Routing to post-create fork');
         setTimeout(() => {
           navigate('/org/post-create');
         }, 1500);
       } else {
-        console.log('✅ Returning user → Dashboard ready');
+        console.log('✅ Has events → Dashboard ready');
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1500);
       }
       
     } catch (error) {
