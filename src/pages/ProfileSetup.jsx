@@ -35,6 +35,9 @@ export default function ProfileSetup() {
 
       console.log("✅ Profile updated!");
       
+      // Set profile complete flag
+      localStorage.setItem("hasProfile", "true");
+      
       // Go to create/join org
       navigate("/org/choose");
     } catch (error) {

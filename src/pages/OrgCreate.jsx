@@ -40,11 +40,22 @@ export default function OrgCreate() {
         linkedin: formData.linkedin
       });
 
-      // Store orgId globally
+      // Store orgId + set hasOrg flag
       localStorage.setItem("orgId", response.data.id);
       localStorage.setItem("orgName", response.data.name);
+      localStorage.setItem("hasOrg", "true");
       
-      navigate("/welcome");
+      // Link OrgMember to Org
+      const orgMemberId = localStorage.getItem("orgMemberId");
+      if (orgMemberId) {
+        await api.patch(`/org-members/${orgMemberId}`, {
+          orgId: response.data.id,
+          role: "owner"
+        });
+        console.log("✅ OrgMember linked to Org as owner");
+      }
+      
+      navigate("/dashboard");
     } catch (error) {
       alert("Error creating organization: " + error.message);
     } finally {

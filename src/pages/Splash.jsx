@@ -37,10 +37,15 @@ export default function Splash() {
       const orgMember = res.data;
       console.log("✅ OrgMember:", orgMember.id);
       
-      // Store auth data
+      // Store auth data + flags for Welcome router
       localStorage.setItem("firebaseId", firebaseUser.uid);
       localStorage.setItem("orgMemberId", orgMember.id);
       localStorage.setItem("email", orgMember.email);
+      localStorage.setItem("hasProfile", orgMember.phone ? "true" : "false");
+      localStorage.setItem("hasOrg", orgMember.orgId ? "true" : "false");
+      if (orgMember.orgId) {
+        localStorage.setItem("orgId", orgMember.orgId);
+      }
       
       // Route to Welcome (2.2s delay for smooth transition)
       setTimeout(() => {
