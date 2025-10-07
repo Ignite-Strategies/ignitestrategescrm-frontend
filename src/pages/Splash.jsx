@@ -9,7 +9,7 @@ export default function Splash() {
   useEffect(() => {
     const timer = setTimeout(() => {
       checkAuthAndRoute();
-    }, 1200); // 1.2s splash
+    }, 1000); // 1s splash - quick and clean
     return () => clearTimeout(timer);
   }, [navigate]);
 
@@ -47,11 +47,9 @@ export default function Splash() {
         localStorage.setItem("orgId", orgMember.orgId);
       }
       
-      // Route to Welcome (2.2s delay for smooth transition)
-      setTimeout(() => {
-        console.log("✅ Routing to Welcome (hydrator)...");
-        navigate("/welcome");
-      }, 2200);
+      // Route to Welcome immediately (no additional delay)
+      console.log("✅ Routing to Welcome (hydrator)...");
+      navigate("/welcome");
       
     } catch (error) {
       console.error("❌ Auth error:", error);

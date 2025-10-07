@@ -82,48 +82,47 @@ export default function Welcome() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center px-4">
-      <div className="text-center">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 flex items-center justify-center px-4">
+      <div className="text-center max-w-2xl">
+        {/* Icon */}
         <div className="mb-6">
-          <div className="inline-block p-4 bg-white/20 rounded-full animate-pulse">
-            <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-block p-6 bg-white/20 backdrop-blur-lg rounded-3xl shadow-2xl">
+            <svg className="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
         </div>
         
-        <h1 className="text-4xl font-bold text-white mb-2">
-          {loading ? "Welcome!" : `Welcome to ${orgName}!`}
-        </h1>
-        <p className="text-xl text-white/80 mb-4">
-          {loading ? "We're getting you set up to engage your community!" : "Ready to go!"}
-        </p>
-        
-        {/* Show org ID for debugging */}
-        {!loading && (
+        {loading ? (
           <>
-            <div className="bg-white/10 backdrop-blur rounded-lg p-4 mb-6 max-w-md mx-auto">
-              <p className="text-xs text-white/60 mb-1">Org ID:</p>
-              <p className="text-sm text-white/90 font-mono break-all">
-                {localStorage.getItem('orgId')}
-              </p>
+            <h1 className="text-5xl font-bold text-white mb-3 drop-shadow-lg">
+              Welcome!
+            </h1>
+            <p className="text-xl text-white/90 mb-8">
+              Loading your organization...
+            </p>
+            <div className="flex justify-center">
+              <div className="w-64 h-1.5 bg-white/30 rounded-full overflow-hidden">
+                <div className="h-full bg-white rounded-full animate-[loading_1.5s_ease-in-out]"></div>
+              </div>
             </div>
+          </>
+        ) : (
+          <>
+            <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">
+              Let's go engage {orgName}!
+            </h1>
+            <p className="text-2xl text-white/90 mb-8 font-medium">
+              Your dashboard is ready 🚀
+            </p>
             
             <button
               onClick={() => navigate("/dashboard")}
-              className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"
+              className="bg-white text-cyan-600 px-10 py-4 rounded-xl font-bold text-lg hover:bg-white/95 hover:scale-105 transition-all shadow-2xl"
             >
-              Continue to Dashboard →
+              Open Dashboard →
             </button>
           </>
-        )}
-        
-        {loading && (
-          <div className="flex justify-center">
-            <div className="w-64 h-1 bg-white/30 rounded-full overflow-hidden">
-              <div className="h-full bg-white rounded-full animate-[loading_1.5s_ease-in-out]"></div>
-            </div>
-          </div>
         )}
       </div>
     </div>
