@@ -1,30 +1,58 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
+import api from "../lib/api";
 
 export default function Splash() {
   const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      try {
-        const unsub = auth.onAuthStateChanged((firebaseUser) => {
-          if (firebaseUser) {
-            console.log("✅ Firebase user detected → Signin");
-            navigate("/signin");
-          } else {
-            console.log("❌ No Firebase user → Signup");
-            navigate("/signup");
-          }
-        });
-        return () => unsub();
-      } catch (error) {
-        console.error("❌ Auth error:", error);
-        navigate("/signup");
-      }
-    }, 2000);
+      checkAuthAndRoute();
+    }, 2000); // 2s splash
     return () => clearTimeout(timer);
   }, [navigate]);
+
+  const checkAuthAndRoute = async () => {
+    try {
+      const firebaseUser = auth.currentUser;
+      
+      if (!firebaseUser) {
+        console.log("❌ No Firebase user → Signup");
+        navigate("/signup");
+        return;
+      }
+
+      console.log("🔍 Firebase user detected, checking backend...");
+      
+      // Find or create OrgMember
+      const res = await api.post("/auth/findOrCreate", {
+        firebaseId: firebaseUser.uid,
+        email: firebaseUser.email,
+        firstName: firebaseUser.displayName?.split(' ')[0] || '',
+        lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+        photoURL: firebaseUser.photoURL
+      });
+      
+      const orgMember = res.data;
+      console.log("✅ OrgMember:", orgMember.id);
+      
+      // Store auth data
+      localStorage.setItem("firebaseId", firebaseUser.uid);
+      localStorage.setItem("orgMemberId", orgMember.id);
+      localStorage.setItem("email", orgMember.email);
+      
+      // Route to Welcome (2.2s delay for smooth transition)
+      setTimeout(() => {
+        console.log("✅ Routing to Welcome (hydrator)...");
+        navigate("/welcome");
+      }, 2200);
+      
+    } catch (error) {
+      console.error("❌ Auth error:", error);
+      navigate("/signup");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-6">
