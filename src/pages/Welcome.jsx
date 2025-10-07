@@ -119,10 +119,10 @@ export default function Welcome() {
         {loading ? (
           <>
             <h1 className="text-5xl font-bold text-white mb-3 drop-shadow-lg">
-              Welcome!
+              Welcome back!
             </h1>
             <p className="text-xl text-white/90 mb-8">
-              Loading your organization...
+              Getting things ready for you...
             </p>
             <div className="flex justify-center">
               <div className="w-64 h-1.5 bg-white/30 rounded-full overflow-hidden">
