@@ -200,14 +200,17 @@ export default function FormBuilder() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Internal Notes
+                    Purpose (Internal Only)
                   </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    The below is to help you when recalling this form and determining who the target is. You can always move people around in the pipeline but this automatically collects them in a pipeline location.
+                  </p>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    placeholder="Internal notes about this form"
-                    rows="2"
+                    placeholder="e.g., Landing page soft commit for public signups"
+                    rows="3"
                   />
                 </div>
 
