@@ -83,6 +83,17 @@ export default function Welcome() {
       localStorage.setItem('orgId', org.id);
       localStorage.setItem('orgName', org.name);
       
+      // Hydrate adminId if user is an admin
+      try {
+        const adminRes = await api.get(`/admins/contact/${orgMember.contactId}`);
+        if (adminRes.data) {
+          localStorage.setItem('adminId', adminRes.data.id);
+          console.log('✅ Admin ID hydrated:', adminRes.data.id);
+        }
+      } catch (error) {
+        console.log('⚠️ User is not an admin, no adminId stored');
+      }
+      
       setOrgName(org.name);
       setHasEvents(events.length > 0);
       setSupporterCount(supporters.length);

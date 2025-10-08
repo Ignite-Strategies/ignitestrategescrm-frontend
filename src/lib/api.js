@@ -9,11 +9,16 @@ const api = axios.create({
   }
 });
 
-// Add Gmail access token to requests
+// Add Gmail access token and adminId to requests
 api.interceptors.request.use(request => {
   const gmailAccessToken = localStorage.getItem('gmailAccessToken');
   if (gmailAccessToken) {
     request.headers.Authorization = `Bearer ${gmailAccessToken}`;
+  }
+  
+  const adminId = localStorage.getItem('adminId');
+  if (adminId) {
+    request.headers['x-admin-id'] = adminId;
   }
   
   console.log('API Request:', request.method.toUpperCase(), request.url, request.data);
