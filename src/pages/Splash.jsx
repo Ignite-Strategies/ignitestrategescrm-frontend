@@ -7,48 +7,38 @@ export default function Splash() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      checkAuthAndRoute();
-    }, 1000); // 1s splash - quick and clean
-    return () => clearTimeout(timer);
+    let timer;
+    
+    // Use Firebase's onAuthStateChanged to wait for auth to initialize
+    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+      // Wait 1 second for splash animation, then check auth
+      timer = setTimeout(() => {
+        checkAuthAndRoute(firebaseUser);
+      }, 1000);
+    });
+    
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, [navigate]);
 
-  const checkAuthAndRoute = async () => {
+  const checkAuthAndRoute = async (firebaseUser) => {
     try {
-      const firebaseUser = auth.currentUser;
-      
       if (!firebaseUser) {
         console.log("❌ No Firebase user → Signup");
         navigate("/signup");
         return;
       }
 
-      console.log("🔍 Firebase user detected, checking backend...");
+      console.log("✅ Firebase user detected:", firebaseUser.email);
       
-      // Find or create OrgMember
-      const res = await api.post("/auth/findOrCreate", {
-        firebaseId: firebaseUser.uid,
-        email: firebaseUser.email,
-        firstName: firebaseUser.displayName?.split(' ')[0] || '',
-        lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
-        photoURL: firebaseUser.photoURL
-      });
-      
-      const orgMember = res.data;
-      console.log("✅ OrgMember:", orgMember.id);
-      
-      // Store auth data + flags for Welcome router
+      // ONLY store Firebase auth - Welcome.jsx will call findOrCreate
       localStorage.setItem("firebaseId", firebaseUser.uid);
-      localStorage.setItem("orgMemberId", orgMember.id);
-      localStorage.setItem("email", orgMember.email);
-      localStorage.setItem("hasProfile", orgMember.phone ? "true" : "false");
-      localStorage.setItem("hasOrg", orgMember.orgId ? "true" : "false");
-      if (orgMember.orgId) {
-        localStorage.setItem("orgId", orgMember.orgId);
-      }
+      localStorage.setItem("email", firebaseUser.email);
       
-      // Route to Welcome immediately (no additional delay)
-      console.log("✅ Routing to Welcome (hydrator)...");
+      // Route to Welcome (hydrator will handle findOrCreate)
+      console.log("✅ Routing to Welcome...");
       navigate("/welcome");
       
     } catch (error) {

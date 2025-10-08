@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { auth } from "../firebase";
 
 export default function Welcome() {
   const navigate = useNavigate();
@@ -36,14 +37,46 @@ export default function Welcome() {
     try {
       console.log('🚀 UNIVERSAL HYDRATOR STARTING...');
       
-      const orgMemberId = localStorage.getItem("orgMemberId");
-      setHydrationStatus(prev => ({ ...prev, orgMemberId: orgMemberId ? '✅' : '❌' }));
-      
-      if (!orgMemberId) {
-        console.log('❌ No orgMemberId, go to signup');
+      // STEP 1: Get Firebase ID
+      const firebaseId = localStorage.getItem("firebaseId");
+      if (!firebaseId) {
+        console.log('❌ No firebaseId, go to signup');
         setTimeout(() => navigate('/signup'), 3000);
         return;
       }
+      
+      // STEP 2: FindOrCreate OrgMember from Firebase auth
+      let orgMemberId = localStorage.getItem("orgMemberId");
+      
+      if (!orgMemberId) {
+        console.log('🔍 No orgMemberId, calling findOrCreate...');
+        const firebaseUser = auth.currentUser;
+        
+        if (!firebaseUser) {
+          console.log('❌ No Firebase user, go to signup');
+          setTimeout(() => navigate('/signup'), 3000);
+          return;
+        }
+        
+        const res = await api.post("/auth/findOrCreate", {
+          firebaseId: firebaseUser.uid,
+          email: firebaseUser.email,
+          firstName: firebaseUser.displayName?.split(' ')[0] || '',
+          lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+          photoURL: firebaseUser.photoURL
+        });
+        
+        const orgMember = res.data;
+        orgMemberId = orgMember.id;
+        
+        // Store it
+        localStorage.setItem("orgMemberId", orgMemberId);
+        localStorage.setItem("email", orgMember.email);
+        
+        console.log('✅ OrgMember created:', orgMemberId);
+      }
+      
+      setHydrationStatus(prev => ({ ...prev, orgMemberId: '✅' }));
       
       // UNIVERSAL HYDRATION - Get ALL data in one call
       console.log('🚀 UNIVERSAL HYDRATION for orgMemberId:', orgMemberId);
