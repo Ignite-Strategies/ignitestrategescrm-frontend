@@ -281,18 +281,83 @@ export default function FormBuilder() {
 
             {/* Field Library */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Add Fields</h2>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.keys(FIELD_TEMPLATES).map(key => (
+              <h2 className="text-xl font-bold text-gray-900 mb-4">🎨 Add Fields</h2>
+              
+              {/* Contact Details */}
+              <div className="mb-6">
+                <h3 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Contact Details</h3>
+                <div className="space-y-2">
                   <button
-                    key={key}
                     type="button"
-                    onClick={() => addField(key)}
-                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition"
+                    onClick={() => addField('text')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-cyan-50 border border-gray-300 hover:border-cyan-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
                   >
-                    + {FIELD_TEMPLATES[key].label}
+                    <span className="mr-2">📝</span> Name
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => addField('email')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-cyan-50 border border-gray-300 hover:border-cyan-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
+                  >
+                    <span className="mr-2">📧</span> Email
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addField('tel')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-cyan-50 border border-gray-300 hover:border-cyan-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
+                  >
+                    <span className="mr-2">📱</span> Phone
+                  </button>
+                </div>
+              </div>
+              
+              {/* Answer Type */}
+              <div className="mb-6">
+                <h3 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Answer Type</h3>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => addField('text')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-green-50 border border-gray-300 hover:border-green-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
+                  >
+                    <span className="mr-2">📝</span> Short Answer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addField('textarea')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-green-50 border border-gray-300 hover:border-green-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
+                  >
+                    <span className="mr-2">💬</span> Long Answer
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addField('number')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-green-50 border border-gray-300 hover:border-green-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
+                  >
+                    <span className="mr-2">🔢</span> Number
+                  </button>
+                </div>
+              </div>
+              
+              {/* Multiple Choice */}
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">Multiple Choice</h3>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => addField('select')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-purple-50 border border-gray-300 hover:border-purple-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
+                  >
+                    <span className="mr-2">🔘</span> Radio (one selection)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addField('checkbox')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-purple-50 border border-gray-300 hover:border-purple-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
+                  >
+                    <span className="mr-2">✅</span> Checkbox (multiple selection)
+                  </button>
+                </div>
               </div>
             </div>
           </div>
