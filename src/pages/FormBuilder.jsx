@@ -88,9 +88,9 @@ export default function FormBuilder() {
       console.log("✅ Form fields populated");
       
       // Load custom fields if they exist
-      if (form.formFields && form.formFields.length > 0) {
-        console.log("🔧 Loading custom fields:", form.formFields);
-        const customFields = form.formFields.map(field => ({
+      if (form.customFields && form.customFields.length > 0) {
+        console.log("🔧 Loading custom fields:", form.customFields);
+        const customFields = form.customFields.map(field => ({
           id: field.id,
           type: field.fieldType,
           label: field.label,
@@ -102,7 +102,7 @@ export default function FormBuilder() {
         setFields(customFields);
         console.log("✅ Custom fields loaded:", customFields);
       } else {
-        console.log("⚠️ No custom fields found");
+        console.log("⚠️ No custom fields found, using default name/email/phone");
       }
       
       setIsEditing(true);
