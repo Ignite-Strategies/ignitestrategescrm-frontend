@@ -18,7 +18,10 @@ const FIELD_TEMPLATES = {
     { value: "option2", label: "Option 2" }
   ]},
   textarea: { type: "textarea", label: "Long Text", placeholder: "Enter details...", required: false },
-  checkbox: { type: "checkbox", label: "Checkbox", required: false }
+  checkbox: { type: "checkbox", label: "Checkbox", required: false, options: [
+    { value: "option1", label: "Option 1" },
+    { value: "option2", label: "Option 2" }
+  ]}
 };
 
 export default function FormBuilder() {
@@ -465,7 +468,7 @@ export default function FormBuilder() {
                         </div>
                       </div>
 
-                      {field.type === "select" || field.type === "radio" ? (
+                      {field.type === "select" || field.type === "radio" || field.type === "checkbox" ? (
                         <div className="space-y-2">
                           <div className="text-xs font-semibold text-gray-500 mb-1">Options:</div>
                           {field.options.map((opt, i) => (
