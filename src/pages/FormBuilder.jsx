@@ -191,6 +191,12 @@ export default function FormBuilder() {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
       
+      // Filter out standard fields - only send REAL custom fields
+      const customFields = fields.filter(f => 
+        !['name', 'email', 'phone'].includes(f.id) && 
+        f.id !== 'field_' + Date.now() // Don't send temporary field IDs
+      );
+      
       const formConfig = {
         orgId,
         eventId: selectedEvent,
@@ -200,7 +206,7 @@ export default function FormBuilder() {
         publicTitle: publicTitle || formName, // Use public title or fallback to internal name
         publicDescription: publicDescription || description,
         targetStage,
-        fields: fields.map(f => ({
+        fields: customFields.map(f => ({
           id: f.id,
           type: f.type,
           label: f.label,
