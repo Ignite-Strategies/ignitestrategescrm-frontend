@@ -184,7 +184,7 @@ export default function FormBuilder() {
         orgId,
         eventId: selectedEvent,
         audienceType: selectedPipeline, // Backend will find/create pipeline
-        name: formName,
+        internalName: formName,
         slug,
         publicTitle: publicTitle || formName, // Use public title or fallback to internal name
         publicDescription: publicDescription || description,
