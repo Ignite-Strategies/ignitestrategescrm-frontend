@@ -179,9 +179,17 @@ export default function FormBuilder() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Configuration */}
           <div className="lg:col-span-1 space-y-6">
+            {/* Internal Only Header */}
+            <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white rounded-lg shadow p-4">
+              <h2 className="text-lg font-bold mb-1">Internal Only</h2>
+              <p className="text-sm text-gray-300">
+                The below is to help you when recalling this form and determining who the target is. You can always move people around in the pipeline but this automatically collects them in a pipeline location.
+              </p>
+            </div>
+            
             {/* Form Details */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Form Details</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Form Configuration</h2>
               
               <div className="space-y-4">
                 <div>
@@ -200,11 +208,8 @@ export default function FormBuilder() {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Purpose (Internal Only)
+                    Purpose
                   </label>
-                  <p className="text-xs text-gray-500 mb-2">
-                    The below is to help you when recalling this form and determining who the target is. You can always move people around in the pipeline but this automatically collects them in a pipeline location.
-                  </p>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
