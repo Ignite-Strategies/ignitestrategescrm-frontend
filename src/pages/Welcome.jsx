@@ -30,125 +30,118 @@ export default function Welcome() {
         return;
       }
       
-      // Get OrgMember to check if they have an org
-      const memberRes = await api.get(`/org-members/${orgMemberId}`);
-      const orgMember = memberRes.data;
-      
-      console.log('✅ OrgMember loaded:', orgMember.email);
-      
-      // Wait 1800ms before routing (smooth transition, no yank!)
-      setTimeout(() => {
-        // Check if phone number is set (profile complete)
-        if (!orgMember.phone) {
-          console.log('⚠️ No phone, complete profile first');
-          navigate('/profile-setup');
-          return;
-        }
-        
-        if (!orgMember.orgId) {
-          // Has profile but no org → Choose create or join
-          console.log('⚠️ No org linked, go to org/choose');
-          navigate('/org/choose');
-          return;
-        }
-        
-        // Has org → Load org data and go to dashboard
-        loadOrgAndNavigate(orgMember.orgId);
-      }, 1800);
-      
-    } catch (error) {
-      console.error("❌ Hydration error:", error);
-      navigate('/signup');
-    }
-  };
-  
-  const loadOrgAndNavigate = async (orgId) => {
-    try {
-      // Load org, events, and contacts in parallel
-      const [orgRes, eventsRes, supportersRes] = await Promise.all([
-        api.get(`/orgs/${orgId}`),
-        api.get(`/orgs/${orgId}/events`),
-        api.get(`/orgs/${orgId}/supporters`)
-      ]);
-      
-      const org = orgRes.data;
-      const events = eventsRes.data || [];
-      const supporters = supportersRes.data || [];
-      
-      console.log('✅ Org loaded:', org.name);
-      console.log('✅ Events:', events.length);
-      console.log('✅ Contacts:', supporters.length);
-      
-      // Store in localStorage
-      localStorage.setItem('orgId', org.id);
-      localStorage.setItem('orgName', org.name);
-      
-      // Hydrate adminId if user is an admin
-      if (orgMember.contactId) {
-        try {
-          const adminRes = await api.get(`/admins/contact/${orgMember.contactId}`);
-          if (adminRes.data) {
-            localStorage.setItem('adminId', adminRes.data.id);
-            console.log('✅ Admin ID hydrated:', adminRes.data.id);
-          }
-        } catch (error) {
-          console.log('⚠️ User is not an admin, no adminId stored');
-        }
-      } else {
-        console.log('⚠️ No contactId, skipping adminId hydration');
+      // UNIVERSAL HYDRATION - Get ALL data in one call
+      console.log('🚀 UNIVERSAL HYDRATION for orgMemberId:', orgMemberId);
+      let hydrationData;
+      try {
+        const hydrationRes = await api.get(`/hydration/${orgMemberId}`);
+        hydrationData = hydrationRes.data;
+        console.log('✅ Hydration complete:', hydrationData);
+      } catch (error) {
+        console.error('❌ Hydration failed:', error);
+        navigate('/signup');
+        return;
       }
       
+      const { orgMember, org, events, supporters, admin } = hydrationData;
+      
+      // ROUTING LOGIC - Check what's missing
+      
+      // 1. Check if phone number is set (profile complete)
+      if (!orgMember.phone) {
+        console.log('⚠️ No phone, complete profile first');
+        navigate('/profile-setup');
+        return;
+      }
+      
+      // 2. Check if org exists
+      if (!orgMember.orgId) {
+        console.log('⚠️ No org linked, go to org/choose');
+        navigate('/org/choose');
+        return;
+      }
+      
+      // 3. SAVE ALL DATA TO LOCALSTORAGE
+      localStorage.setItem('orgId', org.id);
+      localStorage.setItem('orgName', org.name);
+      localStorage.setItem('contactId', orgMember.contactId);
+      
+      // Get the first event for eventId
+      const eventId = events.length > 0 ? events[0].id : null;
+      if (eventId) {
+        localStorage.setItem('eventId', eventId);
+      }
+      
+      // Save adminId if exists
+      if (admin) {
+        localStorage.setItem('adminId', admin.id);
+        console.log('✅ Admin ID saved:', admin.id);
+      }
+      
+      // 4. Check if events exist
+      if (events.length === 0) {
+        console.log('⚠️ No events, go to event creation');
+        setOrgName(org.name);
+        setHasEvents(false);
+        setSupporterCount(supporters.length);
+        setLoading(false);
+        navigate('/event/create');
+        return;
+      }
+      
+      // 5. All good - go to dashboard
+      console.log('✅ All data exists, routing to dashboard');
       setOrgName(org.name);
       setHasEvents(events.length > 0);
       setSupporterCount(supporters.length);
       setLoading(false);
-      
-      // Route based on whether they have an active event
-      if (events.length === 0) {
-        console.log('📍 No events → Routing to post-create fork');
-        setTimeout(() => {
-          navigate('/org/post-create');
-        }, 1500);
-      } else {
-        console.log('✅ Has events → Dashboard ready');
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1500);
-      }
+      navigate('/dashboard');
       
     } catch (error) {
-      console.error("❌ Hydration error:", error);
+      console.error('❌ Hydration error:', error);
       navigate('/signup');
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-600 flex items-center justify-center px-4">
-      <div className="text-center max-w-2xl">
-        {/* Icon */}
-        <div className="mb-6">
-          <div className="inline-block p-6 bg-white/20 backdrop-blur-lg rounded-3xl shadow-2xl">
-            <svg className="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-600 mx-auto mb-4"></div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back!</h1>
+          <p className="text-gray-600">Loading your dashboard...</p>
         </div>
-        
-        <>
-          <h1 className="text-5xl font-bold text-white mb-3 drop-shadow-lg">
-            Welcome back!
-          </h1>
-          <p className="text-xl text-white/90 mb-8">
-            Getting things ready for you...
-          </p>
-          <div className="flex justify-center">
-            <div className="w-64 h-1.5 bg-white/30 rounded-full overflow-hidden">
-              <div className="h-full bg-white rounded-full animate-[loading_1.5s_ease-in-out]"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center">
+      <div className="text-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-auto">
+          <div className="mb-6">
+            <div className="mx-auto w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
           </div>
-        </>
+          
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to {orgName}!</h1>
+          <p className="text-gray-600 mb-6">
+            {hasEvents ? `You have ${supporterCount} supporters and events ready to go!` : 'Let\'s get your first event set up!'}
+          </p>
+          
+          <div className="space-y-3">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-full bg-cyan-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-cyan-700 transition"
+            >
+              Go to Dashboard →
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
