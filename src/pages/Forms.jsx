@@ -214,7 +214,7 @@ export default function Forms() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/forms/${form.id}/edit`);
+                        navigate(`/forms/create?editId=${form.id}`);
                       }}
                       className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                     >

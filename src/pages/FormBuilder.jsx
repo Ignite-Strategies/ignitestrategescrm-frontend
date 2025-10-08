@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
@@ -47,10 +47,18 @@ export default function FormBuilder() {
   // Data from API
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Edit mode
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('editId');
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     loadEvents();
-  }, [orgId]);
+    if (editId) {
+      loadFormData();
+    }
+  }, [orgId, editId]);
 
   const loadEvents = async () => {
     try {
@@ -58,6 +66,40 @@ export default function FormBuilder() {
       setEvents(res.data || []);
     } catch (error) {
       console.error("Error loading events:", error);
+    }
+  };
+
+  const loadFormData = async () => {
+    try {
+      const res = await api.get(`/forms/${editId}`);
+      const form = res.data;
+      
+      // Populate form data
+      setFormName(form.internalName || form.name || "");
+      setDescription(form.internalPurpose || "");
+      setSelectedEvent(form.eventId);
+      setSelectedPipeline(form.audienceType);
+      setTargetStage(form.targetStage);
+      setPublicTitle(form.publicTitle);
+      setPublicDescription(form.publicDescription);
+      
+      // Load custom fields if they exist
+      if (form.formFields && form.formFields.length > 0) {
+        const customFields = form.formFields.map(field => ({
+          id: field.id,
+          type: field.fieldType,
+          label: field.label,
+          placeholder: field.placeholder,
+          required: field.isRequired,
+          options: field.options ? JSON.parse(field.options) : undefined,
+          order: field.displayOrder
+        }));
+        setFields(customFields);
+      }
+      
+      setIsEditing(true);
+    } catch (error) {
+      console.error("Error loading form data:", error);
     }
   };
 
