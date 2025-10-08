@@ -95,12 +95,17 @@ export default function FormBuilder() {
   const updateField = (fieldId, updates) => {
     setFields(fields.map(f => {
       if (f.id === fieldId) {
-        // If label is being updated, regenerate the ID
-        if (updates.label) {
-          const newId = createFieldId(updates.label);
-          return { ...f, ...updates, id: newId };
-        }
         return { ...f, ...updates };
+      }
+      return f;
+    }));
+  };
+
+  const finalizeFieldId = (fieldId) => {
+    setFields(fields.map(f => {
+      if (f.id === fieldId && f.label) {
+        const newId = createFieldId(f.label);
+        return { ...f, id: newId };
       }
       return f;
     }));
@@ -416,6 +421,7 @@ export default function FormBuilder() {
                             type="text"
                             value={field.label}
                             onChange={(e) => updateField(field.id, { label: e.target.value })}
+                            onBlur={() => finalizeFieldId(field.id)}
                             className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-cyan-500 outline-none"
                             placeholder="Field Label"
                           />
