@@ -204,7 +204,7 @@ export default function FormBuilder() {
 
       let res;
       if (isEditing) {
-        res = await api.put(`/forms/${editId}`, formConfig);
+        res = await api.patch(`/forms/${editId}`, formConfig);
         console.log("✅ Form updated:", res.data);
       } else {
         res = await api.post("/forms", formConfig);
