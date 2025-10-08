@@ -6,22 +6,8 @@ import api from "../lib/api";
 export default function Welcome() {
   const navigate = useNavigate();
   const [orgName, setOrgName] = useState("");
+  const [memberName, setMemberName] = useState("");
   const [loading, setLoading] = useState(true);
-  const [hasEvents, setHasEvents] = useState(false);
-  const [supporterCount, setSupporterCount] = useState(0);
-  
-  // DEBUG STATE
-  const [debugMode, setDebugMode] = useState(true); // Show debug panel
-  const [hydrationStatus, setHydrationStatus] = useState({
-    orgMemberId: '❓',
-    orgMember: '❓',
-    org: '❓',
-    events: '❓',
-    supporters: '❓',
-    admin: '❓',
-    contactId: '❓',
-    eventId: '❓'
-  });
 
   useEffect(() => {
     // Clear any stale org IDs before hydrating
@@ -47,7 +33,6 @@ export default function Welcome() {
       
       const firebaseId = firebaseUser.uid;
       console.log('✅ Firebase ID:', firebaseId);
-      setHydrationStatus(prev => ({ ...prev, orgMemberId: '✅' }));
       
       // UNIVERSAL HYDRATION - Get ALL data in one call using firebaseId!
       console.log('🚀 UNIVERSAL HYDRATION for firebaseId:', firebaseId);
@@ -58,24 +43,11 @@ export default function Welcome() {
         console.log('✅ Hydration complete:', hydrationData);
       } catch (error) {
         console.error('❌ Hydration failed:', error);
-        setHydrationStatus(prev => ({ ...prev, orgMember: '❌ API FAILED' }));
         setTimeout(() => navigate('/signup'), 3000);
         return;
       }
       
       const { orgMember, org, events, supporters, admin } = hydrationData;
-      
-      // UPDATE DEBUG STATUS
-      setHydrationStatus(prev => ({
-        ...prev,
-        orgMember: orgMember ? '✅' : '❌',
-        org: org ? '✅' : '❌',
-        events: events?.length > 0 ? `✅ (${events.length})` : '❌',
-        supporters: supporters?.length >= 0 ? `✅ (${supporters.length})` : '❌',
-        admin: admin ? '✅' : '❌',
-        contactId: orgMember?.contactId ? '✅' : '❌',
-        eventId: events?.length > 0 ? '✅' : '❌'
-      }));
       
       // ROUTING LOGIC - Check what's missing
       
@@ -114,167 +86,85 @@ export default function Welcome() {
       // 4. Check if events exist
       if (events.length === 0) {
         console.log('⚠️ No events, go to event creation');
-        setOrgName(org.name);
-        setHasEvents(false);
-        setSupporterCount(supporters.length);
-        setLoading(false);
         navigate('/event/create');
         return;
       }
       
-      // 5. All good - show welcome screen for 1500ms, then user can click to dashboard
+      // 5. All good - show welcome screen!
       console.log('✅ All data exists, showing welcome screen');
       setOrgName(org.name);
-      setHasEvents(events.length > 0);
-      setSupporterCount(supporters.length);
+      setMemberName(orgMember.firstName || 'there');
       setLoading(false);
-      // Don't auto-navigate, let user click the button
       
     } catch (error) {
       console.error('❌ Hydration error:', error);
-      setHydrationStatus(prev => ({ ...prev, orgMember: '❌ ERROR' }));
       setTimeout(() => navigate('/signup'), 3000);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-          <div className="text-center mb-8">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-600 mx-auto mb-4"></div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back!</h1>
-            <p className="text-gray-600">Loading your dashboard...</p>
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-6">
+        <div className="text-center space-y-6">
+          <div className="flex justify-center mb-8">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-lg rounded-2xl flex items-center justify-center shadow-2xl">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+            </div>
           </div>
           
-          {/* DEBUG PANEL */}
-          {debugMode && (
-            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-cyan-200">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-gray-900">🔍 Hydration Debug Panel</h2>
-                <button 
-                  onClick={() => setDebugMode(false)}
-                  className="text-sm text-gray-500 hover:text-gray-700"
-                >
-                  Hide
-                </button>
-              </div>
-              <div className="space-y-2 font-mono text-sm">
-                <div className="flex justify-between">
-                  <span>OrgMember ID:</span>
-                  <span className="font-bold">{hydrationStatus.orgMemberId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>OrgMember Data:</span>
-                  <span className="font-bold">{hydrationStatus.orgMember}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Organization:</span>
-                  <span className="font-bold">{hydrationStatus.org}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Events:</span>
-                  <span className="font-bold">{hydrationStatus.events}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Supporters:</span>
-                  <span className="font-bold">{hydrationStatus.supporters}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Admin Record:</span>
-                  <span className="font-bold">{hydrationStatus.admin}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Contact ID:</span>
-                  <span className="font-bold">{hydrationStatus.contactId}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Event ID:</span>
-                  <span className="font-bold">{hydrationStatus.eventId}</span>
-                </div>
+          <div className="space-y-4">
+            <h1 className="text-4xl font-black text-white drop-shadow-2xl">
+              Getting Your Org Data...
+            </h1>
+            <div className="flex justify-center pt-4">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 bg-white rounded-full animate-bounce"></div>
+                <div className="w-3 h-3 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-3 h-3 bg-white rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-          <div className="mb-6">
-            <div className="mx-auto w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-6">
+      <div className="text-center space-y-8">
+        {/* Success Icon */}
+        <div className="flex justify-center mb-8">
+          <div className="relative">
+            <div className="absolute -top-6 -left-6 text-4xl animate-bounce">🎉</div>
+            <div className="absolute -top-4 -right-6 text-3xl animate-bounce" style={{ animationDelay: '0.3s' }}>✨</div>
+            
+            <div className="w-24 h-24 bg-white/20 backdrop-blur-lg rounded-2xl flex items-center justify-center shadow-2xl">
+              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
-          
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">Welcome to {orgName}!</h1>
-          <p className="text-gray-600 mb-6 text-center">
-            {hasEvents ? `You have ${supporterCount} supporters and events ready to go!` : 'Let\'s get your first event set up!'}
-          </p>
-          
-          <div className="space-y-3">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="w-full bg-cyan-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-cyan-700 transition"
-            >
-              Go to Dashboard →
-            </button>
-          </div>
         </div>
-        
-        {/* DEBUG PANEL */}
-        {debugMode && (
-          <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-green-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900">✅ Hydration Complete</h2>
-              <button 
-                onClick={() => setDebugMode(false)}
-                className="text-sm text-gray-500 hover:text-gray-700"
-              >
-                Hide
-              </button>
-            </div>
-            <div className="space-y-2 font-mono text-sm">
-              <div className="flex justify-between">
-                <span>OrgMember ID:</span>
-                <span className="font-bold">{hydrationStatus.orgMemberId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>OrgMember Data:</span>
-                <span className="font-bold">{hydrationStatus.orgMember}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Organization:</span>
-                <span className="font-bold">{hydrationStatus.org}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Events:</span>
-                <span className="font-bold">{hydrationStatus.events}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Supporters:</span>
-                <span className="font-bold">{hydrationStatus.supporters}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Admin Record:</span>
-                <span className="font-bold">{hydrationStatus.admin}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Contact ID:</span>
-                <span className="font-bold">{hydrationStatus.contactId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Event ID:</span>
-                <span className="font-bold">{hydrationStatus.eventId}</span>
-              </div>
-            </div>
-          </div>
-        )}
+
+        <div className="space-y-4">
+          <h1 className="text-5xl font-black text-white drop-shadow-2xl">
+            Let's Go, {memberName}!
+          </h1>
+          <p className="text-2xl text-white/90 font-medium drop-shadow-lg">
+            {orgName} is ready to engage
+          </p>
+        </div>
+
+        <div className="pt-4">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold text-lg shadow-2xl hover:bg-indigo-50 transition transform hover:scale-105"
+          >
+            Go to Dashboard →
+          </button>
+        </div>
       </div>
     </div>
   );
