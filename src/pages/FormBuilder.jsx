@@ -72,25 +72,25 @@ export default function FormBuilder() {
   const loadFormData = async () => {
     try {
       console.log("🔍 Loading form data for editId:", editId);
-      const res = await api.get(`/forms/${editId}`);
-      const form = res.data;
-      console.log("📋 Form data loaded:", form);
+      const res = await api.get(`/forms/hydrator/${editId}/edit`);
+      const { eventForm, publicForm } = res.data;
+      console.log("📋 Form data loaded:", { eventForm, publicForm });
       
-      // Populate form data
-      setFormName(form.internalName || form.name || "");
-      setDescription(form.internalPurpose || "");
-      setSelectedEvent(form.eventId);
-      setSelectedPipeline(form.audienceType);
-      setTargetStage(form.targetStage);
-      setPublicTitle(form.publicTitle);
-      setPublicDescription(form.publicDescription);
+      // Populate form data from EventForm and PublicForm
+      setFormName(eventForm?.internalName || publicForm?.title || "");
+      setDescription(eventForm?.internalPurpose || "");
+      setSelectedEvent(publicForm.eventId);
+      setSelectedPipeline(publicForm.audienceType);
+      setTargetStage(publicForm.targetStage);
+      setPublicTitle(publicForm.title);
+      setPublicDescription(publicForm.description);
       
       console.log("✅ Form fields populated");
       
-      // Load custom fields if they exist
-      if (form.customFields && form.customFields.length > 0) {
-        console.log("🔧 Loading custom fields:", form.customFields);
-        const customFields = form.customFields.map(field => {
+      // Load custom fields if they exist (from PublicForm)
+      if (publicForm.customFields && publicForm.customFields.length > 0) {
+        console.log("🔧 Loading custom fields:", publicForm.customFields);
+        const customFields = publicForm.customFields.map(field => {
           let options = undefined;
           if (field.options && field.options !== 'null') {
             try {
@@ -221,19 +221,22 @@ export default function FormBuilder() {
 
       let res;
       if (isEditing) {
-        res = await api.patch(`/forms/${editId}`, formConfig);
+        res = await api.patch(`/forms/saver/${editId}`, formConfig);
         console.log("✅ Form updated:", res.data);
       } else {
-        res = await api.post("/forms", formConfig);
+        res = await api.post("/forms/saver", formConfig);
         console.log("✅ Form created:", res.data);
       }
       
+      // Response now contains { publicForm, eventForm }
+      const { publicForm, eventForm } = res.data;
+      
       navigate("/forms/success", { 
         state: { 
-          name: formName,
-          slug: res.data.slug,
-          audienceType: selectedPipeline,
-          targetStage
+          name: eventForm?.internalName || publicForm.title,
+          slug: publicForm.slug,
+          audienceType: publicForm.audienceType,
+          targetStage: publicForm.targetStage
         } 
       });
     } catch (error) {
