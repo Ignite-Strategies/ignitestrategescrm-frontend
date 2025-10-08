@@ -13,6 +13,10 @@ const FIELD_TEMPLATES = {
     { value: "option1", label: "Option 1" },
     { value: "option2", label: "Option 2" }
   ]},
+  radio: { type: "radio", label: "Radio Buttons", required: false, options: [
+    { value: "option1", label: "Option 1" },
+    { value: "option2", label: "Option 2" }
+  ]},
   textarea: { type: "textarea", label: "Long Text", placeholder: "Enter details...", required: false },
   checkbox: { type: "checkbox", label: "Checkbox", required: false }
 };
@@ -370,6 +374,13 @@ export default function FormBuilder() {
                     onClick={() => addField('select')}
                     className="w-full px-4 py-2.5 bg-white hover:bg-purple-50 border border-gray-300 hover:border-purple-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
                   >
+                    <span className="mr-2">📋</span> Dropdown (one selection)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addField('radio')}
+                    className="w-full px-4 py-2.5 bg-white hover:bg-purple-50 border border-gray-300 hover:border-purple-400 text-gray-900 rounded-lg text-sm font-medium transition text-left flex items-center"
+                  >
                     <span className="mr-2">🔘</span> Radio (one selection)
                   </button>
                   <button
@@ -460,6 +471,15 @@ export default function FormBuilder() {
                             <option key={i}>{opt.label}</option>
                           ))}
                         </select>
+                      ) : field.type === "radio" ? (
+                        <div className="space-y-2">
+                          {field.options.map((opt, i) => (
+                            <label key={i} className="flex items-center gap-2 text-gray-700">
+                              <input type="radio" name={field.id} disabled className="w-4 h-4" />
+                              {opt.label}
+                            </label>
+                          ))}
+                        </div>
                       ) : field.type === "textarea" ? (
                         <textarea
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
