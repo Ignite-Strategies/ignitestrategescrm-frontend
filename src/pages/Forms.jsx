@@ -38,6 +38,20 @@ export default function Forms() {
     return event?.name || "Unknown Event";
   };
 
+  const deleteForm = async (formId) => {
+    if (!confirm("Are you sure you want to delete this form? This action cannot be undone.")) {
+      return;
+    }
+    
+    try {
+      await api.delete(`/forms/${formId}`);
+      loadData(); // Reload the list
+    } catch (error) {
+      console.error("Error deleting form:", error);
+      alert("Failed to delete form");
+    }
+  };
+
   const filteredForms = forms.filter(form => {
     if (filter === "active") return form.isActive;
     if (filter === "inactive") return !form.isActive;
@@ -205,6 +219,15 @@ export default function Forms() {
                       className="text-gray-600 hover:text-gray-700 text-sm font-medium"
                     >
                       ✏️ Edit
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteForm(form.id);
+                      }}
+                      className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    >
+                      🗑️ Delete
                     </button>
                   </div>
                 </div>

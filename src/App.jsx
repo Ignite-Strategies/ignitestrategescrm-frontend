@@ -43,6 +43,7 @@ import SetupEvent from "./pages/SetupEvent.jsx";
 import EventTaskSuggestions from "./pages/EventTaskSuggestions.jsx";
 import Forms from "./pages/Forms.jsx";
 import FormBuilder from "./pages/FormBuilder.jsx";
+import FormSuccess from "./pages/FormSuccess.jsx";
 import PostOrgCreate from "./pages/PostOrgCreate.jsx";
 
 // Protected Route - Check for firebaseId
@@ -191,6 +192,9 @@ export default function App() {
         } />
         <Route path="/forms/create" element={
           <ProtectedRoute><FormBuilder /></ProtectedRoute>
+        } />
+        <Route path="/forms/success" element={
+          <ProtectedRoute><FormSuccess /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>

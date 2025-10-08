@@ -152,8 +152,15 @@ export default function FormBuilder() {
       };
 
       const res = await api.post("/forms", formConfig);
-      alert("Form created successfully!");
-      navigate("/forms");
+      console.log("✅ Form created:", res.data);
+      navigate("/forms/success", { 
+        state: { 
+          name: formName,
+          slug: res.data.slug,
+          audienceType: selectedPipeline,
+          targetStage
+        } 
+      });
     } catch (error) {
       console.error("Error creating form:", error);
       alert(error.response?.data?.error || "Failed to create form");
