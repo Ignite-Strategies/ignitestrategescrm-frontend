@@ -71,11 +71,18 @@ export default function FormBuilder() {
     }
   };
 
+  // Helper: Create persistent field ID from label
+  const createFieldId = (label) => {
+    return label.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  };
+
   const addField = (templateKey) => {
     const template = FIELD_TEMPLATES[templateKey];
     const newField = {
       ...template,
-      id: `field_${Date.now()}`,
+      id: `field_${Date.now()}`, // Temporary - will update when user sets label
       order: fields.length + 1
     };
     setFields([...fields, newField]);
@@ -86,7 +93,17 @@ export default function FormBuilder() {
   };
 
   const updateField = (fieldId, updates) => {
-    setFields(fields.map(f => f.id === fieldId ? { ...f, ...updates } : f));
+    setFields(fields.map(f => {
+      if (f.id === fieldId) {
+        // If label is being updated, regenerate the ID
+        if (updates.label) {
+          const newId = createFieldId(updates.label);
+          return { ...f, ...updates, id: newId };
+        }
+        return { ...f, ...updates };
+      }
+      return f;
+    }));
   };
 
   const moveField = (fieldId, direction) => {
