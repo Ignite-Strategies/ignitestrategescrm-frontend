@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
-import api from "../lib/api";
 
 export default function Splash() {
   const navigate = useNavigate();
@@ -23,28 +22,15 @@ export default function Splash() {
     };
   }, [navigate]);
 
-  const checkAuthAndRoute = async (firebaseUser) => {
-    try {
-      if (!firebaseUser) {
-        console.log("❌ No Firebase user → Signup");
-        navigate("/signup");
-        return;
-      }
-
-      console.log("✅ Firebase user detected:", firebaseUser.email);
-      
-      // ONLY store Firebase auth - Welcome.jsx will call findOrCreate
-      localStorage.setItem("firebaseId", firebaseUser.uid);
-      localStorage.setItem("email", firebaseUser.email);
-      
-      // Route to Welcome (hydrator will handle findOrCreate)
-      console.log("✅ Routing to Welcome...");
-      navigate("/welcome");
-      
-    } catch (error) {
-      console.error("❌ Auth error:", error);
+  const checkAuthAndRoute = (firebaseUser) => {
+    if (!firebaseUser) {
+      console.log("❌ No Firebase → Signup");
       navigate("/signup");
+      return;
     }
+
+    console.log("✅ Firebase → Welcome");
+    navigate("/welcome");
   };
 
   return (

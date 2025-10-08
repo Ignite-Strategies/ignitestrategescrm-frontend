@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../lib/api";
 import { auth } from "../firebase";
+import api from "../lib/api";
 
 export default function Welcome() {
   const navigate = useNavigate();
@@ -37,52 +37,23 @@ export default function Welcome() {
     try {
       console.log('🚀 UNIVERSAL HYDRATOR STARTING...');
       
-      // STEP 1: Get Firebase ID
-      const firebaseId = localStorage.getItem("firebaseId");
-      if (!firebaseId) {
-        console.log('❌ No firebaseId, go to signup');
+      // Get Firebase user
+      const firebaseUser = auth.currentUser;
+      if (!firebaseUser) {
+        console.log('❌ No Firebase user, go to signup');
         setTimeout(() => navigate('/signup'), 3000);
         return;
       }
       
-      // STEP 2: FindOrCreate OrgMember from Firebase auth
-      let orgMemberId = localStorage.getItem("orgMemberId");
-      
-      if (!orgMemberId) {
-        console.log('🔍 No orgMemberId, calling findOrCreate...');
-        const firebaseUser = auth.currentUser;
-        
-        if (!firebaseUser) {
-          console.log('❌ No Firebase user, go to signup');
-          setTimeout(() => navigate('/signup'), 3000);
-          return;
-        }
-        
-        const res = await api.post("/auth/findOrCreate", {
-          firebaseId: firebaseUser.uid,
-          email: firebaseUser.email,
-          firstName: firebaseUser.displayName?.split(' ')[0] || '',
-          lastName: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
-          photoURL: firebaseUser.photoURL
-        });
-        
-        const orgMember = res.data;
-        orgMemberId = orgMember.id;
-        
-        // Store it
-        localStorage.setItem("orgMemberId", orgMemberId);
-        localStorage.setItem("email", orgMember.email);
-        
-        console.log('✅ OrgMember created:', orgMemberId);
-      }
-      
+      const firebaseId = firebaseUser.uid;
+      console.log('✅ Firebase ID:', firebaseId);
       setHydrationStatus(prev => ({ ...prev, orgMemberId: '✅' }));
       
-      // UNIVERSAL HYDRATION - Get ALL data in one call
-      console.log('🚀 UNIVERSAL HYDRATION for orgMemberId:', orgMemberId);
+      // UNIVERSAL HYDRATION - Get ALL data in one call using firebaseId!
+      console.log('🚀 UNIVERSAL HYDRATION for firebaseId:', firebaseId);
       let hydrationData;
       try {
-        const hydrationRes = await api.get(`/hydration/${orgMemberId}`);
+        const hydrationRes = await api.get(`/hydration/${firebaseId}`);
         hydrationData = hydrationRes.data;
         console.log('✅ Hydration complete:', hydrationData);
       } catch (error) {
@@ -125,7 +96,8 @@ export default function Welcome() {
       // 3. SAVE ALL DATA TO LOCALSTORAGE
       localStorage.setItem('orgId', org.id);
       localStorage.setItem('orgName', org.name);
-      localStorage.setItem('contactId', orgMember.contactId);
+      localStorage.setItem('orgMemberId', orgMember.id); // Primary CRM key
+      localStorage.setItem('phone', orgMember.phone); // For profile check
       
       // Get the first event for eventId
       const eventId = events.length > 0 ? events[0].id : null;
@@ -133,10 +105,10 @@ export default function Welcome() {
         localStorage.setItem('eventId', eventId);
       }
       
-      // Save adminId if exists
+      // Optional: Save adminId for higher-end operations (but not required for basic CRM)
       if (admin) {
         localStorage.setItem('adminId', admin.id);
-        console.log('✅ Admin ID saved:', admin.id);
+        console.log('✅ Admin ID saved for advanced operations:', admin.id);
       }
       
       // 4. Check if events exist
