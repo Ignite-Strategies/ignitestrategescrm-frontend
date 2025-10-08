@@ -202,8 +202,15 @@ export default function FormBuilder() {
         isActive: true
       };
 
-      const res = await api.post("/forms", formConfig);
-      console.log("✅ Form created:", res.data);
+      let res;
+      if (isEditing) {
+        res = await api.patch(`/forms/${editId}`, formConfig);
+        console.log("✅ Form updated:", res.data);
+      } else {
+        res = await api.post("/forms", formConfig);
+        console.log("✅ Form created:", res.data);
+      }
+      
       navigate("/forms/success", { 
         state: { 
           name: formName,
