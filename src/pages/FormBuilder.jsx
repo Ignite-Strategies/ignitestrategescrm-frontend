@@ -46,18 +46,11 @@ export default function FormBuilder() {
   
   // Data from API
   const [events, setEvents] = useState([]);
-  const [pipelines, setPipelines] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadEvents();
   }, [orgId]);
-
-  useEffect(() => {
-    if (selectedEvent) {
-      loadPipelines(selectedEvent);
-    }
-  }, [selectedEvent]);
 
   const loadEvents = async () => {
     try {
@@ -65,16 +58,6 @@ export default function FormBuilder() {
       setEvents(res.data || []);
     } catch (error) {
       console.error("Error loading events:", error);
-    }
-  };
-
-  const loadPipelines = async (eventId) => {
-    try {
-      const res = await api.get(`/events/${eventId}/pipelines`);
-      setPipelines(res.data || []);
-    } catch (error) {
-      console.error("Error loading pipelines:", error);
-      setPipelines([]);
     }
   };
 
