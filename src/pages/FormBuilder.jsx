@@ -465,20 +465,44 @@ export default function FormBuilder() {
                         </div>
                       </div>
 
-                      {field.type === "select" ? (
-                        <select className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
-                          {field.options.map((opt, i) => (
-                            <option key={i}>{opt.label}</option>
-                          ))}
-                        </select>
-                      ) : field.type === "radio" ? (
+                      {field.type === "select" || field.type === "radio" ? (
                         <div className="space-y-2">
+                          <div className="text-xs font-semibold text-gray-500 mb-1">Options:</div>
                           {field.options.map((opt, i) => (
-                            <label key={i} className="flex items-center gap-2 text-gray-700">
-                              <input type="radio" name={field.id} disabled className="w-4 h-4" />
-                              {opt.label}
-                            </label>
+                            <div key={i} className="flex gap-2">
+                              <input
+                                type="text"
+                                value={opt.label}
+                                onChange={(e) => {
+                                  const newOptions = [...field.options];
+                                  newOptions[i] = { ...opt, label: e.target.value, value: e.target.value.toLowerCase().replace(/\s+/g, '_') };
+                                  updateField(field.id, { options: newOptions });
+                                }}
+                                className="flex-1 px-3 py-1.5 border border-gray-300 rounded text-sm"
+                                placeholder="Option label"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newOptions = field.options.filter((_, idx) => idx !== i);
+                                  updateField(field.id, { options: newOptions });
+                                }}
+                                className="px-2 text-red-500 hover:text-red-700"
+                              >
+                                ✕
+                              </button>
+                            </div>
                           ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newOptions = [...field.options, { value: `option${field.options.length + 1}`, label: `Option ${field.options.length + 1}` }];
+                              updateField(field.id, { options: newOptions });
+                            }}
+                            className="text-sm text-cyan-600 hover:text-cyan-700 font-medium"
+                          >
+                            + Add Option
+                          </button>
                         </div>
                       ) : field.type === "textarea" ? (
                         <textarea
