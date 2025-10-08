@@ -71,8 +71,10 @@ export default function FormBuilder() {
 
   const loadFormData = async () => {
     try {
+      console.log("🔍 Loading form data for editId:", editId);
       const res = await api.get(`/forms/${editId}`);
       const form = res.data;
+      console.log("📋 Form data loaded:", form);
       
       // Populate form data
       setFormName(form.internalName || form.name || "");
@@ -83,8 +85,11 @@ export default function FormBuilder() {
       setPublicTitle(form.publicTitle);
       setPublicDescription(form.publicDescription);
       
+      console.log("✅ Form fields populated");
+      
       // Load custom fields if they exist
       if (form.formFields && form.formFields.length > 0) {
+        console.log("🔧 Loading custom fields:", form.formFields);
         const customFields = form.formFields.map(field => ({
           id: field.id,
           type: field.fieldType,
@@ -95,11 +100,15 @@ export default function FormBuilder() {
           order: field.displayOrder
         }));
         setFields(customFields);
+        console.log("✅ Custom fields loaded:", customFields);
+      } else {
+        console.log("⚠️ No custom fields found");
       }
       
       setIsEditing(true);
+      console.log("🎯 Edit mode activated");
     } catch (error) {
-      console.error("Error loading form data:", error);
+      console.error("❌ Error loading form data:", error);
     }
   };
 
