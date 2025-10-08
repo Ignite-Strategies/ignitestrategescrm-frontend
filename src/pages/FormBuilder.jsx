@@ -90,15 +90,26 @@ export default function FormBuilder() {
       // Load custom fields if they exist
       if (form.customFields && form.customFields.length > 0) {
         console.log("🔧 Loading custom fields:", form.customFields);
-        const customFields = form.customFields.map(field => ({
-          id: field.id,
-          type: field.fieldType,
-          label: field.label,
-          placeholder: field.placeholder,
-          required: field.isRequired,
-          options: field.options ? JSON.parse(field.options) : undefined,
-          order: field.displayOrder
-        }));
+        const customFields = form.customFields.map(field => {
+          let options = undefined;
+          if (field.options && field.options !== 'null') {
+            try {
+              options = JSON.parse(field.options);
+            } catch (e) {
+              console.warn("Failed to parse options for field:", field.label, field.options);
+            }
+          }
+          
+          return {
+            id: field.id,
+            type: field.fieldType,
+            label: field.label,
+            placeholder: field.placeholder || '',
+            required: field.isRequired,
+            options: options,
+            order: field.displayOrder
+          };
+        });
         setFields(customFields);
         console.log("✅ Custom fields loaded:", customFields);
       } else {
