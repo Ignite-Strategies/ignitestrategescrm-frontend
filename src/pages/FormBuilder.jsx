@@ -39,10 +39,9 @@ export default function FormBuilder() {
   const [publicTitle, setPublicTitle] = useState("");
   const [publicDescription, setPublicDescription] = useState("");
   const [fields, setFields] = useState([
-    { ...FIELD_TEMPLATES.text, id: "firstName", label: "First Name", required: true, order: 1 },
-    { ...FIELD_TEMPLATES.text, id: "lastName", label: "Last Name", required: true, order: 2 },
-    { ...FIELD_TEMPLATES.email, id: "email", order: 3 },
-    { ...FIELD_TEMPLATES.tel, id: "phone", label: "Phone Number", required: true, order: 4 }
+    { ...FIELD_TEMPLATES.text, id: "name", label: "Full Name", required: true, order: 1 },
+    { ...FIELD_TEMPLATES.email, id: "email", order: 2 },
+    { ...FIELD_TEMPLATES.tel, id: "phone", label: "Phone Number", required: true, order: 3 }
   ]);
   
   // Data from API
@@ -95,7 +94,7 @@ export default function FormBuilder() {
           let options = undefined;
           if (field.options && field.options !== 'null') {
             try {
-              options = JSON.parse(field.options);
+              options = typeof field.options === 'string' ? JSON.parse(field.options) : field.options;
             } catch (e) {
               console.warn("Failed to parse options for field:", field.label, field.options);
             }
@@ -103,12 +102,12 @@ export default function FormBuilder() {
           
           return {
             id: field.id,
-            type: field.fieldType,
+            type: field.type || field.fieldType, // Support both formats
             label: field.label,
             placeholder: field.placeholder || '',
-            required: field.isRequired,
+            required: field.required !== undefined ? field.required : field.isRequired, // Support both formats
             options: options,
-            order: field.displayOrder
+            order: field.order || field.displayOrder // Support both formats
           };
         });
         setFields(customFields);
@@ -194,7 +193,7 @@ export default function FormBuilder() {
       
       // Filter out standard fields - only send REAL custom fields
       const customFields = fields.filter(f => 
-        !['firstName', 'lastName', 'email', 'phone'].includes(f.id) && 
+        !['name', 'email', 'phone'].includes(f.id) && 
         f.id !== 'field_' + Date.now() // Don't send temporary field IDs
       );
       
