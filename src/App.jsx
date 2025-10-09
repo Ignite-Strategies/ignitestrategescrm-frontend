@@ -9,12 +9,12 @@ import OrgCreate from "./pages/OrgCreate.jsx";
 import OrgJoin from "./pages/OrgJoin.jsx";
 import OrgSuccess from "./pages/OrgSuccess.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import Supporters from "./pages/Supporters.jsx";
-import UploadSupportersCSV from "./pages/UploadSupportersCSV.jsx";
+import OrgMembers from "./pages/OrgMembers.jsx";
+import OrgMembersCSVUpload from "./pages/OrgMembersCSVUpload.jsx";
 import UploadPreview from "./pages/UploadPreview.jsx";
 import ContactValidation from "./pages/ContactValidation.jsx";
 import ResolveErrors from "./pages/ResolveErrors.jsx";
-import SupporterManual from "./pages/SupporterManual.jsx";
+import ContactManual from "./pages/ContactManual.jsx";
 import ContactDetail from "./pages/ContactDetail.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
 import EventSuccess from "./pages/EventSuccess.jsx";
@@ -89,10 +89,10 @@ export default function App() {
           <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />
         <Route path="/supporters" element={
-          <ProtectedRoute><Supporters /></ProtectedRoute>
+          <ProtectedRoute><OrgMembers /></ProtectedRoute>
         } />
         <Route path="/supporters/upload" element={
-          <ProtectedRoute><UploadSupportersCSV /></ProtectedRoute>
+          <ProtectedRoute><OrgMembersCSVUpload /></ProtectedRoute>
         } />
         <Route path="/supporters/upload/preview" element={
           <ProtectedRoute><UploadPreview /></ProtectedRoute>
@@ -104,7 +104,7 @@ export default function App() {
           <ProtectedRoute><ResolveErrors /></ProtectedRoute>
         } />
         <Route path="/supporters/manual" element={
-          <ProtectedRoute><SupporterManual /></ProtectedRoute>
+          <ProtectedRoute><ContactManual /></ProtectedRoute>
         } />
         <Route path="/contact/:contactId" element={
           <ProtectedRoute><ContactDetail /></ProtectedRoute>

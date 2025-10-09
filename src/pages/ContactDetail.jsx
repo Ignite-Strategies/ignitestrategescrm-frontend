@@ -32,7 +32,7 @@ export default function ContactDetail() {
     } catch (error) {
       console.error('Error loading contact:', error);
       alert('Error loading contact: ' + error.message);
-      navigate('/supporters');
+      navigate('/dashboard');
     } finally {
       setLoading(false);
     }
@@ -44,14 +44,15 @@ export default function ContactDetail() {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Are you sure you want to delete ${contact.firstName} ${contact.lastName}? This cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to delete ${contact.firstName} ${contact.lastName}?\n\nThis will remove their contact record and all related data (events, org member info if exists). This cannot be undone.`)) {
       return;
     }
 
     try {
-      await api.delete(`/supporters/${contactId}`);
+      // Contact-driven delete - cascades to OrgMember, EventAttendee, Admin
+      await api.delete(`/contacts/${contactId}`);
       alert(`${contact.firstName} ${contact.lastName} has been deleted.`);
-      navigate('/supporters');
+      navigate('/dashboard');
     } catch (error) {
       alert('Error deleting contact: ' + error.message);
     }

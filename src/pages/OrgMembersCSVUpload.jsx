@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
-export default function UploadSupportersCSV() {
+export default function OrgMembersCSVUpload() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   const [step, setStep] = useState(1); // 1: Upload

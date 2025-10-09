@@ -1,9 +1,19 @@
+/**
+ * ⚠️ DEPRECATED - Uses old Supporter model (MongoDB)
+ * 
+ * TODO: Refactor to ContactManual.jsx
+ * - Contact-First flow: Create Contact → Optionally elevate to OrgMember
+ * - Should use Contact + OrgMember APIs (Prisma)
+ * 
+ * See: DEPRECATION-STATUS.md in backend
+ */
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
-export default function SupporterManual() {
+export default function ContactManual() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   const [loading, setLoading] = useState(false);

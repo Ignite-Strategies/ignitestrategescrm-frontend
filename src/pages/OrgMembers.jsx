@@ -1,10 +1,21 @@
+/**
+ * ⚠️ DEPRECATED - Uses old Supporter model (MongoDB)
+ * 
+ * TODO: Refactor to OrgMembersDisplay.jsx
+ * - Should display Contacts with hasOrgMember = true
+ * - Should use /contacts API (Prisma) not /supporters (MongoDB)
+ * - Part of "Org Upload UX" refactor
+ * 
+ * See: DEPRECATION-STATUS.md in backend
+ */
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 import EditableField from "../components/EditableField";
 
-export default function Supporters() {
+export default function OrgMembers() {
   const orgId = getOrgId();
   const navigate = useNavigate();
   const [contacts, setContacts] = useState([]);
