@@ -19,7 +19,7 @@ export default function Forms() {
     try {
       setLoading(true);
       const [formsRes, eventsRes] = await Promise.all([
-        api.get(`/forms?orgId=${orgId}`),
+        api.get(`/forms/hydrator?orgId=${orgId}`),
         api.get(`/orgs/${orgId}/events`)
       ]);
       setForms(formsRes.data || []);
@@ -44,7 +44,7 @@ export default function Forms() {
     }
     
     try {
-      await api.delete(`/forms/${formId}`);
+      await api.delete(`/forms/saver/${formId}`);
       loadData(); // Reload the list
     } catch (error) {
       console.error("Error deleting form:", error);
