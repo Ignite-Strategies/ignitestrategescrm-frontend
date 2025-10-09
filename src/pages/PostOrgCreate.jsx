@@ -59,7 +59,7 @@ export default function PostOrgCreate() {
 
           {/* Secondary CTA: Load Contacts */}
           <button
-            onClick={() => navigate("/supporters/upload")}
+            onClick={() => navigate("/org-members/upload")}
             className="bg-white rounded-2xl shadow-xl p-8 text-left hover:scale-105 transition-all group"
           >
             <div className="mb-6">

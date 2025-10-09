@@ -25,7 +25,7 @@ export default function CreateListOptions() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Import Contacts */}
             <button
-              onClick={() => navigate("/supporters/upload")}
+              onClick={() => navigate("/org-members/upload")}
               className="p-8 border-2 border-gray-200 rounded-lg hover:border-indigo-500 text-center transition group"
             >
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-200 transition">
@@ -55,7 +55,7 @@ export default function CreateListOptions() {
 
             {/* Manual Selection */}
             <button
-              onClick={() => navigate("/supporters")}
+              onClick={() => navigate("/org-members")}
               className="p-8 border-2 border-gray-200 rounded-lg hover:border-green-500 text-center transition group"
             >
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition">
