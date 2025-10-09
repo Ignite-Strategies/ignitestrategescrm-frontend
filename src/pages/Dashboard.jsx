@@ -100,13 +100,13 @@ export default function Dashboard() {
                 </p>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => navigate("/supporters/upload")}
+                    onClick={() => navigate("/org-members/upload")}
                     className="bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"
                   >
                     📤 Upload CSV
                   </button>
                   <button
-                    onClick={() => navigate("/supporters/manual")}
+                    onClick={() => navigate("/org-members/manual")}
                     className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition border-2 border-white/30"
                   >
                     ➕ Add Manually
@@ -166,7 +166,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Org Members */}
           <button
-            onClick={() => navigate("/supporters")}
+            onClick={() => navigate("/org-members")}
             className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition text-left border-2 border-transparent hover:border-blue-500"
           >
             <div className="flex items-center justify-between mb-2">
@@ -245,7 +245,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* Org Member Management */}
           <button
-            onClick={() => navigate("/supporters")}
+            onClick={() => navigate("/org-members")}
             className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
           >
             <div className="flex items-center justify-between mb-4">

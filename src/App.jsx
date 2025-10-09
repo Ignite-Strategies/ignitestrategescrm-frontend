@@ -88,22 +88,22 @@ export default function App() {
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />
-        <Route path="/supporters" element={
+        <Route path="/org-members" element={
           <ProtectedRoute><OrgMembers /></ProtectedRoute>
         } />
-        <Route path="/supporters/upload" element={
+        <Route path="/org-members/upload" element={
           <ProtectedRoute><OrgMembersCSVUpload /></ProtectedRoute>
         } />
-        <Route path="/supporters/upload/preview" element={
+        <Route path="/org-members/upload/preview" element={
           <ProtectedRoute><UploadPreview /></ProtectedRoute>
         } />
-        <Route path="/supporters/upload/validation" element={
+        <Route path="/org-members/upload/validation" element={
           <ProtectedRoute><ContactValidation /></ProtectedRoute>
         } />
-        <Route path="/supporters/upload/resolve" element={
+        <Route path="/org-members/upload/resolve" element={
           <ProtectedRoute><ResolveErrors /></ProtectedRoute>
         } />
-        <Route path="/supporters/manual" element={
+        <Route path="/org-members/manual" element={
           <ProtectedRoute><ContactManual /></ProtectedRoute>
         } />
         <Route path="/contact/:contactId" element={

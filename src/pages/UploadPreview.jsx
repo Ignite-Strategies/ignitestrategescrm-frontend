@@ -98,7 +98,7 @@ export default function UploadPreview() {
       localStorage.removeItem('fieldMapping');
       
       // Navigate to validation page
-      navigate("/supporters/upload/validation");
+      navigate("/org-members/upload/validation");
     } catch (error) {
       const errorMsg = error.response?.data?.error || error.message;
       alert("Error uploading: " + errorMsg);
@@ -227,7 +227,7 @@ export default function UploadPreview() {
           {/* Actions */}
           <div className="flex gap-4">
             <button
-              onClick={() => navigate("/supporters/upload")}
+              onClick={() => navigate("/org-members/upload")}
               className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               ← Back

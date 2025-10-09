@@ -75,10 +75,10 @@ export default function ContactDetail() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Not Found</h1>
           <button
-            onClick={() => navigate('/supporters')}
+            onClick={() => navigate('/dashboard')}
             className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"
           >
-            ← Back to Contacts
+            ← Back to Dashboard
           </button>
         </div>
       </div>
@@ -114,10 +114,10 @@ export default function ContactDetail() {
         
         {/* Back Button */}
         <button
-          onClick={() => navigate('/supporters')}
+          onClick={() => navigate('/dashboard')}
           className="text-indigo-600 hover:text-indigo-800 mb-6 font-medium flex items-center gap-2"
         >
-          <span>←</span> Back to Contacts
+          <span>←</span> Back to Dashboard
         </button>
 
         {/* Hero Card */}

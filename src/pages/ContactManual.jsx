@@ -55,7 +55,7 @@ export default function ContactManual() {
       await api.post(`/orgs/${orgId}/supporters`, submitData);
       
       alert("Supporter added successfully!");
-      navigate("/supporters");
+      navigate("/org-members");
     } catch (error) {
       alert("Error adding supporter: " + (error.response?.data?.error || error.message));
     } finally {
@@ -290,7 +290,7 @@ export default function ContactManual() {
             <div className="flex gap-4 pt-6">
               <button
                 type="button"
-                onClick={() => navigate("/supporters")}
+                onClick={() => navigate("/org-members")}
                 className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
               >
                 Cancel

@@ -43,7 +43,7 @@ export default function OrgMembersCSVUpload() {
     localStorage.setItem('fieldMapping', JSON.stringify(fieldMapping));
     
     // Navigate to preview page
-    navigate("/supporters/upload/preview");
+    navigate("/org-members/upload/preview");
   };
 
   const mapHeaderToField = (header) => {
@@ -119,7 +119,7 @@ export default function OrgMembersCSVUpload() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {/* Manual Entry */}
               <button
-                onClick={() => navigate("/supporters/manual")}
+                onClick={() => navigate("/org-members/manual")}
                 className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-indigo-400 hover:shadow-lg transition text-left"
               >
                 <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
@@ -163,7 +163,7 @@ export default function OrgMembersCSVUpload() {
 
             <div className="flex gap-4">
               <button
-                onClick={() => navigate("/supporters")}
+                onClick={() => navigate("/org-members")}
                 className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
               >
                 Cancel

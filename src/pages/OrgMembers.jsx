@@ -29,24 +29,24 @@ export default function OrgMembers() {
 
   const loadContacts = async () => {
     try {
-      const response = await api.get(`/orgs/${orgId}/supporters`);
+      const response = await api.get(`/orgs/${orgId}/org-members`);
       setContacts(response.data);
     } catch (error) {
-      console.error("Error loading supporters:", error);
+      console.error("Error loading org members:", error);
     }
   };
 
-  const handleDelete = async (supporterId, name) => {
-    if (!confirm(`Are you sure you want to delete ${name}? This cannot be undone.`)) {
+  const handleDelete = async (contactId, name) => {
+    if (!confirm(`Are you sure you want to delete ${name}? This will remove their contact record and all related data. This cannot be undone.`)) {
       return;
     }
 
     try {
-      await api.delete(`/supporters/${supporterId}`);
-      alert(`${name} has been removed from your supporters.`);
+      await api.delete(`/contacts/${contactId}`);
+      alert(`${name} has been removed from your org members.`);
       loadContacts();
     } catch (error) {
-      alert("Error deleting supporter: " + error.message);
+      alert("Error deleting contact: " + error.message);
     }
   };
 
@@ -91,21 +91,21 @@ export default function OrgMembers() {
       .map(c => `${c.firstName} ${c.lastName}`)
       .join(', ');
     
-    if (!confirm(`Are you sure you want to delete ${selectedContacts.size} supporters?\n\n${contactNames}\n\nThis cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to delete ${selectedContacts.size} org members?\n\n${contactNames}\n\nThis will remove their contact records and all related data. This cannot be undone.`)) {
       return;
     }
 
     try {
       const deletePromises = Array.from(selectedContacts).map(contactId => 
-        api.delete(`/supporters/${contactId}`)
+        api.delete(`/contacts/${contactId}`)
       );
       
       await Promise.all(deletePromises);
-      alert(`Successfully deleted ${selectedContacts.size} supporters.`);
+      alert(`Successfully deleted ${selectedContacts.size} org members.`);
       setSelectedContacts(new Set());
       loadContacts();
     } catch (error) {
-      alert("Error deleting supporters: " + error.message);
+      alert("Error deleting org members: " + error.message);
     }
   };
 
@@ -120,9 +120,9 @@ export default function OrgMembers() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Manage Supporters</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Manage Org Members</h1>
             <p className="text-gray-600 mt-2">
-              Your organization's master contact list ({contacts.length} supporters)
+              Your organization's master contact list ({contacts.length} org members)
             </p>
           </div>
                   <div className="flex gap-3">
@@ -135,7 +135,7 @@ export default function OrgMembers() {
                       </button>
                     )}
                     <button
-                      onClick={() => navigate("/supporters/upload")}
+                      onClick={() => navigate("/org-members/upload")}
                       className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
                     >
                       + Upload CSV
@@ -153,7 +153,7 @@ export default function OrgMembers() {
           <div className="p-6 border-b border-gray-200">
             <input
               type="text"
-              placeholder="Search supporters..."
+              placeholder="Search org members..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -260,7 +260,7 @@ export default function OrgMembers() {
 
           {filteredContacts.length === 0 && (
             <div className="text-center py-12 text-gray-500">
-              {contacts.length === 0 ? "No supporters yet. Upload a CSV to get started." : "No supporters match your search."}
+              {contacts.length === 0 ? "No org members yet. Upload a CSV to get started." : "No org members match your search."}
             </div>
           )}
         </div>

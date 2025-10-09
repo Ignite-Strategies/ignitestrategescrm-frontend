@@ -14,7 +14,7 @@ export default function ContactValidation() {
       localStorage.removeItem('uploadResults');
     } else {
       // No results found, redirect to supporters
-      navigate("/supporters");
+      navigate("/org-members");
     }
   }, [navigate]);
 
@@ -131,7 +131,7 @@ export default function ContactValidation() {
           {/* Actions */}
           <div className="flex gap-4 justify-center">
             <button
-              onClick={() => navigate("/supporters")}
+              onClick={() => navigate("/org-members")}
               className="bg-indigo-600 text-white py-3 px-8 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
               View My Supporters
@@ -142,7 +142,7 @@ export default function ContactValidation() {
                   // Save errors for resolve page
                   localStorage.setItem('uploadErrors', JSON.stringify(uploadResults.errors));
                   localStorage.setItem('originalUploadFile', localStorage.getItem('uploadFile'));
-                  navigate("/supporters/upload/resolve");
+                  navigate("/org-members/upload/resolve");
                 }}
                 className="bg-orange-600 text-white py-3 px-8 rounded-lg font-semibold hover:bg-orange-700 transition"
               >
@@ -150,7 +150,7 @@ export default function ContactValidation() {
               </button>
             )}
             <button
-              onClick={() => navigate("/supporters/upload")}
+              onClick={() => navigate("/org-members/upload")}
               className="border border-gray-300 text-gray-700 py-3 px-8 rounded-lg font-semibold hover:bg-gray-50 transition"
             >
               Import More Contacts

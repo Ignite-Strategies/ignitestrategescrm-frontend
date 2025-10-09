@@ -23,7 +23,7 @@ export default function ResolveErrors() {
     }
     
     if (!savedErrors) {
-      navigate("/supporters");
+      navigate("/org-members");
     }
   }, [navigate]);
 
@@ -49,7 +49,7 @@ export default function ResolveErrors() {
       localStorage.removeItem('originalUploadFile');
       
       // Navigate to validation page
-      navigate("/supporters/upload/validation");
+      navigate("/org-members/upload/validation");
     } catch (error) {
       const errorMsg = error.response?.data?.error || error.message;
       alert("Error uploading: " + errorMsg);
@@ -162,13 +162,13 @@ export default function ResolveErrors() {
               {loading ? "Processing..." : "Fix & Retry Import"}
             </button>
             <button
-              onClick={() => navigate("/supporters")}
+              onClick={() => navigate("/org-members")}
               className="border border-gray-300 text-gray-700 py-3 px-8 rounded-lg font-semibold hover:bg-gray-50 transition"
             >
               Skip & View Supporters
             </button>
             <button
-              onClick={() => navigate("/supporters/upload")}
+              onClick={() => navigate("/org-members/upload")}
               className="border border-gray-300 text-gray-700 py-3 px-8 rounded-lg font-semibold hover:bg-gray-50 transition"
             >
               Start Over
