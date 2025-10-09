@@ -126,7 +126,7 @@ export default function SendEmail() {
     } else {
       // All done!
       alert(`🎉 Campaign complete! Sent ${sentCount + 1} emails.`);
-      navigate("/campaigns");
+      navigate("/email");
     }
   };
 

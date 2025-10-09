@@ -14,7 +14,7 @@ export default function CreateListOptions() {
               <p className="text-gray-600">Choose how you'd like to build your audience</p>
             </div>
             <button
-              onClick={() => navigate("/campaigns")}
+              onClick={() => navigate("/email")}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
               ← Back

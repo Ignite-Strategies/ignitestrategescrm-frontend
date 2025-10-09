@@ -110,10 +110,10 @@ export default function ContactList() {
             <div>
               <div className="flex items-center gap-4 mb-2">
                 <button
-                  onClick={() => navigate("/campaigns")}
+                  onClick={() => navigate("/email")}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm"
                 >
-                  ← Email Campaigns
+                  ← Email Dashboard
                 </button>
                 <button
                   onClick={() => navigate("/dashboard")}
