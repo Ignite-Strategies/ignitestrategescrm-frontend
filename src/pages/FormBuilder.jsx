@@ -214,9 +214,10 @@ export default function FormBuilder() {
         eventId: selectedEvent,
         audienceType: selectedPipeline, // Backend will find/create pipeline
         internalName: formName,
+        internalPurpose: description, // Internal notes/purpose
         slug,
         publicTitle: publicTitle || formName, // Use public title or fallback to internal name
-        publicDescription: publicDescription || description,
+        publicDescription: publicDescription, // Public-facing description
         targetStage,
         fields: customFields.map(f => ({
           id: f.id,
