@@ -113,7 +113,7 @@ export default function ContactList() {
                   onClick={() => navigate("/email")}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm"
                 >
-                  ← Email Dashboard
+                  ← Campaign Dashboard
                 </button>
                 <button
                   onClick={() => navigate("/dashboard")}

@@ -11,7 +11,7 @@ export default function EmailDashboard() {
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Email Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Campaign Dashboard</h1>
               <p className="text-gray-600">Send campaigns and personal outreach</p>
             </div>
             <button

@@ -15,6 +15,7 @@ export default function Outreach() {
   const [success, setSuccess] = useState("");
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [gmailAccessToken, setGmailAccessToken] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,6 +34,7 @@ export default function Outreach() {
       const result = await signInWithGoogle();
       console.log("Gmail auth result:", result);
       setUserEmail(result.email);
+      setGmailAccessToken(result.accessToken);
       setGmailAuthenticated(true);
       alert(`Authenticated with ${result.email}! You can now send personal emails.`);
     } catch (error) {
@@ -66,6 +68,10 @@ export default function Outreach() {
         to: formData.to,
         subject: formData.subject,
         body: formData.message
+      }, {
+        headers: {
+          Authorization: `Bearer ${gmailAccessToken}`
+        }
       });
 
       if (response.data.success) {
@@ -92,7 +98,7 @@ export default function Outreach() {
                   onClick={() => navigate("/email")}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm"
                 >
-                  ← Email Dashboard
+                  ← Campaign Dashboard
                 </button>
                 <button
                   onClick={() => navigate("/dashboard")}

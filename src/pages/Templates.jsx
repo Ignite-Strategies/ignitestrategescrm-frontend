@@ -50,7 +50,7 @@ export default function Templates() {
               onClick={() => navigate("/email")}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
-              ← Back to Email Dashboard
+              ← Back to Campaign Dashboard
             </button>
           </div>
         </div>
