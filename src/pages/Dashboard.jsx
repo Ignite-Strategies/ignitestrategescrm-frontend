@@ -293,8 +293,9 @@ export default function Dashboard() {
 
           {/* Pipeline Management */}
           <button
-            onClick={() => navigate("/events")}
-            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            onClick={() => navigate(`/event/${upcomingEvent?.id || events[0]?.id}/pipelines`)}
+            disabled={!upcomingEvent && events.length === 0}
+            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
@@ -307,7 +308,9 @@ export default function Dashboard() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold mb-2">Pipeline Management</h2>
-            <p className="text-purple-100 text-sm mb-4">Manage funnels, move contacts through stages, track progress</p>
+            <p className="text-purple-100 text-sm mb-4">
+              {upcomingEvent ? `View ${upcomingEvent.name} pipeline` : "Create an event to access pipelines"}
+            </p>
             <div className="flex flex-wrap gap-2">
               <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">View Pipelines</span>
               <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Move Stages</span>
