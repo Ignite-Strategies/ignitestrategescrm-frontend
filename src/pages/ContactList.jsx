@@ -108,6 +108,20 @@ export default function ContactList() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="flex justify-between items-center mb-8">
             <div>
+              <div className="flex items-center gap-4 mb-2">
+                <button
+                  onClick={() => navigate("/campaigns")}
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm"
+                >
+                  ← Email Campaigns
+                </button>
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm"
+                >
+                  ← Dashboard
+                </button>
+              </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Contact Lists</h1>
               <p className="text-gray-600">Create dynamic contact lists based on pipeline stages and tags</p>
             </div>
