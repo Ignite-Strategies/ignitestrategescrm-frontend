@@ -639,7 +639,7 @@ export default function FormBuilder() {
                   disabled={loading}
                   className="w-full mt-6 bg-cyan-600 hover:bg-cyan-700 text-white py-3 rounded-lg font-semibold transition disabled:opacity-50"
                 >
-                  {loading ? "Creating..." : "Create Form"}
+                  {loading ? (isEditing ? "Updating..." : "Creating...") : (isEditing ? "Update Form" : "Create Form")}
                 </button>
               )}
             </div>
