@@ -16,22 +16,13 @@ export default function ContactDetail() {
 
   const loadContactData = async () => {
     try {
-      // Load contact from supporters (OrgMember)
-      const orgId = localStorage.getItem('orgId');
-      const contactRes = await api.get(`/orgs/${orgId}/supporters`);
-      const foundContact = contactRes.data.find(c => c.id === contactId || c._id === contactId);
-      
-      if (!foundContact) {
-        alert('Contact not found');
-        navigate('/supporters');
-        return;
-      }
-      
-      setContact(foundContact);
+      // Load contact directly (includes OrgMember if exists)
+      const contactRes = await api.get(`/contacts/${contactId}`);
+      setContact(contactRes.data);
       
       // Load events for this contact
       try {
-        const eventsRes = await api.get(`/contacts/${foundContact.contactId || contactId}/events`);
+        const eventsRes = await api.get(`/contacts/${contactId}/events`);
         setEvents(eventsRes.data);
       } catch (err) {
         console.log('No events found for contact:', err);
@@ -41,9 +32,15 @@ export default function ContactDetail() {
     } catch (error) {
       console.error('Error loading contact:', error);
       alert('Error loading contact: ' + error.message);
+      navigate('/supporters');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleElevate = () => {
+    // TODO: Create modal to add extended CRM data
+    alert('Elevate to Org Member - Coming soon! This will let you add extended CRM data (address, employer, tags, etc.)');
   };
 
   const handleDelete = async () => {
@@ -151,6 +148,14 @@ export default function ContactDetail() {
 
             {/* Actions */}
             <div className="flex gap-3">
+              {!contact.hasOrgMember && (
+                <button 
+                  onClick={handleElevate}
+                  className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 font-medium flex items-center gap-2"
+                >
+                  ⬆️ Elevate to Org Member
+                </button>
+              )}
               <button className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 font-medium">
                 Edit
               </button>
@@ -166,6 +171,22 @@ export default function ContactDetail() {
             </div>
           </div>
         </div>
+
+        {/* Elevate Notice for Contacts without OrgMember */}
+        {!contact.hasOrgMember && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <span className="text-2xl">ℹ️</span>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Basic Contact Only:</strong> This person is in your system from a form submission but hasn't been added to your master CRM list yet. Click "Elevate to Org Member" to add extended details like address, employer, tags, and notes.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6">
@@ -189,16 +210,18 @@ export default function ContactDetail() {
           >
             🎉 Events ({events.length})
           </button>
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`px-6 py-3 rounded-lg font-medium transition ${
-              activeTab === 'profile' 
-                ? 'bg-white text-indigo-600 shadow-md' 
-                : 'text-gray-600 hover:bg-white/50'
-            }`}
-          >
-            👤 Full Profile
-          </button>
+          {contact.hasOrgMember && (
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`px-6 py-3 rounded-lg font-medium transition ${
+                activeTab === 'profile' 
+                  ? 'bg-white text-indigo-600 shadow-md' 
+                  : 'text-gray-600 hover:bg-white/50'
+              }`}
+            >
+              👤 Full Profile
+            </button>
+          )}
         </div>
 
         {/* Tab Content */}
