@@ -525,7 +525,7 @@ export default function FormBuilder() {
                                 value={field.label}
                                 onChange={(e) => updateField(field.id, { label: e.target.value })}
                                 onBlur={() => finalizeFieldId(field.id)}
-                                className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-cyan-500 outline-none"
+                                className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-cyan-500 outline-none w-full"
                                 placeholder="Field Label"
                               />
                               {field.required && <span className="text-red-500 ml-1">*</span>}
