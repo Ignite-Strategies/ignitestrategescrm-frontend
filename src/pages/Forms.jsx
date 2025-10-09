@@ -203,7 +203,7 @@ export default function Forms() {
                       onClick={(e) => {
                         e.stopPropagation();
                         navigator.clipboard.writeText(
-                          `https://tickets.f3capital.com/forms/${form.slug}`
+                          `https://ticketing.f3capitalimpact.org/forms/${form.slug}`
                         );
                         alert("Form URL copied to clipboard!");
                       }}

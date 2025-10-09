@@ -32,7 +32,7 @@ export default function ContactDetail() {
     } catch (error) {
       console.error('Error loading contact:', error);
       alert('Error loading contact: ' + error.message);
-      navigate('/dashboard');
+      navigate('/supporters');
     } finally {
       setLoading(false);
     }
@@ -44,15 +44,14 @@ export default function ContactDetail() {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Are you sure you want to delete ${contact.firstName} ${contact.lastName}?\n\nThis will remove their contact record and all related data (events, org member info if exists). This cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to delete ${contact.firstName} ${contact.lastName}? This cannot be undone.`)) {
       return;
     }
 
     try {
-      // Contact-driven delete - cascades to OrgMember, EventAttendee, Admin
-      await api.delete(`/contacts/${contactId}`);
+      await api.delete(`/supporters/${contactId}`);
       alert(`${contact.firstName} ${contact.lastName} has been deleted.`);
-      navigate('/dashboard');
+      navigate('/supporters');
     } catch (error) {
       alert('Error deleting contact: ' + error.message);
     }
@@ -75,10 +74,10 @@ export default function ContactDetail() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Not Found</h1>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/supporters')}
             className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"
           >
-            ← Back to Dashboard
+            ← Back to Contacts
           </button>
         </div>
       </div>
@@ -114,10 +113,10 @@ export default function ContactDetail() {
         
         {/* Back Button */}
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/supporters')}
           className="text-indigo-600 hover:text-indigo-800 mb-6 font-medium flex items-center gap-2"
         >
-          <span>←</span> Back to Dashboard
+          <span>←</span> Back to Contacts
         </button>
 
         {/* Hero Card */}

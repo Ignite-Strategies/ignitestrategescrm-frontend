@@ -222,11 +222,11 @@ export default function ViewForm() {
           <h2 className="text-xl font-semibold text-blue-900 mb-4">🔗 Form URL</h2>
           <div className="flex items-center justify-between bg-white p-3 rounded-lg">
             <code className="text-gray-700 flex-1 truncate">
-              https://tickets.f3capital.com/forms/{form.slug}
+              https://ticketing.f3capitalimpact.org/forms/{form.slug}
             </code>
             <button
               onClick={() => {
-                navigator.clipboard.writeText(`https://tickets.f3capital.com/forms/${form.slug}`);
+                navigator.clipboard.writeText(`https://ticketing.f3capitalimpact.org/forms/${form.slug}`);
                 alert("Form URL copied to clipboard!");
               }}
               className="ml-4 px-3 py-1 bg-blue-500 text-white rounded-md text-sm font-medium hover:bg-blue-600 transition"
