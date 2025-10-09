@@ -33,6 +33,12 @@ export default function Outreach() {
       
       const result = await signInWithGoogle();
       console.log("Gmail auth result:", result);
+      
+      // Store the access token in localStorage for API interceptor
+      if (result.accessToken) {
+        localStorage.setItem('gmailAccessToken', result.accessToken);
+      }
+      
       setUserEmail(result.email);
       setGmailAccessToken(result.accessToken);
       setGmailAuthenticated(true);
@@ -68,10 +74,6 @@ export default function Outreach() {
         to: formData.to,
         subject: formData.subject,
         body: formData.message
-      }, {
-        headers: {
-          Authorization: `Bearer ${gmailAccessToken}`
-        }
       });
 
       if (response.data.success) {

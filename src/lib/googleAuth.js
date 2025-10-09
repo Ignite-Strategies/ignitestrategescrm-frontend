@@ -3,6 +3,9 @@ import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 
 const googleProvider = new GoogleAuthProvider();
 
+// Add Gmail sending scope
+googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
+
 /**
  * Sign in with Google using Firebase
  */
