@@ -319,9 +319,9 @@ export default function Dashboard() {
             </div>
           </button>
 
-          {/* Campaign Management */}
+          {/* Email Dashboard */}
           <button
-            onClick={() => navigate("/campaigns")}
+            onClick={() => navigate("/email")}
             className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
           >
             <div className="flex items-center justify-between mb-4">
@@ -334,11 +334,11 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Campaign Management</h2>
-            <p className="text-emerald-100 text-sm mb-4">Email campaigns, create lists, manage templates, and track</p>
+            <h2 className="text-2xl font-bold mb-2">Email Dashboard</h2>
+            <p className="text-emerald-100 text-sm mb-4">Bulk campaigns and 1:1 personal outreach</p>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Start Campaign</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Lists</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Bulk Campaigns</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">1:1 Outreach</span>
               <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Templates</span>
             </div>
           </button>
