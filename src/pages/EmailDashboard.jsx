@@ -165,6 +165,7 @@ export default function EmailDashboard() {
               </div>
               <p className="text-sm text-orange-700">Track opens, clicks, and engagement metrics</p>
             </button>
+            </div>
           </div>
         </div>
       </div>
