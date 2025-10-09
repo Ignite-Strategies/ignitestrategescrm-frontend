@@ -226,7 +226,7 @@ export default function FormBuilder() {
           placeholder: f.placeholder,
           required: f.required,
           order: f.order,
-          ...(f.type === "select" && { options: f.options }),
+          ...((f.type === "select" || f.type === "radio" || f.type === "checkbox") && { options: f.options }),
           ...(f.type === "number" && { min: f.min, max: f.max })
         })),
         isActive: true
