@@ -293,9 +293,8 @@ export default function Dashboard() {
 
           {/* Pipeline Management */}
           <button
-            onClick={() => navigate(`/event/${upcomingEvent?.id || events[0]?.id}/pipelines`)}
-            disabled={!upcomingEvent && events.length === 0}
-            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => navigate("/events")}
+            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
