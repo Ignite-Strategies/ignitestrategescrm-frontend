@@ -38,11 +38,16 @@ export default function FormBuilder() {
   // Form config - Public Facing
   const [publicTitle, setPublicTitle] = useState("");
   const [publicDescription, setPublicDescription] = useState("");
-  const [fields, setFields] = useState([
-    { ...FIELD_TEMPLATES.text, id: "name", label: "Full Name", required: true, order: 1 },
-    { ...FIELD_TEMPLATES.email, id: "email", order: 2 },
-    { ...FIELD_TEMPLATES.tel, id: "phone", label: "Phone Number", required: true, order: 3 }
-  ]);
+  
+  // Standard fields (hardcoded, always required, not editable)
+  const STANDARD_FIELDS = [
+    { id: "firstName", type: "text", label: "First Name", placeholder: "Enter first name", required: true, order: 1, isStandard: true },
+    { id: "lastName", type: "text", label: "Last Name", placeholder: "Enter last name", required: true, order: 2, isStandard: true },
+    { id: "email", type: "email", label: "Email Address", placeholder: "email@example.com", required: true, order: 3, isStandard: true },
+    { id: "phone", type: "tel", label: "Phone Number", placeholder: "(555) 555-5555", required: true, order: 4, isStandard: true }
+  ];
+  
+  const [fields, setFields] = useState([...STANDARD_FIELDS]);
   
   // Data from API
   const [events, setEvents] = useState([]);
@@ -88,9 +93,17 @@ export default function FormBuilder() {
       console.log("✅ Form fields populated");
       
       // Load custom fields if they exist (from PublicForm)
+      const allFields = [...STANDARD_FIELDS]; // Start with standard fields
+      
       if (publicForm.customFields && publicForm.customFields.length > 0) {
         console.log("🔧 Loading custom fields:", publicForm.customFields);
-        const customFields = publicForm.customFields.map(field => {
+        
+        // Filter out standard fields (name, email, phone) and only keep actual custom fields
+        const customFieldsOnly = publicForm.customFields.filter(field => 
+          !['name', 'firstName', 'lastName', 'email', 'phone'].includes(field.id)
+        );
+        
+        const customFields = customFieldsOnly.map(field => {
           let options = undefined;
           if (field.options && field.options !== 'null') {
             try {
@@ -107,14 +120,16 @@ export default function FormBuilder() {
             placeholder: field.placeholder || '',
             required: field.required !== undefined ? field.required : field.isRequired, // Support both formats
             options: options,
-            order: field.order || field.displayOrder // Support both formats
+            order: field.order || field.displayOrder, // Support both formats
+            isStandard: false
           };
         });
-        setFields(customFields);
+        
+        allFields.push(...customFields);
         console.log("✅ Custom fields loaded:", customFields);
-      } else {
-        console.log("⚠️ No custom fields found, using default name/email/phone");
       }
+      
+      setFields(allFields);
       
       setIsEditing(true);
       console.log("🎯 Edit mode activated");
@@ -192,10 +207,7 @@ export default function FormBuilder() {
         .replace(/^-+|-+$/g, '');
       
       // Filter out standard fields - only send REAL custom fields
-      const customFields = fields.filter(f => 
-        !['name', 'email', 'phone'].includes(f.id) && 
-        f.id !== 'field_' + Date.now() // Don't send temporary field IDs
-      );
+      const customFields = fields.filter(f => !f.isStandard);
       
       const formConfig = {
         orgId,
@@ -496,44 +508,56 @@ export default function FormBuilder() {
               ) : (
                 <div className="space-y-4">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="border border-gray-200 rounded-lg p-4">
+                    <div key={field.id} className={`border rounded-lg p-4 ${field.isStandard ? 'border-gray-300 bg-gray-50' : 'border-gray-200'}`}>
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1">
-                          <input
-                            type="text"
-                            value={field.label}
-                            onChange={(e) => updateField(field.id, { label: e.target.value })}
-                            onBlur={() => finalizeFieldId(field.id)}
-                            className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-cyan-500 outline-none"
-                            placeholder="Field Label"
-                          />
-                          {field.required && <span className="text-red-500 ml-1">*</span>}
+                          {field.isStandard ? (
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-gray-700">{field.label}</span>
+                              <span className="text-red-500">*</span>
+                              <span className="text-xs text-gray-500 bg-gray-200 px-2 py-0.5 rounded">Required</span>
+                            </div>
+                          ) : (
+                            <>
+                              <input
+                                type="text"
+                                value={field.label}
+                                onChange={(e) => updateField(field.id, { label: e.target.value })}
+                                onBlur={() => finalizeFieldId(field.id)}
+                                className="font-semibold text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-cyan-500 outline-none"
+                                placeholder="Field Label"
+                              />
+                              {field.required && <span className="text-red-500 ml-1">*</span>}
+                            </>
+                          )}
                         </div>
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => moveField(field.id, "up")}
-                            disabled={index === 0}
-                            className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
-                          >
-                            ↑
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => moveField(field.id, "down")}
-                            disabled={index === fields.length - 1}
-                            className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
-                          >
-                            ↓
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeField(field.id)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            ✕
-                          </button>
-                        </div>
+                        {!field.isStandard && (
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => moveField(field.id, "up")}
+                              disabled={index === 0}
+                              className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveField(field.id, "down")}
+                              disabled={index === fields.length - 1}
+                              className="text-gray-400 hover:text-gray-600 disabled:opacity-30"
+                            >
+                              ↓
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeField(field.id)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       {field.type === "select" || field.type === "radio" || field.type === "checkbox" ? (
@@ -591,16 +615,18 @@ export default function FormBuilder() {
                         />
                       )}
 
-                      <div className="mt-2 flex gap-4 text-sm">
-                        <label className="flex items-center gap-2 text-gray-600">
-                          <input
-                            type="checkbox"
-                            checked={field.required}
-                            onChange={(e) => updateField(field.id, { required: e.target.checked })}
-                          />
-                          Required
-                        </label>
-                      </div>
+                      {!field.isStandard && (
+                        <div className="mt-2 flex gap-4 text-sm">
+                          <label className="flex items-center gap-2 text-gray-600">
+                            <input
+                              type="checkbox"
+                              checked={field.required}
+                              onChange={(e) => updateField(field.id, { required: e.target.checked })}
+                            />
+                            Required
+                          </label>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
