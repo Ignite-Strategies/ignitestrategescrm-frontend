@@ -85,26 +85,26 @@ export default function ContactEventUploadPreview() {
           setSelectedAudience(availableAudiences[0]);
         }
         
-        // Load stages from existing attendees or use your actual funnel stages
+        // Hydrate stages from EXISTING EventAttendee records ONLY
         const stages = [...new Set(attendees.map(a => a.currentStage))].filter(Boolean);
-        const stageOpts = stages.length > 0 
-          ? stages.map(stage => ({ value: stage, label: stage }))
-          : [
-              { value: 'aware', label: 'Aware' },
-              { value: 'prospect', label: 'Prospect' },
-              { value: 'soft_commit', label: 'Soft Commit' },
-              { value: 'registered', label: 'Registered' },
-              { value: 'attended', label: 'Attended' }
-            ];
         
-        setStageOptions(stageOpts);
-        if (stageOpts.length > 0) {
+        if (stages.length > 0) {
+          const stageOpts = stages.map(stage => ({ 
+            value: stage, 
+            label: stage.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+          }));
+          
+          setStageOptions(stageOpts);
           setDefaultStage(stageOpts[0].value);
+        } else {
+          // NO HARDCODING - if no attendees exist, show message
+          setStageOptions([]);
+          setDefaultStage('');
         }
         
       } catch (error) {
         console.error('❌ Failed to load event data:', error);
-        // Fallback to all 5 audience types
+        // Fallback to all 5 audience types (from EventAttendee schema)
         setAvailableAudiences([
           'org_members', 
           'friends_family', 
@@ -113,13 +113,8 @@ export default function ContactEventUploadPreview() {
           'cold_outreach'
         ]);
         setSelectedAudience('org_members');
-        setStageOptions([
-          { value: 'aware', label: 'Aware' },
-          { value: 'prospect', label: 'Prospect' },
-          { value: 'soft_commit', label: 'Soft Commit' },
-          { value: 'registered', label: 'Registered' },
-          { value: 'attended', label: 'Attended' }
-        ]);
+        // Empty stages - force user to fix hydration
+        setStageOptions([]);
       }
     };
     
@@ -341,8 +336,8 @@ export default function ContactEventUploadPreview() {
                 )}
 
                 {stageOptions.length === 0 && (
-                  <div className="text-sm text-gray-500 p-2 bg-gray-50 rounded">
-                    Can't find any stages for this event
+                  <div className="text-sm text-yellow-700 p-3 bg-yellow-50 rounded border border-yellow-200">
+                    ⚠️ No stages found. Add your first contacts to create stages, or fill out a form to populate EventAttendee data.
                   </div>
                 )}
               </div>
