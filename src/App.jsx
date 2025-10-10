@@ -42,6 +42,7 @@ import SendEmail from "./pages/SendEmail.jsx";
 import CreateCampaign from "./pages/CreateCampaign.jsx";
 import CampaignSequences from "./pages/CampaignSequences.jsx";
 import CampaignList from "./pages/CampaignList.jsx";
+import CampaignHome from "./pages/CampaignHome.jsx";
 import Events from "./pages/Events.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
@@ -193,7 +194,7 @@ export default function App() {
           <ProtectedRoute><Outreach /></ProtectedRoute>
         } />
         <Route path="/campaigns" element={
-          <ProtectedRoute><CampaignList /></ProtectedRoute>
+          <ProtectedRoute><CampaignHome /></ProtectedRoute>
         } />
         <Route path="/create-campaign" element={
           <ProtectedRoute><CreateCampaign /></ProtectedRoute>
