@@ -17,10 +17,10 @@ export default function ContactUpload() {
   const [error, setError] = useState("");
   const [uploadedContacts, setUploadedContacts] = useState([]);
   
-  // Assignment options
+  // Assignment options - Events default since they chose "Event Attendees"
   const [assignments, setAssignments] = useState({
     orgMembers: false,
-    events: []
+    events: ['default'] // Default to events since they chose event attendees
   });
 
   const downloadTemplate = () => {
@@ -470,7 +470,7 @@ export default function ContactUpload() {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <h3 className="font-semibold text-green-900 mb-2">✅ Upload Complete</h3>
                   <p className="text-sm text-green-800">
-                    Successfully uploaded {uploadedContacts.length} contacts. Now choose where to assign them:
+                    Successfully uploaded {previewData.length} contacts. Now choose where to assign them:
                   </p>
                 </div>
 
@@ -478,22 +478,33 @@ export default function ContactUpload() {
                 <div className="space-y-4">
                   <h3 className="font-semibold text-gray-900">Assign to:</h3>
                   
-                  {/* Org Members */}
-                  <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={assignments.orgMembers}
-                      onChange={(e) => setAssignments(prev => ({ ...prev, orgMembers: e.target.checked }))}
-                      className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
-                    />
-                    <div className="ml-3">
-                      <h4 className="font-semibold text-gray-900">🏢 Org Members</h4>
-                      <p className="text-sm text-gray-600">Add as internal team members</p>
-                    </div>
-                  </label>
-
-                  {/* Events */}
+                  {/* Org Members - Optional */}
                   <div className="p-4 border border-gray-200 rounded-lg">
+                    <label className="flex items-center mb-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={assignments.orgMembers}
+                        onChange={(e) => setAssignments(prev => ({ ...prev, orgMembers: e.target.checked }))}
+                        className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                      />
+                      <div className="ml-3">
+                        <h4 className="font-semibold text-gray-900">🏢 Org Members (Optional)</h4>
+                        <p className="text-sm text-gray-600">Also add as internal team members</p>
+                      </div>
+                    </label>
+                    
+                    {assignments.orgMembers && (
+                      <div className="ml-8">
+                        <div className="bg-blue-50 p-3 rounded text-sm text-blue-800 border border-blue-200">
+                          <strong>💡 Dual Assignment</strong>
+                          <p className="text-xs mt-1">Contacts will be both event attendees AND org members</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Events - Default selected */}
+                  <div className="p-4 border border-emerald-200 rounded-lg bg-emerald-50">
                     <label className="flex items-center mb-3 cursor-pointer">
                       <input
                         type="checkbox"
@@ -501,22 +512,24 @@ export default function ContactUpload() {
                         onChange={(e) => {
                           if (!e.target.checked) {
                             setAssignments(prev => ({ ...prev, events: [] }));
+                          } else {
+                            setAssignments(prev => ({ ...prev, events: ['default'] }));
                           }
                         }}
-                        className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                        className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500"
                       />
                       <div className="ml-3">
                         <h4 className="font-semibold text-gray-900">📅 Events</h4>
-                        <p className="text-sm text-gray-600">Assign to specific events</p>
+                        <p className="text-sm text-gray-600">Assign to your upcoming event</p>
                       </div>
                     </label>
                     
                     {assignments.events.length > 0 && (
                       <div className="ml-8 space-y-2">
-                        <p className="text-sm text-gray-600">Select events:</p>
-                        {/* Event checkboxes would go here - placeholder for now */}
-                        <div className="bg-gray-50 p-3 rounded text-sm text-gray-500">
-                          Event selection coming soon...
+                        <p className="text-sm text-gray-600">Will be assigned to:</p>
+                        <div className="bg-emerald-100 p-3 rounded text-sm text-emerald-800 border border-emerald-200">
+                          <strong>🎯 Your Upcoming Event</strong>
+                          <p className="text-xs mt-1">Contacts will be added to your event pipeline for easy management</p>
                         </div>
                       </div>
                     )}
