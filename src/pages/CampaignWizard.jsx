@@ -127,9 +127,17 @@ export default function CampaignWizard() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">🚀 Launch Campaign</h1>
-            <p className="text-gray-600">Let's get your email campaign up and running!</p>
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex-1 text-center">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">🚀 Launch Campaign</h1>
+              <p className="text-gray-600">Let's get your email campaign up and running!</p>
+            </div>
+            <button
+              onClick={() => navigate("/campaignhome")}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+            >
+              ← Back
+            </button>
           </div>
 
           {/* Progress Steps */}
