@@ -129,7 +129,7 @@ export default function CampaignWizard() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">🚀 Launch Campaign</h1>
-            <p className="text-gray-600">Let's get your bulk email campaign up and running!</p>
+            <p className="text-gray-600">Let's get your email campaign up and running!</p>
           </div>
 
           {/* Progress Steps */}

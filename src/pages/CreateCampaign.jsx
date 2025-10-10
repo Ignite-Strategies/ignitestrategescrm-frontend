@@ -71,7 +71,7 @@ export default function CreateCampaign() {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Campaign</h1>
-              <p className="text-gray-600">Set up a new bulk email campaign</p>
+              <p className="text-gray-600">Set up a new email campaign</p>
             </div>
             <button
               onClick={() => navigate("/campaignhome")}

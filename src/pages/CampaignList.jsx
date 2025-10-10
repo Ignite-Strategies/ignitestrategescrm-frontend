@@ -60,7 +60,7 @@ export default function CampaignList() {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">📊 Campaigns</h1>
-              <p className="text-gray-600">Manage your bulk email campaigns</p>
+              <p className="text-gray-600">Manage your email campaigns</p>
             </div>
             <div className="flex gap-3">
               <button
@@ -94,7 +94,7 @@ export default function CampaignList() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No campaigns yet</h3>
-              <p className="text-gray-600 mb-6">Create your first bulk email campaign to get started</p>
+              <p className="text-gray-600 mb-6">Create your first email campaign to get started</p>
               <button
                 onClick={() => navigate("/createcampaign")}
                 className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
