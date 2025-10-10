@@ -12,17 +12,27 @@ export default function ContactEventUploadPreview() {
   // Get file, field mapping, and event from localStorage
   const [file, setFile] = useState(() => {
     const savedFile = localStorage.getItem('uploadFile');
+    console.log('🔍 Preview page - uploadFile from localStorage:', savedFile);
     return savedFile ? JSON.parse(savedFile) : null;
   });
   
   const [fieldMapping, setFieldMapping] = useState(() => {
     const savedMapping = localStorage.getItem('fieldMapping');
+    console.log('🔍 Preview page - fieldMapping from localStorage:', savedMapping);
     return savedMapping ? JSON.parse(savedMapping) : [];
   });
 
   const [selectedEvent, setSelectedEvent] = useState(() => {
     const savedEvent = localStorage.getItem('selectedEvent');
+    console.log('🔍 Preview page - selectedEvent from localStorage:', savedEvent);
     return savedEvent ? JSON.parse(savedEvent) : null;
+  });
+
+  // Debug logging
+  console.log('📊 Preview page state:', {
+    file: file?.name || 'null',
+    fieldMapping: fieldMapping?.length || 0,
+    selectedEvent: selectedEvent?.title || 'null'
   });
 
   const [assignmentMode, setAssignmentMode] = useState('all_same'); // 'all_same' or 'individual'

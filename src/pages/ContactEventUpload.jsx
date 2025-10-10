@@ -10,9 +10,17 @@ export default function ContactEventUpload() {
   
   // Check if we have the required data
   useEffect(() => {
+    console.log('🔍 Upload page - checking localStorage data:', {
+      orgId,
+      eventId,
+      currentEvent: currentEvent?.title || 'null'
+    });
+    
     if (!orgId || !eventId || !currentEvent) {
-      console.error('Missing orgId, eventId, or currentEvent in localStorage');
+      console.error('❌ Missing orgId, eventId, or currentEvent in localStorage');
       navigate('/dashboard');
+    } else {
+      console.log('✅ All required data present');
     }
   }, [orgId, eventId, currentEvent, navigate]);
 
@@ -28,30 +36,55 @@ export default function ContactEventUpload() {
   };
 
   const handleFileSelect = async (e) => {
+    console.log('🔍 File input changed:', e.target.files);
     const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      console.log('❌ No file selected');
+      return;
+    }
 
-    // Parse headers and save to localStorage for preview page
-    const text = await selectedFile.text();
-    const lines = text.split('\n').filter(l => l.trim());
-    const detectedHeaders = lines[0].split(',').map(h => h.trim());
-    
-    const fieldMapping = detectedHeaders.map(header => ({
-      csvHeader: header,
-      mappedField: mapHeaderToField(header)
-    }));
+    console.log('📁 Selected file:', selectedFile.name, selectedFile.type, selectedFile.size);
 
-    // Save file, mapping, and event for preview page
-    localStorage.setItem('uploadFile', JSON.stringify({
-      name: selectedFile.name,
-      type: selectedFile.type,
-      content: text
-    }));
-    localStorage.setItem('fieldMapping', JSON.stringify(fieldMapping));
-    localStorage.setItem('selectedEvent', JSON.stringify(currentEvent));
-    
-    // Navigate to preview page
-    navigate("/contacts/event/upload/preview");
+    try {
+      // Parse headers and save to localStorage for preview page
+      const text = await selectedFile.text();
+      console.log('📄 File content length:', text.length);
+      console.log('📄 First 200 chars:', text.substring(0, 200));
+      
+      const lines = text.split('\n').filter(l => l.trim());
+      console.log('📊 Total lines:', lines.length);
+      
+      const detectedHeaders = lines[0].split(',').map(h => h.trim());
+      console.log('🏷️ Detected headers:', detectedHeaders);
+      
+      const fieldMapping = detectedHeaders.map(header => ({
+        csvHeader: header,
+        mappedField: mapHeaderToField(header)
+      }));
+      console.log('🗺️ Field mapping:', fieldMapping);
+
+      // Save file, mapping, and event for preview page
+      const fileData = {
+        name: selectedFile.name,
+        type: selectedFile.type,
+        content: text
+      };
+      localStorage.setItem('uploadFile', JSON.stringify(fileData));
+      localStorage.setItem('fieldMapping', JSON.stringify(fieldMapping));
+      localStorage.setItem('selectedEvent', JSON.stringify(currentEvent));
+      
+      console.log('💾 Saved to localStorage:', {
+        uploadFile: fileData.name,
+        fieldMapping: fieldMapping.length,
+        selectedEvent: currentEvent?.title
+      });
+      
+      // Navigate to preview page
+      console.log('🚀 Navigating to preview page...');
+      navigate("/contacts/event/upload/preview");
+    } catch (error) {
+      console.error('❌ Error processing file:', error);
+    }
   };
 
   const mapHeaderToField = (header) => {
