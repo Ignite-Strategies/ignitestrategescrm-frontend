@@ -15,7 +15,7 @@ export default function OrgMembersCSVUpload() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'supporters_template.csv';
+    a.download = 'contacts_template.csv';
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -111,9 +111,9 @@ export default function OrgMembersCSVUpload() {
         {/* Step 1: Upload */}
         {step === 1 && (
           <div className="bg-white rounded-lg shadow p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Add Supporters</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Contacts</h2>
             <p className="text-gray-600 mb-8">
-              Add your organization's master supporter list to the CRM.
+              Upload org members, prospects, and event attendees to your CRM.
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -128,7 +128,7 @@ export default function OrgMembersCSVUpload() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Manually Enter</h3>
-                <p className="text-sm text-gray-600">Add supporters one by one through the interface</p>
+                <p className="text-sm text-gray-600">Add contacts one by one through the interface</p>
               </button>
 
               {/* CSV Upload */}
