@@ -35,6 +35,9 @@ import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactList from "./pages/ContactList.jsx";
 import ContactManageHome from "./pages/ContactManageHome.jsx";
+import ContactEventUpload from "./pages/ContactEventUpload.jsx";
+import ContactEventUploadPreview from "./pages/ContactEventUploadPreview.jsx";
+import ContactEventUploadValidation from "./pages/ContactEventUploadValidation.jsx";
 import CampaignHome from "./pages/CampaignHome.jsx";
 import Outreach from "./pages/Outreach.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
@@ -103,6 +106,15 @@ export default function App() {
         } />
         <Route path="/contacts/upload" element={
           <ProtectedRoute><ContactUpload /></ProtectedRoute>
+        } />
+        <Route path="/contacts/event/upload" element={
+          <ProtectedRoute><ContactEventUpload /></ProtectedRoute>
+        } />
+        <Route path="/contacts/event/upload/preview" element={
+          <ProtectedRoute><ContactEventUploadPreview /></ProtectedRoute>
+        } />
+        <Route path="/contacts/event/upload/validation" element={
+          <ProtectedRoute><ContactEventUploadValidation /></ProtectedRoute>
         } />
         <Route path="/org-members/upload/preview" element={
           <ProtectedRoute><UploadPreview /></ProtectedRoute>
