@@ -10,12 +10,7 @@ export default function Welcome() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Clear any stale org IDs before hydrating
-    localStorage.removeItem('orgId');
-    localStorage.removeItem('orgName');
-    localStorage.removeItem('events');
-    localStorage.removeItem('supporters');
-    
+    // Don't clear localStorage - it's causing data loss issues
     hydrateOrg();
   }, []);
 
