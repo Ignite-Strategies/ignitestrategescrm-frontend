@@ -33,8 +33,7 @@ import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactList from "./pages/ContactList.jsx";
-import EmailCampaigns from "./pages/EmailCampaigns.jsx";
-import EmailDashboard from "./pages/EmailDashboard.jsx";
+import CampaignDashboard from "./pages/CampaignDashboard.jsx";
 import Outreach from "./pages/Outreach.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
 import Templates from "./pages/Templates.jsx";
@@ -182,10 +181,10 @@ export default function App() {
           <ProtectedRoute><ContactList /></ProtectedRoute>
         } />
         <Route path="/email" element={
-          <ProtectedRoute><EmailDashboard /></ProtectedRoute>
+          <ProtectedRoute><CampaignDashboard /></ProtectedRoute>
         } />
         <Route path="/email/campaigns" element={
-          <ProtectedRoute><EmailDashboard /></ProtectedRoute>
+          <ProtectedRoute><CampaignDashboard /></ProtectedRoute>
         } />
         <Route path="/email/outreach" element={
           <ProtectedRoute><Outreach /></ProtectedRoute>
