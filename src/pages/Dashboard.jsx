@@ -331,6 +331,32 @@ export default function Dashboard() {
               <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Embed Code</span>
             </div>
           </button>
+
+          {/* Organization Management */}
+          <button
+            onClick={() => {
+              navigate("/org-members");
+            }}
+            className="bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Organization</h2>
+            <p className="text-orange-100 text-sm mb-4">Manage team members, settings, and organization details</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Team</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Settings</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Profile</span>
+            </div>
+          </button>
         </div>
 
         {/* Recent Events List (simplified) */}
