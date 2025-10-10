@@ -63,26 +63,17 @@ export default function ContactEventUploadPreview() {
       try {
         console.log('🔍 Loading event data for:', selectedEvent.id);
         
-        // Get existing EventAttendees to see what audience types are being used
-        const attendeesResponse = await api.get(`/events/${selectedEvent.id}/attendees`);
-        const attendees = attendeesResponse.data;
-        
-        console.log('📋 Existing attendees:', attendees);
-        
-        // Hydrate audience types from schema config
+        // Hydrate audience types and stages from schema config ONLY
         const schemaResponse = await api.get('/api/schema/event-attendee');
-        const { audienceTypes } = schemaResponse.data;
+        const { audienceTypes, stages } = schemaResponse.data;
         
         setAvailableAudiences(audienceTypes);
         console.log('🔍 Available audience types:', audienceTypes);
         
         // Set default audience
-        if (availableAudiences.length > 0) {
-          setSelectedAudience(availableAudiences[0]);
+        if (audienceTypes.length > 0) {
+          setSelectedAudience(audienceTypes[0]);
         }
-        
-        // Hydrate stages from schema config
-        const { stages } = schemaResponse.data;
         
         const stageOpts = stages.map(stage => ({ 
           value: stage, 
