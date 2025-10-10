@@ -11,6 +11,7 @@ import OrgSuccess from "./pages/OrgSuccess.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import OrgMembers from "./pages/OrgMembers.jsx";
 import OrgMembersCSVUpload from "./pages/OrgMembersCSVUpload.jsx";
+import ContactUpload from "./pages/ContactUpload.jsx";
 import UploadPreview from "./pages/UploadPreview.jsx";
 import ContactValidation from "./pages/ContactValidation.jsx";
 import ResolveErrors from "./pages/ResolveErrors.jsx";
@@ -98,6 +99,9 @@ export default function App() {
         } />
         <Route path="/org-members/upload" element={
           <ProtectedRoute><OrgMembersCSVUpload /></ProtectedRoute>
+        } />
+        <Route path="/contacts/upload" element={
+          <ProtectedRoute><ContactUpload /></ProtectedRoute>
         } />
         <Route path="/org-members/upload/preview" element={
           <ProtectedRoute><UploadPreview /></ProtectedRoute>

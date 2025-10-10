@@ -173,7 +173,7 @@ export default function Events() {
 
           {/* Add Contacts */}
           <button
-            onClick={() => navigate("/org-members/upload")}
+            onClick={() => navigate("/contacts/upload")}
             className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
           >
             <div className="flex items-center justify-between mb-4">
@@ -187,7 +187,7 @@ export default function Events() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold mb-2">Add Contacts</h2>
-            <p className="text-emerald-100 text-sm">Upload prospects and attendees</p>
+            <p className="text-emerald-100 text-sm">Quick upload → map to pipeline</p>
           </button>
 
           {/* View My Events */}

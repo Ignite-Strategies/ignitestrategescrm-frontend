@@ -111,10 +111,16 @@ export default function OrgMembersCSVUpload() {
         {/* Step 1: Upload */}
         {step === 1 && (
           <div className="bg-white rounded-lg shadow p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Contacts</h2>
-            <p className="text-gray-600 mb-8">
-              Upload org members, prospects, and event attendees to your CRM.
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">🏢 Upload Your Core Team</h2>
+            <p className="text-gray-600 mb-4">
+              Add your internal team members: staff, board, volunteers, and core organizational members.
             </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+              <p className="text-sm text-blue-900">
+                <strong>💡 Looking to add event attendees or prospects?</strong> Use the simple Contact Upload instead. 
+                This form is for your core team with detailed organizational data.
+              </p>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {/* Manual Entry */}

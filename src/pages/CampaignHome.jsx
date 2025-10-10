@@ -144,23 +144,23 @@ export default function CampaignHome() {
               <p className="text-sm text-purple-700">Create reusable email templates</p>
             </button>
 
-            {/* 👥 Contact Lists */}
+            {/* 👥 Upload Contacts */}
             <button
-              onClick={() => navigate("/contact-lists")}
+              onClick={() => navigate("/contacts/upload")}
               className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-lg border-2 border-blue-200 hover:border-blue-400 transition text-left"
             >
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-blue-500 text-white rounded-lg flex items-center justify-center mr-3">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">👥 Contact Lists</h3>
-                  <p className="text-sm text-gray-600">Manage & upload</p>
+                  <h3 className="text-lg font-semibold text-gray-900">👥 Upload Contacts</h3>
+                  <p className="text-sm text-gray-600">Quick import</p>
                 </div>
               </div>
-              <p className="text-sm text-blue-700">Create lists or upload contacts</p>
+              <p className="text-sm text-blue-700">Fast upload for campaigns</p>
             </button>
 
             {/* 📊 Analytics */}

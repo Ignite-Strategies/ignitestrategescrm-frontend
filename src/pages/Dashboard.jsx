@@ -96,20 +96,20 @@ export default function Dashboard() {
               <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-2">👋 Let's add your contacts</h2>
                 <p className="text-white/90 mb-4">
-                  Upload org members, prospects, and event attendees. Your contacts will power campaigns, events, and outreach.
+                  Quick upload for prospects and event attendees. Simple: name, email, phone. Map to pipeline instantly.
                 </p>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => navigate("/org-members/upload")}
+                    onClick={() => navigate("/contacts/upload")}
                     className="bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"
                   >
-                    📤 Upload CSV
+                    🎯 Quick Contact Upload
                   </button>
                   <button
-                    onClick={() => navigate("/org-members/manual")}
+                    onClick={() => navigate("/org-members/upload")}
                     className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition border-2 border-white/30"
                   >
-                    ➕ Add Manually
+                    🏢 Org Members
                   </button>
                 </div>
               </div>
