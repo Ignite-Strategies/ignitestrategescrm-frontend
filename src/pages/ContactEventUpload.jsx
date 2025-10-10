@@ -13,15 +13,31 @@ export default function ContactEventUpload() {
     console.log('🔍 Upload page - checking localStorage data:', {
       orgId,
       eventId,
-      currentEvent: currentEvent?.title || 'null'
+      currentEvent: currentEvent?.title || 'null',
+      rawEventId: localStorage.getItem('eventId'),
+      rawCurrentEvent: localStorage.getItem('currentEvent')
     });
     
-    if (!orgId || !eventId || !currentEvent) {
-      console.error('❌ Missing orgId, eventId, or currentEvent in localStorage');
+    if (!orgId) {
+      console.error('❌ Missing orgId in localStorage');
       navigate('/dashboard');
-    } else {
-      console.log('✅ All required data present');
+      return;
     }
+    
+    if (!eventId) {
+      console.error('❌ Missing eventId in localStorage');
+      navigate('/dashboard');
+      return;
+    }
+    
+    if (!currentEvent) {
+      console.error('❌ Missing currentEvent in localStorage');
+      console.log('🔍 Available localStorage keys:', Object.keys(localStorage));
+      // Don't redirect, just show error
+      return;
+    }
+    
+    console.log('✅ All required data present');
   }, [orgId, eventId, currentEvent, navigate]);
 
   const downloadTemplate = () => {
@@ -128,6 +144,19 @@ export default function ContactEventUpload() {
             Upload contacts for <strong>"{currentEvent?.title}"</strong>
           </p>
         </div>
+
+        {/* Debug Info */}
+        {(!orgId || !eventId || !currentEvent) && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <h3 className="font-semibold text-red-900 mb-2">⚠️ Missing Data</h3>
+            <div className="text-sm text-red-800">
+              <p>orgId: {orgId || '❌ Missing'}</p>
+              <p>eventId: {eventId || '❌ Missing'}</p>
+              <p>currentEvent: {currentEvent?.title || '❌ Missing'}</p>
+              <p className="mt-2">Available localStorage keys: {Object.keys(localStorage).join(', ')}</p>
+            </div>
+          </div>
+        )}
 
         {/* File Upload */}
         <div className="space-y-6">
