@@ -119,24 +119,6 @@ export default function ContactEventUploadPreview() {
     loadEventData();
   }, [selectedEvent?.id]);
 
-  // Load stages when audience changes
-  useEffect(() => {
-    const loadStagesForAudience = async () => {
-      if (!selectedAudience || !selectedEvent?.id) return;
-      
-      try {
-        const response = await api.get(`/events/${selectedEvent.id}/pipeline-config`);
-        const config = response.data;
-        const stages = config.pipelines[selectedAudience] || [];
-        setStageOptions(stages.map(stage => ({ value: stage, label: stage })));
-      } catch (error) {
-        console.error('❌ Failed to load stages for audience:', error);
-      }
-    };
-    
-    loadStagesForAudience();
-  }, [selectedAudience, selectedEvent?.id]);
-
   const handleFieldMappingChange = (index, newField) => {
     const updatedMapping = [...fieldMapping];
     updatedMapping[index].mappedField = newField;
