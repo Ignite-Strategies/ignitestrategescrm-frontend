@@ -290,7 +290,7 @@ export default function ContactEventUploadPreview() {
                     Uploading...
                   </span>
                 ) : (
-                  `Upload ${previewData.length} Contacts to ${selectedEvent.title}`
+                  `Upload ${previewData.length} Contacts to ${selectedEvent?.title || 'Event'}`
                 )}
               </button>
             </div>
