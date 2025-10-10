@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
@@ -12,7 +12,7 @@ export default function ContactEventUpload() {
   const [loading, setLoading] = useState(false);
 
   // Load events on component mount
-  useState(() => {
+  useEffect(() => {
     loadEvents();
   }, []);
 
