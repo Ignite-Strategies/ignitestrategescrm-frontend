@@ -69,51 +69,33 @@ export default function ContactEventUploadPreview() {
         
         console.log('📋 Existing attendees:', attendees);
         
-        // Always show all 5 audience types from EventAttendee schema
-        const availableAudiences = [
-          'org_members', 
-          'friends_family', 
-          'landing_page_public', 
-          'community_partners', 
-          'cold_outreach'
-        ];
-        setAvailableAudiences(availableAudiences);
-        console.log('🔍 Available audience types:', availableAudiences);
+        // Hydrate audience types from schema config
+        const schemaResponse = await api.get('/api/schema/event-attendee');
+        const { audienceTypes } = schemaResponse.data;
+        
+        setAvailableAudiences(audienceTypes);
+        console.log('🔍 Available audience types:', audienceTypes);
         
         // Set default audience
         if (availableAudiences.length > 0) {
           setSelectedAudience(availableAudiences[0]);
         }
         
-        // Hydrate stages from EXISTING EventAttendee records ONLY
-        const stages = [...new Set(attendees.map(a => a.currentStage))].filter(Boolean);
+        // Hydrate stages from schema config
+        const { stages } = schemaResponse.data;
         
-        if (stages.length > 0) {
-          const stageOpts = stages.map(stage => ({ 
-            value: stage, 
-            label: stage.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-          }));
-          
-          setStageOptions(stageOpts);
-          setDefaultStage(stageOpts[0].value);
-        } else {
-          // NO HARDCODING - if no attendees exist, show message
-          setStageOptions([]);
-          setDefaultStage('');
-        }
+        const stageOpts = stages.map(stage => ({ 
+          value: stage, 
+          label: stage.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        }));
+        
+        setStageOptions(stageOpts);
+        setDefaultStage(stageOpts[0].value);
         
       } catch (error) {
         console.error('❌ Failed to load event data:', error);
-        // Fallback to all 5 audience types (from EventAttendee schema)
-        setAvailableAudiences([
-          'org_members', 
-          'friends_family', 
-          'landing_page_public', 
-          'community_partners', 
-          'cold_outreach'
-        ]);
-        setSelectedAudience('org_members');
-        // Empty stages - force user to fix hydration
+        // Fallback - empty everything to force user to fix hydration
+        setAvailableAudiences([]);
         setStageOptions([]);
       }
     };
@@ -337,7 +319,7 @@ export default function ContactEventUploadPreview() {
 
                 {stageOptions.length === 0 && (
                   <div className="text-sm text-yellow-700 p-3 bg-yellow-50 rounded border border-yellow-200">
-                    ⚠️ No stages found. Add your first contacts to create stages, or fill out a form to populate EventAttendee data.
+                    ⚠️ Failed to load stages from schema config. Check network connection and backend.
                   </div>
                 )}
               </div>
