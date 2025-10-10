@@ -64,7 +64,7 @@ export default function ContactEventUploadPreview() {
         console.log('🔍 Loading event data for:', selectedEvent.id);
         
         // Hydrate audience types and stages from schema config ONLY
-        const schemaResponse = await api.get('/api/schema/event-attendee');
+        const schemaResponse = await api.get('/schema/event-attendee');
         const { audienceTypes, stages } = schemaResponse.data;
         
         setAvailableAudiences(audienceTypes);
