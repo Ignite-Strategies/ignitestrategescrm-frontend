@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
@@ -6,269 +6,387 @@ import { getOrgId } from "../lib/org";
 export default function ContactUpload() {
   const navigate = useNavigate();
   const orgId = getOrgId();
-  const [events, setEvents] = useState([]);
-  const [selectedPurpose, setSelectedPurpose] = useState(""); // event, campaign, or general
-
-  useEffect(() => {
-    loadEvents();
-  }, [orgId]);
-
-  const loadEvents = async () => {
-    try {
-      const response = await api.get(`/orgs/${orgId}/events`);
-      setEvents(response.data);
-    } catch (error) {
-      console.error("Error loading events:", error);
-    }
-  };
+  
+  const [step, setStep] = useState(1); // 1: Upload, 2: Assign, 3: Complete
+  const [file, setFile] = useState(null);
+  const [previewData, setPreviewData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [uploadedContacts, setUploadedContacts] = useState([]);
+  
+  // Assignment options
+  const [assignments, setAssignments] = useState({
+    orgMembers: false,
+    events: [],
+    campaigns: []
+  });
 
   const downloadTemplate = () => {
     const template = `First Name,Last Name,Email,Phone`;
-    
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'contacts_simple_template.csv';
+    a.download = 'contacts_template.csv';
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
-  const handleFileSelect = async (e) => {
-    const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
-    // Parse and save for preview
-    const text = await selectedFile.text();
-    const lines = text.split('\n').filter(l => l.trim());
-    const detectedHeaders = lines[0].split(',').map(h => h.trim());
-    
-    const fieldMapping = detectedHeaders.map(header => ({
-      csvHeader: header,
-      mappedField: mapHeaderToField(header)
-    }));
+    setFile(file);
+    setError("");
 
-    localStorage.setItem('uploadFile', JSON.stringify({
-      name: selectedFile.name,
-      type: selectedFile.type,
-      content: text
-    }));
-    localStorage.setItem('fieldMapping', JSON.stringify(fieldMapping));
-    localStorage.setItem('uploadPurpose', selectedPurpose); // Save purpose for later
-    
-    navigate("/org-members/upload/preview");
-  };
+    // Preview CSV
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target.result;
+      const lines = text.split('\n').filter(line => line.trim());
+      const headers = lines[0].split(',').map(h => h.trim());
+      
+      const data = lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const row = {};
+        headers.forEach((header, index) => {
+          row[header.toLowerCase().replace(' ', '_')] = values[index] || '';
+        });
+        return row;
+      });
 
-  const mapHeaderToField = (header) => {
-    const normalized = header.toLowerCase().trim();
-    const fieldMap = {
-      'first name': 'firstName',
-      'firstname': 'firstName',
-      'fname': 'firstName',
-      'last name': 'lastName',
-      'lastname': 'lastName',
-      'lname': 'lastName',
-      'email': 'email',
-      'email address': 'email',
-      'phone': 'phone',
-      'phone number': 'phone'
+      setPreviewData(data.slice(0, 5)); // Show first 5 rows
     };
-    return fieldMap[normalized] || 'unmapped';
+    reader.readAsText(file);
   };
+
+  const uploadContacts = async () => {
+    if (!file) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('orgId', orgId);
+
+      const response = await api.post('/contacts/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setUploadedContacts(response.data.contacts || []);
+      setStep(2); // Move to assignment step
+      
+    } catch (err) {
+      setError(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const completeAssignment = async () => {
+    setLoading(true);
+    try {
+      // Send assignments to backend
+      await api.post('/contacts/assign', {
+        contactIds: uploadedContacts.map(c => c.id),
+        assignments
+      });
+
+      setStep(3); // Complete step
+    } catch (err) {
+      setError(err.response?.data?.message || 'Assignment failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (step === 3) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <div className="w-16 h-16 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Upload Complete! 🎉</h1>
+            <p className="text-gray-600 mb-8">
+              Successfully uploaded {uploadedContacts.length} contacts and assigned them as requested.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => navigate("/contacts")}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              >
+                View Contacts
+              </button>
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          
           {/* Header */}
-          <div className="flex justify-between items-start mb-8">
+          <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">🎯 Quick Contact Upload</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {step === 1 ? "Upload Contacts" : "Assign Contacts"}
+              </h1>
               <p className="text-gray-600">
-                Add contacts fast - just name, email, and phone. We'll help you organize them.
+                {step === 1 
+                  ? "Upload your contacts first, then choose where to assign them."
+                  : "Choose where to assign your uploaded contacts."
+                }
               </p>
             </div>
             <button
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/contacts")}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
-              ← Dashboard
+              ← Back
             </button>
           </div>
 
-          {/* The Magic: Map to Pipeline on Ingest */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 mb-8 text-white">
-            <div className="flex items-center mb-3">
-              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-4">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+          {/* Progress */}
+          <div className="mb-8">
+            <div className="flex items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'
+              }`}>
+                1
               </div>
-              <div>
-                <h3 className="text-xl font-bold mb-1">The HubSpot Killer</h3>
-                <p className="text-indigo-100 text-sm">Upload contacts → Map to pipeline → Done. No filling out endless fields upfront.</p>
+              <div className={`flex-1 h-1 mx-2 ${step >= 2 ? 'bg-indigo-600' : 'bg-gray-200'}`}></div>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'
+              }`}>
+                2
               </div>
+              <div className={`flex-1 h-1 mx-2 ${step >= 3 ? 'bg-indigo-600' : 'bg-gray-200'}`}></div>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'
+              }`}>
+                3
+              </div>
+            </div>
+            <div className="flex justify-between mt-2 text-sm text-gray-600">
+              <span>Upload</span>
+              <span>Assign</span>
+              <span>Complete</span>
             </div>
           </div>
 
-          {/* Step 1: Choose Purpose */}
-          {!selectedPurpose && (
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">What are these contacts for?</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                {/* Event */}
-                <button
-                  onClick={() => setSelectedPurpose("event")}
-                  className="p-6 border-2 border-emerald-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition text-left"
-                >
-                  <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Event Attendees</h3>
-                  <p className="text-sm text-gray-600">Add them directly to an event pipeline</p>
-                </button>
+          {step === 1 && (
+            <>
+              {/* Step 1: Upload */}
+              <div className="space-y-6">
+                {/* Template Download */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-blue-900 mb-2">📥 Download Template</h3>
+                  <p className="text-sm text-blue-800 mb-3">
+                    Use our simple template: First Name, Last Name, Email, Phone
+                  </p>
+                  <button
+                    onClick={downloadTemplate}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+                  >
+                    Download CSV Template
+                  </button>
+                </div>
 
-                {/* Campaign */}
-                <button
-                  onClick={() => setSelectedPurpose("campaign")}
-                  className="p-6 border-2 border-purple-200 rounded-xl hover:border-purple-500 hover:bg-purple-50 transition text-left"
-                >
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                {/* File Upload */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">Email Campaign</h3>
-                  <p className="text-sm text-gray-600">Create a new campaign list</p>
-                </button>
+                    <p className="text-lg font-semibold text-gray-900 mb-2">
+                      {file ? file.name : "Choose CSV file"}
+                    </p>
+                    <p className="text-gray-600">Click to upload or drag and drop</p>
+                  </label>
+                </div>
 
-                {/* General */}
-                <button
-                  onClick={() => setSelectedPurpose("general")}
-                  className="p-6 border-2 border-blue-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition text-left"
-                >
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                {/* Preview */}
+                {previewData.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Preview (first 5 rows):</h3>
+                    <div className="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            {Object.keys(previewData[0]).map(key => (
+                              <th key={key} className="text-left py-2 px-3 font-semibold">
+                                {key.replace('_', ' ')}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {previewData.map((row, index) => (
+                            <tr key={index} className="border-b">
+                              {Object.values(row).map((value, i) => (
+                                <td key={i} className="py-2 px-3">{value}</td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">General Contacts</h3>
-                  <p className="text-sm text-gray-600">Add to master list, organize later</p>
+                )}
+
+                {/* Error */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-800">{error}</p>
+                  </div>
+                )}
+
+                {/* Upload Button */}
+                <button
+                  onClick={uploadContacts}
+                  disabled={!file || loading}
+                  className={`w-full py-3 rounded-lg font-semibold transition ${
+                    file && !loading
+                      ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {loading ? 'Uploading...' : 'Upload Contacts'}
                 </button>
               </div>
-            </div>
+            </>
           )}
 
-          {/* Step 2: Upload */}
-          {selectedPurpose && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-1">Upload Your Contacts</h2>
-                  <p className="text-gray-600">
-                    Selected: <span className="font-semibold text-indigo-600">
-                      {selectedPurpose === 'event' && '🎯 Event Attendees'}
-                      {selectedPurpose === 'campaign' && '📧 Email Campaign'}
-                      {selectedPurpose === 'general' && '👥 General Contacts'}
-                    </span>
+          {step === 2 && (
+            <>
+              {/* Step 2: Assignment */}
+              <div className="space-y-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-green-900 mb-2">✅ Upload Complete</h3>
+                  <p className="text-sm text-green-800">
+                    Successfully uploaded {uploadedContacts.length} contacts. Now choose where to assign them:
                   </p>
                 </div>
-                <button
-                  onClick={() => setSelectedPurpose("")}
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  ← Change
-                </button>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                {/* Manual Entry */}
-                <button
-                  onClick={() => navigate("/org-members/manual")}
-                  className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-indigo-400 hover:shadow-lg transition text-left"
-                >
-                  <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Add Manually</h3>
-                  <p className="text-sm text-gray-600">Enter contacts one by one</p>
-                </button>
-
-                {/* CSV Upload */}
-                <div className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-indigo-400 hover:shadow-lg transition">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload CSV</h3>
-                  <p className="text-sm text-gray-600 mb-4">Quick bulk import</p>
+                {/* Assignment Options */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900">Assign to:</h3>
                   
-                  <div className="space-y-3">
-                    <button
-                      onClick={downloadTemplate}
-                      className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition text-sm"
-                    >
-                      📥 Download Simple Template
-                    </button>
-                    
-                    <label className="block">
+                  {/* Org Members */}
+                  <label className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={assignments.orgMembers}
+                      onChange={(e) => setAssignments(prev => ({ ...prev, orgMembers: e.target.checked }))}
+                      className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                    />
+                    <div className="ml-3">
+                      <h4 className="font-semibold text-gray-900">🏢 Org Members</h4>
+                      <p className="text-sm text-gray-600">Add as internal team members</p>
+                    </div>
+                  </label>
+
+                  {/* Events */}
+                  <div className="p-4 border border-gray-200 rounded-lg">
+                    <label className="flex items-center mb-3 cursor-pointer">
                       <input
-                        type="file"
-                        accept=".csv"
-                        onChange={handleFileSelect}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg hover:border-indigo-400 transition cursor-pointer text-sm"
+                        type="checkbox"
+                        checked={assignments.events.length > 0}
+                        onChange={(e) => {
+                          if (!e.target.checked) {
+                            setAssignments(prev => ({ ...prev, events: [] }));
+                          }
+                        }}
+                        className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
                       />
+                      <div className="ml-3">
+                        <h4 className="font-semibold text-gray-900">📅 Events</h4>
+                        <p className="text-sm text-gray-600">Assign to specific events</p>
+                      </div>
                     </label>
+                    
+                    {assignments.events.length > 0 && (
+                      <div className="ml-8 space-y-2">
+                        <p className="text-sm text-gray-600">Select events:</p>
+                        {/* Event checkboxes would go here - placeholder for now */}
+                        <div className="bg-gray-50 p-3 rounded text-sm text-gray-500">
+                          Event selection coming soon...
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Campaigns */}
+                  <div className="p-4 border border-gray-200 rounded-lg">
+                    <label className="flex items-center mb-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={assignments.campaigns.length > 0}
+                        onChange={(e) => {
+                          if (!e.target.checked) {
+                            setAssignments(prev => ({ ...prev, campaigns: [] }));
+                          }
+                        }}
+                        className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                      />
+                      <div className="ml-3">
+                        <h4 className="font-semibold text-gray-900">📧 Campaigns</h4>
+                        <p className="text-sm text-gray-600">Add to email campaigns</p>
+                      </div>
+                    </label>
+                    
+                    {assignments.campaigns.length > 0 && (
+                      <div className="ml-8 space-y-2">
+                        <p className="text-sm text-gray-600">Select campaigns:</p>
+                        {/* Campaign checkboxes would go here - placeholder for now */}
+                        <div className="bg-gray-50 p-3 rounded text-sm text-gray-500">
+                          Campaign selection coming soon...
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
 
-              {/* Template Info */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">📋 Simple Template Includes:</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>✓ First Name</li>
-                  <li>✓ Last Name</li>
-                  <li>✓ Email</li>
-                  <li>✓ Phone</li>
-                </ul>
-                <p className="text-xs text-gray-500 mt-3">
-                  That's it! No endless fields. Upload fast, organize smart.
-                </p>
+                {/* Complete Button */}
+                <button
+                  onClick={completeAssignment}
+                  disabled={loading || (!assignments.orgMembers && assignments.events.length === 0 && assignments.campaigns.length === 0)}
+                  className={`w-full py-3 rounded-lg font-semibold transition ${
+                    !loading && (assignments.orgMembers || assignments.events.length > 0 || assignments.campaigns.length > 0)
+                      ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {loading ? 'Assigning...' : 'Complete Assignment'}
+                </button>
               </div>
-            </div>
+            </>
           )}
-
-          {/* Info: Org Members Link */}
-          <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex gap-3">
-              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h4 className="font-semibold text-blue-900 mb-1">Need to add internal team members?</h4>
-                <p className="text-sm text-blue-800 mb-2">
-                  For staff, board, and volunteers with detailed org info, use the 
-                  <button
-                    onClick={() => navigate("/org-members/upload")}
-                    className="font-semibold hover:underline ml-1"
-                  >
-                    Org Member Upload
-                  </button>
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   );
 }
-
-
