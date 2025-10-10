@@ -334,11 +334,11 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Campaign Dashboard</h2>
-            <p className="text-emerald-100 text-sm mb-4">Bulk campaigns and 1:1 personal outreach</p>
+            <h2 className="text-2xl font-bold mb-2">Email Campaign Management</h2>
+            <p className="text-emerald-100 text-sm mb-4">Email campaigns and personal outreach</p>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Bulk Campaigns</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">1:1 Outreach</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Campaigns</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Personal Outreach</span>
               <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Templates</span>
             </div>
           </button>
