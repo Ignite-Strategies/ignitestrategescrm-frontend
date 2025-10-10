@@ -156,7 +156,7 @@ export default function ContactEventUploadPreview() {
             📋 Preview & Configure
           </h1>
           <p className="text-gray-600">
-            Review field mapping and configure assignments for <strong>{selectedEvent.title}</strong>
+            Review field mapping and configure assignments for <strong>{selectedEvent.name}</strong>
           </p>
         </div>
 
@@ -292,7 +292,7 @@ export default function ContactEventUploadPreview() {
                     Uploading...
                   </span>
                 ) : (
-                  `Upload ${previewData.length} Contacts to ${selectedEvent?.title || 'Event'}`
+                  `Upload ${previewData.length} Contacts to ${selectedEvent?.name || selectedEvent?.title || 'Event'}`
                 )}
               </button>
             </div>
