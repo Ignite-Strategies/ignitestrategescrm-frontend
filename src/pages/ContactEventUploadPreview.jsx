@@ -68,13 +68,21 @@ export default function ContactEventUploadPreview() {
         
         // Extract available audiences from event config
         const audiences = Object.keys(config.pipelines || {});
-        setAvailableAudiences(audiences);
+        console.log('🔍 Raw audience keys:', audiences);
         
-        // Set default audience if only one
-        if (audiences.length === 1) {
-          setSelectedAudience(audiences[0]);
+        // Filter out numeric keys and get actual audience names
+        const validAudiences = audiences.filter(audience => 
+          isNaN(Number(audience)) && audience !== '0' && audience !== '1' && audience !== '2' && audience !== '3'
+        );
+        
+        console.log('🔍 Valid audiences after filtering:', validAudiences);
+        setAvailableAudiences(validAudiences);
+        
+        // Set default audience if only one valid audience
+        if (validAudiences.length === 1) {
+          setSelectedAudience(validAudiences[0]);
           // Load stages for this audience
-          const stages = config.pipelines[audiences[0]] || [];
+          const stages = config.pipelines[validAudiences[0]] || [];
           setStageOptions(stages.map(stage => ({ value: stage, label: stage })));
         }
         
