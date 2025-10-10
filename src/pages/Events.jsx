@@ -151,7 +151,7 @@ export default function Events() {
         </div>
 
         {/* Dashboard-Style Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Create Event */}
           <button
             onClick={() => navigate("/event/create")}
@@ -168,7 +168,26 @@ export default function Events() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold mb-2">Create Event</h2>
-            <p className="text-indigo-100 text-sm">Set up a new event with goals, location, and fundraising targets</p>
+            <p className="text-indigo-100 text-sm">Set up a new event with goals and targets</p>
+          </button>
+
+          {/* Add Contacts */}
+          <button
+            onClick={() => navigate("/org-members/upload")}
+            className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+              </div>
+              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Add Contacts</h2>
+            <p className="text-emerald-100 text-sm">Upload prospects and attendees</p>
           </button>
 
           {/* View My Events */}
@@ -184,7 +203,7 @@ export default function Events() {
                 <p className="text-sm text-gray-600">Total Events</p>
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">View My Events</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">My Events</h2>
             <p className="text-gray-600 text-sm">Browse all events below</p>
           </div>
         </div>

@@ -94,9 +94,9 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-2">👋 Let's add your org members</h2>
+                <h2 className="text-2xl font-bold mb-2">👋 Let's add your contacts</h2>
                 <p className="text-white/90 mb-4">
-                  Upload your member list to build your foundation. Members will auto-populate into events as you create them.
+                  Upload org members, prospects, and event attendees. Your contacts will power campaigns, events, and outreach.
                 </p>
                 <div className="flex gap-3">
                   <button

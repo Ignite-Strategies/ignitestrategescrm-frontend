@@ -157,10 +157,10 @@ export default function CampaignHome() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">👥 Contact Lists</h3>
-                  <p className="text-sm text-gray-600">Manage lists</p>
+                  <p className="text-sm text-gray-600">Manage & upload</p>
                 </div>
               </div>
-              <p className="text-sm text-blue-700">Create and manage contact lists</p>
+              <p className="text-sm text-blue-700">Create lists or upload contacts</p>
             </button>
 
             {/* 📊 Analytics */}
