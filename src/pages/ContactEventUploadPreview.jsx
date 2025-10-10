@@ -49,12 +49,65 @@ export default function ContactEventUploadPreview() {
     { value: 'phone', label: 'Phone Number' }
   ];
 
-  const stageOptions = [
-    { value: 'prospect', label: 'Prospect' },
-    { value: 'registered', label: 'Registered' },
-    { value: 'attended', label: 'Attended' },
-    { value: 'follow_up', label: 'Follow Up' }
-  ];
+  // Dynamic stage options - will be loaded from event config
+  const [stageOptions, setStageOptions] = useState([]);
+  const [availableAudiences, setAvailableAudiences] = useState([]);
+  const [selectedAudience, setSelectedAudience] = useState('');
+
+  // Load event pipeline config to get available audiences and stages
+  useEffect(() => {
+    const loadEventConfig = async () => {
+      if (!selectedEvent?.id) return;
+      
+      try {
+        console.log('🔍 Loading pipeline config for event:', selectedEvent.id);
+        const response = await api.get(`/events/${selectedEvent.id}/pipeline-config`);
+        const config = response.data;
+        
+        console.log('📋 Pipeline config loaded:', config);
+        
+        // Extract available audiences from event config
+        const audiences = Object.keys(config.pipelines || {});
+        setAvailableAudiences(audiences);
+        
+        // Set default audience if only one
+        if (audiences.length === 1) {
+          setSelectedAudience(audiences[0]);
+          // Load stages for this audience
+          const stages = config.pipelines[audiences[0]] || [];
+          setStageOptions(stages.map(stage => ({ value: stage, label: stage })));
+        }
+        
+      } catch (error) {
+        console.error('❌ Failed to load event config:', error);
+        // Fallback to basic stages if config fails
+        setStageOptions([
+          { value: 'prospect', label: 'Prospect' },
+          { value: 'registered', label: 'Registered' }
+        ]);
+      }
+    };
+    
+    loadEventConfig();
+  }, [selectedEvent?.id]);
+
+  // Load stages when audience changes
+  useEffect(() => {
+    const loadStagesForAudience = async () => {
+      if (!selectedAudience || !selectedEvent?.id) return;
+      
+      try {
+        const response = await api.get(`/events/${selectedEvent.id}/pipeline-config`);
+        const config = response.data;
+        const stages = config.pipelines[selectedAudience] || [];
+        setStageOptions(stages.map(stage => ({ value: stage, label: stage })));
+      } catch (error) {
+        console.error('❌ Failed to load stages for audience:', error);
+      }
+    };
+    
+    loadStagesForAudience();
+  }, [selectedAudience, selectedEvent?.id]);
 
   const handleFieldMappingChange = (index, newField) => {
     const updatedMapping = [...fieldMapping];
@@ -95,7 +148,8 @@ export default function ContactEventUploadPreview() {
       formData.append('assignments', JSON.stringify({
         mode: assignmentMode,
         defaultStage,
-        individualAssignments
+        individualAssignments,
+        audienceType: selectedAudience
       }));
 
       const response = await api.post('/contacts/event/save', formData, {
@@ -193,35 +247,64 @@ export default function ContactEventUploadPreview() {
               <h2 className="text-xl font-semibold mb-4">Assignment Configuration</h2>
               
               <div className="space-y-4">
+                {/* Step 1: Select Audience */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    How do you want to assign stages?
+                    Select Audience Type
                   </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        value="all_same"
-                        checked={assignmentMode === 'all_same'}
-                        onChange={(e) => setAssignmentMode(e.target.value)}
-                        className="mr-2"
-                      />
-                      <span>All same stage</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        value="individual"
-                        checked={assignmentMode === 'individual'}
-                        onChange={(e) => setAssignmentMode(e.target.value)}
-                        className="mr-2"
-                      />
-                      <span>Let me pick for each contact</span>
-                    </label>
-                  </div>
+                  {availableAudiences.length > 0 ? (
+                    <select
+                      value={selectedAudience}
+                      onChange={(e) => setSelectedAudience(e.target.value)}
+                      className="w-full px-3 py-2 border rounded-md"
+                    >
+                      <option value="">Choose an audience...</option>
+                      {availableAudiences.map(audience => (
+                        <option key={audience} value={audience}>
+                          {audience.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="text-sm text-gray-500 p-2 bg-gray-50 rounded">
+                      Can't find any audiences for this event
+                    </div>
+                  )}
                 </div>
 
-                {assignmentMode === 'all_same' && (
+                {/* Step 2: Assignment Mode (only if audience selected) */}
+                {selectedAudience && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      How do you want to assign stages?
+                    </label>
+                    <div className="space-y-2">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          value="all_same"
+                          checked={assignmentMode === 'all_same'}
+                          onChange={(e) => setAssignmentMode(e.target.value)}
+                          className="mr-2"
+                        />
+                        <span>All same stage</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          value="individual"
+                          checked={assignmentMode === 'individual'}
+                          onChange={(e) => setAssignmentMode(e.target.value)}
+                          className="mr-2"
+                        />
+                        <span>Let me pick for each contact</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Stage Selection (only if audience selected and stages loaded) */}
+                {selectedAudience && stageOptions.length > 0 && assignmentMode === 'all_same' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Default Stage
@@ -237,6 +320,12 @@ export default function ContactEventUploadPreview() {
                         </option>
                       ))}
                     </select>
+                  </div>
+                )}
+
+                {selectedAudience && stageOptions.length === 0 && (
+                  <div className="text-sm text-gray-500 p-2 bg-gray-50 rounded">
+                    Can't find any stages for {selectedAudience} audience
                   </div>
                 )}
               </div>
