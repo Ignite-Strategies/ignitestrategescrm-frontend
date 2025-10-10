@@ -199,7 +199,7 @@ export default function CampaignSequences() {
         <div className="flex justify-between items-center">
           <div>
             <nav className="text-sm text-gray-500 mb-1">
-              <span className="hover:text-gray-700 cursor-pointer" onClick={() => navigate("/campaigns")}>Campaigns</span>
+              <span className="hover:text-gray-700 cursor-pointer" onClick={() => navigate("/campaignhome")}>Campaigns</span>
               <span className="mx-2">›</span>
               <span className="text-gray-900">{campaign.name}</span>
             </nav>

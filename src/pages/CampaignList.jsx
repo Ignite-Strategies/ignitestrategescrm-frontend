@@ -64,13 +64,13 @@ export default function CampaignList() {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => navigate("/email")}
+                onClick={() => navigate("/campaignhome")}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
               >
-                ← Email Dashboard
+                ← Campaign Home
               </button>
               <button
-                onClick={() => navigate("/create-campaign")}
+                onClick={() => navigate("/createcampaign")}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
               >
                 + New Campaign
@@ -96,7 +96,7 @@ export default function CampaignList() {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No campaigns yet</h3>
               <p className="text-gray-600 mb-6">Create your first bulk email campaign to get started</p>
               <button
-                onClick={() => navigate("/create-campaign")}
+                onClick={() => navigate("/createcampaign")}
                 className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
               >
                 Create Your First Campaign
@@ -141,7 +141,7 @@ export default function CampaignList() {
                     
                     <div className="flex gap-2">
                       <button
-                        onClick={() => navigate(`/campaigns/${campaign.id}/sequences`)}
+                        onClick={() => navigate(`/campaignsequences/${campaign.id}`)}
                         className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition"
                       >
                         Edit

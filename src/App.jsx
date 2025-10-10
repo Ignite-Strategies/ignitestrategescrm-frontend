@@ -159,9 +159,6 @@ export default function App() {
         <Route path="/event/:eventId/forms/create" element={
           <ProtectedRoute><FormBuilder /></ProtectedRoute>
         } />
-        <Route path="/email" element={
-          <ProtectedRoute><EngageEmail /></ProtectedRoute>
-        } />
         <Route path="/analytics" element={
           <ProtectedRoute><MarketingAnalytics /></ProtectedRoute>
         } />
@@ -180,23 +177,25 @@ export default function App() {
         <Route path="/contact-lists" element={
           <ProtectedRoute><ContactList /></ProtectedRoute>
         } />
-        <Route path="/email" element={
+        
+        {/* Campaign System - Routes match file names */}
+        <Route path="/campaignhome" element={
           <ProtectedRoute><CampaignHome /></ProtectedRoute>
         } />
-        <Route path="/email/campaigns" element={
-          <ProtectedRoute><CampaignHome /></ProtectedRoute>
-        } />
-        <Route path="/email/outreach" element={
-          <ProtectedRoute><Outreach /></ProtectedRoute>
-        } />
-        <Route path="/campaigns" element={
+        <Route path="/campaignwizard" element={
           <ProtectedRoute><CampaignWizard /></ProtectedRoute>
         } />
-        <Route path="/create-campaign" element={
+        <Route path="/campaignlist" element={
+          <ProtectedRoute><CampaignList /></ProtectedRoute>
+        } />
+        <Route path="/createcampaign" element={
           <ProtectedRoute><CreateCampaign /></ProtectedRoute>
         } />
-        <Route path="/campaigns/:campaignId/sequences" element={
+        <Route path="/campaignsequences/:campaignId" element={
           <ProtectedRoute><CampaignSequences /></ProtectedRoute>
+        } />
+        <Route path="/outreach" element={
+          <ProtectedRoute><Outreach /></ProtectedRoute>
         } />
         <Route path="/create-list" element={
           <ProtectedRoute><CreateListOptions /></ProtectedRoute>
@@ -220,4 +219,5 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 

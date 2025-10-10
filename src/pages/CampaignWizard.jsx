@@ -428,7 +428,7 @@ export default function CampaignWizard() {
                 {campaigns.map((campaign) => (
                   <button
                     key={campaign.id}
-                    onClick={() => navigate(`/campaigns/${campaign.id}/sequences`)}
+                    onClick={() => navigate(`/campaignsequences/${campaign.id}`)}
                     className="p-4 border border-gray-200 rounded-lg hover:border-indigo-300 hover:shadow-md transition text-left"
                   >
                     <div className="flex justify-between items-start mb-2">

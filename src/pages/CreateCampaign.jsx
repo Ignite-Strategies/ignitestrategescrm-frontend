@@ -54,7 +54,7 @@ export default function CreateCampaign() {
       });
 
       alert(`Campaign "${formData.name}" created successfully!`);
-      navigate(`/campaigns/${response.data.id}/sequences`);
+      navigate(`/campaignsequences/${response.data.id}`);
     } catch (err) {
       console.error("Error creating campaign:", err);
       setError(err.response?.data?.error || "Failed to create campaign");
@@ -74,7 +74,7 @@ export default function CreateCampaign() {
               <p className="text-gray-600">Set up a new bulk email campaign</p>
             </div>
             <button
-              onClick={() => navigate("/campaigns")}
+              onClick={() => navigate("/campaignhome")}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
               ← Back
@@ -162,7 +162,7 @@ export default function CreateCampaign() {
             <div className="flex justify-end space-x-3 pt-4">
               <button
                 type="button"
-                onClick={() => navigate("/campaigns")}
+                onClick={() => navigate("/campaignhome")}
                 className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
               >
                 Cancel

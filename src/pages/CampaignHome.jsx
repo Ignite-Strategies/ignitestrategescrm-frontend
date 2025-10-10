@@ -100,7 +100,7 @@ export default function CampaignHome() {
 
             {/* Launch New Campaign */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition cursor-pointer"
-                 onClick={() => navigate("/campaigns")}>
+                 onClick={() => navigate("/campaignwizard")}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="w-16 h-16 bg-indigo-500 text-white rounded-xl flex items-center justify-center mr-4">
@@ -128,7 +128,7 @@ export default function CampaignHome() {
                 {campaigns.slice(0, 6).map((campaign) => (
                   <div
                     key={campaign.id}
-                    onClick={() => navigate(`/campaigns/${campaign.id}/sequences`)}
+                    onClick={() => navigate(`/campaignsequences/${campaign.id}`)}
                     className="bg-white border border-gray-200 rounded-lg p-6 hover:border-indigo-300 hover:shadow-md transition cursor-pointer"
                   >
                     <div className="flex justify-between items-start mb-4">
@@ -208,7 +208,7 @@ export default function CampaignHome() {
 
             {/* 📊 Analytics */}
             <button
-              onClick={() => navigate("/email/analytics")}
+              onClick={() => navigate("/analytics")}
               className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-lg border-2 border-orange-200 hover:border-orange-400 transition text-left"
             >
               <div className="flex items-center mb-4">
@@ -227,7 +227,7 @@ export default function CampaignHome() {
 
             {/* 📧 Personal Email */}
             <button
-              onClick={() => navigate("/email/outreach")}
+              onClick={() => navigate("/outreach")}
               className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-lg border-2 border-emerald-200 hover:border-emerald-400 transition text-left"
             >
               <div className="flex items-center mb-4">
