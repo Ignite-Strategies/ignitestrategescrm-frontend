@@ -34,6 +34,7 @@ import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactList from "./pages/ContactList.jsx";
+import ContactManageHome from "./pages/ContactManageHome.jsx";
 import CampaignHome from "./pages/CampaignHome.jsx";
 import Outreach from "./pages/Outreach.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
@@ -180,6 +181,9 @@ export default function App() {
         } />
         <Route path="/contact-lists" element={
           <ProtectedRoute><ContactList /></ProtectedRoute>
+        } />
+        <Route path="/contacts" element={
+          <ProtectedRoute><ContactManageHome /></ProtectedRoute>
         } />
         
         {/* Campaign System - Routes match file names */}

@@ -82,51 +82,7 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Smart Onboarding Banners */}
-        {supporterCount === 0 && (
-          <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
-            <div className="flex items-start gap-6">
-              <div className="flex-shrink-0">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-2">👋 Let's add your contacts</h2>
-                <p className="text-white/90 mb-4">
-                  Quick upload for prospects and event attendees. Simple: name, email, phone. Map to pipeline instantly.
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => navigate("/contacts/upload")}
-                    className="bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"
-                  >
-                    🎯 Quick Contact Upload
-                  </button>
-                  <button
-                    onClick={() => navigate("/org-members/upload")}
-                    className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition border-2 border-white/30"
-                  >
-                    🏢 Org Members
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  // Dismiss banner (save to localStorage)
-                  localStorage.setItem('dismissedContactsBanner', 'true');
-                  window.location.reload();
-                }}
-                className="text-white/60 hover:text-white transition"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
-
+        {/* Smart Onboarding Banners - Contact banner deprecated, now just event banner */}
         {supporterCount > 0 && events.length === 0 && (
           <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
             <div className="flex items-start gap-6">
