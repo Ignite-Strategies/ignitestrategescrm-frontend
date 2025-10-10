@@ -41,13 +41,14 @@ export default function ContactEventUpload() {
       mappedField: mapHeaderToField(header)
     }));
 
-    // Save file and mapping for preview page (eventId already in localStorage)
+    // Save file, mapping, and event for preview page
     localStorage.setItem('uploadFile', JSON.stringify({
       name: selectedFile.name,
       type: selectedFile.type,
       content: text
     }));
     localStorage.setItem('fieldMapping', JSON.stringify(fieldMapping));
+    localStorage.setItem('selectedEvent', JSON.stringify(currentEvent));
     
     // Navigate to preview page
     navigate("/contacts/event/upload/preview");
