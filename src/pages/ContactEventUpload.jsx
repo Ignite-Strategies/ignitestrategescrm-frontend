@@ -159,6 +159,7 @@ export default function ContactEventUpload() {
                 <label
                   htmlFor="file-upload"
                   className="cursor-pointer"
+                  onClick={() => console.log('🎯 File upload label clicked!')}
                 >
                   <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -166,6 +167,21 @@ export default function ContactEventUpload() {
                   <p className="text-lg font-medium text-gray-900 mb-2">Upload CSV File</p>
                   <p className="text-gray-600">Click to browse or drag and drop your CSV file</p>
                 </label>
+                
+                {/* DEBUG: Test button */}
+                <div className="mt-4">
+                  <button
+                    onClick={() => {
+                      console.log('🧪 TEST: Simulating file upload...');
+                      const testFile = new File(['First Name,Last Name,Email,Phone\nJohn,Doe,john@test.com,555-1234'], 'test.csv', { type: 'text/csv' });
+                      const testEvent = { target: { files: [testFile] } };
+                      handleFileSelect(testEvent);
+                    }}
+                    className="bg-red-500 text-white px-4 py-2 rounded text-sm"
+                  >
+                    🧪 TEST: Simulate File Upload
+                  </button>
+                </div>
               </div>
             </div>
           </div>
