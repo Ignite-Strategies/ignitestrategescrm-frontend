@@ -87,6 +87,7 @@ export default function ContactEventUpload() {
       };
       localStorage.setItem('uploadFile', JSON.stringify(fileData));
       localStorage.setItem('fieldMapping', JSON.stringify(fieldMapping));
+      console.log('💾 Saving selectedEvent to localStorage:', currentEvent);
       localStorage.setItem('selectedEvent', JSON.stringify(currentEvent));
       
       console.log('💾 Saved to localStorage:', {

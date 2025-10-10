@@ -25,7 +25,9 @@ export default function ContactEventUploadPreview() {
   const [selectedEvent, setSelectedEvent] = useState(() => {
     const savedEvent = localStorage.getItem('selectedEvent');
     console.log('🔍 Preview page - selectedEvent from localStorage:', savedEvent);
-    return savedEvent ? JSON.parse(savedEvent) : null;
+    const parsed = savedEvent ? JSON.parse(savedEvent) : null;
+    console.log('🔍 Preview page - parsed selectedEvent:', parsed);
+    return parsed;
   });
 
   // Debug logging
