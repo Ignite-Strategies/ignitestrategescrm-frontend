@@ -7,10 +7,12 @@ export default function ContactUpload() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   
-  const [step, setStep] = useState(1); // 1: Fork, 2: Upload, 3: Assign, 4: Complete
+  const [step, setStep] = useState(1); // 1: Fork, 2: Upload, 3: Field Match, 4: Assign, 5: Complete
   const [uploadType, setUploadType] = useState(null); // 'org' or 'event'
   const [file, setFile] = useState(null);
   const [previewData, setPreviewData] = useState([]);
+  const [fieldMapping, setFieldMapping] = useState([]);
+  const [headers, setHeaders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [uploadedContacts, setUploadedContacts] = useState([]);
@@ -76,7 +78,9 @@ export default function ContactUpload() {
       });
 
       setPreviewData(response.data.preview || []);
-      setStep(3); // Move to assignment step
+      setFieldMapping(response.data.fieldMapping || []);
+      setHeaders(response.data.headers || []);
+      setStep(3); // Move to field matching step
       
     } catch (err) {
       setError(err.response?.data?.message || 'Upload failed');
@@ -98,7 +102,7 @@ export default function ContactUpload() {
       });
 
       setUploadedContacts(response.data.contacts || []);
-      setStep(4); // Complete step
+      setStep(5); // Complete step
     } catch (err) {
       setError(err.response?.data?.message || 'Assignment failed');
     } finally {
@@ -106,7 +110,7 @@ export default function ContactUpload() {
     }
   };
 
-  if (step === 4) {
+  if (step === 5) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 py-12 px-4">
         <div className="max-w-4xl mx-auto">
@@ -192,10 +196,17 @@ export default function ContactUpload() {
               }`}>
                 4
               </div>
+              <div className={`flex-1 h-1 mx-2 ${step >= 5 ? 'bg-indigo-600' : 'bg-gray-200'}`}></div>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step >= 5 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600'
+              }`}>
+                5
+              </div>
             </div>
             <div className="flex justify-between mt-2 text-sm text-gray-600">
               <span>Choose</span>
               <span>Upload</span>
+              <span>Match</span>
               <span>Assign</span>
               <span>Complete</span>
             </div>
@@ -371,7 +382,90 @@ export default function ContactUpload() {
 
           {step === 3 && (
             <>
-              {/* Step 3: Assignment */}
+              {/* Step 3: Field Matching */}
+              <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-blue-900 mb-2">✅ CSV Parsed Successfully</h3>
+                  <p className="text-sm text-blue-800">
+                    Found {previewData.length} valid records. Check the field mapping below:
+                  </p>
+                </div>
+
+                {/* Field Mapping */}
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-4">Field Mapping</h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {fieldMapping.map((mapping, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-white rounded border">
+                          <div>
+                            <span className="font-medium text-gray-900">{mapping.csvHeader}</span>
+                            <span className="text-gray-500 ml-2">→</span>
+                          </div>
+                          <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            mapping.mappedField === 'firstName' ? 'bg-green-100 text-green-700' :
+                            mapping.mappedField === 'lastName' ? 'bg-green-100 text-green-700' :
+                            mapping.mappedField === 'email' ? 'bg-green-100 text-green-700' :
+                            mapping.mappedField === 'phone' ? 'bg-blue-100 text-blue-700' :
+                            'bg-gray-100 text-gray-600'
+                          }`}>
+                            {mapping.mappedField === 'unmapped' ? 'Ignored' : mapping.mappedField}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 text-sm text-gray-600">
+                    <p><span className="text-green-600">●</span> Green fields are required and will be imported</p>
+                    <p><span className="text-blue-600">●</span> Blue fields are optional</p>
+                    <p><span className="text-gray-600">●</span> Gray fields will be ignored</p>
+                  </div>
+                </div>
+
+                {/* Preview */}
+                {previewData.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-3">Preview (first 5 rows):</h3>
+                    <div className="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-2 px-3 font-semibold">First Name</th>
+                            <th className="text-left py-2 px-3 font-semibold">Last Name</th>
+                            <th className="text-left py-2 px-3 font-semibold">Email</th>
+                            <th className="text-left py-2 px-3 font-semibold">Phone</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {previewData.map((row, index) => (
+                            <tr key={index} className="border-b">
+                              <td className="py-2 px-3">{row.firstName}</td>
+                              <td className="py-2 px-3">{row.lastName}</td>
+                              <td className="py-2 px-3">{row.email}</td>
+                              <td className="py-2 px-3">{row.phone || '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Looks Good Button */}
+                <button
+                  onClick={() => setStep(4)}
+                  className="w-full py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                >
+                  Looks Good - Continue to Assignment
+                </button>
+              </div>
+            </>
+          )}
+
+          {step === 4 && (
+            <>
+              {/* Step 4: Assignment */}
               <div className="space-y-6">
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <h3 className="font-semibold text-green-900 mb-2">✅ Upload Complete</h3>
