@@ -69,12 +69,8 @@ export default function ContactEventUploadPreview() {
         
         console.log('📋 Existing attendees:', attendees);
         
-        // Extract unique audience types from existing attendees
-        const audienceTypes = [...new Set(attendees.map(a => a.audienceType))].filter(Boolean);
-        console.log('🔍 Available audience types:', audienceTypes);
-        
-        // If no existing attendees, use audience types from EventAttendee schema
-        const availableAudiences = audienceTypes.length > 0 ? audienceTypes : [
+        // Always show all 5 audience types from EventAttendee schema
+        const availableAudiences = [
           'org_members', 
           'friends_family', 
           'landing_page_public', 
@@ -82,19 +78,21 @@ export default function ContactEventUploadPreview() {
           'cold_outreach'
         ];
         setAvailableAudiences(availableAudiences);
+        console.log('🔍 Available audience types:', availableAudiences);
         
         // Set default audience
         if (availableAudiences.length > 0) {
           setSelectedAudience(availableAudiences[0]);
         }
         
-        // Load stages from existing attendees or use defaults
+        // Load stages from existing attendees or use your actual funnel stages
         const stages = [...new Set(attendees.map(a => a.currentStage))].filter(Boolean);
         const stageOpts = stages.length > 0 
           ? stages.map(stage => ({ value: stage, label: stage }))
           : [
-              { value: 'in_funnel', label: 'In Funnel' },
+              { value: 'aware', label: 'Aware' },
               { value: 'prospect', label: 'Prospect' },
+              { value: 'soft_commit', label: 'Soft Commit' },
               { value: 'registered', label: 'Registered' },
               { value: 'attended', label: 'Attended' }
             ];
@@ -106,12 +104,21 @@ export default function ContactEventUploadPreview() {
         
       } catch (error) {
         console.error('❌ Failed to load event data:', error);
-        // Fallback to defaults
-        setAvailableAudiences(['org_members', 'general']);
+        // Fallback to all 5 audience types
+        setAvailableAudiences([
+          'org_members', 
+          'friends_family', 
+          'landing_page_public', 
+          'community_partners', 
+          'cold_outreach'
+        ]);
         setSelectedAudience('org_members');
         setStageOptions([
-          { value: 'in_funnel', label: 'In Funnel' },
-          { value: 'prospect', label: 'Prospect' }
+          { value: 'aware', label: 'Aware' },
+          { value: 'prospect', label: 'Prospect' },
+          { value: 'soft_commit', label: 'Soft Commit' },
+          { value: 'registered', label: 'Registered' },
+          { value: 'attended', label: 'Attended' }
         ]);
       }
     };
