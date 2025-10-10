@@ -181,9 +181,6 @@ export default function App() {
         <Route path="/contact-lists" element={
           <ProtectedRoute><ContactList /></ProtectedRoute>
         } />
-        <Route path="/campaigns" element={
-          <ProtectedRoute><EmailDashboard /></ProtectedRoute>
-        } />
         <Route path="/email" element={
           <ProtectedRoute><EmailDashboard /></ProtectedRoute>
         } />

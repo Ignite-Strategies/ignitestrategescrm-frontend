@@ -61,7 +61,7 @@ export default function EmailDashboard() {
               
               <div className="mt-6 text-right">
                 <span className="inline-flex items-center text-indigo-600 font-semibold">
-                  View Campaigns →
+                  Start My Campaigns →
                 </span>
               </div>
             </div>
