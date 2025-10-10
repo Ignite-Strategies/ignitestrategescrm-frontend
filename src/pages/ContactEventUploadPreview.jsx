@@ -54,49 +54,62 @@ export default function ContactEventUploadPreview() {
   const [availableAudiences, setAvailableAudiences] = useState([]);
   const [selectedAudience, setSelectedAudience] = useState('');
 
-  // Load event pipeline config to get available audiences and stages
+  // Load available audience types and stages for this event
   useEffect(() => {
-    const loadEventConfig = async () => {
+    const loadEventData = async () => {
       if (!selectedEvent?.id) return;
       
       try {
-        console.log('🔍 Loading pipeline config for event:', selectedEvent.id);
-        const response = await api.get(`/events/${selectedEvent.id}/pipeline-config`);
-        const config = response.data;
+        console.log('🔍 Loading event data for:', selectedEvent.id);
         
-        console.log('📋 Pipeline config loaded:', config);
+        // Get existing EventAttendees to see what audience types are being used
+        const attendeesResponse = await api.get(`/events/${selectedEvent.id}/attendees`);
+        const attendees = attendeesResponse.data;
         
-        // Extract available audiences from event config
-        const audiences = Object.keys(config.pipelines || {});
-        console.log('🔍 Raw audience keys:', audiences);
+        console.log('📋 Existing attendees:', attendees);
         
-        // Filter out numeric keys and get actual audience names
-        const validAudiences = audiences.filter(audience => 
-          isNaN(Number(audience)) && audience !== '0' && audience !== '1' && audience !== '2' && audience !== '3'
-        );
+        // Extract unique audience types from existing attendees
+        const audienceTypes = [...new Set(attendees.map(a => a.audienceType))].filter(Boolean);
+        console.log('🔍 Available audience types:', audienceTypes);
         
-        console.log('🔍 Valid audiences after filtering:', validAudiences);
-        setAvailableAudiences(validAudiences);
+        // If no existing attendees, use default audience types
+        const availableAudiences = audienceTypes.length > 0 ? audienceTypes : ['org_members', 'general'];
+        setAvailableAudiences(availableAudiences);
         
-        // Set default audience if only one valid audience
-        if (validAudiences.length === 1) {
-          setSelectedAudience(validAudiences[0]);
-          // Load stages for this audience
-          const stages = config.pipelines[validAudiences[0]] || [];
-          setStageOptions(stages.map(stage => ({ value: stage, label: stage })));
+        // Set default audience
+        if (availableAudiences.length > 0) {
+          setSelectedAudience(availableAudiences[0]);
+        }
+        
+        // Load stages from existing attendees or use defaults
+        const stages = [...new Set(attendees.map(a => a.currentStage))].filter(Boolean);
+        const stageOpts = stages.length > 0 
+          ? stages.map(stage => ({ value: stage, label: stage }))
+          : [
+              { value: 'in_funnel', label: 'In Funnel' },
+              { value: 'prospect', label: 'Prospect' },
+              { value: 'registered', label: 'Registered' },
+              { value: 'attended', label: 'Attended' }
+            ];
+        
+        setStageOptions(stageOpts);
+        if (stageOpts.length > 0) {
+          setDefaultStage(stageOpts[0].value);
         }
         
       } catch (error) {
-        console.error('❌ Failed to load event config:', error);
-        // Fallback to basic stages if config fails
+        console.error('❌ Failed to load event data:', error);
+        // Fallback to defaults
+        setAvailableAudiences(['org_members', 'general']);
+        setSelectedAudience('org_members');
         setStageOptions([
-          { value: 'prospect', label: 'Prospect' },
-          { value: 'registered', label: 'Registered' }
+          { value: 'in_funnel', label: 'In Funnel' },
+          { value: 'prospect', label: 'Prospect' }
         ]);
       }
     };
     
-    loadEventConfig();
+    loadEventData();
   }, [selectedEvent?.id]);
 
   // Load stages when audience changes
@@ -286,32 +299,31 @@ export default function ContactEventUploadPreview() {
                     <label className="block text-sm font-medium text-gray-700 mb-3">
                       How do you want to assign stages?
                     </label>
-                    <div className="space-y-2">
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          value="all_same"
-                          checked={assignmentMode === 'all_same'}
-                          onChange={(e) => setAssignmentMode(e.target.value)}
-                          className="mr-2"
-                        />
-                        <span>All same stage</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          value="individual"
-                          checked={assignmentMode === 'individual'}
-                          onChange={(e) => setAssignmentMode(e.target.value)}
-                          className="mr-2"
-                        />
-                        <span>Let me pick for each contact</span>
-                      </label>
-                    </div>
+                  <div className="space-y-2">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        value="all_same"
+                        checked={assignmentMode === 'all_same'}
+                        onChange={(e) => setAssignmentMode(e.target.value)}
+                        className="mr-2"
+                      />
+                      <span>All same stage</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        value="individual"
+                        checked={assignmentMode === 'individual'}
+                        onChange={(e) => setAssignmentMode(e.target.value)}
+                        className="mr-2"
+                      />
+                      <span>Let me pick for each contact</span>
+                    </label>
                   </div>
-                )}
+                </div>
 
-                {/* Step 3: Stage Selection (only if audience selected and stages loaded) */}
+                {/* Step 3: Stage Selection (only if audience selected) */}
                 {selectedAudience && stageOptions.length > 0 && assignmentMode === 'all_same' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -324,16 +336,16 @@ export default function ContactEventUploadPreview() {
                     >
                       {stageOptions.map(stage => (
                         <option key={stage.value} value={stage.value}>
-                          {stage.label}
+                          {stage.label.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </option>
                       ))}
                     </select>
                   </div>
                 )}
 
-                {selectedAudience && stageOptions.length === 0 && (
+                {stageOptions.length === 0 && (
                   <div className="text-sm text-gray-500 p-2 bg-gray-50 rounded">
-                    Can't find any stages for {selectedAudience} audience
+                    Can't find any stages for this event
                   </div>
                 )}
               </div>
