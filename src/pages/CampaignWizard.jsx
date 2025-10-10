@@ -181,23 +181,64 @@ export default function CampaignWizard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-4">
                     Target Audience *
                   </label>
-                  <select
-                    name="contactListId"
-                    value={formData.contactListId}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    required
-                  >
-                    <option value="">Select your audience...</option>
-                    {contactLists.map(list => (
-                      <option key={list.id} value={list.id}>
-                        {list.name} ({list.totalContacts} contacts)
-                      </option>
-                    ))}
-                  </select>
+                  
+                  {contactLists.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 mb-4">No contact lists found</p>
+                      <button
+                        onClick={() => navigate("/contact-lists")}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                      >
+                        Create Contact List
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {contactLists.map(list => (
+                        <div
+                          key={list.id}
+                          onClick={() => setFormData(prev => ({ ...prev, contactListId: list.id }))}
+                          className={`p-4 border-2 rounded-lg cursor-pointer transition ${
+                            formData.contactListId === list.id
+                              ? 'border-indigo-500 bg-indigo-50'
+                              : 'border-gray-200 hover:border-indigo-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center mb-3">
+                            <div className="w-10 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center mr-3">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{list.name}</h3>
+                              <p className="text-sm text-gray-600">{list.description || "No description"}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xl font-bold text-indigo-600">{list.totalContacts || 0}</span>
+                            <span className="text-sm text-gray-500">contacts</span>
+                          </div>
+                          {formData.contactListId === list.id && (
+                            <div className="mt-3 flex items-center text-indigo-600">
+                              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              <span className="text-sm font-medium">Selected</span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

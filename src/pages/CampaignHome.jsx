@@ -1,8 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 export default function CampaignHome() {
   const navigate = useNavigate();
+  const orgId = getOrgId();
+  
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadCampaigns();
+  }, [orgId]);
+
+  const loadCampaigns = async () => {
+    try {
+      if (orgId) {
+        const response = await api.get(`/campaigns?orgId=${orgId}`);
+        setCampaigns(response.data);
+      }
+    } catch (err) {
+      console.error("Error loading campaigns:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
@@ -22,50 +45,123 @@ export default function CampaignHome() {
             </button>
           </div>
 
-          {/* Main Campaign Hub */}
+          {/* Campaign Overview */}
           <div className="mb-12">
-            
-            {/* 📢 Broadcast Campaign */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition cursor-pointer mb-8"
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Total Campaigns */}
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-blue-500 text-white rounded-lg flex items-center justify-center mr-4">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">{campaigns.length}</p>
+                    <p className="text-sm text-gray-600">Total Campaigns</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Campaigns */}
+              <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-green-500 text-white rounded-lg flex items-center justify-center mr-4">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {campaigns.filter(c => c.status === 'active' || c.status === 'sent').length}
+                    </p>
+                    <p className="text-sm text-gray-600">Active Campaigns</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Emails Sent */}
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200">
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-purple-500 text-white rounded-lg flex items-center justify-center mr-4">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {campaigns.reduce((total, c) => total + (c.contactList?.totalContacts || 0), 0)}
+                    </p>
+                    <p className="text-sm text-gray-600">Total Recipients</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Launch New Campaign */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition cursor-pointer"
                  onClick={() => navigate("/campaigns")}>
-              <div className="flex items-center mb-6">
-                <div className="w-16 h-16 bg-indigo-500 text-white rounded-xl flex items-center justify-center mr-4">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 3v12m0 0l-3-3m3 3l3-3" />
-                  </svg>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="w-16 h-16 bg-indigo-500 text-white rounded-xl flex items-center justify-center mr-4">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 3v12m0 0l-3-3m3 3l3-3" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">📢 Launch New Campaign</h2>
+                    <p className="text-gray-600">Send emails to your contact lists</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-3xl font-bold text-gray-900">📢 Launch Campaign</h2>
-                  <p className="text-lg text-gray-600">Send emails to your contact lists</p>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center text-sm text-gray-600">
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></span>
-                  Select Contact List
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></span>
-                  Choose Template
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <span className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></span>
-                  Customize Message
-                </div>
-                <div className="flex items-center text-sm text-indigo-600 font-semibold">
-                  <span className="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
-                  Send to 500+ people
-                </div>
-              </div>
-              
-              <div className="mt-6 text-right">
-                <span className="inline-flex items-center text-indigo-600 font-semibold">
+                <span className="inline-flex items-center text-indigo-600 font-semibold text-lg">
                   Start Campaign →
                 </span>
               </div>
             </div>
           </div>
+
+          {/* Recent Campaigns */}
+          {campaigns.length > 0 && (
+            <div className="mb-12">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Campaigns</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {campaigns.slice(0, 6).map((campaign) => (
+                  <div
+                    key={campaign.id}
+                    onClick={() => navigate(`/campaigns/${campaign.id}/sequences`)}
+                    className="bg-white border border-gray-200 rounded-lg p-6 hover:border-indigo-300 hover:shadow-md transition cursor-pointer"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <h4 className="text-lg font-semibold text-gray-900 truncate pr-4">{campaign.name}</h4>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        campaign.status === 'active' ? 'bg-green-100 text-green-700' :
+                        campaign.status === 'sent' ? 'bg-blue-100 text-blue-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {campaign.status}
+                      </span>
+                    </div>
+                    
+                    <p className="text-gray-600 mb-3 text-sm">{campaign.description || "No description"}</p>
+                    
+                    <div className="flex items-center text-sm text-gray-500 mb-2">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      {campaign.contactList?.name || "N/A"} ({campaign.contactList?.totalContacts || 0} contacts)
+                    </div>
+                    
+                    <div className="flex items-center text-sm text-gray-500">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      Created: {new Date(campaign.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Quick Actions */}
           <div className="border-t pt-8">
