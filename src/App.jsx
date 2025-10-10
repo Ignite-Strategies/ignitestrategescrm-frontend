@@ -39,6 +39,8 @@ import Outreach from "./pages/Outreach.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
 import Templates from "./pages/Templates.jsx";
 import SendEmail from "./pages/SendEmail.jsx";
+import CreateCampaign from "./pages/CreateCampaign.jsx";
+import CampaignSequences from "./pages/CampaignSequences.jsx";
 import Events from "./pages/Events.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
@@ -188,6 +190,12 @@ export default function App() {
         } />
         <Route path="/email/outreach" element={
           <ProtectedRoute><Outreach /></ProtectedRoute>
+        } />
+        <Route path="/create-campaign" element={
+          <ProtectedRoute><CreateCampaign /></ProtectedRoute>
+        } />
+        <Route path="/campaigns/:campaignId/sequences" element={
+          <ProtectedRoute><CampaignSequences /></ProtectedRoute>
         } />
         <Route path="/create-list" element={
           <ProtectedRoute><CreateListOptions /></ProtectedRoute>
