@@ -63,9 +63,34 @@ export default function ContactEventUploadPreview() {
       try {
         console.log('🔍 Loading event data for:', selectedEvent.id);
         
-        // Hydrate audience types and stages from schema config ONLY
-        const schemaResponse = await api.get('/schema/event-attendee');
-        const { audienceTypes, stages } = schemaResponse.data;
+        // Hydrate audience types and stages from localStorage first, then API
+        let audienceTypes, stages;
+        
+        try {
+          // Try localStorage first
+          const cachedSchema = localStorage.getItem('eventAttendeeSchema');
+          if (cachedSchema) {
+            const { audienceTypes: cachedAudiences, stages: cachedStages } = JSON.parse(cachedSchema);
+            audienceTypes = cachedAudiences;
+            stages = cachedStages;
+            console.log('✅ Using cached EventAttendee schema from localStorage');
+          } else {
+            throw new Error('No cached schema');
+          }
+        } catch (cacheError) {
+          console.log('⚠️ No cached schema, fetching from API...');
+          const schemaResponse = await api.get('/schema/event-attendee');
+          const schemaData = schemaResponse.data;
+          audienceTypes = schemaData.audienceTypes;
+          stages = schemaData.stages;
+          
+          // Cache it for next time
+          localStorage.setItem('eventAttendeeSchema', JSON.stringify({
+            ...schemaData,
+            hydratedAt: new Date().toISOString()
+          }));
+          console.log('✅ EventAttendee schema fetched and cached');
+        }
         
         setAvailableAudiences(audienceTypes);
         console.log('🔍 Available audience types:', audienceTypes);

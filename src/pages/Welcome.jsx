@@ -72,6 +72,23 @@ export default function Welcome() {
         localStorage.setItem('eventId', currentEvent.id);
         localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
       }
+
+      // 4. HYDRATE EVENTATTENDEE SCHEMA CONFIG
+      try {
+        const schemaResponse = await api.get('/schema/event-attendee');
+        const { audienceTypes, stages } = schemaResponse.data;
+        
+        localStorage.setItem('eventAttendeeSchema', JSON.stringify({
+          audienceTypes,
+          stages,
+          hydratedAt: new Date().toISOString()
+        }));
+        
+        console.log('✅ EventAttendee schema hydrated:', { audienceTypes, stages });
+      } catch (error) {
+        console.error('❌ Failed to hydrate EventAttendee schema:', error);
+        // Don't block the flow - schema will be fetched on demand
+      }
       
       // Optional: Save adminId for higher-end operations (but not required for basic CRM)
       if (admin) {
