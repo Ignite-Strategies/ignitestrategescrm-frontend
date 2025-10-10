@@ -33,7 +33,7 @@ import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactList from "./pages/ContactList.jsx";
-import CampaignDashboard from "./pages/CampaignDashboard.jsx";
+import CampaignHome from "./pages/CampaignHome.jsx";
 import Outreach from "./pages/Outreach.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
 import Templates from "./pages/Templates.jsx";
@@ -41,7 +41,7 @@ import SendEmail from "./pages/SendEmail.jsx";
 import CreateCampaign from "./pages/CreateCampaign.jsx";
 import CampaignSequences from "./pages/CampaignSequences.jsx";
 import CampaignList from "./pages/CampaignList.jsx";
-import CampaignHome from "./pages/CampaignHome.jsx";
+import CampaignWizard from "./pages/CampaignWizard.jsx";
 import Events from "./pages/Events.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
@@ -181,16 +181,16 @@ export default function App() {
           <ProtectedRoute><ContactList /></ProtectedRoute>
         } />
         <Route path="/email" element={
-          <ProtectedRoute><CampaignDashboard /></ProtectedRoute>
+          <ProtectedRoute><CampaignHome /></ProtectedRoute>
         } />
         <Route path="/email/campaigns" element={
-          <ProtectedRoute><CampaignDashboard /></ProtectedRoute>
+          <ProtectedRoute><CampaignHome /></ProtectedRoute>
         } />
         <Route path="/email/outreach" element={
           <ProtectedRoute><Outreach /></ProtectedRoute>
         } />
         <Route path="/campaigns" element={
-          <ProtectedRoute><CampaignHome /></ProtectedRoute>
+          <ProtectedRoute><CampaignWizard /></ProtectedRoute>
         } />
         <Route path="/create-campaign" element={
           <ProtectedRoute><CreateCampaign /></ProtectedRoute>

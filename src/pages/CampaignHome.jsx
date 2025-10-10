@@ -1,418 +1,153 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../lib/api";
-import { getOrgId } from "../lib/org";
 
 export default function CampaignHome() {
   const navigate = useNavigate();
-  const orgId = getOrgId();
-  
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
-    campaignName: "",
-    contactListId: "",
-    templateId: "",
-    subject: "",
-    message: ""
-  });
-  
-  const [contactLists, setContactLists] = useState([]);
-  const [templates, setTemplates] = useState([]);
-  const [campaigns, setCampaigns] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    loadData();
-  }, [orgId]);
-
-  const loadData = async () => {
-    try {
-      const [listsResponse, templatesResponse, campaignsResponse] = await Promise.all([
-        api.get(`/contact-lists?orgId=${orgId}`),
-        api.get(`/templates?orgId=${orgId}`),
-        api.get(`/campaigns?orgId=${orgId}`)
-      ]);
-      
-      setContactLists(listsResponse.data);
-      setTemplates(templatesResponse.data);
-      setCampaigns(campaignsResponse.data);
-    } catch (err) {
-      console.error("Error loading data:", err);
-      setError("Failed to load data");
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleTemplateSelect = (template) => {
-    setFormData(prev => ({
-      ...prev,
-      templateId: template.id,
-      subject: template.subject,
-      message: template.body
-    }));
-    setStep(3);
-  };
-
-  const handleLaunch = async () => {
-    if (!formData.campaignName || !formData.contactListId || !formData.subject || !formData.message) {
-      setError("Please fill in all fields");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      // Create campaign
-      const campaignResponse = await api.post("/campaigns", {
-        orgId,
-        name: formData.campaignName,
-        description: `Quick launch campaign`,
-        contactListId: formData.contactListId
-      });
-
-      const campaignId = campaignResponse.data.id;
-
-      // Create first sequence
-      await api.post("/sequences", {
-        campaignId,
-        name: "Launch Email",
-        subject: formData.subject,
-        html: formData.message,
-        delayDays: 0,
-        order: 1
-      });
-
-      // Send the sequence
-      const sequencesResponse = await api.get(`/sequences?campaignId=${campaignId}`);
-      const sequenceId = sequencesResponse.data[0].id;
-      
-      await api.post(`/sequences/${sequenceId}/send`);
-
-      alert(`🚀 Campaign "${formData.campaignName}" launched successfully!`);
-      
-      // Reset form and reload data
-      setFormData({
-        campaignName: "",
-        contactListId: "",
-        templateId: "",
-        subject: "",
-        message: ""
-      });
-      setStep(1);
-      loadData(); // Reload campaigns to show the new one
-    } catch (err) {
-      console.error("Error launching campaign:", err);
-      setError(err.response?.data?.error || "Failed to launch campaign");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getSelectedContactList = () => {
-    return contactLists.find(list => list.id === formData.contactListId);
-  };
-
-  const getSelectedTemplate = () => {
-    return templates.find(template => template.id === formData.templateId);
-  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+      <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">🚀 Launch Campaign</h1>
-            <p className="text-gray-600">Let's get your bulk email campaign up and running!</p>
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Campaign Dashboard</h1>
+              <p className="text-gray-600">Send campaigns and personal outreach</p>
+            </div>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+            >
+              ← Back to Dashboard
+            </button>
           </div>
 
-          {/* Progress Steps */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex items-center space-x-4">
-              {[1, 2, 3, 4].map((stepNum) => (
-                <div key={stepNum} className="flex items-center">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                    stepNum <= step ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-600"
-                  }`}>
-                    {stepNum}
-                  </div>
-                  {stepNum < 4 && (
-                    <div className={`w-16 h-1 mx-2 ${
-                      stepNum < step ? "bg-indigo-600" : "bg-gray-200"
-                    }`} />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div className="mb-6 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
-              {error}
-            </div>
-          )}
-
-          {/* Step 1: Campaign Name & Audience */}
-          {step === 1 && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Campaign Name & Audience</h2>
-                
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Campaign Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="campaignName"
-                    value={formData.campaignName}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="e.g., Bros & Brews 2025 Launch"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Target Audience *
-                  </label>
-                  <select
-                    name="contactListId"
-                    value={formData.contactListId}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    required
-                  >
-                    <option value="">Select your audience...</option>
-                    {contactLists.map(list => (
-                      <option key={list.id} value={list.id}>
-                        {list.name} ({list.totalContacts} contacts)
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setStep(2)}
-                  disabled={!formData.campaignName || !formData.contactListId}
-                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
-                >
-                  Next: Choose Template →
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Choose Template */}
-          {step === 2 && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Choose Template</h2>
-                <p className="text-gray-600 mb-6">Pick a template or start from scratch</p>
-
-                {templates.length === 0 ? (
-                  <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                    <p className="text-gray-500 mb-4">No templates yet</p>
-                    <button
-                      onClick={() => navigate("/templates")}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-                    >
-                      Create Template
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {templates.map(template => (
-                      <button
-                        key={template.id}
-                        onClick={() => handleTemplateSelect(template)}
-                        className="p-4 border border-gray-200 rounded-lg hover:border-indigo-500 text-left transition"
-                      >
-                        <h3 className="font-semibold text-gray-900 mb-2">{template.name}</h3>
-                        <p className="text-sm text-gray-600 mb-2"><strong>Subject:</strong> {template.subject}</p>
-                        <p className="text-sm text-gray-500">{template.body.substring(0, 100)}...</p>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <div className="mt-6 text-center">
-                  <button
-                    onClick={() => setStep(3)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                  >
-                    Start from Scratch
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-between">
-                <button
-                  onClick={() => setStep(1)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                >
-                  ← Back
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Subject & Message */}
-          {step === 3 && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. Subject & Message</h2>
-
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject Line *
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Your email subject"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Message *
-                  </label>
-                  <textarea
-                    name="message"
-                    rows="8"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="<p>Hi {{firstName}},</p><p>We're excited to invite you...</p>"
-                    required
-                  ></textarea>
-                  <p className="mt-2 text-xs text-gray-500">
-                    Use {{firstName}}, {{lastName}}, {{email}} for personalization
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex justify-between">
-                <button
-                  onClick={() => setStep(2)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                >
-                  ← Back
-                </button>
-                <button
-                  onClick={() => setStep(4)}
-                  disabled={!formData.subject || !formData.message}
-                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
-                >
-                  Next: Launch →
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Launch */}
-          {step === 4 && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Launch Campaign</h2>
-
-                <div className="p-6 bg-gray-50 rounded-lg mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-4">Campaign Summary:</h3>
-                  <div className="space-y-2 text-sm">
-                    <p><strong>Name:</strong> {formData.campaignName}</p>
-                    <p><strong>Audience:</strong> {getSelectedContactList()?.name} ({getSelectedContactList()?.totalContacts} contacts)</p>
-                    <p><strong>Subject:</strong> {formData.subject}</p>
-                    <p><strong>Template:</strong> {getSelectedTemplate()?.name || "Custom message"}</p>
-                  </div>
-                </div>
-
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                  <div className="flex">
-                    <svg className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 18.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    <div>
-                      <h4 className="font-medium text-yellow-800">Ready to launch?</h4>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        This will send your email to {getSelectedContactList()?.totalContacts} contacts immediately.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-between">
-                <button
-                  onClick={() => setStep(3)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                >
-                  ← Back
-                </button>
-                <button
-                  onClick={handleLaunch}
-                  disabled={loading}
-                  className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition"
-                >
-                  {loading ? "Launching..." : "🚀 Launch Campaign"}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Campaign List at Bottom */}
-          <div className="mt-12 border-t pt-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Your Campaigns</h3>
+          {/* Main Campaign Hub */}
+          <div className="mb-12">
             
-            {campaigns.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No campaigns yet. Create your first one above!</p>
+            {/* 📢 Broadcast Campaign */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition cursor-pointer mb-8"
+                 onClick={() => navigate("/campaigns")}>
+              <div className="flex items-center mb-6">
+                <div className="w-16 h-16 bg-indigo-500 text-white rounded-xl flex items-center justify-center mr-4">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 3v12m0 0l-3-3m3 3l3-3" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900">📢 Launch Campaign</h2>
+                  <p className="text-lg text-gray-600">Send emails to your contact lists</p>
+                </div>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {campaigns.map((campaign) => (
-                  <button
-                    key={campaign.id}
-                    onClick={() => navigate(`/campaigns/${campaign.id}/sequences`)}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-indigo-300 hover:shadow-md transition text-left"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-semibold text-gray-900 truncate">{campaign.name}</h4>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        campaign.status === 'active' ? 'bg-green-100 text-green-700' :
-                        campaign.status === 'sent' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {campaign.status}
-                      </span>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 mb-2">
-                      {campaign.contactList?.name} • {campaign.contactList?.totalContacts || 0} contacts
-                    </p>
-                    
-                    <p className="text-xs text-gray-500">
-                      {campaign.sequences?.length || 0} sequences • 
-                      Created {new Date(campaign.createdAt).toLocaleDateString()}
-                    </p>
-                  </button>
-                ))}
+              
+              <div className="space-y-3">
+                <div className="flex items-center text-sm text-gray-600">
+                  <span className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></span>
+                  Select Contact List
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <span className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></span>
+                  Choose Template
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <span className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></span>
+                  Customize Message
+                </div>
+                <div className="flex items-center text-sm text-indigo-600 font-semibold">
+                  <span className="w-2 h-2 bg-indigo-600 rounded-full mr-3"></span>
+                  Send to 500+ people
+                </div>
               </div>
-            )}
+              
+              <div className="mt-6 text-right">
+                <span className="inline-flex items-center text-indigo-600 font-semibold">
+                  Start Campaign →
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="border-t pt-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            
+            {/* 📝 Templates */}
+            <button
+              onClick={() => navigate("/templates")}
+              className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-lg border-2 border-purple-200 hover:border-purple-400 transition text-left"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-purple-500 text-white rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">📝 Templates</h3>
+                  <p className="text-sm text-gray-600">Email templates</p>
+                </div>
+              </div>
+              <p className="text-sm text-purple-700">Create reusable email templates</p>
+            </button>
+
+            {/* 👥 Contact Lists */}
+            <button
+              onClick={() => navigate("/contact-lists")}
+              className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-lg border-2 border-blue-200 hover:border-blue-400 transition text-left"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-blue-500 text-white rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">👥 Contact Lists</h3>
+                  <p className="text-sm text-gray-600">Manage lists</p>
+                </div>
+              </div>
+              <p className="text-sm text-blue-700">Create and manage contact lists</p>
+            </button>
+
+            {/* 📊 Analytics */}
+            <button
+              onClick={() => navigate("/email/analytics")}
+              className="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-lg border-2 border-orange-200 hover:border-orange-400 transition text-left"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-orange-500 text-white rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">📊 Analytics</h3>
+                  <p className="text-sm text-gray-600">Email performance</p>
+                </div>
+              </div>
+              <p className="text-sm text-orange-700">Track opens, clicks, and engagement</p>
+            </button>
+
+            {/* 📧 Personal Email */}
+            <button
+              onClick={() => navigate("/email/outreach")}
+              className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-lg border-2 border-emerald-200 hover:border-emerald-400 transition text-left"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-emerald-500 text-white rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">📧 Personal Email</h3>
+                  <p className="text-sm text-gray-600">Send 1:1 email</p>
+                </div>
+              </div>
+              <p className="text-sm text-emerald-700">Send personal emails manually</p>
+            </button>
+            </div>
           </div>
         </div>
       </div>
