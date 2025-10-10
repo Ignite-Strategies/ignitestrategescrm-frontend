@@ -17,6 +17,20 @@ export default function Outreach() {
   const [userEmail, setUserEmail] = useState("");
   const [gmailAccessToken, setGmailAccessToken] = useState("");
 
+  // Check for existing auth on component mount
+  useEffect(() => {
+    const existingToken = localStorage.getItem('gmailAccessToken');
+    if (existingToken) {
+      setGmailAuthenticated(true);
+      setGmailAccessToken(existingToken);
+      // Try to get email from Firebase auth if available
+      const user = JSON.parse(localStorage.getItem('firebaseUser') || '{}');
+      if (user.email) {
+        setUserEmail(user.email);
+      }
+    }
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -97,7 +111,7 @@ export default function Outreach() {
             <div>
               <div className="flex items-center gap-4 mb-2">
                 <button
-                  onClick={() => navigate("/email")}
+                  onClick={() => navigate("/campaigns")}
                   className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm"
                 >
                   ← Campaign Dashboard

@@ -47,7 +47,7 @@ export default function Templates() {
               <p className="text-gray-600">Set your message, send it, forget it, roll on. 💪</p>
             </div>
             <button
-              onClick={() => navigate("/email")}
+              onClick={() => navigate("/campaigns")}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
               ← Back to Campaign Dashboard
