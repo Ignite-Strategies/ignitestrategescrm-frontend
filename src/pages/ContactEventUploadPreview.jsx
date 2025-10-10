@@ -72,8 +72,14 @@ export default function ContactEventUploadPreview() {
         const audienceTypes = [...new Set(attendees.map(a => a.audienceType))].filter(Boolean);
         console.log('🔍 Available audience types:', audienceTypes);
         
-        // If no existing attendees, use default audience types
-        const availableAudiences = audienceTypes.length > 0 ? audienceTypes : ['org_members', 'general'];
+        // If no existing attendees, use audience types from EventAttendee schema
+        const availableAudiences = audienceTypes.length > 0 ? audienceTypes : [
+          'org_members', 
+          'friends_family', 
+          'landing_page_public', 
+          'community_partners', 
+          'cold_outreach'
+        ];
         setAvailableAudiences(availableAudiences);
         
         // Set default audience
@@ -322,6 +328,7 @@ export default function ContactEventUploadPreview() {
                     </label>
                   </div>
                 </div>
+                )}
 
                 {/* Step 3: Stage Selection (only if audience selected) */}
                 {selectedAudience && stageOptions.length > 0 && assignmentMode === 'all_same' && (
