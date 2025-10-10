@@ -27,7 +27,7 @@ export default function EmailDashboard() {
             
             {/* 📊 BULK - Campaigns */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition cursor-pointer"
-                 onClick={() => navigate("/create-campaign")}>
+                 onClick={() => navigate("/campaigns")}>
               <div className="flex items-center mb-6">
                 <div className="w-16 h-16 bg-indigo-500 text-white rounded-xl flex items-center justify-center mr-4">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,7 +61,7 @@ export default function EmailDashboard() {
               
               <div className="mt-6 text-right">
                 <span className="inline-flex items-center text-indigo-600 font-semibold">
-                  Create Campaign →
+                  View Campaigns →
                 </span>
               </div>
             </div>
