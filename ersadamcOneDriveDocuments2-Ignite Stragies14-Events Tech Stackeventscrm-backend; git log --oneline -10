@@ -1,0 +1,57 @@
+[1mdiff --git a/src/pages/Dashboard.jsx b/src/pages/Dashboard.jsx[m
+[1mindex 888d186..908161c 100644[m
+[1m--- a/src/pages/Dashboard.jsx[m
+[1m+++ b/src/pages/Dashboard.jsx[m
+[36m@@ -82,51 +82,7 @@[m [mexport default function Dashboard() {[m
+       </div>[m
+ [m
+       <div className="max-w-7xl mx-auto px-4 py-8">[m
+[31m-        {/* Smart Onboarding Banners */}[m
+[31m-        {supporterCount === 0 && ([m
+[31m-          <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl shadow-xl p-8 mb-8 text-white">[m
+[31m-            <div className="flex items-start gap-6">[m
+[31m-              <div className="flex-shrink-0">[m
+[31m-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">[m
+[31m-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">[m
+[31m-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />[m
+[31m-                  </svg>[m
+[31m-                </div>[m
+[31m-              </div>[m
+[31m-              <div className="flex-1">[m
+[31m-                <h2 className="text-2xl font-bold mb-2">👋 Let's add your contacts</h2>[m
+[31m-                <p className="text-white/90 mb-4">[m
+[31m-                  Upload org members, prospects, and event attendees. Your contacts will power campaigns, events, and outreach.[m
+[31m-                </p>[m
+[31m-                <div className="flex gap-3">[m
+[31m-                  <button[m
+[31m-                    onClick={() => navigate("/org-members/upload")}[m
+[31m-                    className="bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"[m
+[31m-                  >[m
+[31m-                    📤 Upload CSV[m
+[31m-                  </button>[m
+[31m-                  <button[m
+[31m-                    onClick={() => navigate("/org-members/manual")}[m
+[31m-                    className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg font-semibold transition border-2 border-white/30"[m
+[31m-                  >[m
+[31m-                    ➕ Add Manually[m
+[31m-                  </button>[m
+[31m-                </div>[m
+[31m-              </div>[m
+[31m-              <button[m
+[31m-                onClick={() => {[m
+[31m-                  // Dismiss banner (save to localStorage)[m
+[31m-                  localStorage.setItem('dismissedContactsBanner', 'true');[m
+[31m-                  window.location.reload();[m
+[31m-                }}[m
+[31m-                className="text-white/60 hover:text-white transition"[m
+[31m-              >[m
+[31m-                ✕[m
+[31m-              </button>[m
+[31m-            </div>[m
+[31m-          </div>[m
+[31m-        )}[m
+[31m-[m
+[32m+[m[32m        {/* Smart Onboarding Banners - Contact banner deprecated, now just event banner */}[m
+         {supporterCount > 0 && events.length === 0 && ([m
+           <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl shadow-xl p-8 mb-8 text-white">[m
+             <div className="flex items-start gap-6">[m

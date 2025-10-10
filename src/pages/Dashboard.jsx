@@ -199,10 +199,10 @@ export default function Dashboard() {
 
         {/* HubSpot-Style Main Navigation */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {/* Org Member Management */}
+          {/* Contact Management */}
           <button
-            onClick={() => navigate("/org-members")}
-            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            onClick={() => navigate("/contacts")}
+            className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
@@ -214,12 +214,12 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Org Member Management</h2>
-            <p className="text-blue-100 text-sm mb-4">Master contact list, upload, search, and organize members</p>
+            <h2 className="text-2xl font-bold mb-2">Contact Management</h2>
+            <p className="text-blue-100 text-sm mb-4">Upload contacts, create lists, manage your database</p>
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">View Contacts</span>
               <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Upload</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Master List</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">See List</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Create List</span>
             </div>
           </button>
 
