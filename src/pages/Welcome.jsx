@@ -71,10 +71,11 @@ export default function Welcome() {
       localStorage.setItem('orgMemberId', orgMember.id); // Primary CRM key
       localStorage.setItem('phone', orgMember.phone); // For profile check
       
-      // Get the first event for eventId
-      const eventId = events.length > 0 ? events[0].id : null;
-      if (eventId) {
-        localStorage.setItem('eventId', eventId);
+      // Store the entire first event object
+      const currentEvent = events.length > 0 ? events[0] : null;
+      if (currentEvent) {
+        localStorage.setItem('eventId', currentEvent.id);
+        localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
       }
       
       // Optional: Save adminId for higher-end operations (but not required for basic CRM)

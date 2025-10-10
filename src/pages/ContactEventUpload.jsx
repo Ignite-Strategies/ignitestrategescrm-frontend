@@ -6,14 +6,15 @@ export default function ContactEventUpload() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   const eventId = localStorage.getItem('eventId');
+  const currentEvent = JSON.parse(localStorage.getItem('currentEvent') || 'null');
   
   // Check if we have the required data
   useEffect(() => {
-    if (!orgId || !eventId) {
-      console.error('Missing orgId or eventId in localStorage');
+    if (!orgId || !eventId || !currentEvent) {
+      console.error('Missing orgId, eventId, or currentEvent in localStorage');
       navigate('/dashboard');
     }
-  }, [orgId, eventId, navigate]);
+  }, [orgId, eventId, currentEvent, navigate]);
 
   const downloadTemplate = () => {
     const template = `First Name,Last Name,Email,Phone`;
@@ -90,7 +91,7 @@ export default function ContactEventUpload() {
             📅 Upload Event Contacts
           </h1>
           <p className="text-gray-600">
-            Upload contacts for your current event
+            Upload contacts for <strong>"{currentEvent?.title}"</strong>
           </p>
         </div>
 
