@@ -34,7 +34,7 @@ export default function ContactEventUploadPreview() {
   console.log('📊 Preview page state:', {
     file: file?.name || 'null',
     fieldMapping: fieldMapping?.length || 0,
-    selectedEvent: selectedEvent?.title || 'null'
+    selectedEvent: selectedEvent?.name || selectedEvent?.title || 'null'
   });
 
   const [assignmentMode, setAssignmentMode] = useState('all_same'); // 'all_same' or 'individual'
