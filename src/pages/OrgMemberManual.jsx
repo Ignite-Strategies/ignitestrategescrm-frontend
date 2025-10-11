@@ -8,7 +8,7 @@
  * See: DEPRECATION-STATUS.md in backend
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
@@ -17,6 +17,14 @@ export default function ContactManual() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   const [loading, setLoading] = useState(false);
+  
+  // Event assignment options
+  const [addToEvent, setAddToEvent] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [availableEvents, setAvailableEvents] = useState([]);
+  const [selectedAudience, setSelectedAudience] = useState('org_members');
+  const [selectedStage, setSelectedStage] = useState('in_funnel');
+  
   const [formData, setFormData] = useState({
     firstName: "",
     goesBy: "",
@@ -33,6 +41,22 @@ export default function ContactManual() {
     notes: ""
   });
 
+  // Hydrate available events
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const response = await api.get(`/orgs/${orgId}/events`);
+        setAvailableEvents(response.data || []);
+        if (response.data && response.data.length > 0) {
+          setSelectedEvent(response.data[0].id);
+        }
+      } catch (error) {
+        console.error('Failed to load events:', error);
+      }
+    };
+    loadEvents();
+  }, [orgId]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -46,18 +70,27 @@ export default function ContactManual() {
     setLoading(true);
 
     try {
-      // Clean up the data
-      const submitData = {
-        ...formData,
-        yearsWithOrganization: formData.yearsWithOrganization ? parseInt(formData.yearsWithOrganization) : 0
-      };
-
-      await api.post(`/orgs/${orgId}/supporters`, submitData);
+      // Create FormData (same as CSV upload)
+      const formDataObj = new FormData();
+      formDataObj.append("orgId", orgId);
       
-      alert("Supporter added successfully!");
-      navigate("/org-members");
+      // Add all the form fields
+      Object.keys(formData).forEach(key => {
+        if (formData[key]) {
+          formDataObj.append(key, formData[key]);
+        }
+      });
+
+      const response = await api.post(`/orgmember/csv`, formDataObj, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      
+      // Navigate to success page with results
+      navigate("/org-members/upload/success", {
+        state: { uploadResults: response.data }
+      });
     } catch (error) {
-      alert("Error adding supporter: " + (error.response?.data?.error || error.message));
+      alert("Error adding org member: " + (error.response?.data?.error || error.message));
     } finally {
       setLoading(false);
     }

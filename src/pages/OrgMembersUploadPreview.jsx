@@ -8,9 +8,10 @@ export default function UploadPreview() {
   const orgId = getOrgId();
   const [uploading, setUploading] = useState(false);
   const [uploadResults, setUploadResults] = useState(null);
+  const [csvPreviewData, setCsvPreviewData] = useState([]);
   
   // Event assignment options
-  const [addToEvent, setAddToEvent] = useState(true);
+  const [addToEvent, setAddToEvent] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [availableEvents, setAvailableEvents] = useState([]);
   const [selectedAudience, setSelectedAudience] = useState('org_members');
@@ -26,6 +27,34 @@ export default function UploadPreview() {
     const savedMapping = localStorage.getItem('fieldMapping');
     return savedMapping ? JSON.parse(savedMapping) : [];
   });
+
+  // Parse CSV data for preview
+  useEffect(() => {
+    if (file && file.content) {
+      const lines = file.content.split('\n').filter(l => l.trim());
+      const rows = lines.slice(1, 6).map(line => {  // Get first 5 data rows
+        const values = line.split(',').map(v => v.trim());
+        return values;
+      });
+      setCsvPreviewData(rows);
+    }
+  }, [file]);
+
+  // Hydrate available events
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const response = await api.get(`/orgs/${orgId}/events`);
+        setAvailableEvents(response.data || []);
+        if (response.data && response.data.length > 0) {
+          setSelectedEvent(response.data[0].id);
+        }
+      } catch (error) {
+        console.error('Failed to load events:', error);
+      }
+    };
+    loadEvents();
+  }, [orgId]);
 
   const availableFields = [
     { value: 'unmapped', label: 'Ignore this column' },
@@ -90,6 +119,14 @@ export default function UploadPreview() {
     const fileObj = new File([blob], file.name, { type: 'text/csv' });
     formData.append("file", fileObj);
     formData.append("orgId", orgId); // Send orgId in body, not URL
+    
+    // Add event assignment data if checked
+    if (addToEvent && selectedEvent) {
+      formData.append("addToEvent", "true");
+      formData.append("eventId", selectedEvent);
+      formData.append("audienceType", selectedAudience);
+      formData.append("currentStage", selectedStage);
+    }
 
     try {
       const response = await api.post(`/orgmember/csv`, formData, {
@@ -98,15 +135,14 @@ export default function UploadPreview() {
 
       setUploadResults(response.data);
       
-      // Save results for validation page
-      localStorage.setItem('uploadResults', JSON.stringify(response.data));
+      // Navigate to success page with results in state (not localStorage!)
+      navigate("/org-members/upload/success", {
+        state: { uploadResults: response.data }
+      });
       
-      // Clean up other localStorage
+      // Clean up localStorage
       localStorage.removeItem('uploadFile');
       localStorage.removeItem('fieldMapping');
-      
-      // Navigate to validation page
-      navigate("/org-members/upload/validation");
     } catch (error) {
       const errorMsg = error.response?.data?.error || error.message;
       alert("Error uploading: " + errorMsg);
@@ -231,6 +267,110 @@ export default function UploadPreview() {
               );
             })()
           )}
+
+          {/* CSV Data Preview */}
+          {csvPreviewData.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Data Preview (First 5 Rows)</h3>
+              <div className="border border-gray-200 rounded-lg overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {fieldMapping.map((field, idx) => (
+                        <th key={idx} className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                          {field.csvHeader}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {csvPreviewData.map((row, rowIdx) => (
+                      <tr key={rowIdx} className="hover:bg-gray-50">
+                        {row.map((cell, cellIdx) => (
+                          <td key={cellIdx} className="px-4 py-2 text-gray-700">
+                            {cell || <span className="text-gray-400 italic">empty</span>}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Showing first 5 rows. Total rows in file: {file?.content.split('\n').filter(l => l.trim()).length - 1}
+              </p>
+            </div>
+          )}
+
+          {/* Event Assignment (Optional) */}
+          <div className="mb-6 border-t border-gray-200 pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Add to Event (Optional)</h3>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={addToEvent}
+                  onChange={(e) => setAddToEvent(e.target.checked)}
+                  className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">Add these contacts to an event</span>
+              </label>
+            </div>
+
+            {addToEvent && (
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 space-y-4">
+                {/* Event Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Event</label>
+                  <select
+                    value={selectedEvent || ''}
+                    onChange={(e) => setSelectedEvent(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="">Choose an event...</option>
+                    {availableEvents.map(event => (
+                      <option key={event.id} value={event.id}>
+                        {event.name} - {new Date(event.eventDate).toLocaleDateString()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Audience Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Audience Type</label>
+                  <select
+                    value={selectedAudience}
+                    onChange={(e) => setSelectedAudience(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="org_members">Org Members</option>
+                    <option value="friends_family">Friends & Family</option>
+                    <option value="landing_page_public">Landing Page (Public)</option>
+                    <option value="community_partners">Community Partners</option>
+                    <option value="cold_outreach">Cold Outreach</option>
+                  </select>
+                </div>
+
+                {/* Stage Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Pipeline Stage</label>
+                  <select
+                    value={selectedStage}
+                    onChange={(e) => setSelectedStage(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="in_funnel">In Funnel</option>
+                    <option value="general_awareness">General Awareness</option>
+                    <option value="personal_invite">Personal Invite</option>
+                    <option value="expressed_interest">Expressed Interest</option>
+                    <option value="soft_commit">Soft Commit</option>
+                    <option value="paid">Paid</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Actions */}
           <div className="flex gap-4">

@@ -29,8 +29,8 @@ export default function OrgMembers() {
 
   const loadContacts = async () => {
     try {
-      const response = await api.get(`/orgs/${orgId}/org-members`);
-      setContacts(response.data);
+      const response = await api.get(`/orgmembers?orgId=${orgId}`);
+      setContacts(response.data.members || []);
     } catch (error) {
       console.error("Error loading org members:", error);
     }

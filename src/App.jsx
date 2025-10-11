@@ -11,11 +11,11 @@ import OrgSuccess from "./pages/OrgSuccess.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import OrgMembers from "./pages/OrgMembers.jsx";
 import OrgMembersCSVUpload from "./pages/OrgMembersCSVUpload.jsx";
-import ContactUpload from "./pages/ContactUpload.jsx";
+import ContactUploadSelector from "./pages/ContactUploadSelector.jsx";
 import OrgMembersUploadPreview from "./pages/OrgMembersUploadPreview.jsx";
-import ContactValidation from "./pages/ContactValidation.jsx";
+import OrgMemberUploadSuccess from "./pages/OrgMemberUploadSuccess.jsx";
 import ResolveErrors from "./pages/ResolveErrors.jsx";
-import ContactManual from "./pages/ContactManual.jsx";
+import OrgMemberManual from "./pages/OrgMemberManual.jsx";
 import ContactDetail from "./pages/ContactDetail.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
 import EventSuccess from "./pages/EventSuccess.jsx";
@@ -104,8 +104,8 @@ export default function App() {
         <Route path="/org-members/upload" element={
           <ProtectedRoute><OrgMembersCSVUpload /></ProtectedRoute>
         } />
-        <Route path="/contacts/upload" element={
-          <ProtectedRoute><ContactUpload /></ProtectedRoute>
+        <Route path="/contacteventmanual" element={
+          <ProtectedRoute><ContactUploadSelector /></ProtectedRoute>
         } />
         <Route path="/contacts/event/upload" element={
           <ProtectedRoute><ContactEventUpload /></ProtectedRoute>
@@ -119,14 +119,14 @@ export default function App() {
         <Route path="/org-members/upload/preview" element={
           <ProtectedRoute><OrgMembersUploadPreview /></ProtectedRoute>
         } />
-        <Route path="/org-members/upload/validation" element={
-          <ProtectedRoute><ContactValidation /></ProtectedRoute>
+        <Route path="/org-members/upload/success" element={
+          <ProtectedRoute><OrgMemberUploadSuccess /></ProtectedRoute>
         } />
         <Route path="/org-members/upload/resolve" element={
           <ProtectedRoute><ResolveErrors /></ProtectedRoute>
         } />
-        <Route path="/org-members/manual" element={
-          <ProtectedRoute><ContactManual /></ProtectedRoute>
+        <Route path="/orgmembermanual" element={
+          <ProtectedRoute><OrgMemberManual /></ProtectedRoute>
         } />
         <Route path="/contact/:contactId" element={
           <ProtectedRoute><ContactDetail /></ProtectedRoute>
