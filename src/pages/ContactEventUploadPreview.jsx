@@ -41,6 +41,7 @@ export default function ContactEventUploadPreview() {
   const [assignmentMode, setAssignmentMode] = useState('all_same'); // 'all_same' or 'individual'
   const [defaultStage, setDefaultStage] = useState('prospect');
   const [individualAssignments, setIndividualAssignments] = useState({});
+  const [createOrgMembers, setCreateOrgMembers] = useState(false); // Option to create OrgMember records
 
   const availableFields = [
     { value: 'unmapped', label: 'Ignore this column' },
@@ -159,7 +160,8 @@ export default function ContactEventUploadPreview() {
         mode: assignmentMode,
         defaultStage,
         individualAssignments,
-        audienceType: selectedAudience
+        audienceType: selectedAudience,
+        createOrgMembers: createOrgMembers
       }));
 
       const response = await api.post('/contacts/event/save', formData, {
@@ -330,6 +332,28 @@ export default function ContactEventUploadPreview() {
                         </option>
                       ))}
                     </select>
+                  </div>
+                )}
+
+                {/* Step 4: OrgMember Creation Option */}
+                {selectedAudience && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={createOrgMembers}
+                        onChange={(e) => setCreateOrgMembers(e.target.checked)}
+                        className="mr-3 h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                      />
+                      <div>
+                        <span className="text-sm font-medium text-gray-700">
+                          ⬆️ Elevate to Org Members
+                        </span>
+                        <p className="text-xs text-gray-600 mt-1">
+                          Create extended CRM records with additional fields (address, employer, notes, etc.)
+                        </p>
+                      </div>
+                    </label>
                   </div>
                 )}
 

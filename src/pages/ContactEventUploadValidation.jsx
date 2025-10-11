@@ -59,7 +59,7 @@ export default function ContactEventUploadValidation() {
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">Upload Summary</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="text-2xl font-bold text-green-600">
                 {uploadResults.validCount || 0}
@@ -80,7 +80,41 @@ export default function ContactEventUploadValidation() {
               </div>
               <div className="text-sm text-yellow-800">Updated Contacts</div>
             </div>
+
+            <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+              <div className="text-2xl font-bold text-purple-600">
+                {uploadResults.orgMembersCreated || 0}
+              </div>
+              <div className="text-sm text-purple-800">Org Members Created</div>
+            </div>
           </div>
+
+          {/* Assignment Details */}
+          {uploadResults.assignments && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 className="font-semibold text-gray-700 mb-2">Assignment Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-600">Audience Type:</span>
+                  <span className="ml-2 text-gray-800">
+                    {uploadResults.assignments.audienceType?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Default Stage:</span>
+                  <span className="ml-2 text-gray-800">
+                    {uploadResults.assignments.defaultStage?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Org Members Created:</span>
+                  <span className="ml-2 text-gray-800">
+                    {uploadResults.assignments.createOrgMembers ? 'Yes' : 'No'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {uploadResults.errors && uploadResults.errors.length > 0 && (
             <div className="mt-6">
