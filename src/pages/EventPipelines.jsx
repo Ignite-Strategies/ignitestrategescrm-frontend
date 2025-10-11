@@ -3,24 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
-const PIPELINES = [
-  { id: "org_members", label: "Org Members", description: "Your organization members" },
-  { id: "friends_family", label: "Friends & Family", description: "Friends, co-workers, neighbors" },
-  { id: "landing_page_public", label: "Public Contacts", description: "Landing page submissions" },
-  { id: "community_partners", label: "Community Partners", description: "Partner organizations" },
-  { id: "cold_outreach", label: "Cold Outreach", description: "Cold contacts" }
-];
-
-// 7-Stage Funnel (matches backend STAGE_HIERARCHY)
-const STAGES = [
-  { id: "in_funnel", label: "In Funnel", description: "Just entered the pipeline", color: "#6B7280", icon: "🎯" },
-  { id: "general_awareness", label: "General Awareness", description: "Knows about the event", color: "#3B82F6", icon: "👁️" },
-  { id: "personal_invite", label: "Personal Invite", description: "Received personal invitation", color: "#8B5CF6", icon: "📧" },
-  { id: "expressed_interest", label: "Expressed Interest", description: "Showed interest in attending", color: "#F59E0B", icon: "🤔" },
-  { id: "soft_commit", label: "Soft Commit", description: "Committed to attend (not paid)", color: "#10B981", icon: "🤝" },
-  { id: "paid", label: "Paid", description: "Purchased ticket/paid", color: "#059669", icon: "💰" },
-  { id: "cant_attend", label: "Can't Attend", description: "Opted out or declined", color: "#EF4444", icon: "❌" }
-];
+// Schema config will be hydrated from localStorage
 
 export default function EventPipelines() {
   const { eventId } = useParams();
@@ -32,16 +15,145 @@ export default function EventPipelines() {
   const [selectedPipeline, setSelectedPipeline] = useState("org_members");
   const [showAddSupporters, setShowAddSupporters] = useState(false);
   const [selectedSupporters, setSelectedSupporters] = useState(new Set());
+  
+  // Schema config hydration
+  const [pipelines, setPipelines] = useState([]);
+  const [stages, setStages] = useState([]);
+  const [schemaLoaded, setSchemaLoaded] = useState(false);
 
   useEffect(() => {
-    loadData();
-  }, [eventId]);
+    loadSchemaConfig();
+  }, []);
 
   useEffect(() => {
-    if (eventId) {
+    if (schemaLoaded && eventId) {
       loadData();
     }
-  }, [selectedPipeline]);
+  }, [eventId, schemaLoaded]);
+
+  useEffect(() => {
+    if (schemaLoaded && eventId) {
+      loadData();
+    }
+  }, [selectedPipeline, schemaLoaded]);
+
+  const loadSchemaConfig = async () => {
+    try {
+      // Try localStorage first
+      const cachedSchema = localStorage.getItem('eventAttendeeSchema');
+      if (cachedSchema) {
+        const { audienceTypes, stages: stageValues } = JSON.parse(cachedSchema);
+        
+        // Convert to pipeline format
+        const pipelineOptions = audienceTypes.map(audience => ({
+          id: audience,
+          label: audience.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+          description: getAudienceDescription(audience)
+        }));
+        
+        // Convert to stage format with colors and icons
+        const stageOptions = stageValues.map(stage => ({
+          id: stage,
+          label: stage.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+          description: getStageDescription(stage),
+          color: getStageColor(stage),
+          icon: getStageIcon(stage)
+        }));
+        
+        setPipelines(pipelineOptions);
+        setStages(stageOptions);
+        setSchemaLoaded(true);
+        console.log('✅ EventPipelines using cached schema config');
+      } else {
+        throw new Error('No cached schema');
+      }
+    } catch (error) {
+      console.log('⚠️ No cached schema, fetching from API...');
+      try {
+        const schemaResponse = await api.get('/schema/event-attendee');
+        const { audienceTypes, stages: stageValues } = schemaResponse.data;
+        
+        // Convert to pipeline format
+        const pipelineOptions = audienceTypes.map(audience => ({
+          id: audience,
+          label: audience.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+          description: getAudienceDescription(audience)
+        }));
+        
+        // Convert to stage format with colors and icons
+        const stageOptions = stageValues.map(stage => ({
+          id: stage,
+          label: stage.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+          description: getStageDescription(stage),
+          color: getStageColor(stage),
+          icon: getStageIcon(stage)
+        }));
+        
+        setPipelines(pipelineOptions);
+        setStages(stageOptions);
+        setSchemaLoaded(true);
+        
+        // Cache for next time
+        localStorage.setItem('eventAttendeeSchema', JSON.stringify({
+          audienceTypes,
+          stages: stageValues,
+          hydratedAt: new Date().toISOString()
+        }));
+        console.log('✅ EventPipelines schema fetched and cached');
+      } catch (apiError) {
+        console.error('❌ Failed to load schema config:', apiError);
+        setSchemaLoaded(true); // Still set to true to prevent infinite loading
+      }
+    }
+  };
+
+  // Helper functions for schema config formatting
+  const getAudienceDescription = (audience) => {
+    const descriptions = {
+      'org_members': 'Your organization members',
+      'friends_family': 'Friends, co-workers, neighbors',
+      'landing_page_public': 'Landing page submissions',
+      'community_partners': 'Partner organizations',
+      'cold_outreach': 'Cold contacts'
+    };
+    return descriptions[audience] || 'Event attendees';
+  };
+
+  const getStageDescription = (stage) => {
+    const descriptions = {
+      'in_funnel': 'Just entered the pipeline',
+      'general_awareness': 'Knows about the event',
+      'personal_invite': 'Received personal invitation',
+      'expressed_interest': 'Showed interest in attending',
+      'soft_commit': 'Committed to attend (not paid)',
+      'paid': 'Purchased ticket/paid'
+    };
+    return descriptions[stage] || 'Pipeline stage';
+  };
+
+  const getStageColor = (stage) => {
+    const colors = {
+      'in_funnel': '#6B7280',
+      'general_awareness': '#3B82F6',
+      'personal_invite': '#8B5CF6',
+      'expressed_interest': '#F59E0B',
+      'soft_commit': '#10B981',
+      'paid': '#059669'
+    };
+    return colors[stage] || '#6B7280';
+  };
+
+  const getStageIcon = (stage) => {
+    const icons = {
+      'in_funnel': '🎯',
+      'general_awareness': '👁️',
+      'personal_invite': '📧',
+      'expressed_interest': '🤔',
+      'soft_commit': '🤝',
+      'paid': '💰'
+    };
+    return icons[stage] || '🎯';
+  };
 
   const loadData = async () => {
     try {
@@ -74,6 +186,15 @@ export default function EventPipelines() {
     } catch (error) {
       console.error('❌ FRONTEND: Error moving supporter:', error);
       alert("Error moving contact: " + error.message);
+    }
+  };
+
+  const handleElevateToOrgMember = async (contactId) => {
+    try {
+      // Navigate to contact detail page where elevation can be done
+      navigate(`/contact/${contactId}`);
+    } catch (error) {
+      console.error('Error navigating to contact detail:', error);
     }
   };
 
@@ -145,12 +266,24 @@ export default function EventPipelines() {
   };
 
   const getPipelineCounts = () => {
-    return PIPELINES.map(pipeline => ({
+    return pipelines.map(pipeline => ({
       ...pipeline,
       count: pipeline.id === selectedPipeline ? 
         registryData.reduce((total, stage) => total + stage.count, 0) : 0
     }));
   };
+
+  // Show loading state while schema is loading
+  if (!schemaLoaded) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading pipeline configuration...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -271,7 +404,7 @@ export default function EventPipelines() {
               {/* HubSpot-style Stages */}
               <div className="max-w-7xl mx-auto px-6 py-8">
                 <div className="grid grid-cols-4 gap-6">
-                  {STAGES.map((stage, index) => {
+                  {stages.map((stage, index) => {
                     const stageSupporters = getSupportersForStage(stage.id);
                     
                     return (
@@ -306,6 +439,15 @@ export default function EventPipelines() {
                                 <div className="text-xs text-gray-600 mb-2">
                                   {supporter.email}
                                 </div>
+
+                                {/* Elevate to Org Member Button */}
+                                <button
+                                  onClick={() => handleElevateToOrgMember(supporter._id)}
+                                  className="w-full mb-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded hover:bg-yellow-200 transition-colors"
+                                  title="Add extended CRM data to this contact"
+                                >
+                                  ⬆️ Elevate to Org Member
+                                </button>
                                 
                                 {/* Status Badges */}
                                 <div className="flex flex-wrap gap-1 mb-3">
@@ -325,18 +467,18 @@ export default function EventPipelines() {
                                 <div className="flex gap-1">
                                   {index > 0 && (
                                     <button
-                                      onClick={() => handleStageUpdate(supporter._id, stage.id, STAGES[index - 1].id)}
+                                      onClick={() => handleStageUpdate(supporter._id, stage.id, stages[index - 1].id)}
                                       className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
                                     >
-                                      ← {STAGES[index - 1].label}
+                                      ← {stages[index - 1].label}
                                     </button>
                                   )}
-                                  {index < STAGES.length - 1 && (
+                                  {index < stages.length - 1 && (
                                     <button
-                                      onClick={() => handleStageUpdate(supporter._id, stage.id, STAGES[index + 1].id)}
+                                      onClick={() => handleStageUpdate(supporter._id, stage.id, stages[index + 1].id)}
                                       className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded hover:bg-indigo-200"
                                     >
-                                      {STAGES[index + 1].label} →
+                                      {stages[index + 1].label} →
                                     </button>
                                   )}
                                 </div>
