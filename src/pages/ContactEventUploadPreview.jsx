@@ -42,6 +42,11 @@ export default function ContactEventUploadPreview() {
   const [defaultStage, setDefaultStage] = useState('prospect');
   const [individualAssignments, setIndividualAssignments] = useState({});
   const [createOrgMembers, setCreateOrgMembers] = useState(false); // Option to create OrgMember records
+  
+  // Event assignment options
+  const [addToEvent, setAddToEvent] = useState(true); // Default to adding to event
+  const [selectedEventForAssignment, setSelectedEventForAssignment] = useState(null);
+  const [availableEvents, setAvailableEvents] = useState([]);
 
   const availableFields = [
     { value: 'unmapped', label: 'Ignore this column' },
@@ -56,10 +61,33 @@ export default function ContactEventUploadPreview() {
   const [availableAudiences, setAvailableAudiences] = useState([]);
   const [selectedAudience, setSelectedAudience] = useState('');
 
+  // Load available events and set default
+  useEffect(() => {
+    const loadAvailableEvents = async () => {
+      try {
+        const response = await api.get(`/orgs/${orgId}/events`);
+        setAvailableEvents(response.data);
+        
+        // Set default event (current event or first available)
+        if (selectedEvent?.id) {
+          setSelectedEventForAssignment(selectedEvent);
+        } else if (response.data.length > 0) {
+          setSelectedEventForAssignment(response.data[0]);
+        }
+      } catch (error) {
+        console.error('Failed to load events:', error);
+      }
+    };
+    
+    if (orgId) {
+      loadAvailableEvents();
+    }
+  }, [orgId, selectedEvent]);
+
   // Load available audience types and stages for this event
   useEffect(() => {
     const loadEventData = async () => {
-      if (!selectedEvent?.id) return;
+      if (!selectedEventForAssignment?.id) return;
       
       try {
         console.log('🔍 Loading event data for:', selectedEvent.id);
@@ -161,7 +189,9 @@ export default function ContactEventUploadPreview() {
         defaultStage,
         individualAssignments,
         audienceType: selectedAudience,
-        createOrgMembers: createOrgMembers
+        createOrgMembers: createOrgMembers,
+        addToEvent: addToEvent,
+        eventId: addToEvent ? selectedEventForAssignment?.id : null
       }));
 
       const response = await api.post('/contacts/event/save', formData, {

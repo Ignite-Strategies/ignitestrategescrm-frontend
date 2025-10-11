@@ -9,6 +9,7 @@ export default function ResolveErrors() {
   const [errors, setErrors] = useState([]);
   const [originalFile, setOriginalFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [correctedFile, setCorrectedFile] = useState(null);
 
   useEffect(() => {
     // Get errors and original file from localStorage
@@ -27,17 +28,40 @@ export default function ResolveErrors() {
     }
   }, [navigate]);
 
+  const handleFileSelect = async (e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    try {
+      const text = await selectedFile.text();
+      setCorrectedFile({
+        name: selectedFile.name,
+        type: selectedFile.type,
+        content: text
+      });
+    } catch (error) {
+      alert("Error reading file: " + error.message);
+    }
+  };
+
   const handleFixAndRetry = async () => {
+    if (!correctedFile) {
+      alert("Please select your corrected CSV file first!");
+      return;
+    }
+
     setLoading(true);
     
     try {
-      // Re-upload the original file (user should have fixed it)
+      // Upload the corrected file
       const formData = new FormData();
-      const blob = new Blob([originalFile.content], { type: 'text/csv' });
-      const fileObj = new File([blob], originalFile.name, { type: 'text/csv' });
+      const blob = new Blob([correctedFile.content], { type: 'text/csv' });
+      const fileObj = new File([blob], correctedFile.name, { type: 'text/csv' });
       formData.append("file", fileObj);
 
-      const response = await api.post(`/orgs/${orgId}/supporters/csv`, formData, {
+      formData.append("orgId", orgId); // Send orgId in body, not URL
+      
+      const response = await api.post(`/orgmember/csv`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
@@ -147,8 +171,31 @@ export default function ResolveErrors() {
             <div className="text-sm text-blue-800 space-y-2">
               <p><strong>1. Open your CSV file</strong> in Excel, Google Sheets, or any spreadsheet editor</p>
               <p><strong>2. Find the rows listed above</strong> and add the missing information</p>
-              <p><strong>3. Save your file</strong> and click "Fix & Retry Import" below</p>
-              <p><strong>4. We'll re-process your file</strong> with the corrections</p>
+              <p><strong>3. Save your file</strong> and upload the corrected version below</p>
+              <p><strong>4. We'll process your corrected file</strong> with the fixes</p>
+            </div>
+          </div>
+
+          {/* File Upload for Corrected CSV */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-semibold text-green-900 mb-3">📁 Upload Your Corrected CSV File</h3>
+            <div className="space-y-4">
+              <label className="block">
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileSelect}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg hover:border-green-400 transition cursor-pointer text-sm"
+                />
+              </label>
+              {correctedFile && (
+                <div className="text-sm text-green-800">
+                  ✅ Ready to upload: <strong>{correctedFile.name}</strong>
+                </div>
+              )}
+              <p className="text-xs text-green-700">
+                Select your corrected CSV file with the errors fixed, then click "Fix & Retry Import"
+              </p>
             </div>
           </div>
 
@@ -156,10 +203,10 @@ export default function ResolveErrors() {
           <div className="flex gap-4 justify-center">
             <button
               onClick={handleFixAndRetry}
-              disabled={loading}
+              disabled={loading || !correctedFile}
               className="bg-indigo-600 text-white py-3 px-8 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
             >
-              {loading ? "Processing..." : "Fix & Retry Import"}
+              {loading ? "Processing..." : correctedFile ? "Fix & Retry Import" : "Select File First"}
             </button>
             <button
               onClick={() => navigate("/org-members")}

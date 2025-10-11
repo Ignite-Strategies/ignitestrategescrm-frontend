@@ -12,7 +12,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import OrgMembers from "./pages/OrgMembers.jsx";
 import OrgMembersCSVUpload from "./pages/OrgMembersCSVUpload.jsx";
 import ContactUpload from "./pages/ContactUpload.jsx";
-import UploadPreview from "./pages/UploadPreview.jsx";
+import OrgMembersUploadPreview from "./pages/OrgMembersUploadPreview.jsx";
 import ContactValidation from "./pages/ContactValidation.jsx";
 import ResolveErrors from "./pages/ResolveErrors.jsx";
 import ContactManual from "./pages/ContactManual.jsx";
@@ -117,7 +117,7 @@ export default function App() {
           <ProtectedRoute><ContactEventUploadValidation /></ProtectedRoute>
         } />
         <Route path="/org-members/upload/preview" element={
-          <ProtectedRoute><UploadPreview /></ProtectedRoute>
+          <ProtectedRoute><OrgMembersUploadPreview /></ProtectedRoute>
         } />
         <Route path="/org-members/upload/validation" element={
           <ProtectedRoute><ContactValidation /></ProtectedRoute>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
@@ -8,6 +8,13 @@ export default function UploadPreview() {
   const orgId = getOrgId();
   const [uploading, setUploading] = useState(false);
   const [uploadResults, setUploadResults] = useState(null);
+  
+  // Event assignment options
+  const [addToEvent, setAddToEvent] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [availableEvents, setAvailableEvents] = useState([]);
+  const [selectedAudience, setSelectedAudience] = useState('org_members');
+  const [selectedStage, setSelectedStage] = useState('in_funnel');
   
   // Get file and field mapping from URL state or localStorage
   const [file, setFile] = useState(() => {
@@ -82,9 +89,10 @@ export default function UploadPreview() {
     const blob = new Blob([file.content], { type: 'text/csv' });
     const fileObj = new File([blob], file.name, { type: 'text/csv' });
     formData.append("file", fileObj);
+    formData.append("orgId", orgId); // Send orgId in body, not URL
 
     try {
-      const response = await api.post(`/orgs/${orgId}/supporters/csv`, formData, {
+      const response = await api.post(`/orgmember/csv`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
