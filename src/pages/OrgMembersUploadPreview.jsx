@@ -180,9 +180,13 @@ export default function UploadPreview() {
           </div>
         </div>
 
-        {/* Field Mapping Preview */}
-        <div className="bg-white rounded-lg shadow p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Field Mapping</h2>
+        {/* Main Content - Three Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Left Column - Field Mapping (4 columns) */}
+          <div className="lg:col-span-4">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Field Mapping</h2>
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
             <div className="flex items-center mb-2">
@@ -268,126 +272,144 @@ export default function UploadPreview() {
             })()
           )}
 
-          {/* CSV Data Preview */}
-          {csvPreviewData.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Data Preview (First 5 Rows)</h3>
-              <div className="border border-gray-200 rounded-lg overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      {fieldMapping.map((field, idx) => (
-                        <th key={idx} className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                          {field.csvHeader}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {csvPreviewData.map((row, rowIdx) => (
-                      <tr key={rowIdx} className="hover:bg-gray-50">
-                        {row.map((cell, cellIdx) => (
-                          <td key={cellIdx} className="px-4 py-2 text-gray-700">
-                            {cell || <span className="text-gray-400 italic">empty</span>}
-                          </td>
+            </div>
+          </div>
+
+          {/* Middle Column - Data Preview (5 columns) */}
+          <div className="lg:col-span-5">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Data Preview</h2>
+              
+              {csvPreviewData.length > 0 ? (
+                <div>
+                  <div className="border border-gray-200 rounded-lg overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          {fieldMapping.map((field, idx) => (
+                            <th key={idx} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                              {field.csvHeader}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {csvPreviewData.map((row, rowIdx) => (
+                          <tr key={rowIdx} className="hover:bg-gray-50">
+                            {row.map((cell, cellIdx) => (
+                              <td key={cellIdx} className="px-3 py-2 text-gray-700">
+                                {cell || <span className="text-gray-400 italic">empty</span>}
+                              </td>
+                            ))}
+                          </tr>
                         ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Showing first 5 rows. Total rows in file: {file?.content.split('\n').filter(l => l.trim()).length - 1}
-              </p>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Showing first 5 rows. Total: {file?.content.split('\n').filter(l => l.trim()).length - 1} rows
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p>No data preview available</p>
+                </div>
+              )}
             </div>
-          )}
-
-          {/* Event Assignment (Optional) */}
-          <div className="mb-6 border-t border-gray-200 pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Add to Event (Optional)</h3>
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={addToEvent}
-                  onChange={(e) => setAddToEvent(e.target.checked)}
-                  className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Add these contacts to an event</span>
-              </label>
-            </div>
-
-            {addToEvent && (
-              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 space-y-4">
-                {/* Event Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Event</label>
-                  <select
-                    value={selectedEvent || ''}
-                    onChange={(e) => setSelectedEvent(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Choose an event...</option>
-                    {availableEvents.map(event => (
-                      <option key={event.id} value={event.id}>
-                        {event.name} - {new Date(event.eventDate).toLocaleDateString()}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Audience Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Audience Type</label>
-                  <select
-                    value={selectedAudience}
-                    onChange={(e) => setSelectedAudience(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="org_members">Org Members</option>
-                    <option value="friends_family">Friends & Family</option>
-                    <option value="landing_page_public">Landing Page (Public)</option>
-                    <option value="community_partners">Community Partners</option>
-                    <option value="cold_outreach">Cold Outreach</option>
-                  </select>
-                </div>
-
-                {/* Stage Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Pipeline Stage</label>
-                  <select
-                    value={selectedStage}
-                    onChange={(e) => setSelectedStage(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="in_funnel">In Funnel</option>
-                    <option value="general_awareness">General Awareness</option>
-                    <option value="personal_invite">Personal Invite</option>
-                    <option value="expressed_interest">Expressed Interest</option>
-                    <option value="soft_commit">Soft Commit</option>
-                    <option value="paid">Paid</option>
-                  </select>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-4">
-            <button
-              onClick={() => navigate("/org-members/upload")}
-              className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-            >
-              ← Back
-            </button>
-            <button
-              onClick={handleUpload}
-              disabled={uploading}
-              className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
-            >
-              {uploading ? "Importing..." : "Import My Contacts"}
-            </button>
+          {/* Right Column - Event Assignment (3 columns) */}
+          <div className="lg:col-span-3">
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow p-6 border border-indigo-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">🎯 Add to Event</h2>
+              
+              <div className="space-y-4">
+                <label className="flex items-center cursor-pointer bg-white rounded-lg p-3 border border-indigo-200">
+                  <input
+                    type="checkbox"
+                    checked={addToEvent}
+                    onChange={(e) => setAddToEvent(e.target.checked)}
+                    className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                  />
+                  <span className="ml-3 text-sm font-medium text-gray-700">Add to event</span>
+                </label>
+
+                {addToEvent && (
+                  <div className="space-y-4 bg-white rounded-lg p-4 border border-indigo-200">
+                    {/* Event Selection */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Select Event</label>
+                      <select
+                        value={selectedEvent || ''}
+                        onChange={(e) => setSelectedEvent(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
+                      >
+                        <option value="">Choose an event...</option>
+                        {availableEvents.map(event => (
+                          <option key={event.id} value={event.id}>
+                            {event.name} {event.eventDate ? `- ${new Date(event.eventDate).toLocaleDateString()}` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Audience Selection */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Audience Type</label>
+                      <select
+                        value={selectedAudience}
+                        onChange={(e) => setSelectedAudience(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
+                      >
+                        <option value="org_members">Org Members</option>
+                        <option value="friends_family">Friends & Family</option>
+                        <option value="landing_page_public">Landing Page (Public)</option>
+                        <option value="community_partners">Community Partners</option>
+                        <option value="cold_outreach">Cold Outreach</option>
+                      </select>
+                    </div>
+
+                    {/* Stage Selection */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Pipeline Stage</label>
+                      <select
+                        value={selectedStage}
+                        onChange={(e) => setSelectedStage(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
+                      >
+                        <option value="in_funnel">In Funnel</option>
+                        <option value="general_awareness">General Awareness</option>
+                        <option value="personal_invite">Personal Invite</option>
+                        <option value="expressed_interest">Expressed Interest</option>
+                        <option value="soft_commit">Soft Commit</option>
+                        <option value="paid">Paid</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Actions - Full Width */}
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => navigate("/org-members/upload")}
+            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+          >
+            ← Back
+          </button>
+          <button
+            onClick={handleUpload}
+            disabled={uploading}
+            className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
+          >
+            {uploading ? "Importing..." : "Import My Contacts"}
+          </button>
         </div>
       </div>
     </div>
