@@ -22,6 +22,14 @@ export default function OrgMembers() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedContacts, setSelectedContacts] = useState(new Set());
+  const [topEngagers, setTopEngagers] = useState([]);
+  const [engagementStats, setEngagementStats] = useState({
+    total: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    inactive: 0
+  });
 
   useEffect(() => {
     loadContacts();
@@ -30,7 +38,30 @@ export default function OrgMembers() {
   const loadContacts = async () => {
     try {
       const response = await api.get(`/orgmembers?orgId=${orgId}`);
-      setContacts(response.data.members || []);
+      const members = response.data.members || [];
+      setContacts(members);
+      
+      // Calculate engagement stats
+      const stats = {
+        total: members.length,
+        high: members.filter(m => m.categoryOfEngagement === 'high').length,
+        medium: members.filter(m => m.categoryOfEngagement === 'medium').length,
+        low: members.filter(m => m.categoryOfEngagement === 'low').length,
+        inactive: members.filter(m => m.categoryOfEngagement === 'inactive').length
+      };
+      setEngagementStats(stats);
+      
+      // Get top engagers (high engagement + recent activity)
+      const topEngagers = members
+        .filter(m => m.categoryOfEngagement === 'high')
+        .slice(0, 5)
+        .map(member => ({
+          ...member,
+          displayName: member.goesBy || member.firstName,
+          engagementScore: 95 // Mock score for now
+        }));
+      setTopEngagers(topEngagers);
+      
     } catch (error) {
       console.error("Error loading org members:", error);
     }
@@ -127,18 +158,53 @@ export default function OrgMembers() {
           </div>
                   <div className="flex gap-3">
                     {selectedContacts.size > 0 && (
-                      <button
-                        onClick={handleBulkDelete}
-                        className="bg-red-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-700 transition"
-                      >
-                        Delete Selected ({selectedContacts.size})
-                      </button>
+                      <>
+                        <button
+                          onClick={() => navigate("/create-list", { state: { selectedContacts: Array.from(selectedContacts) } })}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                          Add to List ({selectedContacts.size})
+                        </button>
+                        <button
+                          onClick={() => navigate("/campaignwizard", { state: { selectedContacts: Array.from(selectedContacts) } })}
+                          className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          Send Campaign ({selectedContacts.size})
+                        </button>
+                        <button
+                          onClick={handleBulkDelete}
+                          className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete ({selectedContacts.size})
+                        </button>
+                      </>
                     )}
                     <button
-                      onClick={() => navigate("/org-members/upload")}
-                      className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+                      onClick={() => navigate("/orgmembermanual")}
+                      className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition flex items-center gap-2"
                     >
-                      + Upload CSV
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Add Member
+                    </button>
+                    <button
+                      onClick={() => navigate("/org-members/upload")}
+                      className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition flex items-center gap-2"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      Upload CSV
                     </button>
                     <button
                       onClick={() => navigate("/dashboard")}
@@ -147,6 +213,68 @@ export default function OrgMembers() {
                       Dashboard
                     </button>
                   </div>
+        </div>
+
+        {/* Top Engagers Cards */}
+        {topEngagers.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">🔥 Top Engagers</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {topEngagers.map((engager, index) => (
+                <div key={engager.id} className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 hover:shadow-lg transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {index + 1}
+                    </div>
+                    <div className="text-xs text-yellow-600 font-semibold">
+                      {engager.engagementScore}%
+                    </div>
+                  </div>
+                  <div className="font-semibold text-gray-900 text-sm truncate">
+                    {engager.displayName}
+                  </div>
+                  <div className="text-xs text-gray-600 truncate">
+                    {engager.email}
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                      High
+                    </span>
+                    <button
+                      onClick={() => navigate(`/contact/${engager.contactId}`)}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      View →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Engagement Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+            <div className="text-2xl font-bold text-gray-900">{engagementStats.total}</div>
+            <div className="text-sm text-gray-600">Total Members</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+            <div className="text-2xl font-bold text-green-600">{engagementStats.high}</div>
+            <div className="text-sm text-gray-600">High Engagement</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
+            <div className="text-2xl font-bold text-yellow-600">{engagementStats.medium}</div>
+            <div className="text-sm text-gray-600">Medium Engagement</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-orange-500">
+            <div className="text-2xl font-bold text-orange-600">{engagementStats.low}</div>
+            <div className="text-sm text-gray-600">Low Engagement</div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-gray-400">
+            <div className="text-2xl font-bold text-gray-600">{engagementStats.inactive}</div>
+            <div className="text-sm text-gray-600">Inactive</div>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow">
@@ -245,12 +373,36 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <button
-                        onClick={() => handleDelete(contact._id, `${contact.firstName} ${contact.lastName}`)}
-                        className="text-red-600 hover:text-red-800 font-medium"
-                      >
-                        Delete
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => navigate(`/contact/${contact.contactId || contact._id}`)}
+                          className="text-blue-600 hover:text-blue-800 font-medium text-xs"
+                          title="View Details"
+                        >
+                          👁️
+                        </button>
+                        <button
+                          onClick={() => navigate("/send-email", { state: { recipient: contact.email, recipientName: `${contact.firstName} ${contact.lastName}` } })}
+                          className="text-green-600 hover:text-green-800 font-medium text-xs"
+                          title="Send 1:1 Email"
+                        >
+                          ✉️
+                        </button>
+                        <button
+                          onClick={() => navigate("/campaignwizard", { state: { selectedContacts: [contact.contactId || contact._id] } })}
+                          className="text-purple-600 hover:text-purple-800 font-medium text-xs"
+                          title="Add to Campaign"
+                        >
+                          📧
+                        </button>
+                        <button
+                          onClick={() => handleDelete(contact._id, `${contact.firstName} ${contact.lastName}`)}
+                          className="text-red-600 hover:text-red-800 font-medium text-xs"
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
