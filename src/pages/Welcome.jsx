@@ -18,12 +18,25 @@ export default function Welcome() {
     try {
       console.log('🚀 UNIVERSAL HYDRATOR STARTING...');
       
-      // Get Firebase user
-      const firebaseUser = auth.currentUser;
+      // Get Firebase user with retry mechanism
+      let firebaseUser = auth.currentUser;
       if (!firebaseUser) {
-        console.log('❌ No Firebase user, go to signup');
-        setTimeout(() => navigate('/signup'), 3000);
-        return;
+        console.log('⚠️ No Firebase user immediately, waiting for auth state...');
+        
+        // Wait for auth state to initialize
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+          if (user) {
+            console.log('✅ Firebase user found after wait:', user.uid);
+            unsubscribe(); // Stop listening
+            hydrateOrg(); // Retry hydration
+          } else {
+            console.log('❌ Still no Firebase user after wait, go to signup');
+            unsubscribe(); // Stop listening
+            setTimeout(() => navigate('/signup'), 2000);
+          }
+        });
+        
+        return; // Exit this attempt
       }
       
       const firebaseId = firebaseUser.uid;
