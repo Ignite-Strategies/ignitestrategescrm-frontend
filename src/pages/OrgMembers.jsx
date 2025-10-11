@@ -207,10 +207,10 @@ export default function OrgMembers() {
                       Upload CSV
                     </button>
                     <button
-                      onClick={() => navigate("/dashboard")}
+                      onClick={() => navigate("/contacts")}
                       className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-200 transition"
                     >
-                      Dashboard
+                      Contact Home
                     </button>
                   </div>
         </div>
