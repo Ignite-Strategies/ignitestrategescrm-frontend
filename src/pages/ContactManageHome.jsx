@@ -121,7 +121,7 @@ export default function ContactManageHome() {
               
               {/* Upload Contacts */}
               <button
-                onClick={() => navigate("/contacts/upload")}
+                onClick={() => navigate("/contacteventmanual")}
                 className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-lg border-2 border-emerald-200 hover:border-emerald-400 transition text-left"
               >
                 <div className="flex items-center mb-4">

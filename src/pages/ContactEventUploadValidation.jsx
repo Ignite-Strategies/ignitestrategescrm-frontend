@@ -206,7 +206,7 @@ export default function ContactEventUploadValidation() {
             <button
               onClick={() => {
                 clearUploadData();
-                navigate("/contacts/upload");
+                navigate("/contacteventmanual");
               }}
               className="p-4 border border-gray-200 rounded-lg hover:border-orange-300 hover:bg-orange-50 text-left transition"
             >

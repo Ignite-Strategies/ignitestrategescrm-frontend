@@ -20,17 +20,16 @@ export default function Dashboard() {
 
   const loadData = async () => {
     try {
-      const [orgRes, eventsRes, supportersRes] = await Promise.all([
+      const [orgRes, eventsRes, orgMembersRes] = await Promise.all([
         api.get(`/orgs/${orgId}`),
         api.get(`/orgs/${orgId}/events`),
-        api.get(`/orgs/${orgId}/supporters`)
+        api.get(`/orgmembers?orgId=${orgId}`)
       ]);
       setOrg(orgRes.data);
       setEvents(eventsRes.data);
       
-      // Count OrgMembers minus admins (people with firebaseId/role)
-      const nonAdminMembers = supportersRes.data.filter(s => !s.firebaseId && !s.role);
-      setSupporterCount(nonAdminMembers.length);
+      // Count OrgMembers (all are non-admin in Contact-First architecture)
+      setSupporterCount(orgMembersRes.data.members?.length || 0);
 
       // Find next upcoming event
       const now = new Date();
