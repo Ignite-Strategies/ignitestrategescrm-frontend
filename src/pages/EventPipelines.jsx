@@ -34,20 +34,12 @@ export default function EventPipelines() {
       
       // DEBUG: Log what we're getting
       console.log('🔍 EVENT DATA:', eventRes.data);
-      console.log('🔍 EVENT PIPELINES:', eventRes.data.pipelines);
       console.log('🔍 SCHEMA STAGES:', schemaRes.data.stages);
       
-      // ALWAYS use event's specific pipeline stages if they exist - NEVER fall back to schema
-      let stagesToUse;
-      if (eventRes.data.pipelines && eventRes.data.pipelines.length > 0) {
-        // Event has custom pipeline stages - use those (THIS IS THE TRUTH)
-        stagesToUse = eventRes.data.pipelines;
-        console.log('✅ USING EVENT PIPELINES (TRUTH):', stagesToUse);
-      } else {
-        // Event doesn't have custom pipelines - use all universal stages from schema config
-        stagesToUse = schemaRes.data.stages;
-        console.log('⚠️ FALLING BACK TO SCHEMA STAGES:', stagesToUse);
-      }
+      // ALWAYS use schema config for stages (event.pipelines is DEPRECATED)
+      const stagesToUse = schemaRes.data.stages;
+      console.log('✅ USING SCHEMA STAGES:', stagesToUse);
+      
       setAvailableStages(stagesToUse);
       
       // Save event config to localStorage for surgical access
