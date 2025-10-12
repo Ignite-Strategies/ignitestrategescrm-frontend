@@ -13,16 +13,46 @@ export const OFFICIAL_AUDIENCES = [
   'champions'
 ];
 
-// OFFICIAL STAGES from EventAttendee.currentStage
-export const OFFICIAL_STAGES = [
-  'in_funnel',
-  'general_awareness',
-  'personal_invite',
-  'expressed_interest',
-  'rsvped',
-  'paid',
-  'attended'
-];
+// AUDIENCE-SPECIFIC STAGES
+// Each audience type has its own pipeline stages
+export const AUDIENCE_STAGES = {
+  'org_members': [
+    'in_funnel',
+    'general_awareness',
+    'personal_invite',
+    'expressed_interest',
+    'rsvped',
+    'paid',
+    'attended'
+  ],
+  'friends_family': [
+    'in_funnel',
+    'general_awareness',
+    'personal_invite',
+    'expressed_interest',
+    'rsvped',
+    'paid',
+    'attended'
+  ],
+  'community_partners': [
+    'interested',
+    'partner'
+  ],
+  'business_sponsor': [
+    'interested',
+    'sponsor'
+  ],
+  'champions': [
+    'aware',
+    'committed',
+    'executing'
+  ]
+};
+
+// Get stages for specific audience
+export const getStagesForAudience = (audienceType) => {
+  return AUDIENCE_STAGES[audienceType] || [];
+};
 
 // Display names for audiences
 export const AUDIENCE_DISPLAY_NAMES = {
