@@ -183,7 +183,7 @@ export default function Forms() {
               <div
                 key={form.id}
                 className="bg-white rounded-lg shadow hover:shadow-md transition p-6 cursor-pointer"
-                onClick={() => navigate(`/forms/${form.id}`)}
+                onClick={() => navigate(`/forms/create?editId=${form.id}`)}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
