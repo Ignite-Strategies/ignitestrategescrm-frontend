@@ -25,24 +25,16 @@ export default function EventPipelineNew() {
 
   const loadAttendees = async (eventId) => {
     try {
-      console.log('🔍 Loading EventAttendees for event:', eventId);
+      console.log('🔍 Loading EventAttendees + Contact data for event:', eventId);
       
-      // Get all EventAttendees for this event (no audienceType filter)
+      // Get EventAttendees with Contact data in one clean query
       const response = await api.get(`/events/${eventId}/attendees`);
       
-      console.log('✅ EventAttendees response:', response.data);
+      console.log('✅ Combined EventAttendee + Contact response:', response.data);
+      
+      // The response now contains both EventAttendee and Contact data in one object
       setAttendees(response.data);
-      
-      // For each attendee, get their contact data
-      const contactPromises = response.data.map(attendee => 
-        api.get(`/contacts/${attendee.contactId}`)
-      );
-      
-      const contactResponses = await Promise.all(contactPromises);
-      const contactData = contactResponses.map(res => res.data);
-      
-      console.log('✅ Contacts data:', contactData);
-      setContacts(contactData);
+      setContacts(response.data); // Same data, but we'll display it differently
       
     } catch (error) {
       console.error('❌ Error loading attendees:', error);
@@ -117,26 +109,25 @@ export default function EventPipelineNew() {
           </div>
         </div>
 
-        {/* Combined View */}
+        {/* Clean Combined View */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Combined View</h2>
+          <h2 className="text-xl font-semibold mb-4">Clean Combined View (EventAttendee + Contact)</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {attendees.map((attendee, index) => {
-              const contact = contacts.find(c => c.id === attendee.contactId);
-              return (
-                <div key={attendee.id} className="bg-white p-4 rounded-lg shadow border">
-                  <h3 className="font-semibold text-gray-900 mb-2">
-                    {contact ? `${contact.firstName} ${contact.lastName}` : 'Unknown Contact'}
-                  </h3>
-                  <div className="text-sm space-y-1">
-                    <div><strong>Email:</strong> {contact?.email || 'N/A'}</div>
-                    <div><strong>Phone:</strong> {contact?.phone || 'N/A'}</div>
-                    <div><strong>Stage:</strong> {attendee.currentStage || 'NULL'}</div>
-                    <div><strong>Audience:</strong> {attendee.audienceType || 'NULL'}</div>
-                  </div>
+            {attendees.map((item, index) => (
+              <div key={item.attendeeId} className="bg-white p-4 rounded-lg shadow border">
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  {item.firstName ? `${item.firstName} ${item.lastName}` : 'Unknown Contact'}
+                </h3>
+                <div className="text-sm space-y-1">
+                  <div><strong>Email:</strong> {item.email || 'N/A'}</div>
+                  <div><strong>Phone:</strong> {item.phone || 'N/A'}</div>
+                  <div><strong>Stage:</strong> {item.currentStage || 'NULL'}</div>
+                  <div><strong>Audience:</strong> {item.audienceType || 'NULL'}</div>
+                  <div><strong>Attendee ID:</strong> {item.attendeeId}</div>
+                  <div><strong>Contact ID:</strong> {item.contactId}</div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
 
