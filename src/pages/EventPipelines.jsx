@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import api from "../lib/api";
-import { OFFICIAL_AUDIENCES, getStagesForAudience } from "../config/pipelineConfig";
 
 export default function EventPipelines() {
   const { eventId } = useParams();
@@ -12,6 +11,8 @@ export default function EventPipelines() {
   const [selectedContacts, setSelectedContacts] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [availableStages, setAvailableStages] = useState([]);
+  const [availableAudiences, setAvailableAudiences] = useState([]);
+  const [pipelineConfigs, setPipelineConfigs] = useState([]);
   const [registryData, setRegistryData] = useState([]);
 
   useEffect(() => {
@@ -24,9 +25,23 @@ export default function EventPipelines() {
     try {
       setLoading(true);
       
-      // Get stages from LOCAL CONFIG (no API call)
-      const stagesToUse = getStagesForAudience(selectedPipeline);
-      console.log('✅ USING CONFIG STAGES for', selectedPipeline, ':', stagesToUse);
+      // Load pipeline configs from DATABASE
+      const configRes = await api.get('/pipeline-config');
+      const configs = configRes.data;
+      
+      console.log('✅ LOADED PIPELINE CONFIGS FROM DATABASE:', configs);
+      
+      setPipelineConfigs(configs);
+      
+      // Extract audiences (in order from API)
+      const audiences = configs.map(c => c.audienceType);
+      setAvailableAudiences(audiences);
+      
+      // Get stages for current selected pipeline
+      const currentConfig = configs.find(c => c.audienceType === selectedPipeline);
+      const stagesToUse = currentConfig ? currentConfig.stages : [];
+      
+      console.log('✅ STAGES for', selectedPipeline, ':', stagesToUse);
       
       setAvailableStages(stagesToUse);
       
@@ -50,7 +65,7 @@ export default function EventPipelines() {
       localStorage.setItem(`event_${eventId}_config`, JSON.stringify({
         eventId,
         pipelines: stagesToUse,
-        audienceTypes: OFFICIAL_AUDIENCES,
+        audienceTypes: audiences,
         selectedAudience: selectedPipeline
       }));
       localStorage.setItem(`event_${eventId}_pipeline_${selectedPipeline}`, JSON.stringify(pipelineRes.data));
@@ -153,7 +168,7 @@ export default function EventPipelines() {
         {/* Pipeline Selector */}
         <div className="mb-6">
           <div className="flex gap-2">
-            {OFFICIAL_AUDIENCES.map((pipeline) => (
+            {availableAudiences.map((pipeline) => (
               <button
                 key={pipeline}
                 onClick={() => setSelectedPipeline(pipeline)}
