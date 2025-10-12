@@ -45,7 +45,7 @@ import CreateCampaign from "./pages/CreateCampaign.jsx";
 import CampaignSequences from "./pages/CampaignSequences.jsx";
 import CampaignList from "./pages/CampaignList.jsx";
 import CampaignWizard from "./pages/CampaignWizard.jsx";
-import Events from "./pages/Events.jsx";
+import EventDashboard from "./pages/EventDashboard.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
 import EventTaskSuggestions from "./pages/EventTaskSuggestions.jsx";
@@ -133,7 +133,7 @@ export default function App() {
           <ProtectedRoute><Dashboard /></ProtectedRoute>
         } />
         <Route path="/events" element={
-          <ProtectedRoute><Events /></ProtectedRoute>
+          <ProtectedRoute><EventDashboard /></ProtectedRoute>
         } />
         <Route path="/event/create" element={
           <ProtectedRoute><EventCreate /></ProtectedRoute>

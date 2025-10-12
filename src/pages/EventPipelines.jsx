@@ -25,27 +25,21 @@ export default function EventPipelines() {
     try {
       setLoading(true);
       
-      // Try to load cached configs from localStorage first
+      // Load configs from localStorage (already cached by EventDashboard)
       const cachedConfigs = localStorage.getItem('pipelineConfigs');
-      let configs;
       
-      if (cachedConfigs) {
-        configs = JSON.parse(cachedConfigs);
-        console.log('✅ USING CACHED PIPELINE CONFIGS:', configs);
-      } else {
-        // Load pipeline configs from DATABASE (only if not cached)
-        const configRes = await api.get('/pipeline-config');
-        configs = configRes.data;
-        
-        console.log('✅ LOADED PIPELINE CONFIGS FROM DATABASE:', configs);
-        
-        // Cache for future use
-        localStorage.setItem('pipelineConfigs', JSON.stringify(configs));
+      if (!cachedConfigs) {
+        console.error('❌ Pipeline configs not cached! Go to /events first.');
+        alert('Please go to Events dashboard first to load configuration.');
+        return;
       }
+      
+      const configs = JSON.parse(cachedConfigs);
+      console.log('✅ USING CACHED PIPELINE CONFIGS (from EventDashboard):', configs);
       
       setPipelineConfigs(configs);
       
-      // Extract audiences (in order from API)
+      // Extract audiences (in order from cache)
       const audiences = configs.map(c => c.audienceType);
       setAvailableAudiences(audiences);
       
@@ -63,25 +57,27 @@ export default function EventPipelines() {
       
       console.log('🔍 EVENT DATA:', eventRes.data);
       
-      // Load pipeline data (attendees)
-      const pipelineRes = await api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`);
-      setRegistryData(pipelineRes.data);
+      // Try to load from cache first, then fetch if needed
+      const cachedPipeline = localStorage.getItem(`event_${eventId}_pipeline_${selectedPipeline}`);
       
-      console.log('📊 PIPELINE DATA:', pipelineRes.data);
-      
-      // Extract all contacts from pipeline data
-      const allContacts = pipelineRes.data.flatMap(stage => stage.contacts || []);
-      setContacts(allContacts);
-      
-      // Save to localStorage for caching
-      localStorage.setItem(`event_${eventId}_config`, JSON.stringify({
-        eventId,
-        pipelines: stagesToUse,
-        audienceTypes: audiences,
-        selectedAudience: selectedPipeline
-      }));
-      localStorage.setItem(`event_${eventId}_pipeline_${selectedPipeline}`, JSON.stringify(pipelineRes.data));
-      localStorage.setItem(`event_${eventId}_data`, JSON.stringify(eventRes.data));
+      if (cachedPipeline) {
+        console.log('✅ USING CACHED PIPELINE DATA for', selectedPipeline);
+        const pipelineData = JSON.parse(cachedPipeline);
+        setRegistryData(pipelineData);
+        
+        const allContacts = pipelineData.flatMap(stage => stage.contacts || []);
+        setContacts(allContacts);
+      } else {
+        console.log('⚠️ Cache miss, fetching pipeline data for', selectedPipeline);
+        const pipelineRes = await api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`);
+        setRegistryData(pipelineRes.data);
+        
+        const allContacts = pipelineRes.data.flatMap(stage => stage.contacts || []);
+        setContacts(allContacts);
+        
+        // Cache it
+        localStorage.setItem(`event_${eventId}_pipeline_${selectedPipeline}`, JSON.stringify(pipelineRes.data));
+      }
       
     } catch (error) {
       console.error('Error loading pipeline data:', error);

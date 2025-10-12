@@ -19,8 +19,38 @@ export default function Events() {
   const loadEvents = async () => {
     try {
       setLoading(true);
+      
+      // Load events for org
       const response = await api.get(`/orgs/${orgId}/events`);
       setEvents(response.data);
+      
+      // HYDRATE PIPELINE CONFIG to localStorage (for EventPipelines page)
+      try {
+        const configRes = await api.get('/pipeline-config');
+        localStorage.setItem('pipelineConfigs', JSON.stringify(configRes.data));
+        console.log('✅ Pipeline configs cached:', configRes.data.length, 'audiences');
+      } catch (configError) {
+        console.error('⚠️ Failed to cache pipeline configs:', configError);
+        // Don't block event loading if config fails
+      }
+      
+      // HYDRATE ALL EVENT ATTENDEES to localStorage (for quick access)
+      try {
+        const eventId = localStorage.getItem('eventId');
+        if (eventId) {
+          // Load attendees for all audiences
+          const audiences = ['org_members', 'friends_family', 'champions', 'community_partners', 'business_sponsor'];
+          for (const audience of audiences) {
+            const attendeesRes = await api.get(`/events/${eventId}/pipeline?audienceType=${audience}`);
+            localStorage.setItem(`event_${eventId}_pipeline_${audience}`, JSON.stringify(attendeesRes.data));
+            console.log(`✅ Cached ${audience} attendees for event ${eventId}`);
+          }
+        }
+      } catch (attendeesError) {
+        console.error('⚠️ Failed to cache event attendees:', attendeesError);
+        // Don't block event loading if attendee caching fails
+      }
+      
     } catch (error) {
       console.error("Error loading events:", error);
     } finally {
