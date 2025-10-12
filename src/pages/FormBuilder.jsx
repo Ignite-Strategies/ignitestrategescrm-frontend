@@ -77,6 +77,7 @@ export default function FormBuilder() {
   const loadFormData = async () => {
     try {
       console.log("🔍 Loading form data for editId:", editId);
+      // Fixed: removed /hydrator from path
       const res = await api.get(`/forms/${editId}/edit`);
       const { eventForm, publicForm } = res.data;
       console.log("📋 Form data loaded:", { eventForm, publicForm });
