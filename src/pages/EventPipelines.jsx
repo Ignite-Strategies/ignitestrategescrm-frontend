@@ -5,31 +5,89 @@ import api from "../lib/api";
 export default function EventPipelines() {
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
-  const [pipelineData, setPipelineData] = useState([]);
+  const [contacts, setContacts] = useState([]);
+  const [selectedPipeline, setSelectedPipeline] = useState('org_members');
+  const [showAddContacts, setShowAddContacts] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState(new Set());
   const [loading, setLoading] = useState(true);
+  const [availableStages, setAvailableStages] = useState([]);
+  const [registryData, setRegistryData] = useState([]);
 
   useEffect(() => {
     if (eventId) {
       loadData();
     }
-  }, [eventId]);
+  }, [eventId, selectedPipeline]);
 
   const loadData = async () => {
     try {
       setLoading(true);
       
-      const [eventRes, pipelineRes] = await Promise.all([
-        api.get(`/events/${eventId}`),
-        api.get(`/events/${eventId}/pipeline?audienceType=org_members`)
-      ]);
-      
+      // Load event data
+      const eventRes = await api.get(`/events/${eventId}`);
       setEvent(eventRes.data);
-      setPipelineData(pipelineRes.data);
+      
+      // Load available stages for the selected pipeline
+      const stagesRes = await api.get(`/schema/audience-stages/${selectedPipeline}`);
+      setAvailableStages(stagesRes.data.stages);
+      
+      // Load pipeline data
+      const pipelineRes = await api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`);
+      setRegistryData(pipelineRes.data);
+      
+      // Extract all contacts from pipeline data
+      const allContacts = pipelineRes.data.flatMap(stage => stage.contacts || []);
+      setContacts(allContacts);
+      
+      // Save to localStorage for caching
+      localStorage.setItem(`event_${eventId}_pipeline_${selectedPipeline}`, JSON.stringify(pipelineRes.data));
+      localStorage.setItem(`event_${eventId}_data`, JSON.stringify(eventRes.data));
+      
     } catch (error) {
       console.error('Error loading pipeline data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getContactsForStage = (stage) => {
+    const stageData = registryData.find(item => item.stage === stage);
+    return stageData ? stageData.contacts : [];
+  };
+
+  const handleStageChange = async (contactId, newStage) => {
+    try {
+      // Update contact stage in backend
+      await api.put(`/contacts/${contactId}/stage`, {
+        stage: newStage,
+        eventId: eventId,
+        audienceType: selectedPipeline
+      });
+      
+      // Reload data to reflect changes
+      loadData();
+    } catch (error) {
+      console.error('Error updating contact stage:', error);
+    }
+  };
+
+  const handleAddContacts = () => {
+    if (selectedContacts.size === 0) {
+      alert("Please select contacts to add to the pipeline!");
+      return;
+    }
+    
+    // Add selected contacts to the pipeline
+    const contactsToAdd = Array.from(selectedContacts);
+    // Implementation for adding contacts to pipeline
+    console.log('Adding contacts to pipeline:', contactsToAdd);
+    
+    // Reset selection and close modal
+    setSelectedContacts(new Set());
+    setShowAddContacts(false);
+    
+    // Reload data
+    loadData();
   };
 
   if (loading) {
@@ -48,52 +106,150 @@ export default function EventPipelines() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{event?.name}</h1>
-          <p className="text-gray-600 mt-2">{event?.description}</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">{event?.name}</h1>
+              <p className="text-gray-600 mt-2">{event?.description}</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowAddContacts(true)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Add Contacts
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Pipeline Selector */}
+        <div className="mb-6">
+          <div className="flex gap-2">
+            {['org_members', 'friends_family', 'landing_page_public', 'community_partners', 'cold_outreach'].map((pipeline) => (
+              <button
+                key={pipeline}
+                onClick={() => setSelectedPipeline(pipeline)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedPipeline === pipeline
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border'
+                }`}
+              >
+                {pipeline.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Pipeline Stages */}
-        <div className="grid grid-cols-4 gap-6">
-          {pipelineData.map((stage) => (
-            <div key={stage.stage} className="bg-white rounded-lg shadow-sm border">
-              {/* Stage Header */}
-              <div className="p-4 border-b">
-                <h3 className="font-semibold text-gray-900 capitalize">
-                  {stage.stage.replace('_', ' ')}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {stage.count} contacts
-                </p>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {availableStages.map((stage) => {
+            const stageContacts = getContactsForStage(stage);
+            return (
+              <div key={stage} className="bg-white rounded-lg shadow-sm border">
+                {/* Stage Header */}
+                <div className="p-4 border-b">
+                  <h3 className="font-semibold text-gray-900 capitalize">
+                    {stage.replace('_', ' ')}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {stageContacts.length} contacts
+                  </p>
+                </div>
 
-              {/* Contacts */}
-              <div className="p-4">
-                {stage.contacts && stage.contacts.length > 0 ? (
-                  <div className="space-y-3">
-                    {stage.contacts.map((contact) => (
-                      <div key={contact._id} className="bg-gray-50 p-3 rounded border">
-                        <div className="font-medium text-gray-900">
-                          {contact.firstName} {contact.lastName}
+                {/* Contacts */}
+                <div className="p-4 min-h-[200px]">
+                  {stageContacts.length > 0 ? (
+                    <div className="space-y-3">
+                      {stageContacts.map((contact) => (
+                        <div key={contact.contactId || contact._id} className="bg-gray-50 p-3 rounded border">
+                          <div className="font-medium text-gray-900">
+                            {contact.firstName} {contact.lastName}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {contact.email}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {contact.phone}
+                          </div>
+                          
+                          {/* Stage Movement Controls */}
+                          <div className="mt-2 flex gap-1">
+                            {availableStages.map((otherStage) => (
+                              otherStage !== stage && (
+                                <button
+                                  key={otherStage}
+                                  onClick={() => handleStageChange(contact.contactId || contact._id, otherStage)}
+                                  className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200 transition-colors"
+                                >
+                                  → {otherStage.replace('_', ' ').substring(0, 8)}
+                                </button>
+                              )
+                            ))}
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-600">
-                          {contact.email}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {contact.phone}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-400">
-                    No contacts
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-400">
+                      No contacts in this stage
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
+        {/* Add Contacts Modal */}
+        {showAddContacts && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+              <h3 className="text-lg font-semibold mb-4">Add Contacts to Pipeline</h3>
+              
+              {/* Contact Selection */}
+              <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
+                {contacts.map((contact) => (
+                  <label key={contact.contactId || contact._id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedContacts.has(contact.contactId || contact._id)}
+                      onChange={(e) => {
+                        const newSelected = new Set(selectedContacts);
+                        if (e.target.checked) {
+                          newSelected.add(contact.contactId || contact._id);
+                        } else {
+                          newSelected.delete(contact.contactId || contact._id);
+                        }
+                        setSelectedContacts(newSelected);
+                      }}
+                      className="rounded"
+                    />
+                    <div>
+                      <div className="font-medium">{contact.firstName} {contact.lastName}</div>
+                      <div className="text-sm text-gray-500">{contact.email}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowAddContacts(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddContacts}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+                >
+                  Add Selected ({selectedContacts.size})
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
