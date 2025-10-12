@@ -8,6 +8,9 @@ export default function Events() {
   const orgId = getOrgId();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showContactsModal, setShowContactsModal] = useState(false);
+  const [selectedEventContacts, setSelectedEventContacts] = useState([]);
+  const [selectedEventName, setSelectedEventName] = useState('');
 
   useEffect(() => {
     loadEvents();
@@ -40,6 +43,34 @@ export default function Events() {
     if (days <= 7) return { label: "This Week", color: "orange" };
     if (days <= 30) return { label: "This Month", color: "blue" };
     return { label: "Upcoming", color: "green" };
+  };
+
+  const loadEventContacts = async (eventId, eventName) => {
+    try {
+      // Load all attendees for this event using our clean backend endpoint
+      const response = await api.get(`/events/${eventId}/attendees`);
+      setSelectedEventContacts(response.data);
+      setSelectedEventName(eventName);
+      setShowContactsModal(true);
+    } catch (error) {
+      console.error('Error loading event contacts:', error);
+      alert('Failed to load contacts for this event');
+    }
+  };
+
+  const deleteContactFromEvent = async (contactId, attendeeId) => {
+    try {
+      // Delete the EventAttendee record (this removes the contact from the event)
+      await api.delete(`/events/${selectedEventContacts[0]?.eventId}/attendees/${attendeeId}`);
+      
+      // Remove from local state
+      setSelectedEventContacts(prev => prev.filter(contact => contact.attendeeId !== attendeeId));
+      
+      alert('Contact removed from event successfully');
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      alert('Failed to remove contact from event');
+    }
   };
 
   return (
@@ -150,65 +181,72 @@ export default function Events() {
           </div>
         </div>
 
-        {/* Dashboard-Style Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Create Event */}
-          <button
-            onClick={() => navigate("/event/create")}
-            className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Create Event</h2>
-            <p className="text-indigo-100 text-sm">Set up a new event with goals and targets</p>
-          </button>
-
-          {/* Add Contacts */}
-          <button
-            onClick={() => navigate("/contacteventmanual")}
-            className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-              </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Add Contacts</h2>
-            <p className="text-emerald-100 text-sm">Quick upload → map to pipeline</p>
-          </button>
-
-          {/* View My Events */}
-          <div className="bg-white rounded-xl shadow-lg p-8 border-2 border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-indigo-100 rounded-xl flex items-center justify-center">
-                <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="text-right">
-                <p className="text-3xl font-bold text-gray-900">{events.length}</p>
-                <p className="text-sm text-gray-600">Total Events</p>
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">My Events</h2>
-            <p className="text-gray-600 text-sm">Browse all events below</p>
+        {/* Primary Event Management */}
+        {events.length > 0 && (
+          <div className="mb-8">
+            {/* Main Event Focus */}
+            {(() => {
+              const mainEvent = events.find(e => e.status === 'upcoming') || events[0];
+              if (!mainEvent) return null;
+              
+              const status = mainEvent.date ? getEventStatus(mainEvent.date) : null;
+              const daysUntil = mainEvent.date ? getDaysUntil(mainEvent.date) : null;
+              
+              return (
+                <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-xl shadow-lg p-8 mb-6">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h2 className="text-3xl font-bold mb-2">{mainEvent.name}</h2>
+                      <p className="text-indigo-100 text-lg">{mainEvent.description}</p>
+                      {status && (
+                        <span className={`inline-block mt-3 px-4 py-2 rounded-full text-sm font-medium ${
+                          status.color === "red" ? "bg-red-500 text-white" :
+                          status.color === "orange" ? "bg-orange-500 text-white" :
+                          status.color === "blue" ? "bg-blue-500 text-white" :
+                          status.color === "green" ? "bg-green-500 text-white" :
+                          "bg-gray-500 text-white"
+                        }`}>
+                          {status.label}
+                          {daysUntil !== null && daysUntil >= 0 && (
+                            <span className="ml-2">({daysUntil} days away)</span>
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-4xl font-bold">{events.length}</p>
+                      <p className="text-indigo-200">Total Events</p>
+                    </div>
+                  </div>
+                  
+                  {/* Quick Actions for Main Event */}
+                  <div className="flex gap-3 flex-wrap">
+                    <button
+                      onClick={() => loadEventContacts(mainEvent.id, mainEvent.name)}
+                      className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    >
+                      👥 Manage Contacts ({mainEvent.attendees?.length || 0})
+                    </button>
+                    <button
+                      onClick={() => navigate(`/event/${mainEvent.id}/pipelines`)}
+                      className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    >
+                      📊 View Pipeline
+                    </button>
+                    <button
+                      onClick={() => navigate("/contacteventmanual")}
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    >
+                      ➕ Add More Contacts
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
-        </div>
+        )}
 
-        {/* Events List */}
+        {/* All Events - Compact List */}
         {loading ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
             <div className="animate-spin w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -222,142 +260,74 @@ export default function Events() {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Events Yet</h3>
-            <p className="text-gray-600 mb-6">Click "Create Event" above to get started</p>
+            <p className="text-gray-600 mb-6">Create your first event to get started</p>
+            <button
+              onClick={() => navigate("/event/create")}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+            >
+              + Create Event
+            </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="bg-white rounded-lg shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">All Events</h3>
+              <p className="text-gray-600 text-sm mt-1">Manage all your events</p>
+            </div>
+            <div className="divide-y divide-gray-200">
             {events.map((event) => {
               const status = event.date ? getEventStatus(event.date) : null;
               const daysUntil = event.date ? getDaysUntil(event.date) : null;
 
               return (
-                <div
-                  key={event.id}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition border border-gray-200"
-                >
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold text-gray-900">{event.name}</h3>
-                          {status && (
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                status.color === "red"
-                                  ? "bg-red-100 text-red-700"
-                                  : status.color === "orange"
-                                  ? "bg-orange-100 text-orange-700"
-                                  : status.color === "blue"
-                                  ? "bg-blue-100 text-blue-700"
-                                  : status.color === "green"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-gray-100 text-gray-700"
-                              }`}
-                            >
-                              {status.label}
-                            </span>
-                          )}
-                        </div>
-                        {event.description && (
-                          <p className="text-gray-600 mb-3">{event.description}</p>
+                <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-1">
+                        <h4 className="font-semibold text-gray-900">{event.name}</h4>
+                        {status && (
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            status.color === "red" ? "bg-red-100 text-red-700" :
+                            status.color === "orange" ? "bg-orange-100 text-orange-700" :
+                            status.color === "blue" ? "bg-blue-100 text-blue-700" :
+                            status.color === "green" ? "bg-green-100 text-green-700" :
+                            "bg-gray-100 text-gray-700"
+                          }`}>
+                            {status.label}
+                            {daysUntil !== null && daysUntil >= 0 && ` (${daysUntil}d)`}
+                          </span>
                         )}
-                        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                          {event.date && (
-                            <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                              <span>
-                                {new Date(event.date).toLocaleDateString()}
-                                {daysUntil !== null && daysUntil >= 0 && (
-                                  <span className="text-indigo-600 font-medium ml-1">({daysUntil} days)</span>
-                                )}
-                              </span>
-                            </div>
-                          )}
-                          {event.time && (
-                            <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <span>{event.time}</span>
-                            </div>
-                          )}
-                          {(event.venueName || event.customLocation) && (
-                            <div className="flex items-center gap-2">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
-                              <span>{event.venueName || event.customLocation}</span>
-                            </div>
-                          )}
-                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        {event.date && (
+                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                        )}
+                        {event.time && <span>{event.time}</span>}
+                        {(event.venueName || event.customLocation) && (
+                          <span>{event.venueName || event.customLocation}</span>
+                        )}
+                        {event.fundraisingGoal > 0 && (
+                          <span className="text-green-600 font-medium">${event.fundraisingGoal.toLocaleString()}</span>
+                        )}
                       </div>
                     </div>
-
-                    {/* Event Goals */}
-                    {event.fundraisingGoal > 0 && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm text-gray-600">Fundraising Goal</p>
-                            <p className="text-lg font-bold text-green-700">${event.fundraisingGoal.toLocaleString()}</p>
-                          </div>
-                          {event.hasTickets && event.ticketCost > 0 && (
-                            <div>
-                              <p className="text-sm text-gray-600">Tickets Needed</p>
-                              <p className="text-lg font-bold text-indigo-700">
-                                {Math.ceil((event.fundraisingGoal + (event.additionalExpenses || 0)) / event.ticketCost)}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-3">
+                    
+                    <div className="flex gap-2">
                       <button
-                        onClick={async () => {
-                          // Smart routing: Check if pretask survey done, if tasks exist
-                          try {
-                            const tasksRes = await api.get(`/events/${event.id}/tasks`);
-                            const hasTasks = tasksRes.data && tasksRes.data.length > 0;
-                            
-                            if (hasTasks) {
-                              // Has tasks → Go to task dashboard
-                              navigate(`/event/${event.id}/tasks`);
-                            } else {
-                              // No tasks → Check if survey done
-                              const surveyRes = await api.get(`/events/${event.id}/pretask-survey`).catch(() => null);
-                              
-                              if (surveyRes && surveyRes.data) {
-                                // Survey done → Go pick tasks
-                                navigate(`/event/${event.id}/task-suggestions`);
-                              } else {
-                                // No survey → Start with baseline
-                                navigate(`/event/${event.id}/setup`);
-                              }
-                            }
-                          } catch (error) {
-                            // Error → Default to setup survey
-                            navigate(`/event/${event.id}/setup`);
-                          }
-                        }}
-                        className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium"
+                        onClick={() => loadEventContacts(event.id, event.name)}
+                        className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition"
                       >
-                        📋 View Tasks
+                        👥 Contacts
                       </button>
                       <button
                         onClick={() => navigate(`/event/${event.id}/pipelines`)}
-                        className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+                        className="px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 transition"
                       >
                         Pipeline
                       </button>
                       <button
                         onClick={() => navigate(`/event/${event.id}/edit`)}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                        className="px-3 py-1 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition"
                       >
                         Edit
                       </button>
@@ -366,6 +336,127 @@ export default function Events() {
                 </div>
               );
             })}
+            </div>
+          </div>
+        )}
+
+        {/* Contacts Modal */}
+        {showContactsModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[80vh] overflow-hidden">
+              {/* Modal Header */}
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">All Contacts - {selectedEventName}</h2>
+                    <p className="text-gray-600 mt-1">{selectedEventContacts.length} contacts registered</p>
+                  </div>
+                  <button
+                    onClick={() => setShowContactsModal(false)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Contacts List */}
+              <div className="overflow-y-auto max-h-[60vh]">
+                {selectedEventContacts.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p>No contacts registered for this event yet</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-200">
+                    {selectedEventContacts.map((contact) => (
+                      <div key={contact.attendeeId} className="p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                <span className="text-indigo-600 font-semibold text-sm">
+                                  {contact.firstName?.[0]}{contact.lastName?.[0]}
+                                </span>
+                              </div>
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-gray-900">
+                                  {contact.firstName} {contact.lastName}
+                                </h3>
+                                <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                                  <span>{contact.email}</span>
+                                  {contact.phone && <span>{contact.phone}</span>}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-4">
+                            {/* Stage Badge */}
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              contact.currentStage === 'rsvp' ? 'bg-green-100 text-green-700' :
+                              contact.currentStage === 'paid' ? 'bg-blue-100 text-blue-700' :
+                              contact.currentStage === 'attended' ? 'bg-purple-100 text-purple-700' :
+                              contact.currentStage === 'cant_attend' ? 'bg-red-100 text-red-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {contact.currentStage?.replace('_', ' ') || 'Unknown'}
+                            </span>
+                            
+                            {/* Audience Type */}
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                              {contact.audienceType?.replace('_', ' ') || 'Unknown'}
+                            </span>
+                            
+                            {/* Delete Button */}
+                            <button
+                              onClick={() => {
+                                if (confirm(`Remove ${contact.firstName} ${contact.lastName} from this event?`)) {
+                                  deleteContactFromEvent(contact.contactId, contact.attendeeId);
+                                }
+                              }}
+                              className="text-red-600 hover:text-red-800 transition-colors p-2 hover:bg-red-50 rounded"
+                              title="Remove from event"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-6 border-t border-gray-200 bg-gray-50">
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    Total: {selectedEventContacts.length} contacts
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => navigate(`/event/${selectedEventContacts[0]?.eventId}/pipelines`)}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+                    >
+                      View Pipeline
+                    </button>
+                    <button
+                      onClick={() => setShowContactsModal(false)}
+                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
