@@ -55,37 +55,31 @@ export default function Welcome() {
         return;
       }
       
-      const { orgMember, org, events, supporters, admin } = hydrationData;
+      const { adminId, orgId, eventId, admin } = hydrationData;
       
       // ROUTING LOGIC - Check what's missing
       
-      // 1. Check if phone number is set (profile complete)
-      if (!orgMember.phone) {
-        console.log('⚠️ No phone, complete profile first');
-        navigate('/profile-setup');
+      // 1. Check if admin exists
+      if (!adminId || !admin) {
+        console.log('⚠️ No admin found, go to signup');
+        navigate('/signup');
         return;
       }
       
       // 2. Check if org exists
-      if (!orgMember.orgId) {
+      if (!orgId) {
         console.log('⚠️ No org linked, go to org/choose');
         navigate('/org/choose');
         return;
       }
       
-      // 3. SAVE ALL DATA TO LOCALSTORAGE
-      localStorage.setItem('orgId', org.id);
-      localStorage.setItem('orgName', org.name);
-      localStorage.setItem('orgMemberId', orgMember.id); // Primary CRM key
-      localStorage.setItem('phone', orgMember.phone); // For profile check
-      
-      // Store the entire first event object
-      const currentEvent = events.length > 0 ? events[0] : null;
-      if (currentEvent) {
-        localStorage.setItem('eventId', currentEvent.id);
-        localStorage.setItem('currentEvent', JSON.stringify(currentEvent));
+      // 3. SAVE CORE IDS TO LOCALSTORAGE
+      localStorage.setItem('adminId', adminId);
+      localStorage.setItem('orgId', orgId);
+      if (eventId) {
+        localStorage.setItem('eventId', eventId);
       }
-
+      
       // 4. HYDRATE EVENTATTENDEE SCHEMA CONFIG
       try {
         const schemaResponse = await api.get('/schema/event-attendee');
@@ -103,23 +97,17 @@ export default function Welcome() {
         // Don't block the flow - schema will be fetched on demand
       }
       
-      // Optional: Save adminId for higher-end operations (but not required for basic CRM)
-      if (admin) {
-        localStorage.setItem('adminId', admin.id);
-        console.log('✅ Admin ID saved for advanced operations:', admin.id);
-      }
-      
-      // 4. Check if events exist
-      if (events.length === 0) {
-        console.log('⚠️ No events, go to event creation');
+      // 5. Check if event exists
+      if (!eventId) {
+        console.log('⚠️ No event, go to event creation');
         navigate('/event/create');
         return;
       }
       
-      // 5. All good - show welcome screen!
+      // 6. All good - show welcome screen!
       console.log('✅ All data exists, showing welcome screen');
-      setOrgName(org.name);
-      setMemberName(orgMember.firstName || 'there');
+      setOrgName('Your Organization'); // We'll fetch org name later if needed
+      setMemberName(admin.role || 'Admin');
       setLoading(false);
       
     } catch (error) {
