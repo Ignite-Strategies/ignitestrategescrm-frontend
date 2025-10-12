@@ -32,16 +32,31 @@ export default function EventPipelines() {
       
       setEvent(eventRes.data);
       
-      // Use event's specific pipeline stages if available, otherwise use all universal stages
+      // DEBUG: Log what we're getting
+      console.log('🔍 EVENT DATA:', eventRes.data);
+      console.log('🔍 EVENT PIPELINES:', eventRes.data.pipelines);
+      console.log('🔍 SCHEMA STAGES:', schemaRes.data.stages);
+      
+      // ALWAYS use event's specific pipeline stages if they exist - NEVER fall back to schema
       let stagesToUse;
       if (eventRes.data.pipelines && eventRes.data.pipelines.length > 0) {
-        // Event has custom pipeline stages - use those
+        // Event has custom pipeline stages - use those (THIS IS THE TRUTH)
         stagesToUse = eventRes.data.pipelines;
+        console.log('✅ USING EVENT PIPELINES (TRUTH):', stagesToUse);
       } else {
         // Event doesn't have custom pipelines - use all universal stages from schema config
         stagesToUse = schemaRes.data.stages;
+        console.log('⚠️ FALLING BACK TO SCHEMA STAGES:', stagesToUse);
       }
       setAvailableStages(stagesToUse);
+      
+      // Save event config to localStorage for surgical access
+      localStorage.setItem(`event_${eventId}_config`, JSON.stringify({
+        eventId,
+        pipelines: stagesToUse,
+        audienceTypes: schemaRes.data.audienceTypes,
+        selectedAudience: selectedPipeline
+      }));
       
       // Load pipeline data
       const pipelineRes = await api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`);
