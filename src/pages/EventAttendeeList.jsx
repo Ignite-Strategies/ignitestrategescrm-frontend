@@ -40,21 +40,63 @@ export default function EventAttendeeList() {
     }
   };
 
-  const handleDeleteAttendee = async (attendeeId, contactName) => {
+  const handleRemoveFromEvent = async (attendeeId, contactName) => {
     if (!confirm(`Remove ${contactName} from this event?`)) {
       return;
     }
 
     try {
       await api.delete(`/events/${eventId}/attendees/${attendeeId}`);
-      console.log('✅ Attendee removed');
+      console.log('✅ Attendee removed from event');
       
       // Reload data
       await loadData();
       
     } catch (error) {
       console.error('❌ Error removing attendee:', error);
-      alert('Failed to remove attendee');
+      alert('Failed to remove attendee from event');
+    }
+  };
+
+  const handleDeleteContact = async (contactId, contactName) => {
+    if (!confirm(`⚠️ PERMANENTLY DELETE ${contactName}?\n\nThis will:\n- Remove them from this event\n- Delete their contact record entirely\n- Remove them from ALL events\n\nThis action cannot be undone!`)) {
+      return;
+    }
+
+    try {
+      // Delete the contact entirely (this should cascade to EventAttendee records)
+      await api.delete(`/contacts/${contactId}`);
+      console.log('✅ Contact deleted entirely');
+      
+      // Reload data
+      await loadData();
+      
+    } catch (error) {
+      console.error('❌ Error deleting contact:', error);
+      alert('Failed to delete contact');
+    }
+  };
+
+  const handleElevateToOrgMember = async (contactId, contactName) => {
+    if (!confirm(`Elevate ${contactName} to Org Member?\n\nThis will:\n- Create an OrgMember record for them\n- Give them access to org features\n- Keep them in all current events`)) {
+      return;
+    }
+
+    try {
+      // Create OrgMember record for this contact
+      await api.post('/org-members', {
+        contactId: contactId,
+        // Add any other org member fields as needed
+      });
+      
+      console.log('✅ Contact elevated to Org Member');
+      
+      // Reload data to show updated status
+      await loadData();
+      
+    } catch (error) {
+      console.error('❌ Error elevating to org member:', error);
+      alert('Failed to elevate to org member');
     }
   };
 
@@ -231,13 +273,26 @@ export default function EventAttendeeList() {
                       
                       {/* Type */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          attendee.actualType === 'org_member' 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-gray-100 text-gray-700'
-                        }`}>
-                          {attendee.actualType === 'org_member' ? '✓ Org Member' : 'Contact Only'}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            attendee.actualType === 'org_member' 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-orange-100 text-orange-700'
+                          }`}>
+                            {attendee.actualType === 'org_member' ? '✓ Org Member' : 'Non-Org'}
+                          </span>
+                          
+                          {/* Elevate button for non-org members */}
+                          {attendee.actualType !== 'org_member' && (
+                            <button
+                              onClick={() => handleElevateToOrgMember(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
+                              className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                              title="Elevate to Org Member"
+                            >
+                              ⬆️
+                            </button>
+                          )}
+                        </div>
                       </td>
                       
                       {/* Actions */}
@@ -249,13 +304,32 @@ export default function EventAttendeeList() {
                           >
                             Edit
                           </button>
-                          <button
-                            onClick={() => handleDeleteAttendee(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                            className="text-red-600 hover:text-red-900 px-2 py-1 rounded"
-                            title="Remove from event"
-                          >
-                            🗑️
-                          </button>
+                          
+                          {/* Dropdown for delete options */}
+                          <div className="relative">
+                            <button
+                              className="text-red-600 hover:text-red-900 px-2 py-1 rounded"
+                              title="Delete options"
+                            >
+                              🗑️
+                            </button>
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                              <div className="py-1">
+                                <button
+                                  onClick={() => handleRemoveFromEvent(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                  Remove from Event
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
+                                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                >
+                                  Delete Contact Entirely
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </td>
                     </tr>
