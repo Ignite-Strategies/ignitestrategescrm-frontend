@@ -366,9 +366,9 @@ export default function UploadPreview() {
                       >
                         <option value="org_members">Org Members</option>
                         <option value="friends_family">Friends & Family</option>
-                        <option value="landing_page_public">Landing Page (Public)</option>
                         <option value="community_partners">Community Partners</option>
-                        <option value="cold_outreach">Cold Outreach</option>
+                        <option value="business_sponsor">Business Sponsor</option>
+                        <option value="champions">Champions</option>
                       </select>
                     </div>
 

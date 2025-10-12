@@ -112,9 +112,9 @@ export default function EventPipelines() {
     const descriptions = {
       'org_members': 'Your organization members',
       'friends_family': 'Friends, co-workers, neighbors',
-      'landing_page_public': 'Landing page submissions',
       'community_partners': 'Partner organizations',
-      'cold_outreach': 'Cold contacts'
+      'business_sponsor': 'Business sponsors',
+      'champions': 'Event champions'
     };
     return descriptions[audience] || 'Event attendees';
   };
