@@ -64,19 +64,18 @@ export default function EventPipelines() {
   };
 
   const getLogicalNextStages = (currentStage) => {
-    // Define logical progression - only show forward movement
-    const stageProgression = {
-      'in_funnel': ['general_awareness', 'personal_invite', 'expressed_interest'],
-      'general_awareness': ['personal_invite', 'expressed_interest', 'rsvp'],
-      'personal_invite': ['expressed_interest', 'rsvp'],
-      'expressed_interest': ['rsvp'],
-      'rsvp': ['paid', 'attended', 'cant_attend'],
-      'paid': ['attended'],
-      'attended': [], // Final stage
-      'cant_attend': [] // Final stage
-    };
+    // Use actual event pipeline stages instead of hardcoded progression
+    if (!availableStages || availableStages.length === 0) {
+      return [];
+    }
 
-    return stageProgression[currentStage] || [];
+    const currentIndex = availableStages.indexOf(currentStage);
+    if (currentIndex === -1) {
+      return [];
+    }
+
+    // Return all stages that come after the current stage
+    return availableStages.slice(currentIndex + 1);
   };
 
   const handleStageChange = async (contactId, newStage) => {
