@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import api from "../lib/api";
 
 export default function EventPipelines() {
   const { eventId } = useParams();
-  const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [pipelineData, setPipelineData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,20 +17,16 @@ export default function EventPipelines() {
   const loadData = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Loading pipeline for event:', eventId);
       
       const [eventRes, pipelineRes] = await Promise.all([
         api.get(`/events/${eventId}`),
         api.get(`/events/${eventId}/pipeline?audienceType=org_members`)
       ]);
       
-      console.log('✅ Event data:', eventRes.data);
-      console.log('✅ Pipeline data:', pipelineRes.data);
-      
       setEvent(eventRes.data);
       setPipelineData(pipelineRes.data);
     } catch (error) {
-      console.error('❌ Error loading data:', error);
+      console.error('Error loading pipeline data:', error);
     } finally {
       setLoading(false);
     }
@@ -99,13 +94,6 @@ export default function EventPipelines() {
           ))}
         </div>
 
-        {/* Debug Info */}
-        <div className="mt-8 bg-gray-100 p-4 rounded">
-          <h3 className="font-semibold mb-2">Debug Info:</h3>
-          <pre className="text-xs overflow-auto">
-            {JSON.stringify(pipelineData, null, 2)}
-          </pre>
-        </div>
       </div>
     </div>
   );
