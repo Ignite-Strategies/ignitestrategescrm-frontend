@@ -18,14 +18,24 @@ export default function Forms() {
   const loadData = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Loading forms with orgId:', orgId);
+      console.log('🔍 Forms API URL:', `/forms?orgId=${orgId}`);
+      console.log('🔍 Events API URL:', `/orgs/${orgId}/events`);
+      
       const [formsRes, eventsRes] = await Promise.all([
-        api.get(`/forms/hydrator?orgId=${orgId}`),
+        api.get(`/forms?orgId=${orgId}`),
         api.get(`/orgs/${orgId}/events`)
       ]);
+      
+      console.log('✅ Forms response:', formsRes.data);
+      console.log('✅ Events response:', eventsRes.data);
+      
       setForms(formsRes.data || []);
       setEvents(eventsRes.data || []);
     } catch (error) {
-      console.error("Error loading forms:", error);
+      console.error("❌ Error loading forms:", error);
+      console.error("❌ Error response:", error.response?.data);
+      console.error("❌ Error status:", error.response?.status);
       setForms([]);
       setEvents([]);
     } finally {
@@ -33,7 +43,9 @@ export default function Forms() {
     }
   };
 
-  const getEventName = (eventId) => {
+  const getEventName = (eventId, eventObj) => {
+    // Use embedded event object first, fallback to events array, then "Unknown Event"
+    if (eventObj?.name) return eventObj.name;
     const event = events.find(e => e.id === eventId);
     return event?.name || "Unknown Event";
   };
@@ -176,7 +188,7 @@ export default function Forms() {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">{form.name}</h3>
+                      <h3 className="text-xl font-bold text-gray-900">{form.name || form.publicTitle || 'Untitled Form'}</h3>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
                           form.isActive
@@ -191,11 +203,11 @@ export default function Forms() {
                       {form.description || "No description"}
                     </p>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>📅 {getEventName(form.eventId)}</span>
+                      <span>📅 {getEventName(form.eventId, form.event)}</span>
                       <span>•</span>
                       <span>📊 {form.submissionCount || 0} submissions</span>
                       <span>•</span>
-                      <span>🎯 Target: {form.targetStage}</span>
+                      <span>🎯 Target: {form.targetStage || 'N/A'}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
