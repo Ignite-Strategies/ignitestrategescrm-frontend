@@ -20,8 +20,6 @@ import ContactDetail from "./pages/ContactDetail.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
 import EventSuccess from "./pages/EventSuccess.jsx";
 import EventPipelines from "./pages/EventPipelines.jsx";
-import EventPipelineConfig from "./pages/EventPipelineConfig.jsx";
-import EventAudiences from "./pages/EventAudiences.jsx";
 import EventEngagementAdvisory from "./pages/EventEngagementAdvisory.jsx";
 import EventPipelineSuccess from "./pages/EventPipelineSuccess.jsx";
 // import EventPipelineSetup from "./pages/EventPipelineSetup.jsx"; // REMOVED - deprecated
@@ -145,12 +143,6 @@ export default function App() {
         } />
         <Route path="/event/:eventId/pipelines" element={
           <ProtectedRoute><EventPipelines /></ProtectedRoute>
-        } />
-        <Route path="/event/:eventId/pipeline-config" element={
-          <ProtectedRoute><EventPipelineConfig /></ProtectedRoute>
-        } />
-        <Route path="/event/:eventId/audiences" element={
-          <ProtectedRoute><EventAudiences /></ProtectedRoute>
         } />
         <Route path="/event/:eventId/engagement-advisory" element={
           <ProtectedRoute><EventEngagementAdvisory /></ProtectedRoute>

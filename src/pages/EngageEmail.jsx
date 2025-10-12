@@ -106,11 +106,12 @@ export default function EngageEmail() {
                     disabled={!selectedEvent}
                   >
                     <option value="">All stages</option>
-                    <option value="sop_entry">SOP Entry</option>
-                    <option value="rsvp">RSVP</option>
+                    <option value="in_funnel">In Funnel</option>
+                    <option value="general_awareness">General Awareness</option>
+                    <option value="personal_invite">Personal Invite</option>
+                    <option value="expressed_interest">Expressed Interest</option>
+                    <option value="soft_commit">Soft Commit</option>
                     <option value="paid">Paid</option>
-                    <option value="attended">Attended</option>
-                    <option value="champion">Champion</option>
                   </select>
                 </div>
 
