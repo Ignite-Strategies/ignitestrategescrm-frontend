@@ -166,7 +166,7 @@ export default function EventPipelines() {
       setRegistryData(registryRes.data); // New registry format with contact data included
       
       // Extract all contacts from registry data (they're included in the pipeline response)
-      const allContacts = registryRes.data.flatMap(stage => stage.supporters || []);
+      const allContacts = registryRes.data.flatMap(stage => stage.contacts || []);
       setSupporters(allContacts);
       
       console.log('📋 FRONTEND: Loaded registry data:', registryRes.data);
@@ -264,7 +264,7 @@ export default function EventPipelines() {
 
   const getSupportersForStage = (stage) => {
     const stageData = registryData.find(stageData => stageData.stage === stage);
-    return stageData ? stageData.supporters : [];
+    return stageData ? stageData.contacts : [];  // NEW: contacts (not deprecated supporters)
   };
 
   const getPipelineCounts = () => {
