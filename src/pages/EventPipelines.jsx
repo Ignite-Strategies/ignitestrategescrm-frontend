@@ -157,15 +157,17 @@ export default function EventPipelines() {
 
   const loadData = async () => {
     try {
-      const [eventRes, registryRes, supportersRes] = await Promise.all([
+      const [eventRes, registryRes] = await Promise.all([
         api.get(`/events/${eventId}`),
-        api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`),
-        api.get(`/orgs/${orgId}/supporters`)
+        api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`)
       ]);
       
       setEvent(eventRes.data);
-      setRegistryData(registryRes.data); // New registry format
-      setSupporters(supportersRes.data);
+      setRegistryData(registryRes.data); // New registry format with contact data included
+      
+      // Extract all contacts from registry data (they're included in the pipeline response)
+      const allContacts = registryRes.data.flatMap(stage => stage.supporters || []);
+      setSupporters(allContacts);
       
       console.log('📋 FRONTEND: Loaded registry data:', registryRes.data);
     } catch (error) {
