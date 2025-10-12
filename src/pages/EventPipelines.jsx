@@ -25,11 +25,23 @@ export default function EventPipelines() {
     try {
       setLoading(true);
       
-      // Load pipeline configs from DATABASE
-      const configRes = await api.get('/pipeline-config');
-      const configs = configRes.data;
+      // Try to load cached configs from localStorage first
+      const cachedConfigs = localStorage.getItem('pipelineConfigs');
+      let configs;
       
-      console.log('✅ LOADED PIPELINE CONFIGS FROM DATABASE:', configs);
+      if (cachedConfigs) {
+        configs = JSON.parse(cachedConfigs);
+        console.log('✅ USING CACHED PIPELINE CONFIGS:', configs);
+      } else {
+        // Load pipeline configs from DATABASE (only if not cached)
+        const configRes = await api.get('/pipeline-config');
+        configs = configRes.data;
+        
+        console.log('✅ LOADED PIPELINE CONFIGS FROM DATABASE:', configs);
+        
+        // Cache for future use
+        localStorage.setItem('pipelineConfigs', JSON.stringify(configs));
+      }
       
       setPipelineConfigs(configs);
       
