@@ -274,11 +274,7 @@ export default function EventAttendeeList() {
                       {/* Type */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            attendee.actualType === 'org_member' 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-orange-100 text-orange-700'
-                          }`}>
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
                             {attendee.actualType === 'org_member' ? '✓ Org Member' : 'Non-Org'}
                           </span>
                           
@@ -286,7 +282,7 @@ export default function EventAttendeeList() {
                           {attendee.actualType !== 'org_member' && (
                             <button
                               onClick={() => handleElevateToOrgMember(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                              className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                              className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
                               title="Elevate to Org Member"
                             >
                               ⬆️
