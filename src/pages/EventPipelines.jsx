@@ -169,7 +169,12 @@ export default function EventPipelines() {
       const allContacts = registryRes.data.flatMap(stage => stage.contacts || []);
       setSupporters(allContacts);
       
+      // Save to localStorage for persistence
+      localStorage.setItem(`event_${eventId}_pipeline_${selectedPipeline}`, JSON.stringify(registryRes.data));
+      localStorage.setItem(`event_${eventId}_data`, JSON.stringify(eventRes.data));
+      
       console.log('📋 FRONTEND: Loaded registry data:', registryRes.data);
+      console.log('💾 Saved to localStorage');
     } catch (error) {
       console.error("Error loading data:", error);
     }
