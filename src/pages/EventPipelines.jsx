@@ -199,15 +199,27 @@ export default function EventPipelines() {
                           
                           {/* Stage Movement Controls - Only show logical next steps */}
                           <div className="mt-2 flex gap-1 flex-wrap">
-                            {getLogicalNextStages(stage).map((nextStage) => (
-                              <button
-                                key={nextStage}
-                                onClick={() => handleStageChange(contact.contactId || contact._id, nextStage)}
-                                className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200 transition-colors"
-                              >
-                                → {nextStage.replace('_', ' ').substring(0, 8)}
-                              </button>
-                            ))}
+                            {getLogicalNextStages(stage).map((nextStage) => {
+                              const buttonText = nextStage === 'paid' ? 'Pay' :
+                                               nextStage === 'attended' ? 'Attend' :
+                                               nextStage === 'cant_attend' ? "Can't Make It" :
+                                               nextStage.replace('_', ' ');
+                              
+                              return (
+                                <button
+                                  key={nextStage}
+                                  onClick={() => handleStageChange(contact.contactId || contact._id, nextStage)}
+                                  className={`text-xs px-3 py-1 rounded font-medium transition-colors ${
+                                    nextStage === 'paid' ? 'bg-green-100 text-green-700 hover:bg-green-200' :
+                                    nextStage === 'attended' ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' :
+                                    nextStage === 'cant_attend' ? 'bg-red-100 text-red-700 hover:bg-red-200' :
+                                    'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                  }`}
+                                >
+                                  {buttonText}
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
                       ))}
