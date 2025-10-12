@@ -407,9 +407,13 @@ export default function Events() {
                               {contact.currentStage?.replace('_', ' ') || 'Unknown'}
                             </span>
                             
-                            {/* Audience Type */}
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                              {contact.audienceType?.replace('_', ' ') || 'Unknown'}
+                            {/* Actual Type - Org Member vs External Contact */}
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              contact.actualType === 'org_member' 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-orange-100 text-orange-700'
+                            }`}>
+                              {contact.actualType === 'org_member' ? 'Org Member' : 'External Contact'}
                             </span>
                             
                             {/* Delete Button */}
