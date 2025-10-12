@@ -297,8 +297,12 @@ export default function FormBuilder() {
           >
             ← Back to Forms
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Create New Form</h1>
-          <p className="text-gray-600 mt-1">Build a custom intake form for your event</p>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isEditing ? 'Edit Form' : 'Create New Form'}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {isEditing ? 'Update your form configuration' : 'Build a custom intake form for your event'}
+          </p>
         </div>
       </div>
 
