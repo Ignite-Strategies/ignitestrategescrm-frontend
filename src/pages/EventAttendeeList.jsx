@@ -25,6 +25,8 @@ export default function EventAttendeeList() {
       
       // Load all attendees for this event (no audience filter)
       const attendeesRes = await api.get(`/events/${eventId}/attendees`);
+      console.log('🔍 RAW API RESPONSE:', attendeesRes.data);
+      console.log('🔍 FIRST ATTENDEE:', attendeesRes.data[0]);
       setAttendees(attendeesRes.data);
       
       console.log('📋 Loaded', attendeesRes.data.length, 'attendees for event:', eventRes.data.name);
