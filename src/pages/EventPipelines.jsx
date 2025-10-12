@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import api from "../lib/api";
+import { OFFICIAL_AUDIENCES, getStagesForAudience } from "../config/pipelineConfig";
 
 export default function EventPipelines() {
   const { eventId } = useParams();
@@ -11,7 +12,6 @@ export default function EventPipelines() {
   const [selectedContacts, setSelectedContacts] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [availableStages, setAvailableStages] = useState([]);
-  const [availableAudienceTypes, setAvailableAudienceTypes] = useState([]);
   const [registryData, setRegistryData] = useState([]);
 
   useEffect(() => {
@@ -24,41 +24,35 @@ export default function EventPipelines() {
     try {
       setLoading(true);
       
-      // Load event data and schema config in parallel
-      const [eventRes, schemaRes] = await Promise.all([
-        api.get(`/events/${eventId}`),
-        api.get(`/schema/event-attendee`)
-      ]);
-      
-      setEvent(eventRes.data);
-      
-      // DEBUG: Log what we're getting
-      console.log('🔍 EVENT DATA:', eventRes.data);
-      console.log('🔍 SCHEMA STAGES:', schemaRes.data.stages);
-      
-      // ALWAYS use schema config for stages (event.pipelines is DEPRECATED)
-      const stagesToUse = schemaRes.data.stages;
-      console.log('✅ USING SCHEMA STAGES:', stagesToUse);
+      // Get stages from LOCAL CONFIG (no API call)
+      const stagesToUse = getStagesForAudience(selectedPipeline);
+      console.log('✅ USING CONFIG STAGES for', selectedPipeline, ':', stagesToUse);
       
       setAvailableStages(stagesToUse);
       
-      // Save event config to localStorage for surgical access
-      localStorage.setItem(`event_${eventId}_config`, JSON.stringify({
-        eventId,
-        pipelines: stagesToUse,
-        audienceTypes: schemaRes.data.audienceTypes,
-        selectedAudience: selectedPipeline
-      }));
+      // Load event data
+      const eventRes = await api.get(`/events/${eventId}`);
+      setEvent(eventRes.data);
       
-      // Load pipeline data
+      console.log('🔍 EVENT DATA:', eventRes.data);
+      
+      // Load pipeline data (attendees)
       const pipelineRes = await api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`);
       setRegistryData(pipelineRes.data);
+      
+      console.log('📊 PIPELINE DATA:', pipelineRes.data);
       
       // Extract all contacts from pipeline data
       const allContacts = pipelineRes.data.flatMap(stage => stage.contacts || []);
       setContacts(allContacts);
       
       // Save to localStorage for caching
+      localStorage.setItem(`event_${eventId}_config`, JSON.stringify({
+        eventId,
+        pipelines: stagesToUse,
+        audienceTypes: OFFICIAL_AUDIENCES,
+        selectedAudience: selectedPipeline
+      }));
       localStorage.setItem(`event_${eventId}_pipeline_${selectedPipeline}`, JSON.stringify(pipelineRes.data));
       localStorage.setItem(`event_${eventId}_data`, JSON.stringify(eventRes.data));
       
@@ -159,7 +153,7 @@ export default function EventPipelines() {
         {/* Pipeline Selector */}
         <div className="mb-6">
           <div className="flex gap-2">
-            {['org_members', 'friends_family', 'landing_page_public', 'community_partners', 'cold_outreach'].map((pipeline) => (
+            {OFFICIAL_AUDIENCES.map((pipeline) => (
               <button
                 key={pipeline}
                 onClick={() => setSelectedPipeline(pipeline)}
