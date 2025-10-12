@@ -11,6 +11,7 @@ export default function EventPipelines() {
   const [selectedContacts, setSelectedContacts] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [availableStages, setAvailableStages] = useState([]);
+  const [availableAudienceTypes, setAvailableAudienceTypes] = useState([]);
   const [registryData, setRegistryData] = useState([]);
 
   useEffect(() => {
@@ -23,19 +24,22 @@ export default function EventPipelines() {
     try {
       setLoading(true);
       
-      // Load event data
-      const eventRes = await api.get(`/events/${eventId}`);
+      // Load event data and schema config in parallel
+      const [eventRes, schemaRes] = await Promise.all([
+        api.get(`/events/${eventId}`),
+        api.get(`/schema/event-attendee`)
+      ]);
+      
       setEvent(eventRes.data);
       
-      // Use event's specific pipeline stages instead of universal stages
-      // If event has custom pipelines, use those; otherwise fall back to universal stages
+      // Use event's specific pipeline stages if available, otherwise use all universal stages
       let stagesToUse;
       if (eventRes.data.pipelines && eventRes.data.pipelines.length > 0) {
+        // Event has custom pipeline stages - use those
         stagesToUse = eventRes.data.pipelines;
       } else {
-        // Fall back to universal stages if event doesn't have custom pipelines
-        const stagesRes = await api.get(`/schema/audience-stages/${selectedPipeline}`);
-        stagesToUse = stagesRes.data.stages;
+        // Event doesn't have custom pipelines - use all universal stages from schema config
+        stagesToUse = schemaRes.data.stages;
       }
       setAvailableStages(stagesToUse);
       
@@ -196,30 +200,23 @@ export default function EventPipelines() {
                             {contact.phone}
                           </div>
                           
-                          {/* Stage Movement Controls - Only show logical next steps */}
-                          <div className="mt-2 flex gap-1 flex-wrap">
-                            {getLogicalNextStages(stage).map((nextStage) => {
-                              const buttonText = nextStage === 'paid' ? 'Pay' :
-                                               nextStage === 'attended' ? 'Attend' :
-                                               nextStage === 'cant_attend' ? "Can't Make It" :
-                                               nextStage.replace('_', ' ');
-                              
-                              return (
-                                <button
-                                  key={nextStage}
-                                  onClick={() => handleStageChange(contact.contactId || contact._id, nextStage)}
-                                  className={`text-xs px-3 py-1 rounded font-medium transition-colors ${
-                                    nextStage === 'paid' ? 'bg-green-100 text-green-700 hover:bg-green-200' :
-                                    nextStage === 'attended' ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' :
-                                    nextStage === 'cant_attend' ? 'bg-red-100 text-red-700 hover:bg-red-200' :
-                                    'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                  }`}
-                                >
-                                  {buttonText}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          {/* Single Forward Arrow - Move to Next Stage */}
+                          {getLogicalNextStages(stage).length > 0 && (
+                            <div className="mt-2">
+                              <button
+                                onClick={() => {
+                                  const nextStage = getLogicalNextStages(stage)[0]; // Get first next stage
+                                  handleStageChange(contact.contactId || contact._id, nextStage);
+                                }}
+                                className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded font-medium hover:bg-indigo-200 transition-colors flex items-center gap-1"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                                Next Stage
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
