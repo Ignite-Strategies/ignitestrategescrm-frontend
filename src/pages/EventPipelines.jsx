@@ -27,9 +27,17 @@ export default function EventPipelines() {
       const eventRes = await api.get(`/events/${eventId}`);
       setEvent(eventRes.data);
       
-      // Load available stages for the selected pipeline
-      const stagesRes = await api.get(`/schema/audience-stages/${selectedPipeline}`);
-      setAvailableStages(stagesRes.data.stages);
+      // Use event's specific pipeline stages instead of universal stages
+      // If event has custom pipelines, use those; otherwise fall back to universal stages
+      let stagesToUse;
+      if (eventRes.data.pipelines && eventRes.data.pipelines.length > 0) {
+        stagesToUse = eventRes.data.pipelines;
+      } else {
+        // Fall back to universal stages if event doesn't have custom pipelines
+        const stagesRes = await api.get(`/schema/audience-stages/${selectedPipeline}`);
+        stagesToUse = stagesRes.data.stages;
+      }
+      setAvailableStages(stagesToUse);
       
       // Load pipeline data
       const pipelineRes = await api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`);
@@ -53,6 +61,22 @@ export default function EventPipelines() {
   const getContactsForStage = (stage) => {
     const stageData = registryData.find(item => item.stage === stage);
     return stageData ? stageData.contacts : [];
+  };
+
+  const getLogicalNextStages = (currentStage) => {
+    // Define logical progression - only show forward movement
+    const stageProgression = {
+      'in_funnel': ['general_awareness', 'personal_invite', 'expressed_interest'],
+      'general_awareness': ['personal_invite', 'expressed_interest', 'rsvp'],
+      'personal_invite': ['expressed_interest', 'rsvp'],
+      'expressed_interest': ['rsvp'],
+      'rsvp': ['paid', 'attended', 'cant_attend'],
+      'paid': ['attended'],
+      'attended': [], // Final stage
+      'cant_attend': [] // Final stage
+    };
+
+    return stageProgression[currentStage] || [];
   };
 
   const handleStageChange = async (contactId, newStage) => {
@@ -173,18 +197,16 @@ export default function EventPipelines() {
                             {contact.phone}
                           </div>
                           
-                          {/* Stage Movement Controls */}
-                          <div className="mt-2 flex gap-1">
-                            {availableStages.map((otherStage) => (
-                              otherStage !== stage && (
-                                <button
-                                  key={otherStage}
-                                  onClick={() => handleStageChange(contact.contactId || contact._id, otherStage)}
-                                  className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200 transition-colors"
-                                >
-                                  → {otherStage.replace('_', ' ').substring(0, 8)}
-                                </button>
-                              )
+                          {/* Stage Movement Controls - Only show logical next steps */}
+                          <div className="mt-2 flex gap-1 flex-wrap">
+                            {getLogicalNextStages(stage).map((nextStage) => (
+                              <button
+                                key={nextStage}
+                                onClick={() => handleStageChange(contact.contactId || contact._id, nextStage)}
+                                className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200 transition-colors"
+                              >
+                                → {nextStage.replace('_', ' ').substring(0, 8)}
+                              </button>
                             ))}
                           </div>
                         </div>
