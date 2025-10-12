@@ -27,6 +27,8 @@ export default function EventAttendeeList() {
       const attendeesRes = await api.get(`/events/${eventId}/attendees`);
       console.log('🔍 RAW API RESPONSE:', attendeesRes.data);
       console.log('🔍 FIRST ATTENDEE:', attendeesRes.data[0]);
+      console.log('🔍 FIRST ATTENDEE CONTACT:', attendeesRes.data[0]?.contact);
+      console.log('🔍 FIRST ATTENDEE FIRSTNAME:', attendeesRes.data[0]?.contact?.firstName);
       setAttendees(attendeesRes.data);
       
       console.log('📋 Loaded', attendeesRes.data.length, 'attendees for event:', eventRes.data.name);
@@ -141,91 +143,127 @@ export default function EventAttendeeList() {
           </div>
         </div>
 
-        {/* Attendees List */}
-        <div className="bg-white rounded-lg shadow-sm">
+        {/* Attendees Table */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-medium text-gray-900">All Attendees ({attendees.length})</h2>
           </div>
           
-          <div className="divide-y divide-gray-200">
-            {attendees.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-                <div className="text-gray-400 text-lg mb-2">👥</div>
-                <p className="text-gray-600">No attendees registered for this event yet.</p>
-                <button
-                  onClick={() => navigate(`/event/${eventId}/pipelines`)}
-                  className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-                >
-                  View Pipeline
-                </button>
-              </div>
-            ) : (
-              attendees.map((attendee) => (
-                <div key={attendee.attendeeId} className="px-6 py-4 hover:bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    
-                    {/* Contact Info */}
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                        <span className="text-indigo-600 font-medium text-sm">
-                          {attendee.contact?.firstName?.[0]}{attendee.contact?.lastName?.[0]}
+          {attendees.length === 0 ? (
+            <div className="px-6 py-12 text-center">
+              <div className="text-gray-400 text-lg mb-2">👥</div>
+              <p className="text-gray-600">No attendees registered for this event yet.</p>
+              <button
+                onClick={() => navigate(`/event/${eventId}/pipelines`)}
+                className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+              >
+                View Pipeline
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Phone
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Audience
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Stage
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {attendees.map((attendee) => (
+                    <tr key={attendee.id} className="hover:bg-gray-50">
+                      {/* Name */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-indigo-600 font-medium text-xs">
+                              {attendee.contact?.firstName?.[0]}{attendee.contact?.lastName?.[0]}
+                            </span>
+                          </div>
+                          <div className="font-medium text-gray-900">
+                            {attendee.contact?.firstName} {attendee.contact?.lastName}
+                          </div>
+                        </div>
+                      </td>
+                      
+                      {/* Email */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {attendee.contact?.email}
+                      </td>
+                      
+                      {/* Phone */}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {attendee.contact?.phone}
+                      </td>
+                      
+                      {/* Audience */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAudienceColor(attendee.audienceType)}`}>
+                          {attendee.audienceType?.replace('_', ' ') || 'Unknown'}
                         </span>
-                      </div>
+                      </td>
                       
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          {attendee.contact?.firstName} {attendee.contact?.lastName}
+                      {/* Stage */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStageColor(attendee.currentStage)}`}>
+                          {attendee.currentStage?.replace('_', ' ') || 'Unknown'}
+                        </span>
+                      </td>
+                      
+                      {/* Type */}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          attendee.actualType === 'org_member' 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {attendee.actualType === 'org_member' ? '✓ Org Member' : 'Contact Only'}
+                        </span>
+                      </td>
+                      
+                      {/* Actions */}
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => navigate(`/event/${eventId}/pipelines`)}
+                            className="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAttendee(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
+                            className="text-red-600 hover:text-red-900 px-2 py-1 rounded"
+                            title="Remove from event"
+                          >
+                            🗑️
+                          </button>
                         </div>
-                        <div className="text-sm text-gray-600">
-                          {attendee.contact?.email} • {attendee.contact?.phone}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="flex items-center gap-2">
-                      {/* Audience Badge */}
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getAudienceColor(attendee.audienceType)}`}>
-                        {attendee.audienceType?.replace('_', ' ') || 'Unknown'}
-                      </span>
-                      
-                      {/* Stage Badge */}
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStageColor(attendee.currentStage)}`}>
-                        {attendee.currentStage?.replace('_', ' ') || 'Unknown'}
-                      </span>
-                      
-                      {/* Actual Type Badge */}
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        attendee.actualType === 'org_member' 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {attendee.actualType === 'org_member' ? '✓ Org Member' : 'Contact Only'}
-                      </span>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => navigate(`/event/${eventId}/pipelines`)}
-                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-                      >
-                        View Pipeline
-                      </button>
-                      
-                      <button
-                        onClick={() => handleDeleteAttendee(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                        className="text-red-600 hover:text-red-800 p-1"
-                        title="Remove from event"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
