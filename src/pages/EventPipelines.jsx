@@ -63,16 +63,20 @@ export default function EventPipelines() {
       if (cachedPipeline) {
         console.log('✅ USING CACHED PIPELINE DATA for', selectedPipeline);
         const pipelineData = JSON.parse(cachedPipeline);
+        console.log('🔍 CACHED PIPELINE DATA:', pipelineData);
         setRegistryData(pipelineData);
         
         const allContacts = pipelineData.flatMap(stage => stage.contacts || []);
+        console.log('🔍 ALL CONTACTS FROM CACHE:', allContacts);
         setContacts(allContacts);
       } else {
         console.log('⚠️ Cache miss, fetching pipeline data for', selectedPipeline);
         const pipelineRes = await api.get(`/events/${eventId}/pipeline?audienceType=${selectedPipeline}`);
+        console.log('🔍 FRESH PIPELINE DATA:', pipelineRes.data);
         setRegistryData(pipelineRes.data);
         
         const allContacts = pipelineRes.data.flatMap(stage => stage.contacts || []);
+        console.log('🔍 ALL CONTACTS FROM API:', allContacts);
         setContacts(allContacts);
         
         // Cache it

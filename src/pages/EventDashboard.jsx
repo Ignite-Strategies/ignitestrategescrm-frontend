@@ -9,6 +9,7 @@ export default function Events() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showContactsModal, setShowContactsModal] = useState(false);
+  const [eventStats, setEventStats] = useState(null);
   const [selectedEventContacts, setSelectedEventContacts] = useState([]);
   const [selectedEventName, setSelectedEventName] = useState('');
 
@@ -23,6 +24,12 @@ export default function Events() {
       // Load events for org
       const response = await api.get(`/orgs/${orgId}/events`);
       setEvents(response.data);
+      
+      // Load stats for the main event if we have events
+      if (response.data.length > 0) {
+        const mainEvent = response.data.find(e => e.status === 'upcoming') || response.data[0];
+        await loadEventStats(mainEvent.id);
+      }
       
       // HYDRATE PIPELINE CONFIG to localStorage (for EventPipelines page)
       try {
@@ -55,6 +62,38 @@ export default function Events() {
       console.error("Error loading events:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadEventStats = async (eventId) => {
+    try {
+      // Load all attendees for this event (no audience filter)
+      const response = await api.get(`/events/${eventId}/attendees`);
+      const attendees = response.data;
+      
+      // Count by stage
+      const stats = {
+        totalRsvp: 0,
+        totalPaid: 0,
+        totalAttended: 0
+      };
+      
+      attendees.forEach(attendee => {
+        if (attendee.currentStage === 'rsvped' || attendee.currentStage === 'rsvp') {
+          stats.totalRsvp++;
+        } else if (attendee.currentStage === 'paid') {
+          stats.totalPaid++;
+        } else if (attendee.currentStage === 'attended') {
+          stats.totalAttended++;
+        }
+      });
+      
+      console.log('📊 Event stats loaded:', stats);
+      setEventStats(stats);
+      
+    } catch (error) {
+      console.error('❌ Error loading event stats:', error);
+      setEventStats({ totalRsvp: 0, totalPaid: 0, totalAttended: 0 });
     }
   };
 
@@ -249,13 +288,22 @@ export default function Events() {
                     </div>
                   </div>
                   
+                  {/* Event Summary Stats */}
+                  <div className="bg-white bg-opacity-10 rounded-lg p-4 mb-4">
+                    <div className="flex gap-6 text-sm">
+                      <span>📝 Total RSVP: <span className="font-bold">{eventStats?.totalRsvp || 0}</span></span>
+                      <span>💳 Paid: <span className="font-bold">{eventStats?.totalPaid || 0}</span></span>
+                      <span>✅ Attended: <span className="font-bold">{eventStats?.totalAttended || 0}</span></span>
+                    </div>
+                  </div>
+                  
                   {/* Quick Actions for Main Event */}
                   <div className="flex gap-3 flex-wrap">
                     <button
-                      onClick={() => loadEventContacts(mainEvent.id, mainEvent.name)}
+                      onClick={() => navigate(`/event/${mainEvent.id}/attendees`)}
                       className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                     >
-                      👥 Manage Contacts ({mainEvent.attendees?.length || 0})
+                      👥 Manage Contacts
                     </button>
                     <button
                       onClick={() => navigate(`/event/${mainEvent.id}/pipelines`)}
@@ -425,25 +473,32 @@ export default function Events() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            {/* Audience Badge */}
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                              {contact.audienceType?.replace('_', ' ') || 'Unknown Audience'}
+                            </span>
+                            
                             {/* Stage Badge */}
                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              contact.currentStage === 'rsvp' ? 'bg-green-100 text-green-700' :
+                              contact.currentStage === 'rsvped' ? 'bg-green-100 text-green-700' :
                               contact.currentStage === 'paid' ? 'bg-blue-100 text-blue-700' :
                               contact.currentStage === 'attended' ? 'bg-purple-100 text-purple-700' :
-                              contact.currentStage === 'cant_attend' ? 'bg-red-100 text-red-700' :
+                              contact.currentStage === 'aware' ? 'bg-yellow-100 text-yellow-700' :
+                              contact.currentStage === 'committed' ? 'bg-orange-100 text-orange-700' :
+                              contact.currentStage === 'executing' ? 'bg-red-100 text-red-700' :
                               'bg-gray-100 text-gray-700'
                             }`}>
                               {contact.currentStage?.replace('_', ' ') || 'Unknown'}
                             </span>
                             
-                            {/* Actual Type - Org Member vs External Contact */}
+                            {/* Actual Type - Are they REALLY an org member in the database? */}
                             <span className={`text-xs px-2 py-1 rounded ${
                               contact.actualType === 'org_member' 
                                 ? 'bg-green-100 text-green-700' 
-                                : 'bg-orange-100 text-orange-700'
+                                : 'bg-gray-100 text-gray-700'
                             }`}>
-                              {contact.actualType === 'org_member' ? 'Org Member' : 'External Contact'}
+                              {contact.actualType === 'org_member' ? '✓ Org Member' : 'Contact Only'}
                             </span>
                             
                             {/* Delete Button */}
