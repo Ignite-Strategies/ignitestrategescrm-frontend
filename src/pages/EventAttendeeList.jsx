@@ -168,16 +168,16 @@ export default function EventAttendeeList() {
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
                         <span className="text-indigo-600 font-medium text-sm">
-                          {attendee.firstName?.[0]}{attendee.lastName?.[0]}
+                          {attendee.contact?.firstName?.[0]}{attendee.contact?.lastName?.[0]}
                         </span>
                       </div>
                       
                       <div>
                         <div className="font-medium text-gray-900">
-                          {attendee.firstName} {attendee.lastName}
+                          {attendee.contact?.firstName} {attendee.contact?.lastName}
                         </div>
                         <div className="text-sm text-gray-600">
-                          {attendee.email} • {attendee.phone}
+                          {attendee.contact?.email} • {attendee.contact?.phone}
                         </div>
                       </div>
                     </div>
@@ -214,7 +214,7 @@ export default function EventAttendeeList() {
                       </button>
                       
                       <button
-                        onClick={() => handleDeleteAttendee(attendee.attendeeId, `${attendee.firstName} ${attendee.lastName}`)}
+                        onClick={() => handleDeleteAttendee(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
                         className="text-red-600 hover:text-red-800 p-1"
                         title="Remove from event"
                       >
