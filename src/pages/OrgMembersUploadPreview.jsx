@@ -15,7 +15,8 @@ export default function UploadPreview() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [availableEvents, setAvailableEvents] = useState([]);
   const [selectedAudience, setSelectedAudience] = useState('org_members');
-  const [selectedStage, setSelectedStage] = useState('in_funnel');
+  const [selectedStage, setSelectedStage] = useState('aware');
+  const [availableStages, setAvailableStages] = useState([]);
   
   // Get file and field mapping from URL state or localStorage
   const [file, setFile] = useState(() => {
@@ -55,6 +56,28 @@ export default function UploadPreview() {
     };
     loadEvents();
   }, [orgId]);
+
+  // Hydrate stages when audience changes
+  useEffect(() => {
+    const loadStagesForAudience = async () => {
+      try {
+        const response = await api.get(`/schema/audience-stages/${selectedAudience}`);
+        if (response.data.success) {
+          const stages = response.data.stages;
+          setAvailableStages(stages);
+          if (stages.length > 0) {
+            setSelectedStage(stages[0]); // Reset to first stage
+          }
+        }
+      } catch (error) {
+        console.error('Error loading stages for audience:', error);
+      }
+    };
+
+    if (selectedAudience) {
+      loadStagesForAudience();
+    }
+  }, [selectedAudience]);
 
   const availableFields = [
     { value: 'unmapped', label: 'Ignore this column' },
@@ -380,12 +403,11 @@ export default function UploadPreview() {
                         onChange={(e) => setSelectedStage(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
                       >
-                        <option value="in_funnel">In Funnel</option>
-                        <option value="general_awareness">General Awareness</option>
-                        <option value="personal_invite">Personal Invite</option>
-                        <option value="expressed_interest">Expressed Interest</option>
-                        <option value="soft_commit">Soft Commit</option>
-                        <option value="paid">Paid</option>
+                        {availableStages.map(stage => (
+                          <option key={stage} value={stage}>
+                            {stage.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>

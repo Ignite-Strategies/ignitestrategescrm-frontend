@@ -33,7 +33,7 @@ export default function FormBuilder() {
   const [description, setDescription] = useState(""); // Internal notes
   const [selectedEvent, setSelectedEvent] = useState("");
   const [selectedPipeline, setSelectedPipeline] = useState("");
-  const [targetStage, setTargetStage] = useState("soft_commit");
+  const [targetStage, setTargetStage] = useState("aware");
   
   // Form config - Public Facing
   const [publicTitle, setPublicTitle] = useState("");
@@ -260,14 +260,29 @@ export default function FormBuilder() {
     }
   };
 
-  const STAGES = [
-    { value: "in_funnel", label: "In Funnel" },
-    { value: "general_awareness", label: "General Awareness" },
-    { value: "personal_invite", label: "Personal Invite" },
-    { value: "expressed_interest", label: "Expressed Interest" },
-    { value: "soft_commit", label: "Soft Commit" },
-    { value: "paid", label: "Paid" }
-  ];
+  const [availableStages, setAvailableStages] = useState([]);
+
+  // Hydrate stages when pipeline (audience) changes
+  useEffect(() => {
+    const loadStagesForAudience = async () => {
+      try {
+        if (selectedPipeline) {
+          const response = await api.get(`/schema/audience-stages/${selectedPipeline}`);
+          if (response.data.success) {
+            const stages = response.data.stages;
+            setAvailableStages(stages);
+            if (stages.length > 0) {
+              setTargetStage(stages[0]); // Reset to first stage
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading stages for audience:', error);
+      }
+    };
+
+    loadStagesForAudience();
+  }, [selectedPipeline]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -379,9 +394,9 @@ export default function FormBuilder() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                     required
                   >
-                    {STAGES.map(stage => (
-                      <option key={stage.value} value={stage.value}>
-                        {stage.label}
+                    {availableStages.map(stage => (
+                      <option key={stage} value={stage}>
+                        {stage.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                       </option>
                     ))}
                   </select>
