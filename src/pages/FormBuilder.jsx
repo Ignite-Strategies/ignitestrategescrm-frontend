@@ -268,13 +268,12 @@ export default function FormBuilder() {
     const loadStagesForAudience = async () => {
       try {
         if (selectedPipeline) {
-          const response = await api.get(`/schema/audience-stages/${selectedPipeline}`);
-          if (response.data.success) {
-            const stages = response.data.stages;
-            setAvailableStages(stages);
-            if (stages.length > 0) {
-              setTargetStage(stages[0]); // Reset to first stage
-            }
+          // Get universal stages from event-attendee schema
+          const response = await api.get('/schema/event-attendee');
+          const stages = response.data.stages;
+          setAvailableStages(stages);
+          if (stages.length > 0 && !targetStage) {
+            setTargetStage(stages[0]); // Set to first stage only if not already set
           }
         }
       } catch (error) {
