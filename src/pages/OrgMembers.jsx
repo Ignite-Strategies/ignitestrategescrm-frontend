@@ -37,6 +37,18 @@ export default function OrgMembers() {
     loadContacts();
   }, [orgId]);
 
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setOpenDropdowns({});
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   const loadContacts = async () => {
     try {
       // Load org members
