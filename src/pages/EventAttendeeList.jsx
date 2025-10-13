@@ -79,7 +79,7 @@ export default function EventAttendeeList() {
   };
 
   const handleElevateToOrgMember = async (contactId, contactName) => {
-    if (!confirm(`Elevate ${contactName} to Org Member?\n\nThis will:\n- Create an OrgMember record for them\n- Give them access to org features\n- Keep them in all current events`)) {
+    if (!confirm(`Add ${contactName} to the org?`)) {
       return;
     }
 
