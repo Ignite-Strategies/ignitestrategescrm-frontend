@@ -12,9 +12,13 @@ export default function Events() {
   const [eventStats, setEventStats] = useState(null);
   const [selectedEventContacts, setSelectedEventContacts] = useState([]);
   const [selectedEventName, setSelectedEventName] = useState('');
+  const [showForms, setShowForms] = useState(false);
+  const [availableForms, setAvailableForms] = useState([]);
+  const [associatedForm, setAssociatedForm] = useState(null);
 
   useEffect(() => {
     loadEvents();
+    loadAssociatedForm();
   }, [orgId]);
 
   const loadEvents = async () => {
@@ -139,6 +143,50 @@ export default function Events() {
     } catch (error) {
       console.error('Error deleting contact:', error);
       alert('Failed to remove contact from event');
+    }
+  };
+
+  const loadAvailableForms = async () => {
+    try {
+      const response = await api.get('/forms');
+      setAvailableForms(response.data);
+      console.log('📋 Loaded forms:', response.data.length);
+    } catch (error) {
+      console.error('❌ Error loading forms:', error);
+    }
+  };
+
+  const handleAssociateForm = () => {
+    if (!showForms) {
+      loadAvailableForms();
+      setShowForms(true);
+    } else {
+      setShowForms(false);
+    }
+  };
+
+  const handleSelectForm = (form) => {
+    const eventId = localStorage.getItem('eventId');
+    const formAssociation = {
+      eventId: eventId,
+      formId: form.id,
+      formName: form.name,
+      formData: form,
+      associatedAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem('eventFormAssociation', JSON.stringify(formAssociation));
+    setAssociatedForm(formAssociation);
+    setShowForms(false);
+    
+    console.log('✅ Form associated with event:', form.name);
+  };
+
+  const loadAssociatedForm = () => {
+    const stored = localStorage.getItem('eventFormAssociation');
+    if (stored) {
+      const association = JSON.parse(stored);
+      setAssociatedForm(association);
     }
   };
 
@@ -312,6 +360,12 @@ export default function Events() {
                       📊 View Pipeline
                     </button>
                     <button
+                      onClick={handleAssociateForm}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                    >
+                      📝 Associate Form
+                    </button>
+                    <button
                       onClick={() => navigate("/contacteventmanual")}
                       className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                     >
@@ -321,6 +375,42 @@ export default function Events() {
                 </div>
               );
             })()}
+          </div>
+        )}
+
+        {/* Form Association Section */}
+        {mainEvent && (
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Form Association</h3>
+              {associatedForm && (
+                <span className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                  ✅ {associatedForm.formName}
+                </span>
+              )}
+            </div>
+            
+            {showForms && (
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-700">Available Forms:</h4>
+                {availableForms.length === 0 ? (
+                  <p className="text-gray-500 italic">No forms available</p>
+                ) : (
+                  <div className="space-y-2">
+                    {availableForms.map((form) => (
+                      <button
+                        key={form.id}
+                        onClick={() => handleSelectForm(form)}
+                        className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
+                      >
+                        <div className="font-medium text-gray-900">{form.name}</div>
+                        <div className="text-sm text-gray-500">{form.description || 'No description'}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
