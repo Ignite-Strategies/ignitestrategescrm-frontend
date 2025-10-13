@@ -94,6 +94,13 @@ export default function OrgMembers() {
     { value: 4, label: 'High' }
   ];
 
+  const leadershipRoleOptions = [
+    { value: 'None', label: 'None' },
+    { value: 'Project Lead', label: 'Project Lead' },
+    { value: 'Committee', label: 'Committee' },
+    { value: 'Board', label: 'Board' }
+  ];
+
   // Helper function to format phone numbers
   const formatPhone = (phone) => {
     if (!phone) return '';
@@ -387,9 +394,10 @@ export default function OrgMembers() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <EditableFieldComponent
-                        value={contact.leadershipRole}
+                        value={contact.leadershipRole || 'None'}
                         field="leadershipRole"
                         orgMemberId={contact.orgMemberId}
+                        options={leadershipRoleOptions}
                         onUpdate={handleFieldUpdate}
                         placeholder="None"
                       />
