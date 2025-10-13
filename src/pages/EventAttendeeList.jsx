@@ -471,69 +471,39 @@ export default function EventAttendeeList() {
                       
                       {/* Actions */}
                       <td className="px-3 py-2 whitespace-nowrap text-xs">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
+                          
+                          {/* Member of Org: Yes/No */}
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            attendee.orgMemberId 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {attendee.orgMemberId ? 'Yes' : 'No'}
+                          </span>
                           
                           {/* Elevate button - only show if NOT already an org member */}
                           {!attendee.orgMemberId && (
                             <button
                               onClick={() => handleElevateToOrgMember(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                              className="text-xs bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded hover:bg-indigo-200"
+                              className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded hover:bg-blue-200"
                               title="Elevate to Org Member"
                             >
                               ⬆️
                             </button>
                           )}
                           
-                          {/* View Form button (only show if attendee has form submission) */}
-                          {attendee.submittedFormId && (
-                            <button
-                              onClick={() => handleViewFormResponse(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                              className="text-blue-600 hover:text-blue-900 px-1 py-0.5 rounded text-xs"
-                              title="View Form Response"
-                            >
-                              📝
-                            </button>
-                          )}
-                          
-                          {/* Delete dropdown */}
-                          <div className="relative">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleDropdown(attendee.id);
-                              }}
-                              className="text-red-600 hover:text-red-900 px-1 py-0.5 rounded text-xs"
-                              title="Delete options"
-                            >
-                              🗑️
-                            </button>
-                            {openDropdowns[attendee.id] && (
-                              <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg z-20 border border-gray-200">
-                                <div className="py-1">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      closeAllDropdowns();
-                                      handleRemoveFromEvent(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
-                                    }}
-                                    className="block w-full text-left px-3 py-1 text-xs text-gray-700 hover:bg-gray-100"
-                                  >
-                                    Remove from Event
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      closeAllDropdowns();
-                                      handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
-                                    }}
-                                    className="block w-full text-left px-3 py-1 text-xs text-red-600 hover:bg-red-50"
-                                  >
-                                    Delete Contact Entirely
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
+                          {/* Delete button - standalone */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
+                            }}
+                            className="text-red-600 hover:text-red-900 px-1 py-0.5 rounded text-xs"
+                            title="Delete Contact"
+                          >
+                            🗑️
+                          </button>
                         </div>
                       </td>
                     </tr>
