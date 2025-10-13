@@ -110,7 +110,7 @@ export default function EditableField({
         type={type}
         value={editValue}
         onChange={(e) => setEditValue(e.target.value)}
-        onBlur={handleSave}
+        onBlur={() => handleSave()}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
