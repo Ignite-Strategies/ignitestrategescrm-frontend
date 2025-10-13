@@ -32,13 +32,26 @@ export default function EventAttendeeList() {
         setOrgName(orgRes.data.name || 'Organization');
       }
       
-      // Load all attendees for this event (no audience filter)
+      // Try to load from localStorage first (fast!)
+      const cachedAttendees = localStorage.getItem(`event_${eventId}_attendees`);
+      if (cachedAttendees) {
+        console.log('🚀 Loading attendees from localStorage (fast!)');
+        setAttendees(JSON.parse(cachedAttendees));
+        setLoading(false);
+        return;
+      }
+      
+      // Fallback: Load from API if not cached
+      console.log('📡 Loading attendees from API (slow)');
       const attendeesRes = await api.get(`/events/${eventId}/attendees`);
       console.log('🔍 RAW API RESPONSE:', attendeesRes.data);
       console.log('🔍 FIRST ATTENDEE:', attendeesRes.data[0]);
       console.log('🔍 FIRST ATTENDEE CONTACT:', attendeesRes.data[0]?.contact);
       console.log('🔍 FIRST ATTENDEE FIRSTNAME:', attendeesRes.data[0]?.contact?.firstName);
       setAttendees(attendeesRes.data);
+      
+      // Cache for next time
+      localStorage.setItem(`event_${eventId}_attendees`, JSON.stringify(attendeesRes.data));
       
       console.log('📋 Loaded', attendeesRes.data.length, 'attendees for event:', eventRes.data.name);
       

@@ -49,7 +49,12 @@ export default function Events() {
       try {
         const eventId = localStorage.getItem('eventId');
         if (eventId) {
-          // Load attendees for all audiences
+          // Load ALL attendees (for EventAttendeeList)
+          const allAttendeesRes = await api.get(`/events/${eventId}/attendees`);
+          localStorage.setItem(`event_${eventId}_attendees`, JSON.stringify(allAttendeesRes.data));
+          console.log(`✅ Cached ALL attendees for event ${eventId}:`, allAttendeesRes.data.length);
+          
+          // Load attendees for all audiences (for pipeline views)
           const audiences = ['org_members', 'friends_family', 'champions', 'community_partners', 'business_sponsor'];
           for (const audience of audiences) {
             const attendeesRes = await api.get(`/events/${eventId}/pipeline?audienceType=${audience}`);
