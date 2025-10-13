@@ -52,7 +52,7 @@ export default function EventAttendeeList() {
       
       // Fallback: Load from API if not cached
       console.log('📡 Loading attendees from API (slow)');
-      const attendeesRes = await api.get(`/events/${eventId}/attendees`);
+      const attendeesRes = await api.get(`/event-attendees/${eventId}/attendees`);
       console.log('🔍 RAW API RESPONSE:', attendeesRes.data);
       console.log('🔍 FIRST ATTENDEE:', attendeesRes.data[0]);
       console.log('🔍 FIRST ATTENDEE CONTACT:', attendeesRes.data[0]?.contact);
