@@ -172,6 +172,25 @@ export default function OrgMembers() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
+        {/* Breadcrumb Navigation */}
+        <div className="mb-6 flex items-center gap-2 text-sm text-gray-600">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="hover:text-indigo-600 transition"
+          >
+            Main Dashboard
+          </button>
+          <span>→</span>
+          <button
+            onClick={() => navigate("/org-dashboard")}
+            className="hover:text-indigo-600 transition"
+          >
+            Org Dashboard
+          </button>
+          <span>→</span>
+          <span className="text-gray-900 font-medium">Org Members</span>
+        </div>
+
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Manage Org Members</h1>
