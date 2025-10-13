@@ -33,6 +33,7 @@ import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactList from "./pages/ContactList.jsx";
 import ContactManageHome from "./pages/ContactManageHome.jsx";
+import ContactManageSelector from "./pages/ContactManageSelector.jsx";
 import ContactEventUpload from "./pages/ContactEventUpload.jsx";
 import ContactEventUploadPreview from "./pages/ContactEventUploadPreview.jsx";
 import ContactEventUploadValidation from "./pages/ContactEventUploadValidation.jsx";
@@ -196,6 +197,9 @@ export default function App() {
         } />
         <Route path="/contacts" element={
           <ProtectedRoute><ContactManageHome /></ProtectedRoute>
+        } />
+        <Route path="/contacts/selector" element={
+          <ProtectedRoute><ContactManageSelector /></ProtectedRoute>
         } />
         
         {/* Campaign System - Routes match file names */}

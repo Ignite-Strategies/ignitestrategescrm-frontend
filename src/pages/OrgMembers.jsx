@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import EditableField from "../components/EditableField";
+import EditableFieldComponent from "../components/EditableFieldComponent";
 
 export default function OrgMembers() {
   const orgId = getOrgId();
@@ -41,19 +41,19 @@ export default function OrgMembers() {
       const members = response.data.members || [];
       setContacts(members);
       
-      // Calculate engagement stats
+      // Calculate engagement stats (using new value system: 1-4)
       const stats = {
         total: members.length,
-        high: members.filter(m => m.categoryOfEngagement === 'high').length,
-        medium: members.filter(m => m.categoryOfEngagement === 'medium').length,
-        low: members.filter(m => m.categoryOfEngagement === 'low').length,
-        inactive: members.filter(m => m.categoryOfEngagement === 'inactive').length
+        high: members.filter(m => m.engagementValue === 4).length,
+        medium: members.filter(m => m.engagementValue === 3).length,
+        low: members.filter(m => m.engagementValue === 2).length,
+        inactive: members.filter(m => m.engagementValue === 1 || !m.engagementValue).length
       };
       setEngagementStats(stats);
       
       // Get top engagers (high engagement + recent activity)
       const topEngagers = members
-        .filter(m => m.categoryOfEngagement === 'high')
+        .filter(m => m.engagementValue === 4)
         .slice(0, 5)
         .map(member => ({
           ...member,
@@ -81,20 +81,36 @@ export default function OrgMembers() {
     }
   };
 
-  const handleFieldUpdate = (updatedSupporter) => {
+  const handleFieldUpdate = (updatedMember) => {
     setContacts(prev => prev.map(contact => 
-      contact._id === updatedSupporter._id ? updatedSupporter : contact
+      contact.id === updatedMember.id ? updatedMember : contact
     ));
   };
 
   const engagementOptions = [
-    { value: 'high', label: 'High' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'low', label: 'Low' },
-    { value: 'inactive', label: 'Inactive' }
+    { value: 1, label: 'Undetermined' },
+    { value: 2, label: 'Low' },
+    { value: 3, label: 'Medium' },
+    { value: 4, label: 'High' }
   ];
 
-  const handleSelectContact = (contactId) => {
+  // Helper function to format phone numbers
+  const formatPhone = (phone) => {
+    if (!phone) return '';
+    
+    // Remove all non-numeric characters
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Format as 555-555-5555
+    if (cleaned.length === 10) {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    
+    // If not 10 digits, return as-is
+    return phone;
+  };
+
+  const handleSelectContact (contactId) => {
     setSelectedContacts(prev => {
       const newSet = new Set(prev);
       if (newSet.has(contactId)) {
@@ -110,7 +126,7 @@ export default function OrgMembers() {
     if (selectedContacts.size === filteredContacts.length) {
       setSelectedContacts(new Set());
     } else {
-      setSelectedContacts(new Set(filteredContacts.map(c => c._id)));
+      setSelectedContacts(new Set(filteredContacts.map(c => c.id)));
     }
   };
 
@@ -304,70 +320,70 @@ export default function OrgMembers() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Goes By</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employer</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Years w/ Org</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Leadership Role</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Engagement</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredContacts.map((contact) => (
-                  <tr key={contact._id} className="hover:bg-gray-50">
+                  <tr key={contact.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       <input
                         type="checkbox"
-                        checked={selectedContacts.has(contact._id)}
-                        onChange={() => handleSelectContact(contact._id)}
+                        checked={selectedContacts.has(contact.id)}
+                        onChange={() => handleSelectContact(contact.id)}
                         className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       <button
-                        onClick={() => navigate(`/contact/${contact._id}`)}
+                        onClick={() => navigate(`/contact/${contact.contactId}`)}
                         className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
                       >
                         {contact.firstName} {contact.lastName}
                       </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <EditableField
+                      <EditableFieldComponent
                         value={contact.goesBy}
                         field="goesBy"
-                        supporterId={contact._id}
+                        orgMemberId={contact.orgMemberId}
                         onUpdate={handleFieldUpdate}
                         placeholder="Nickname"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <EditableField
-                        value={contact.email}
-                        field="email"
-                        supporterId={contact._id}
-                        type="email"
+                      {contact.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatPhone(contact.phone)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <EditableFieldComponent
+                        value={contact.yearsWithOrganization}
+                        field="yearsWithOrganization"
+                        orgMemberId={contact.orgMemberId}
+                        type="number"
                         onUpdate={handleFieldUpdate}
+                        placeholder="0"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <EditableField
-                        value={contact.phone}
-                        field="phone"
-                        supporterId={contact._id}
-                        type="tel"
+                      <EditableFieldComponent
+                        value={contact.leadershipRole}
+                        field="leadershipRole"
+                        orgMemberId={contact.orgMemberId}
                         onUpdate={handleFieldUpdate}
+                        placeholder="None"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <EditableField
-                        value={contact.employer}
-                        field="employer"
-                        supporterId={contact._id}
-                        onUpdate={handleFieldUpdate}
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <EditableField
-                        value={contact.categoryOfEngagement || "medium"}
-                        field="categoryOfEngagement"
-                        supporterId={contact._id}
+                      <EditableFieldComponent
+                        value={contact.engagementValue || 1}
+                        field="engagementValue"
+                        orgMemberId={contact.orgMemberId}
                         options={engagementOptions}
                         onUpdate={handleFieldUpdate}
                       />
@@ -375,7 +391,7 @@ export default function OrgMembers() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => navigate(`/contact/${contact.contactId || contact._id}`)}
+                          onClick={() => navigate(`/contact/${contact.contactId}`)}
                           className="text-blue-600 hover:text-blue-800 font-medium text-xs"
                           title="View Details"
                         >
@@ -389,14 +405,14 @@ export default function OrgMembers() {
                           ✉️
                         </button>
                         <button
-                          onClick={() => navigate("/campaignwizard", { state: { selectedContacts: [contact.contactId || contact._id] } })}
+                          onClick={() => navigate("/campaignwizard", { state: { selectedContacts: [contact.contactId] } })}
                           className="text-purple-600 hover:text-purple-800 font-medium text-xs"
                           title="Add to Campaign"
                         >
                           📧
                         </button>
                         <button
-                          onClick={() => handleDelete(contact._id, `${contact.firstName} ${contact.lastName}`)}
+                          onClick={() => handleDelete(contact.contactId, `${contact.firstName} ${contact.lastName}`)}
                           className="text-red-600 hover:text-red-800 font-medium text-xs"
                           title="Delete"
                         >

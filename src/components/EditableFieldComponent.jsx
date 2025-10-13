@@ -4,7 +4,8 @@ import api from '../lib/api';
 export default function EditableField({ 
   value, 
   field, 
-  supporterId, 
+  orgMemberId,  // NEW: orgMemberId instead of deprecated supporterId
+  supporterId,  // LEGACY: Keep for backward compatibility, but prefer orgMemberId
   type = 'text',
   options = null,
   onUpdate 
@@ -21,12 +22,14 @@ export default function EditableField({
 
     setLoading(true);
     try {
-      const response = await api.post(`/supporters/${supporterId}/update`, {
-        field,
-        value: editValue
+      // Use new OrgMember PATCH route if orgMemberId provided
+      const memberId = orgMemberId || supporterId;
+      
+      const response = await api.patch(`/orgmembers/${memberId}`, {
+        [field]: editValue  // Send as object: { fieldName: newValue }
       });
       
-      onUpdate(response.data.supporter);
+      onUpdate(response.data.member);
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating field:', error);

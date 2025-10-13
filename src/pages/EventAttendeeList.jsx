@@ -150,9 +150,29 @@ export default function EventAttendeeList() {
   // Helper function to capitalize text
   const capitalizeText = (text) => {
     if (!text) return 'Unknown';
+    
+    // Special cases
+    if (text === 'rsvped' || text === 'rsvp') return 'RSVPed';
+    
     return text.split('_').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
+  };
+
+  // Helper function to format phone numbers
+  const formatPhone = (phone) => {
+    if (!phone) return '';
+    
+    // Remove all non-numeric characters
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Format as 555-555-5555
+    if (cleaned.length === 10) {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    
+    // If not 10 digits, return as-is
+    return phone;
   };
 
   // Toggle dropdown
@@ -337,7 +357,7 @@ export default function EventAttendeeList() {
                       
                       {/* Phone */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {attendee.contact?.phone}
+                        {formatPhone(attendee.contact?.phone)}
                       </td>
                       
                       {/* Audience */}
@@ -358,17 +378,17 @@ export default function EventAttendeeList() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                            {attendee.actualType === 'org_member' ? '✓ Org Member' : 'Non-Org'}
+                            {attendee.orgMemberId ? '✓ Org Member' : 'Contact'}
                           </span>
                           
-                          {/* Elevate button for non-org members */}
-                          {attendee.actualType !== 'org_member' && (
+                          {/* Elevate button - only show if NOT already an org member */}
+                          {!attendee.orgMemberId && (
                             <button
                               onClick={() => handleElevateToOrgMember(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                              className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
+                              className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200"
                               title="Elevate to Org Member"
                             >
-                              ⬆️
+                              ⬆️ Elevate
                             </button>
                           )}
                         </div>

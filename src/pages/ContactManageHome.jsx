@@ -117,8 +117,27 @@ export default function ContactManageHome() {
           {/* Quick Actions */}
           <div className="mb-12">
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               
+              {/* All Contacts - PRIMARY ACTION */}
+              <button
+                onClick={() => navigate("/contacts/selector")}
+                className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition text-left border-2 border-indigo-500"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-3">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">👥 All Contacts</h3>
+                    <p className="text-sm text-indigo-100">View & manage</p>
+                  </div>
+                </div>
+                <p className="text-sm text-indigo-100">Organization or Event contacts</p>
+              </button>
+
               {/* Upload Contacts */}
               <button
                 onClick={() => navigate("/contacteventmanual")}
@@ -131,16 +150,16 @@ export default function ContactManageHome() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">🎯 Upload Contacts</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">📤 Upload Contacts</h3>
                     <p className="text-sm text-gray-600">Quick import</p>
                   </div>
                 </div>
                 <p className="text-sm text-emerald-700">Name, email, phone → map to pipeline</p>
               </button>
 
-              {/* See List */}
+              {/* See Lists (Campaign Lists) */}
               <button
-                onClick={() => navigate("/org-members")}
+                onClick={() => navigate("/contact-lists")}
                 className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-lg border-2 border-blue-200 hover:border-blue-400 transition text-left"
               >
                 <div className="flex items-center mb-4">
@@ -150,11 +169,11 @@ export default function ContactManageHome() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">📋 See List</h3>
-                    <p className="text-sm text-gray-600">View all contacts</p>
+                    <h3 className="text-lg font-semibold text-gray-900">📋 See Lists</h3>
+                    <p className="text-sm text-gray-600">Campaign lists</p>
                   </div>
                 </div>
-                <p className="text-sm text-blue-700">Browse and manage all contacts</p>
+                <p className="text-sm text-blue-700">View saved contact lists</p>
               </button>
 
               {/* Create List */}
@@ -169,7 +188,7 @@ export default function ContactManageHome() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">📝 Create List</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">✏️ Create List</h3>
                     <p className="text-sm text-gray-600">Segment contacts</p>
                   </div>
                 </div>
