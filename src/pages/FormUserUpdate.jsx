@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
-export default function FormUserUpdate() {
+export default function NotesParser() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   
-  const [forms, setForms] = useState([]);
-  const [selectedFormId, setSelectedFormId] = useState('');
   const [attendees, setAttendees] = useState([]);
   const [selectedAttendee, setSelectedAttendee] = useState(null);
-  const [formResponse, setFormResponse] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
