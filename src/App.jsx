@@ -47,6 +47,7 @@ import CampaignList from "./pages/CampaignList.jsx";
 import CampaignWizard from "./pages/CampaignWizard.jsx";
 import EventDashboard from "./pages/EventDashboard.jsx";
 import EventAttendeeList from "./pages/EventAttendeeList.jsx";
+import FormSubmissionView from "./pages/FormSubmissionView.jsx";
 import Tasks from "./pages/Tasks.jsx";
 import SetupEvent from "./pages/SetupEvent.jsx";
 import EventTaskSuggestions from "./pages/EventTaskSuggestions.jsx";
@@ -138,6 +139,9 @@ export default function App() {
         } />
         <Route path="/event/:eventId/attendees" element={
           <ProtectedRoute><EventAttendeeList /></ProtectedRoute>
+        } />
+        <Route path="/event/:eventId/form-submissions" element={
+          <ProtectedRoute><FormSubmissionView /></ProtectedRoute>
         } />
         <Route path="/event/create" element={
           <ProtectedRoute><EventCreate /></ProtectedRoute>

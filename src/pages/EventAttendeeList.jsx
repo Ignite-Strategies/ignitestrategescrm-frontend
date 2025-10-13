@@ -156,12 +156,8 @@ export default function EventAttendeeList() {
 
   // Handle clicking on contact name to view details
   const handleViewContactDetails = (contactId, contactName) => {
-    // For now, just show an alert with basic info
-    // TODO: Navigate to a dedicated contact details page or open a modal
-    const attendee = attendees.find(a => a.contactId === contactId);
-    if (attendee) {
-      alert(`Contact Details:\n\nName: ${contactName}\nEmail: ${attendee.contact?.email || 'N/A'}\nPhone: ${attendee.contact?.phone || 'N/A'}\nAudience: ${capitalizeText(attendee.audienceType)}\nStage: ${capitalizeText(attendee.currentStage)}\nType: ${attendee.actualType === 'org_member' ? 'Org Member' : 'Non-Org'}`);
-    }
+    // Navigate to ContactDetail page
+    navigate(`/contact/${contactId}`);
   };
 
   if (loading) {
@@ -401,6 +397,13 @@ export default function EventAttendeeList() {
             className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"
           >
             📊 View Pipeline
+          </button>
+          
+          <button
+            onClick={() => navigate(`/event/${eventId}/form-submissions`)}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium"
+          >
+            📝 Form Submissions
           </button>
           
           <button

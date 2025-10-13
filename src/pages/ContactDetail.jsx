@@ -38,9 +38,28 @@ export default function ContactDetail() {
     }
   };
 
-  const handleElevate = () => {
-    // TODO: Create modal to add extended CRM data
-    alert('Elevate to Org Member - Coming soon! This will let you add extended CRM data (address, employer, tags, etc.)');
+  const handleElevate = async () => {
+    if (!confirm(`Elevate ${contact.firstName} ${contact.lastName} to Org Member?\n\nThis will give them access to org features and add them to your master CRM list.`)) {
+      return;
+    }
+
+    try {
+      const orgId = localStorage.getItem('orgId');
+      await api.post('/org-members', {
+        contactId: contactId,
+        orgId: orgId
+      });
+      
+      console.log('✅ Contact elevated to Org Member');
+      alert(`${contact.firstName} ${contact.lastName} has been elevated to Org Member!`);
+      
+      // Reload contact data to show updated status
+      await loadContactData();
+      
+    } catch (error) {
+      console.error('❌ Error elevating to org member:', error);
+      alert('Failed to elevate to org member: ' + error.message);
+    }
   };
 
   const handleDelete = async () => {
