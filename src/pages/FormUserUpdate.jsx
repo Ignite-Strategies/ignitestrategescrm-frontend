@@ -18,15 +18,37 @@ export default function NotesParser() {
   const loadAttendeesWithNotes = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Loading EventAttendees with notes data...');
+      console.log('🔍 Loading EventAttendees with notes from localStorage...');
       
-      // Get all EventAttendees that have notes data
-      const response = await api.get(`/events/attendees?hasNotes=true&orgId=${orgId}`);
-      setAttendees(response.data || []);
+      // Get all cached event attendees from localStorage
+      const eventId = localStorage.getItem('eventId');
+      if (!eventId) {
+        console.warn('⚠️ No eventId in localStorage, cannot load attendees');
+        setAttendees([]);
+        return;
+      }
       
-      console.log(`✅ Found ${response.data?.length || 0} attendees with notes data`);
+      const cachedAttendees = localStorage.getItem(`event_${eventId}_attendees`);
+      if (!cachedAttendees) {
+        console.warn('⚠️ No cached attendees found, please visit EventDashboard first to hydrate data');
+        setAttendees([]);
+        return;
+      }
+      
+      const allAttendees = JSON.parse(cachedAttendees);
+      
+      // Filter for attendees with notes data
+      const attendeesWithNotes = allAttendees.filter(attendee => 
+        attendee.notes && 
+        typeof attendee.notes === 'object' && 
+        Object.keys(attendee.notes).length > 0
+      );
+      
+      setAttendees(attendeesWithNotes);
+      console.log(`✅ Found ${attendeesWithNotes.length} attendees with notes data from ${allAttendees.length} total attendees`);
+      
     } catch (error) {
-      console.error('❌ Error loading attendees with notes:', error);
+      console.error('❌ Error loading attendees with notes from localStorage:', error);
     } finally {
       setLoading(false);
     }
