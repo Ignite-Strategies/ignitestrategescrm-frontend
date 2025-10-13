@@ -7,6 +7,7 @@ export default function EventAttendeeList() {
   const navigate = useNavigate();
   const [attendees, setAttendees] = useState([]);
   const [event, setEvent] = useState(null);
+  const [orgName, setOrgName] = useState('');
   const [loading, setLoading] = useState(true);
   const [openDropdowns, setOpenDropdowns] = useState({});
 
@@ -23,6 +24,13 @@ export default function EventAttendeeList() {
       // Load event details
       const eventRes = await api.get(`/events/${eventId}`);
       setEvent(eventRes.data);
+      
+      // Load org details for the name
+      const orgId = localStorage.getItem('orgId');
+      if (orgId) {
+        const orgRes = await api.get(`/orgs/${orgId}`);
+        setOrgName(orgRes.data.name || 'Organization');
+      }
       
       // Load all attendees for this event (no audience filter)
       const attendeesRes = await api.get(`/events/${eventId}/attendees`);
@@ -79,7 +87,7 @@ export default function EventAttendeeList() {
   };
 
   const handleElevateToOrgMember = async (contactId, contactName) => {
-    if (!confirm(`Add ${contactName} to the org?`)) {
+    if (!confirm(`Add ${contactName} to ${orgName || 'the org'} as a member?`)) {
       return;
     }
 
@@ -144,6 +152,16 @@ export default function EventAttendeeList() {
   // Close dropdown when clicking outside
   const closeAllDropdowns = () => {
     setOpenDropdowns({});
+  };
+
+  // Handle clicking on contact name to view details
+  const handleViewContactDetails = (contactId, contactName) => {
+    // For now, just show an alert with basic info
+    // TODO: Navigate to a dedicated contact details page or open a modal
+    const attendee = attendees.find(a => a.contactId === contactId);
+    if (attendee) {
+      alert(`Contact Details:\n\nName: ${contactName}\nEmail: ${attendee.contact?.email || 'N/A'}\nPhone: ${attendee.contact?.phone || 'N/A'}\nAudience: ${capitalizeText(attendee.audienceType)}\nStage: ${capitalizeText(attendee.currentStage)}\nType: ${attendee.actualType === 'org_member' ? 'Org Member' : 'Non-Org'}`);
+    }
   };
 
   if (loading) {
@@ -264,9 +282,12 @@ export default function EventAttendeeList() {
                               {attendee.contact?.firstName?.[0]}{attendee.contact?.lastName?.[0]}
                             </span>
                           </div>
-                          <div className="font-medium text-gray-900">
+                          <button
+                            onClick={() => handleViewContactDetails(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
+                            className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline text-left"
+                          >
                             {attendee.contact?.firstName} {attendee.contact?.lastName}
-                          </div>
+                          </button>
                         </div>
                       </td>
                       
