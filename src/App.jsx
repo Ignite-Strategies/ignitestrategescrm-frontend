@@ -33,6 +33,9 @@ import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactList from "./pages/ContactList.jsx";
+import ContactListManager from "./pages/ContactListManager.jsx";
+import ContactListBuilder from "./pages/ContactListBuilder.jsx";
+import ContactListDetail from "./pages/ContactListDetail.jsx";
 import ContactManageHome from "./pages/ContactManageHome.jsx";
 import ContactManageSelector from "./pages/ContactManageSelector.jsx";
 import FormUserUpdate from "./pages/FormUserUpdate.jsx";
@@ -59,6 +62,7 @@ import FormBuilder from "./pages/FormBuilder.jsx";
 import FormSuccess from "./pages/FormSuccess.jsx";
 import PostOrgCreate from "./pages/PostOrgCreate.jsx";
 import AdsDashboard from "./pages/AdsDashboard.jsx";
+import TestEnterpriseEmail from "./pages/TestEnterpriseEmail.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -201,6 +205,15 @@ export default function App() {
         <Route path="/contact-lists" element={
           <ProtectedRoute><ContactList /></ProtectedRoute>
         } />
+        <Route path="/contact-list-manager" element={
+          <ProtectedRoute><ContactListManager /></ProtectedRoute>
+        } />
+        <Route path="/contact-list-builder" element={
+          <ProtectedRoute><ContactListBuilder /></ProtectedRoute>
+        } />
+        <Route path="/contact-list/:listId" element={
+          <ProtectedRoute><ContactListDetail /></ProtectedRoute>
+        } />
         <Route path="/contacts" element={
           <ProtectedRoute><ContactManageHome /></ProtectedRoute>
         } />
@@ -253,6 +266,9 @@ export default function App() {
         } />
         <Route path="/ads" element={
           <ProtectedRoute><AdsDashboard /></ProtectedRoute>
+        } />
+        <Route path="/test-enterprise-email" element={
+          <ProtectedRoute><TestEnterpriseEmail /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
