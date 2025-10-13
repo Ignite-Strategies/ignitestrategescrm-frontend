@@ -118,8 +118,7 @@ export default function EventAttendeeList() {
       // Create OrgMember record for this contact (SAME ROUTE as ContactDetail)
       const orgId = localStorage.getItem('orgId');
       await api.post('/org-members', 
-        { contactId: contactId },
-        { headers: { 'x-org-id': orgId } }
+        { contactId: contactId, orgId: orgId }
       );
       
       console.log('✅ Contact elevated to Org Member');
