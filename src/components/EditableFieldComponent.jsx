@@ -90,11 +90,30 @@ export default function EditableField({
     );
   }
 
+  // Helper function to format phone numbers
+  const formatPhone = (phone) => {
+    if (!phone) return '';
+    
+    // Remove all non-numeric characters
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Format as 555-555-5555
+    if (cleaned.length === 10) {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    
+    // If not 10 digits, return as-is
+    return phone;
+  };
+
   // Get display value (label for dropdowns, value for text)
   const getDisplayValue = () => {
     if (options) {
       const option = options.find(opt => opt.value === value);
       return option ? option.label : value || '-';
+    }
+    if (type === 'tel' && value) {
+      return formatPhone(value);
     }
     if (type === 'number' && value === 0) return '0';
     return value || '-';
