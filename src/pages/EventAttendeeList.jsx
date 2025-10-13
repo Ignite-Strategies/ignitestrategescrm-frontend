@@ -250,21 +250,40 @@ export default function EventAttendeeList() {
         
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={() => navigate('/events')}
-              className="text-indigo-600 hover:text-indigo-800 font-medium"
-            >
-              ← Back to Events
-            </button>
-          </div>
-          
-          <h1 className="text-3xl font-bold text-gray-900">
-            {event?.name || 'Event'} - All Attendees
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Manage all contacts registered for this event
-          </p>
+        {/* Breadcrumb Navigation */}
+        <div className="mb-6 flex items-center gap-2 text-sm text-gray-600">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="hover:text-indigo-600 transition"
+          >
+            Main Dashboard
+          </button>
+          <span>→</span>
+          <button
+            onClick={() => navigate("/contactmanage")}
+            className="hover:text-indigo-600 transition"
+          >
+            Contact Management Home
+          </button>
+          <span>→</span>
+          <span className="text-gray-900 font-medium">{event?.name || 'Event'} - Attendees</span>
+        </div>
+
+        <div className="flex items-center gap-4 mb-4">
+          <button
+            onClick={() => navigate('/events')}
+            className="text-indigo-600 hover:text-indigo-800 font-medium"
+          >
+            ← Back to Events
+          </button>
+        </div>
+        
+        <h1 className="text-3xl font-bold text-gray-900">
+          {event?.name || 'Event'} - All Attendees
+        </h1>
+        <p className="text-gray-600 mt-2">
+          Manage all contacts registered for this event
+        </p>
         </div>
 
         {/* Stats Summary */}
@@ -362,26 +381,64 @@ export default function EventAttendeeList() {
                       
                       {/* Email */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {attendee.contact?.email}
+                        <EditableFieldComponent
+                          value={attendee.contact?.email}
+                          field="email"
+                          type="email"
+                          contactId={attendee.contactId}
+                          onSave={loadData}
+                          placeholder="email@example.com"
+                        />
                       </td>
                       
                       {/* Phone */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatPhone(attendee.contact?.phone)}
+                        <EditableFieldComponent
+                          value={formatPhone(attendee.contact?.phone)}
+                          field="phone"
+                          type="tel"
+                          contactId={attendee.contactId}
+                          onSave={loadData}
+                          placeholder="555-555-5555"
+                        />
                       </td>
                       
                       {/* Audience */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAudienceColor(attendee.audienceType)}`}>
-                          {capitalizeText(attendee.audienceType)}
-                        </span>
+                        <EditableFieldComponent
+                          value={attendee.audienceType}
+                          field="audienceType"
+                          type="select"
+                          contactId={attendee.id}
+                          orgMemberId={attendee.orgMemberId}
+                          onSave={loadData}
+                          options={[
+                            { value: 'org_members', label: 'Org Members' },
+                            { value: 'friends_family', label: 'Friends & Family' },
+                            { value: 'champions', label: 'Champions' },
+                            { value: 'community_partners', label: 'Community Partners' },
+                            { value: 'business_sponsor', label: 'Business Sponsor' }
+                          ]}
+                        />
                       </td>
                       
                       {/* Stage */}
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStageColor(attendee.currentStage)}`}>
-                          {capitalizeText(attendee.currentStage)}
-                        </span>
+                        <EditableFieldComponent
+                          value={attendee.currentStage}
+                          field="currentStage"
+                          type="select"
+                          contactId={attendee.id}
+                          orgMemberId={attendee.orgMemberId}
+                          onSave={loadData}
+                          options={[
+                            { value: 'aware', label: 'Aware' },
+                            { value: 'committed', label: 'Committed' },
+                            { value: 'rsvped', label: 'RSVPed' },
+                            { value: 'paid', label: 'Paid' },
+                            { value: 'attended', label: 'Attended' }
+                          ]}
+                        />
                       </td>
                       
                       {/* Type */}
@@ -418,12 +475,6 @@ export default function EventAttendeeList() {
                             </button>
                           )}
                           
-                          <button
-                            onClick={() => navigate(`/event/${eventId}/pipelines`)}
-                            className="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded text-sm font-medium"
-                          >
-                            Edit
-                          </button>
                           
                           {/* Dropdown for delete options */}
                           <div className="relative">

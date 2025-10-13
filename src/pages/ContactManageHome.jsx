@@ -25,6 +25,10 @@ export default function ContactManageHome() {
       const contactsResponse = await api.get(`/orgmembers?orgId=${orgId}`);
       const allContacts = contactsResponse.data?.members || [];
       
+      // 🔥 HYDRATION RULE: Always hydrate OrgMembers to localStorage when landing on ContactManageHome
+      localStorage.setItem(`org_${orgId}_members`, JSON.stringify(allContacts));
+      console.log('✅ CONTACTMANAGE HYDRATION: Cached', allContacts.length, 'org members');
+      
       // Calculate stats
       const orgMembers = allContacts.filter(c => c.firebaseId); // Has login = org member
       const prospects = allContacts.filter(c => !c.firebaseId); // No login = prospect
@@ -37,7 +41,13 @@ export default function ContactManageHome() {
 
       // Load contact lists
       const listsResponse = await api.get(`/contact-lists?orgId=${orgId}`);
-      setLists(listsResponse.data || []);
+      const lists = listsResponse.data || [];
+      
+      // 🔥 HYDRATION RULE: Also hydrate contact lists
+      localStorage.setItem(`org_${orgId}_contact_lists`, JSON.stringify(lists));
+      console.log('✅ CONTACTMANAGE HYDRATION: Cached', lists.length, 'contact lists');
+      
+      setLists(lists);
       
     } catch (err) {
       console.error("Error loading contact data:", err);
