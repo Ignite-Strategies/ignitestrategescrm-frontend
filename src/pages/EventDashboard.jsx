@@ -301,20 +301,21 @@ export default function Events() {
         {/* Primary Event Management */}
         {events.length > 0 && (
           <div className="mb-8">
-            {/* Main Event Focus */}
+            {/* Primary Event Focus */}
             {(() => {
-              const mainEvent = events.find(e => e.status === 'upcoming') || events[0];
-              if (!mainEvent) return null;
+              // Find the primary event: upcoming first, then most recent
+              const primaryEvent = events.find(e => e.status === 'upcoming') || events[0];
+              if (!primaryEvent) return null;
               
-              const status = mainEvent.date ? getEventStatus(mainEvent.date) : null;
-              const daysUntil = mainEvent.date ? getDaysUntil(mainEvent.date) : null;
+              const status = primaryEvent.date ? getEventStatus(primaryEvent.date) : null;
+              const daysUntil = primaryEvent.date ? getDaysUntil(primaryEvent.date) : null;
               
               return (
                 <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-xl shadow-lg p-8 mb-6">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h2 className="text-3xl font-bold mb-2">{mainEvent.name}</h2>
-                      <p className="text-indigo-100 text-lg">{mainEvent.description}</p>
+                      <h2 className="text-3xl font-bold mb-2">{primaryEvent.name}</h2>
+                      <p className="text-indigo-100 text-lg">{primaryEvent.description}</p>
                       {status && (
                         <span className={`inline-block mt-3 px-4 py-2 rounded-full text-sm font-medium ${
                           status.color === "red" ? "bg-red-500 text-white" :
@@ -348,13 +349,13 @@ export default function Events() {
                   {/* Quick Actions for Main Event */}
                   <div className="flex gap-3 flex-wrap">
                     <button
-                      onClick={() => navigate(`/event/${mainEvent.id}/attendees`)}
+                      onClick={() => navigate(`/event/${primaryEvent.id}/attendees`)}
                       className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                     >
                       👥 Manage Contacts
                     </button>
                     <button
-                      onClick={() => navigate(`/event/${mainEvent.id}/pipelines`)}
+                      onClick={() => navigate(`/event/${primaryEvent.id}/pipelines`)}
                       className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                     >
                       📊 View Pipeline
