@@ -99,6 +99,18 @@ export default function OrgDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          {/* Breadcrumb Navigation */}
+          <div className="mb-6 flex items-center gap-2 text-sm text-gray-600">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="hover:text-indigo-600 transition"
+            >
+              Main Dashboard
+            </button>
+            <span>→</span>
+            <span className="text-gray-900 font-medium">Organization Dashboard</span>
+          </div>
+
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div className="flex-1">
