@@ -19,6 +19,7 @@ export default function OrgMembers() {
   const orgId = getOrgId();
   const navigate = useNavigate();
   const [contacts, setContacts] = useState([]);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedContacts, setSelectedContacts] = useState(new Set());
@@ -37,9 +38,15 @@ export default function OrgMembers() {
 
   const loadContacts = async () => {
     try {
+      // Load org members
       const response = await api.get(`/orgmembers?orgId=${orgId}`);
       const members = response.data.members || [];
       setContacts(members);
+      
+      // Load events for dropdown
+      const eventsResponse = await api.get(`/events?orgId=${orgId}`);
+      const orgEvents = eventsResponse.data || [];
+      setEvents(orgEvents);
       
       // Calculate engagement stats (using new value system: 1-4)
       const stats = {
@@ -431,24 +438,20 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {contact.upcomingEventsCount > 0 ? (
-                        <div className="space-y-1">
-                          {contact.upcomingEventNames?.slice(0, 2).map((eventName, idx) => (
-                            <div key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                              {eventName}
-                            </div>
-                          ))}
-                          {contact.upcomingEventsCount > 2 && (
-                            <div className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                              +{contact.upcomingEventsCount - 2} more
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
-                          0
-                        </span>
-                      )}
+                      <EditableFieldComponent
+                        value={contact.eventId}
+                        field="eventId"
+                        contactId={contact.contactId}
+                        type="select"
+                        onUpdate={loadContacts}
+                        options={[
+                          { value: '', label: 'No Event' },
+                          ...events.map(event => ({
+                            value: event.id,
+                            label: event.name
+                          }))
+                        ]}
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <div className="flex items-center gap-2">

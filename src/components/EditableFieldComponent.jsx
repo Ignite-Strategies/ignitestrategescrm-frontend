@@ -113,7 +113,7 @@ export default function EditableField({
         onBlur={() => handleSave()}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        className={`px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${type === 'number' ? 'w-16 min-w-16' : 'w-full'}`}
         autoFocus
         disabled={loading}
       />
