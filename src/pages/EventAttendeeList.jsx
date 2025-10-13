@@ -52,7 +52,7 @@ export default function EventAttendeeList() {
       
       // Fallback: Load from API if not cached
       console.log('📡 Loading attendees from API (slow)');
-      const attendeesRes = await api.get(`/event-attendees/${eventId}/attendees`);
+      const attendeesRes = await api.get(`/events/${eventId}/attendees`);
       console.log('🔍 RAW API RESPONSE:', attendeesRes.data);
       console.log('🔍 FIRST ATTENDEE:', attendeesRes.data[0]);
       console.log('🔍 FIRST ATTENDEE CONTACT:', attendeesRes.data[0]?.contact);
@@ -362,7 +362,7 @@ export default function EventAttendeeList() {
                       Likelihood
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Member Status
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -516,6 +516,13 @@ export default function EventAttendeeList() {
 
         {/* Actions */}
         <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => navigate(`/contacts/selector`)}
+            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 font-medium"
+          >
+            👥 Go to Contacts Manager Hub
+          </button>
+          
           <button
             onClick={() => navigate(`/event/${eventId}/pipelines`)}
             className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium"
