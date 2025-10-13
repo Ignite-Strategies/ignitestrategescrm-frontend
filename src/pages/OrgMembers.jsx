@@ -47,7 +47,7 @@ export default function OrgMembers() {
         high: members.filter(m => m.engagementValue === 4).length,
         medium: members.filter(m => m.engagementValue === 3).length,
         low: members.filter(m => m.engagementValue === 2).length,
-        inactive: members.filter(m => m.engagementValue === 1 || !m.engagementValue).length
+        inactive: members.filter(m => !m.engagementValue).length  // Only count truly null/undefined as inactive
       };
       setEngagementStats(stats);
       
@@ -134,7 +134,7 @@ export default function OrgMembers() {
     if (selectedContacts.size === 0) return;
     
     const contactNames = filteredContacts
-      .filter(c => selectedContacts.has(c._id))
+      .filter(c => selectedContacts.has(c.id))
       .map(c => `${c.firstName} ${c.lastName}`)
       .join(', ');
     
@@ -323,6 +323,7 @@ export default function OrgMembers() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Years w/ Org</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Leadership Role</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Engagement</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Upcoming Events</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -355,10 +356,24 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {contact.email}
+                      <EditableFieldComponent
+                        value={contact.email}
+                        field="email"
+                        orgMemberId={contact.orgMemberId}
+                        type="email"
+                        onUpdate={handleFieldUpdate}
+                        placeholder="email@example.com"
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatPhone(contact.phone)}
+                      <EditableFieldComponent
+                        value={contact.phone}
+                        field="phone"
+                        orgMemberId={contact.orgMemberId}
+                        type="tel"
+                        onUpdate={handleFieldUpdate}
+                        placeholder="555-555-5555"
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <EditableFieldComponent
@@ -387,6 +402,11 @@ export default function OrgMembers() {
                         options={engagementOptions}
                         onUpdate={handleFieldUpdate}
                       />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        {contact.upcomingEventsCount || 0}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <div className="flex items-center gap-2">
