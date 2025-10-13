@@ -176,7 +176,9 @@ export default function Events() {
     const formAssociation = {
       eventId: eventId,
       formId: form.id,
+      publicFormId: form.publicFormId, // ← SQL ID for fetching form responses
       formName: form.name,
+      slug: form.slug,
       formData: form,
       associatedAt: new Date().toISOString()
     };
@@ -185,7 +187,7 @@ export default function Events() {
     setAssociatedForm(formAssociation);
     setShowForms(false);
     
-    console.log('✅ Form associated with event:', form.name);
+    console.log('✅ Form associated with event:', form.name, 'publicFormId:', form.publicFormId);
   };
 
   const loadAssociatedForm = () => {

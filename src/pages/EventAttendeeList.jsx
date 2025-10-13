@@ -174,6 +174,35 @@ export default function EventAttendeeList() {
     navigate(`/contact/${contactId}`);
   };
 
+  // Handle viewing form response for an attendee
+  const handleViewFormResponse = async (attendeeId, contactName) => {
+    try {
+      const response = await api.get(`/attendees/${attendeeId}/form-response`);
+      const formResponse = response.data;
+      
+      // Create a formatted display of the form response
+      let displayMessage = `📋 Form Response for ${contactName}\n\n`;
+      displayMessage += `Form: ${formResponse.formName}\n`;
+      displayMessage += `Email: ${formResponse.email}\n`;
+      if (formResponse.phone) displayMessage += `Phone: ${formResponse.phone}\n`;
+      displayMessage += `\nCustom Responses:\n`;
+      
+      Object.entries(formResponse.formResponses).forEach(([key, value]) => {
+        displayMessage += `- ${key}: ${value}\n`;
+      });
+      
+      alert(displayMessage);
+      
+    } catch (error) {
+      console.error('❌ Error loading form response:', error);
+      if (error.response?.status === 404) {
+        alert('No form response found for this attendee');
+      } else {
+        alert('Failed to load form response');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -348,6 +377,17 @@ export default function EventAttendeeList() {
                       {/* Actions */}
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end gap-2">
+                          {/* View Form button (only show if attendee has form submission) */}
+                          {attendee.submittedFormId && (
+                            <button
+                              onClick={() => handleViewFormResponse(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
+                              className="text-blue-600 hover:text-blue-900 px-2 py-1 rounded text-xs font-medium"
+                              title="View Form Response"
+                            >
+                              📝 View Form
+                            </button>
+                          )}
+                          
                           <button
                             onClick={() => navigate(`/event/${eventId}/pipelines`)}
                             className="text-indigo-600 hover:text-indigo-900 px-3 py-1 rounded text-sm font-medium"
