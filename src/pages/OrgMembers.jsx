@@ -412,9 +412,24 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                        {contact.upcomingEventsCount || 0}
-                      </span>
+                      {contact.upcomingEventsCount > 0 ? (
+                        <div className="space-y-1">
+                          {contact.upcomingEvents?.slice(0, 2).map((event, idx) => (
+                            <div key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              {event.eventName}
+                            </div>
+                          ))}
+                          {contact.upcomingEventsCount > 2 && (
+                            <div className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                              +{contact.upcomingEventsCount - 2} more
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
+                          0
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <div className="flex items-center gap-2">

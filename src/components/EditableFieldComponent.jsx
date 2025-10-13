@@ -14,8 +14,9 @@ export default function EditableField({
   const [editValue, setEditValue] = useState(value || '');
   const [loading, setLoading] = useState(false);
 
-  const handleSave = async () => {
-    if (editValue === value) {
+  const handleSave = async (newValue = null) => {
+    const valueToSave = newValue !== null ? newValue : editValue;
+    if (valueToSave === value) {
       setIsEditing(false);
       return;
     }
@@ -26,7 +27,7 @@ export default function EditableField({
       const memberId = orgMemberId || supporterId;
       
       const response = await api.patch(`/orgmembers/${memberId}`, {
-        [field]: editValue  // Send as object: { fieldName: newValue }
+        [field]: valueToSave  // Send as object: { fieldName: newValue }
       });
       
       onUpdate(response.data.member);
@@ -59,8 +60,12 @@ export default function EditableField({
       return (
         <select
           value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onBlur={handleSave}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            setEditValue(newValue);
+            // Auto-save immediately for dropdowns when selection changes
+            handleSave(newValue);
+          }}
           onKeyDown={handleKeyDown}
           className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           autoFocus
