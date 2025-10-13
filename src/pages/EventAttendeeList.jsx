@@ -8,6 +8,7 @@ export default function EventAttendeeList() {
   const [attendees, setAttendees] = useState([]);
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [openDropdowns, setOpenDropdowns] = useState({});
 
   useEffect(() => {
     if (eventId) {
@@ -124,6 +125,27 @@ export default function EventAttendeeList() {
     }
   };
 
+  // Helper function to capitalize text
+  const capitalizeText = (text) => {
+    if (!text) return 'Unknown';
+    return text.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
+  // Toggle dropdown
+  const toggleDropdown = (attendeeId) => {
+    setOpenDropdowns(prev => ({
+      ...prev,
+      [attendeeId]: !prev[attendeeId]
+    }));
+  };
+
+  // Close dropdown when clicking outside
+  const closeAllDropdowns = () => {
+    setOpenDropdowns({});
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -187,7 +209,7 @@ export default function EventAttendeeList() {
         </div>
 
         {/* Attendees Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden" onClick={closeAllDropdowns}>
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-medium text-gray-900">All Attendees ({attendees.length})</h2>
           </div>
@@ -261,14 +283,14 @@ export default function EventAttendeeList() {
                       {/* Audience */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getAudienceColor(attendee.audienceType)}`}>
-                          {attendee.audienceType?.replace('_', ' ') || 'Unknown'}
+                          {capitalizeText(attendee.audienceType)}
                         </span>
                       </td>
                       
                       {/* Stage */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStageColor(attendee.currentStage)}`}>
-                          {attendee.currentStage?.replace('_', ' ') || 'Unknown'}
+                          {capitalizeText(attendee.currentStage)}
                         </span>
                       </td>
                       
@@ -305,27 +327,41 @@ export default function EventAttendeeList() {
                           {/* Dropdown for delete options */}
                           <div className="relative">
                             <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleDropdown(attendee.id);
+                              }}
                               className="text-red-600 hover:text-red-900 px-2 py-1 rounded"
                               title="Delete options"
                             >
                               🗑️
                             </button>
-                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                              <div className="py-1">
-                                <button
-                                  onClick={() => handleRemoveFromEvent(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                >
-                                  Remove from Event
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                                >
-                                  Delete Contact Entirely
-                                </button>
+                            {openDropdowns[attendee.id] && (
+                              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 border border-gray-200">
+                                <div className="py-1">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      closeAllDropdowns();
+                                      handleRemoveFromEvent(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
+                                    }}
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                  >
+                                    Remove from Event
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      closeAllDropdowns();
+                                      handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
+                                    }}
+                                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                  >
+                                    Delete Contact Entirely
+                                  </button>
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </td>
