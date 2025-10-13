@@ -372,45 +372,43 @@ export default function Events() {
                       ➕ Add More Contacts
                     </button>
                   </div>
+                  
+                  {/* Form Association Section */}
+                  <div className="bg-white bg-opacity-10 rounded-lg p-6 mt-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-white">Form Association</h3>
+                      {associatedForm && (
+                        <span className="text-sm text-green-200 bg-green-800 bg-opacity-50 px-3 py-1 rounded-full">
+                          ✅ {associatedForm.formName}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {showForms && (
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-indigo-100">Available Forms:</h4>
+                        {availableForms.length === 0 ? (
+                          <p className="text-indigo-200 italic">No forms available</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {availableForms.map((form) => (
+                              <button
+                                key={form.id}
+                                onClick={() => handleSelectForm(form)}
+                                className="w-full text-left p-3 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg hover:bg-opacity-30 hover:border-opacity-50 transition-colors"
+                              >
+                                <div className="font-medium text-white">{form.name}</div>
+                                <div className="text-sm text-indigo-200">{form.description || 'No description'}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })()}
-          </div>
-        )}
-
-        {/* Form Association Section */}
-        {mainEvent && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Form Association</h3>
-              {associatedForm && (
-                <span className="text-sm text-green-600 bg-green-100 px-3 py-1 rounded-full">
-                  ✅ {associatedForm.formName}
-                </span>
-              )}
-            </div>
-            
-            {showForms && (
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-700">Available Forms:</h4>
-                {availableForms.length === 0 ? (
-                  <p className="text-gray-500 italic">No forms available</p>
-                ) : (
-                  <div className="space-y-2">
-                    {availableForms.map((form) => (
-                      <button
-                        key={form.id}
-                        onClick={() => handleSelectForm(form)}
-                        className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors"
-                      >
-                        <div className="font-medium text-gray-900">{form.name}</div>
-                        <div className="text-sm text-gray-500">{form.description || 'No description'}</div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
 
