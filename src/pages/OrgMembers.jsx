@@ -445,7 +445,7 @@ export default function OrgMembers() {
                         type="select"
                         onUpdate={loadContacts}
                         options={[
-                          { value: '', label: 'No Event' },
+                          { value: '', label: 'None' },
                           ...events.map(event => ({
                             value: event.id,
                             label: event.name
