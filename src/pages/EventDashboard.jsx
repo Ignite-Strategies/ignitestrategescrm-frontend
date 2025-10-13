@@ -148,7 +148,8 @@ export default function Events() {
 
   const loadAvailableForms = async () => {
     try {
-      const response = await api.get('/forms');
+      const orgId = localStorage.getItem('orgId');
+      const response = await api.get(`/forms?orgId=${orgId}`);
       setAvailableForms(response.data);
       console.log('📋 Loaded forms:', response.data.length);
     } catch (error) {
