@@ -36,9 +36,17 @@ export default function EventAttendeeList() {
       const cachedAttendees = localStorage.getItem(`event_${eventId}_attendees`);
       if (cachedAttendees) {
         console.log('🚀 Loading attendees from localStorage (fast!)');
-        setAttendees(JSON.parse(cachedAttendees));
-        setLoading(false);
-        return;
+        const parsedAttendees = JSON.parse(cachedAttendees);
+        
+        // Check if cached data has orgMemberId (hydration check)
+        const hasOrgMemberId = parsedAttendees.length > 0 && parsedAttendees[0].hasOwnProperty('orgMemberId');
+        if (hasOrgMemberId) {
+          setAttendees(parsedAttendees);
+          setLoading(false);
+          return;
+        } else {
+          console.log('⚠️ Cached data missing orgMemberId, reloading from API...');
+        }
       }
       
       // Fallback: Load from API if not cached
@@ -90,7 +98,8 @@ export default function EventAttendeeList() {
       await api.delete(`/contacts/${contactId}`);
       console.log('✅ Contact deleted entirely');
       
-      // Reload data
+      // Clear cache and reload data
+      localStorage.removeItem(`event_${eventId}_attendees`);
       await loadData();
       
     } catch (error) {
@@ -115,7 +124,8 @@ export default function EventAttendeeList() {
       console.log('✅ Contact elevated to Org Member');
       alert(`${contactName} has been elevated to Org Member!`);
       
-      // Reload data to show updated status
+      // Clear cache and reload data to show updated status
+      localStorage.removeItem(`event_${eventId}_attendees`);
       await loadData();
 
     } catch (error) {
