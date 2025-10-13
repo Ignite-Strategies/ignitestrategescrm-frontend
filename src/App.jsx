@@ -203,6 +203,9 @@ export default function App() {
         <Route path="/contacts" element={
           <ProtectedRoute><ContactManageHome /></ProtectedRoute>
         } />
+        <Route path="/contactmanage" element={
+          <ProtectedRoute><ContactManageHome /></ProtectedRoute>
+        } />
         <Route path="/contacts/selector" element={
           <ProtectedRoute><ContactManageSelector /></ProtectedRoute>
         } />

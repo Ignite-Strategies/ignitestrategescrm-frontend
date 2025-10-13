@@ -47,8 +47,8 @@ export default function EventAttendeeList() {
         const hasOrgMemberId = parsedAttendees.length > 0 && parsedAttendees[0].hasOwnProperty('orgMemberId');
         if (hasOrgMemberId) {
           setAttendees(parsedAttendees);
-          setLoading(false);
-          return;
+        setLoading(false);
+        return;
         } else {
           console.log('⚠️ Cached data missing orgMemberId, reloading from API...');
         }
@@ -265,7 +265,7 @@ export default function EventAttendeeList() {
           </button>
           <span>→</span>
           <button
-            onClick={() => navigate("/contactmanage")}
+            onClick={() => navigate("/contacts")}
             className="hover:text-indigo-600 transition"
           >
             Contact Management Home
@@ -274,21 +274,21 @@ export default function EventAttendeeList() {
           <span className="text-gray-900 font-medium">{event?.name || 'Event'} - Attendees</span>
         </div>
 
-        <div className="flex items-center gap-4 mb-4">
-          <button
-            onClick={() => navigate('/events')}
-            className="text-indigo-600 hover:text-indigo-800 font-medium"
-          >
-            ← Back to Events
-          </button>
-        </div>
-        
-        <h1 className="text-3xl font-bold text-gray-900">
-          {event?.name || 'Event'} - All Attendees
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Manage all contacts registered for this event
-        </p>
+          <div className="flex items-center gap-4 mb-4">
+            <button
+              onClick={() => navigate('/events')}
+              className="text-indigo-600 hover:text-indigo-800 font-medium"
+            >
+              ← Back to Events
+            </button>
+          </div>
+          
+          <h1 className="text-3xl font-bold text-gray-900">
+            {event?.name || 'Event'} - All Attendees
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Manage all contacts registered for this event
+          </p>
         </div>
 
         {/* Stats Summary */}
