@@ -453,24 +453,48 @@ export default function EventAttendeeList() {
                       </td>
                       
                       {/* Who's Coming */}
-                      <td className="px-3 py-2 whitespace-nowrap text-xs">
-                        <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                          {attendee.spouseOrOther || 'Not set'}
-                        </span>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <EditableFieldComponent
+                          value={attendee.spouseOrOther}
+                          field="spouseOrOther"
+                          type="select"
+                          eventAttendeeId={attendee.id}
+                          onSave={loadData}
+                          options={[
+                            { value: 'solo', label: 'Solo' },
+                            { value: 'spouse', label: 'Spouse' },
+                            { value: 'other', label: 'Other' }
+                          ]}
+                        />
                       </td>
                       
                       {/* Party Size */}
-                      <td className="px-3 py-2 whitespace-nowrap text-xs">
-                        <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
-                          {attendee.howManyInParty || 'Not set'}
-                        </span>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <EditableFieldComponent
+                          value={attendee.howManyInParty}
+                          field="howManyInParty"
+                          type="number"
+                          eventAttendeeId={attendee.id}
+                          onSave={loadData}
+                          placeholder="1"
+                        />
                       </td>
                       
                       {/* Likelihood */}
-                      <td className="px-3 py-2 whitespace-nowrap text-xs">
-                        <span className="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                          {attendee.likelihoodToAttend?.name || 'Not set'}
-                        </span>
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <EditableFieldComponent
+                          value={attendee.likelihoodToAttendId}
+                          field="likelihoodToAttendId"
+                          type="select"
+                          eventAttendeeId={attendee.id}
+                          onSave={loadData}
+                          options={[
+                            { value: '1', label: 'High' },
+                            { value: '2', label: 'Medium' },
+                            { value: '3', label: 'Low' },
+                            { value: '4', label: 'Support from Afar' }
+                          ]}
+                        />
                       </td>
                       
                       {/* Actions */}

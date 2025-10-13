@@ -4,11 +4,15 @@ import api from '../lib/api';
 export default function EditableField({ 
   value, 
   field, 
-  orgMemberId,  // NEW: orgMemberId instead of deprecated supporterId
-  supporterId,  // LEGACY: Keep for backward compatibility, but prefer orgMemberId
+  orgMemberId,  // For OrgMember updates
+  supporterId,  // LEGACY: Keep for backward compatibility
+  contactId,    // For Contact updates
+  eventAttendeeId,  // For EventAttendee updates
   type = 'text',
   options = null,
-  onUpdate 
+  onUpdate,
+  onSave,       // Alternative callback
+  placeholder = ''
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || '');
@@ -23,14 +27,34 @@ export default function EditableField({
 
     setLoading(true);
     try {
-      // Use new OrgMember PATCH route if orgMemberId provided
-      const memberId = orgMemberId || supporterId;
+      let response;
       
-      const response = await api.patch(`/orgmembers/${memberId}`, {
-        [field]: valueToSave  // Send as object: { fieldName: newValue }
-      });
+      // Route to the correct endpoint based on what ID is provided
+      if (eventAttendeeId) {
+        // Update EventAttendee
+        response = await api.patch(`/event-attendees/${eventAttendeeId}`, {
+          [field]: valueToSave
+        });
+      } else if (contactId) {
+        // Update Contact
+        response = await api.patch(`/contacts/${contactId}`, {
+          [field]: valueToSave
+        });
+      } else if (orgMemberId || supporterId) {
+        // Update OrgMember
+        const memberId = orgMemberId || supporterId;
+        response = await api.patch(`/orgmembers/${memberId}`, {
+          [field]: valueToSave
+        });
+      }
       
-      onUpdate(response.data.member);
+      // Call the appropriate callback
+      if (onSave) {
+        onSave();
+      } else if (onUpdate) {
+        onUpdate(response.data.member || response.data);
+      }
+      
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating field:', error);
@@ -80,7 +104,7 @@ export default function EditableField({
       );
     }
 
-    // Text input
+    // Text/Number input
     return (
       <input
         type={type}
@@ -88,6 +112,7 @@ export default function EditableField({
         onChange={(e) => setEditValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
+        placeholder={placeholder}
         className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         autoFocus
         disabled={loading}
