@@ -52,7 +52,7 @@ export default function EventAttendeeList() {
       
       // Fallback: Load from API if not cached
       console.log('📡 Loading attendees from API (slow)');
-      const attendeesRes = await api.get(`/events/${eventId}/attendees`);
+      const attendeesRes = await api.get(`/event-attendees/${eventId}/attendees`);
       console.log('🔍 RAW API RESPONSE:', attendeesRes.data);
       console.log('🔍 FIRST ATTENDEE:', attendeesRes.data[0]);
       console.log('🔍 FIRST ATTENDEE CONTACT:', attendeesRes.data[0]?.contact);
@@ -362,7 +362,7 @@ export default function EventAttendeeList() {
                       Likelihood
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                      Member Status
                     </th>
                   </tr>
                 </thead>
