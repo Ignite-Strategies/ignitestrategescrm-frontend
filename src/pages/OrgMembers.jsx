@@ -31,6 +31,7 @@ export default function OrgMembers() {
     low: 0,
     inactive: 0
   });
+  const [openDropdowns, setOpenDropdowns] = useState({});
 
   useEffect(() => {
     loadContacts();
@@ -92,6 +93,47 @@ export default function OrgMembers() {
     setContacts(prev => prev.map(contact => 
       contact.id === updatedMember.id ? updatedMember : contact
     ));
+  };
+
+  // Dropdown functions
+  const toggleDropdown = (contactId) => {
+    setOpenDropdowns(prev => ({
+      ...prev,
+      [contactId]: !prev[contactId]
+    }));
+  };
+
+  const closeAllDropdowns = () => {
+    setOpenDropdowns({});
+  };
+
+  // Delete functions
+  const handleDeleteOrgMember = async (orgMemberId, name) => {
+    if (!confirm(`Remove ${name} from the organization? They will still exist as a contact.`)) {
+      return;
+    }
+
+    try {
+      await api.delete(`/orgmembers/${orgMemberId}`);
+      alert(`${name} has been removed from the organization.`);
+      loadContacts();
+    } catch (error) {
+      alert("Error removing org member: " + error.message);
+    }
+  };
+
+  const handleDeleteContact = async (contactId, name) => {
+    if (!confirm(`Permanently delete ${name}? This will remove them from ALL events and organizations. This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await api.delete(`/contacts/${contactId}`);
+      alert(`${name} has been permanently deleted.`);
+      loadContacts();
+    } catch (error) {
+      alert("Error deleting contact: " + error.message);
+    }
   };
 
   const engagementOptions = [
@@ -454,13 +496,54 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <button
-                        onClick={() => navigate("/send-email", { state: { recipient: contact.email, recipientName: `${contact.firstName} ${contact.lastName}` } })}
-                        className="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded text-xs font-medium transition"
-                        title="Send 1:1 Email"
-                      >
-                        Email
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => navigate("/send-email", { state: { recipient: contact.email, recipientName: `${contact.firstName} ${contact.lastName}` } })}
+                          className="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded text-xs font-medium transition"
+                          title="Send 1:1 Email"
+                        >
+                          Email
+                        </button>
+                        
+                        {/* Delete dropdown */}
+                        <div className="relative">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleDropdown(contact.id);
+                            }}
+                            className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs font-medium transition"
+                            title="Delete Options"
+                          >
+                            Delete
+                          </button>
+                          
+                          {openDropdowns[contact.id] && (
+                            <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded shadow-lg z-10">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteOrgMember(contact.orgMemberId, `${contact.firstName} ${contact.lastName}`);
+                                  closeAllDropdowns();
+                                }}
+                                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                              >
+                                Remove from Organization
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteContact(contact.contactId, `${contact.firstName} ${contact.lastName}`);
+                                  closeAllDropdowns();
+                                }}
+                                className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
+                              >
+                                Delete Contact Entirely
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ))}
