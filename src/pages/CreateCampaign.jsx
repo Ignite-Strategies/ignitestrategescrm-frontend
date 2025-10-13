@@ -142,7 +142,7 @@ export default function CreateCampaign() {
                   No contact lists found. 
                   <button
                     type="button"
-                    onClick={() => navigate("/create-list-options")}
+                    onClick={() => navigate("/contact-list-builder")}
                     className="text-indigo-600 hover:text-indigo-700 ml-1"
                   >
                     Create one first →

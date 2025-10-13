@@ -125,6 +125,25 @@ export default function CampaignHome() {
             <h3 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             
+            {/* 📋 Contact Lists */}
+            <button
+              onClick={() => navigate("/contact-list-manager")}
+              className="bg-gradient-to-br from-indigo-50 to-blue-50 p-6 rounded-lg border-2 border-indigo-200 hover:border-indigo-400 transition text-left"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-indigo-500 text-white rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">📋 Contact Lists</h3>
+                  <p className="text-sm text-gray-600">Manage lists</p>
+                </div>
+              </div>
+              <p className="text-sm text-indigo-700">Create and manage contact segments</p>
+            </button>
+            
             {/* 📝 Templates */}
             <button
               onClick={() => navigate("/templates")}

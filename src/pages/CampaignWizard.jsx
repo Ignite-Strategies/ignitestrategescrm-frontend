@@ -202,7 +202,7 @@ export default function CampaignWizard() {
                       </div>
                       <p className="text-gray-500 mb-4">No contact lists found</p>
                       <button
-                        onClick={() => navigate("/contact-lists")}
+                        onClick={() => navigate("/contact-list-builder")}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                       >
                         Create Contact List
