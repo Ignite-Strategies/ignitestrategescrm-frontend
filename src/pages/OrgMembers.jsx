@@ -414,9 +414,9 @@ export default function OrgMembers() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {contact.upcomingEventsCount > 0 ? (
                         <div className="space-y-1">
-                          {contact.upcomingEvents?.slice(0, 2).map((event, idx) => (
+                          {contact.upcomingEventNames?.slice(0, 2).map((eventName, idx) => (
                             <div key={idx} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                              {event.eventName}
+                              {eventName}
                             </div>
                           ))}
                           {contact.upcomingEventsCount > 2 && (
