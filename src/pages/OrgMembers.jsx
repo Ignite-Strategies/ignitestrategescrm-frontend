@@ -356,8 +356,8 @@ export default function OrgMembers() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Years w/ Org</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Leadership Role</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Engagement</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Upcoming Events</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase w-48">Upcoming Events</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase w-32">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -453,35 +453,35 @@ export default function OrgMembers() {
                         ]}
                       />
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <div className="flex items-center gap-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm w-32">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => navigate(`/contact/${contact.contactId}`)}
-                          className="text-blue-600 hover:text-blue-800 font-medium text-xs"
+                          className="bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs font-medium transition"
                           title="View Details"
                         >
-                          👁️
+                          View
                         </button>
                         <button
                           onClick={() => navigate("/send-email", { state: { recipient: contact.email, recipientName: `${contact.firstName} ${contact.lastName}` } })}
-                          className="text-green-600 hover:text-green-800 font-medium text-xs"
+                          className="bg-green-100 hover:bg-green-200 text-green-800 px-2 py-1 rounded text-xs font-medium transition"
                           title="Send 1:1 Email"
                         >
-                          ✉️
+                          Email
                         </button>
                         <button
                           onClick={() => navigate("/campaignwizard", { state: { selectedContacts: [contact.contactId] } })}
-                          className="text-purple-600 hover:text-purple-800 font-medium text-xs"
+                          className="bg-purple-100 hover:bg-purple-200 text-purple-800 px-2 py-1 rounded text-xs font-medium transition"
                           title="Add to Campaign"
                         >
-                          📧
+                          Campaign
                         </button>
                         <button
                           onClick={() => handleDelete(contact.contactId, `${contact.firstName} ${contact.lastName}`)}
-                          className="text-red-600 hover:text-red-800 font-medium text-xs"
+                          className="bg-red-100 hover:bg-red-200 text-red-800 px-2 py-1 rounded text-xs font-medium transition"
                           title="Delete"
                         >
-                          🗑️
+                          Delete
                         </button>
                       </div>
                     </td>
