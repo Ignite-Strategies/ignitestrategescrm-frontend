@@ -110,7 +110,7 @@ export default function OrgMembers() {
     return phone;
   };
 
-  const handleSelectContact (contactId) => {
+  const handleSelectContact = (contactId) => {
     setSelectedContacts(prev => {
       const newSet = new Set(prev);
       if (newSet.has(contactId)) {
