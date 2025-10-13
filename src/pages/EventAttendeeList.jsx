@@ -86,29 +86,6 @@ export default function EventAttendeeList() {
     }
   };
 
-  const handleElevateToOrgMember = async (contactId, contactName) => {
-    if (!confirm(`Add ${contactName} to ${orgName || 'the org'} as a member?`)) {
-      return;
-    }
-
-    try {
-      // Create OrgMember record for this contact
-      const orgId = localStorage.getItem('orgId');
-      await api.post('/org-members', {
-        contactId: contactId,
-        orgId: orgId
-      });
-      
-      console.log('✅ Contact elevated to Org Member');
-      
-      // Reload data to show updated status
-      await loadData();
-      
-    } catch (error) {
-      console.error('❌ Error elevating to org member:', error);
-      alert('Failed to elevate to org member');
-    }
-  };
 
   const getStageColor = (stage) => {
     switch (stage) {
@@ -318,16 +295,6 @@ export default function EventAttendeeList() {
                             {attendee.actualType === 'org_member' ? '✓ Org Member' : 'Non-Org'}
                           </span>
                           
-                          {/* Elevate button for non-org members */}
-                          {attendee.actualType !== 'org_member' && (
-                            <button
-                              onClick={() => handleElevateToOrgMember(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                              className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200"
-                              title="Elevate to Org Member"
-                            >
-                              ⬆️
-                            </button>
-                          )}
                         </div>
                       </td>
                       
