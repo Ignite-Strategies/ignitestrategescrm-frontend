@@ -12,62 +12,27 @@ export default function NotesParser() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadForms();
+    loadAttendeesWithNotes();
   }, [orgId]);
 
-  const loadForms = async () => {
-    try {
-      const response = await api.get(`/forms?orgId=${orgId}`);
-      setForms(response.data || []);
-    } catch (error) {
-      console.error('Error loading forms:', error);
-    }
-  };
-
-  const loadAttendees = async (formId) => {
+  const loadAttendeesWithNotes = async () => {
     try {
       setLoading(true);
-      console.log('🔍 Loading attendees for formId:', formId);
+      console.log('🔍 Loading EventAttendees with notes data...');
       
-      // Get all EventAttendees that submitted this form
-      const response = await api.get(`/events/attendees?formId=${formId}`);
+      // Get all EventAttendees that have notes data
+      const response = await api.get(`/events/attendees?hasNotes=true&orgId=${orgId}`);
       setAttendees(response.data || []);
+      
+      console.log(`✅ Found ${response.data?.length || 0} attendees with notes data`);
     } catch (error) {
-      console.error('⚠️ Error loading attendees (trying fallback):', error);
-      
-      // Fallback: try to get attendees from a specific event if we know the form
-      const form = forms.find(f => f.id === formId || f.publicFormId === formId);
-      console.log('📋 Found form:', form);
-      
-      if (form?.eventId) {
-        const eventResponse = await api.get(`/events/${form.eventId}/attendees`);
-        console.log('📊 All event attendees:', eventResponse.data);
-        console.log('🔍 Filtering for submittedFormId OR publicFormId:', formId, 'or', form.publicFormId);
-        
-        // Filter by either formId or publicFormId (could be either)
-        const formSubmissions = eventResponse.data.filter(attendee => {
-          const matches = attendee.submittedFormId === formId || 
-                         attendee.submittedFormId === form.publicFormId;
-          if (attendee.submittedFormId) {
-            console.log(`  - Attendee ${attendee.contact?.firstName}: submittedFormId = ${attendee.submittedFormId}, matches = ${matches}`);
-          }
-          return matches;
-        });
-        
-        console.log(`✅ Filtered to ${formSubmissions.length} attendees with matching formId`);
-        
-        // If no matches, show ALL attendees (they might not have submittedFormId set yet)
-        if (formSubmissions.length === 0) {
-          console.warn('⚠️ No attendees have submittedFormId set! Showing all event attendees.');
-          setAttendees(eventResponse.data);
-        } else {
-          setAttendees(formSubmissions);
-        }
-      }
+      console.error('❌ Error loading attendees with notes:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // Remove the old loadAttendees function - we don't need it anymore!
 
   const loadFormResponse = (attendee) => {
     setSelectedAttendee(attendee);
@@ -166,8 +131,8 @@ export default function NotesParser() {
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Form User Update</h1>
-              <p className="text-gray-600">Map form responses to structured fields</p>
+              <h1 className="text-2xl font-bold text-gray-900">Notes Parser</h1>
+              <p className="text-gray-600">Parse EventAttendee notes and map to structured fields</p>
             </div>
             <button
               onClick={() => navigate("/dashboard")}
@@ -177,70 +142,47 @@ export default function NotesParser() {
             </button>
           </div>
 
-          {/* Step 1: Select Form */}
+          {/* Attendees with Notes Data */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Step 1: Select Form</h2>
-            <select
-              value={selectedFormId}
-              onChange={(e) => {
-                setSelectedFormId(e.target.value);
-                if (e.target.value) {
-                  loadAttendees(e.target.value);
-                } else {
-                  setAttendees([]);
-                }
-              }}
-              className="w-full max-w-md border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Select a form...</option>
-              {forms.map(form => (
-                <option key={form.id} value={form.id}>
-                  {form.title} ({form.slug})
-                </option>
-              ))}
-            </select>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">EventAttendees with Notes Data</h2>
+            {loading ? (
+              <p className="text-gray-600">Loading attendees...</p>
+            ) : attendees.length === 0 ? (
+              <p className="text-gray-600">No attendees found with notes data.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {attendees.map(attendee => (
+                  <div
+                    key={attendee.id}
+                    onClick={() => loadFormResponse(attendee)}
+                    className={`p-4 border rounded-lg cursor-pointer transition ${
+                      selectedAttendee?.id === attendee.id 
+                        ? 'border-indigo-500 bg-indigo-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="font-medium text-gray-900">
+                      {attendee.contact?.firstName} {attendee.contact?.lastName}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {attendee.contact?.email}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Event: {attendee.event?.name} | Stage: {attendee.currentStage}
+                    </div>
+                    <div className="text-xs text-blue-600 mt-1">
+                      📋 Has notes data
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Step 2: Select Attendee */}
-          {selectedFormId && (
-            <div className="mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Step 2: Select Attendee</h2>
-              {loading ? (
-                <p className="text-gray-600">Loading attendees...</p>
-              ) : attendees.length === 0 ? (
-                <p className="text-gray-600">No attendees found for this form.</p>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {attendees.map(attendee => (
-                    <div
-                      key={attendee.id}
-                      onClick={() => loadFormResponse(attendee)}
-                      className={`p-4 border rounded-lg cursor-pointer transition ${
-                        selectedAttendee?.id === attendee.id 
-                          ? 'border-indigo-500 bg-indigo-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="font-medium text-gray-900">
-                        {attendee.contact?.firstName} {attendee.contact?.lastName}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {attendee.contact?.email}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        Stage: {attendee.currentStage}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Step 3: View & Map Form Response */}
+          {/* Notes Parsing & Mapping */}
           {selectedAttendee && formResponse && (
             <div className="mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Step 3: Form Response & Mapping</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Parse Notes & Map to Structured Fields</h2>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
