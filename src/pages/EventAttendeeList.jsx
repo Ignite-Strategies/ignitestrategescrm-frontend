@@ -363,16 +363,16 @@ export default function EventAttendeeList() {
                   {attendees.map((attendee) => (
                     <tr key={attendee.id} className="hover:bg-gray-50">
                       {/* Name */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 py-2 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                          <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
                             <span className="text-indigo-600 font-medium text-xs">
                               {attendee.contact?.firstName?.[0]}{attendee.contact?.lastName?.[0]}
                             </span>
                           </div>
                           <button
                             onClick={() => handleViewContactDetails(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                            className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline text-left"
+                            className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline text-left text-sm"
                           >
                             {attendee.contact?.firstName} {attendee.contact?.lastName}
                           </button>
@@ -380,7 +380,7 @@ export default function EventAttendeeList() {
                       </td>
                       
                       {/* Email */}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                         <EditableFieldComponent
                           value={attendee.contact?.email}
                           field="email"
@@ -392,7 +392,7 @@ export default function EventAttendeeList() {
                       </td>
                       
                       {/* Phone */}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                         <EditableFieldComponent
                           value={formatPhone(attendee.contact?.phone)}
                           field="phone"
@@ -404,7 +404,7 @@ export default function EventAttendeeList() {
                       </td>
                       
                       {/* Audience */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 py-2 whitespace-nowrap">
                         <EditableFieldComponent
                           value={attendee.audienceType}
                           field="audienceType"
@@ -423,7 +423,7 @@ export default function EventAttendeeList() {
                       </td>
                       
                       {/* Stage */}
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 py-2 whitespace-nowrap">
                         <EditableFieldComponent
                           value={attendee.currentStage}
                           field="currentStage"
@@ -441,55 +441,49 @@ export default function EventAttendeeList() {
                         />
                       </td>
                       
-                      {/* Type */}
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                            {attendee.orgMemberId ? '✓ Org Member' : 'Contact'}
+                      {/* Type & Actions - Combined for space */}
+                      <td className="px-3 py-2 whitespace-nowrap">
+                        <div className="flex items-center gap-1 text-xs">
+                          <span className="px-1 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                            {attendee.orgMemberId ? '✓ Org' : 'Contact'}
                           </span>
                           
                           {/* Elevate button - only show if NOT already an org member */}
                           {!attendee.orgMemberId && (
                             <button
                               onClick={() => handleElevateToOrgMember(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                              className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded hover:bg-indigo-200"
+                              className="text-xs bg-indigo-100 text-indigo-700 px-1 py-0.5 rounded hover:bg-indigo-200"
                               title="Elevate to Org Member"
                             >
-                              ⬆️ Elevate
+                              ⬆️
                             </button>
                           )}
-                        </div>
-                      </td>
-                      
-                      {/* Actions */}
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end gap-2">
+                          
                           {/* View Form button (only show if attendee has form submission) */}
                           {attendee.submittedFormId && (
                             <button
                               onClick={() => handleViewFormResponse(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
-                              className="text-blue-600 hover:text-blue-900 px-2 py-1 rounded text-xs font-medium"
+                              className="text-blue-600 hover:text-blue-900 px-1 py-0.5 rounded text-xs"
                               title="View Form Response"
                             >
-                              📝 View Form
+                              📝
                             </button>
                           )}
                           
-                          
-                          {/* Dropdown for delete options */}
+                          {/* Delete dropdown */}
                           <div className="relative">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 toggleDropdown(attendee.id);
                               }}
-                              className="text-red-600 hover:text-red-900 px-2 py-1 rounded"
+                              className="text-red-600 hover:text-red-900 px-1 py-0.5 rounded text-xs"
                               title="Delete options"
                             >
                               🗑️
                             </button>
                             {openDropdowns[attendee.id] && (
-                              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 border border-gray-200">
+                              <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg z-20 border border-gray-200">
                                 <div className="py-1">
                                   <button
                                     onClick={(e) => {
@@ -497,7 +491,7 @@ export default function EventAttendeeList() {
                                       closeAllDropdowns();
                                       handleRemoveFromEvent(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
                                     }}
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    className="block w-full text-left px-3 py-1 text-xs text-gray-700 hover:bg-gray-100"
                                   >
                                     Remove from Event
                                   </button>
@@ -507,7 +501,7 @@ export default function EventAttendeeList() {
                                       closeAllDropdowns();
                                       handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
                                     }}
-                                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                    className="block w-full text-left px-3 py-1 text-xs text-red-600 hover:bg-red-50"
                                   >
                                     Delete Contact Entirely
                                   </button>
@@ -548,6 +542,7 @@ export default function EventAttendeeList() {
             ← Back to Events
           </button>
         </div>
+
       </div>
     </div>
   );
