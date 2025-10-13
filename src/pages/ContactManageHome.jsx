@@ -22,8 +22,8 @@ export default function ContactManageHome() {
   const loadData = async () => {
     try {
       // Load contacts
-      const contactsResponse = await api.get(`/orgs/${orgId}/org-members`);
-      const allContacts = contactsResponse.data || [];
+      const contactsResponse = await api.get(`/orgmembers?orgId=${orgId}`);
+      const allContacts = contactsResponse.data?.members || [];
       
       // Calculate stats
       const orgMembers = allContacts.filter(c => c.firebaseId); // Has login = org member
