@@ -30,19 +30,42 @@ export default function FormUserUpdate() {
   const loadAttendees = async (formId) => {
     try {
       setLoading(true);
+      console.log('🔍 Loading attendees for formId:', formId);
+      
       // Get all EventAttendees that submitted this form
       const response = await api.get(`/events/attendees?formId=${formId}`);
       setAttendees(response.data || []);
     } catch (error) {
-      console.error('Error loading attendees:', error);
+      console.error('⚠️ Error loading attendees (trying fallback):', error);
+      
       // Fallback: try to get attendees from a specific event if we know the form
-      const form = forms.find(f => f.id === formId);
+      const form = forms.find(f => f.id === formId || f.publicFormId === formId);
+      console.log('📋 Found form:', form);
+      
       if (form?.eventId) {
         const eventResponse = await api.get(`/events/${form.eventId}/attendees`);
-        const formSubmissions = eventResponse.data.filter(attendee => 
-          attendee.submittedFormId === formId
-        );
-        setAttendees(formSubmissions);
+        console.log('📊 All event attendees:', eventResponse.data);
+        console.log('🔍 Filtering for submittedFormId OR publicFormId:', formId, 'or', form.publicFormId);
+        
+        // Filter by either formId or publicFormId (could be either)
+        const formSubmissions = eventResponse.data.filter(attendee => {
+          const matches = attendee.submittedFormId === formId || 
+                         attendee.submittedFormId === form.publicFormId;
+          if (attendee.submittedFormId) {
+            console.log(`  - Attendee ${attendee.contact?.firstName}: submittedFormId = ${attendee.submittedFormId}, matches = ${matches}`);
+          }
+          return matches;
+        });
+        
+        console.log(`✅ Filtered to ${formSubmissions.length} attendees with matching formId`);
+        
+        // If no matches, show ALL attendees (they might not have submittedFormId set yet)
+        if (formSubmissions.length === 0) {
+          console.warn('⚠️ No attendees have submittedFormId set! Showing all event attendees.');
+          setAttendees(eventResponse.data);
+        } else {
+          setAttendees(formSubmissions);
+        }
       }
     } finally {
       setLoading(false);
