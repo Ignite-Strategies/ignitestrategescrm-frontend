@@ -35,7 +35,11 @@ export default function EventAttendeeList() {
       
       // Try to load from localStorage first (fast!)
       const cachedAttendees = localStorage.getItem(`event_${eventId}_attendees`);
-      if (cachedAttendees) {
+      const cacheTimestamp = localStorage.getItem(`event_${eventId}_attendees_timestamp`);
+      const now = Date.now();
+      const cacheAge = now - (parseInt(cacheTimestamp) || 0);
+      
+      if (cachedAttendees && cacheAge < 30000) { // Cache valid for 30 seconds
         console.log('🚀 Loading attendees from localStorage (fast!)');
         const parsedAttendees = JSON.parse(cachedAttendees);
         
@@ -59,8 +63,9 @@ export default function EventAttendeeList() {
       console.log('🔍 FIRST ATTENDEE FIRSTNAME:', attendeesRes.data[0]?.contact?.firstName);
       setAttendees(attendeesRes.data);
       
-      // Cache for next time
+      // Cache for next time (with timestamp)
       localStorage.setItem(`event_${eventId}_attendees`, JSON.stringify(attendeesRes.data));
+      localStorage.setItem(`event_${eventId}_attendees_timestamp`, Date.now().toString());
       
       console.log('📋 Loaded', attendeesRes.data.length, 'attendees for event:', eventRes.data.name);
       
