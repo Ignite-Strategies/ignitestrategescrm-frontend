@@ -45,10 +45,10 @@ export default function ContactDetail() {
 
     try {
       const orgId = localStorage.getItem('orgId');
-      await api.post('/org-members', {
-        contactId: contactId,
-        orgId: orgId
-      });
+      await api.post('/org-members', 
+        { contactId: contactId },
+        { headers: { 'x-org-id': orgId } }
+      );
       
       console.log('✅ Contact elevated to Org Member');
       alert(`${contact.firstName} ${contact.lastName} has been elevated to Org Member!`);
