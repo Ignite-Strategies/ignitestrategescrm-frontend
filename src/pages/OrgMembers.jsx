@@ -44,7 +44,7 @@ export default function OrgMembers() {
       setContacts(members);
       
       // Load events for dropdown
-      const eventsResponse = await api.get(`/events?orgId=${orgId}`);
+      const eventsResponse = await api.get(`/orgs/${orgId}/events`);
       const orgEvents = eventsResponse.data || [];
       setEvents(orgEvents);
       
