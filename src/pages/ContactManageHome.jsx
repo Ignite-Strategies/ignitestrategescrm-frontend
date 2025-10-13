@@ -200,7 +200,7 @@ export default function ContactManageHome() {
 
               {/* Create List */}
               <button
-                onClick={() => navigate("/contact-lists")}
+                onClick={() => navigate("/create-list")}
                 className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-lg border-2 border-purple-200 hover:border-purple-400 transition text-left"
               >
                 <div className="flex items-center mb-4">

@@ -335,6 +335,31 @@ export default function Dashboard() {
             </div>
           </button>
 
+          {/* Ad Management */}
+          <button
+            onClick={() => navigate("/ads")}
+            className="bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                </svg>
+              </div>
+              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Ad Management</h2>
+            <p className="text-pink-100 text-sm mb-4">Create and manage advertising campaigns, track performance</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Campaigns</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Analytics</span>
+              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Google Ads</span>
+            </div>
+          </button>
+
           {/* Organization Management */}
           <button
             onClick={() => {

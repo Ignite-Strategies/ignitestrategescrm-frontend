@@ -58,6 +58,7 @@ import Forms from "./pages/Forms.jsx";
 import FormBuilder from "./pages/FormBuilder.jsx";
 import FormSuccess from "./pages/FormSuccess.jsx";
 import PostOrgCreate from "./pages/PostOrgCreate.jsx";
+import AdsDashboard from "./pages/AdsDashboard.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -249,6 +250,9 @@ export default function App() {
         } />
         <Route path="/forms/success" element={
           <ProtectedRoute><FormSuccess /></ProtectedRoute>
+        } />
+        <Route path="/ads" element={
+          <ProtectedRoute><AdsDashboard /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
