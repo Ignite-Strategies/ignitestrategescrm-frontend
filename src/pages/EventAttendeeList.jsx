@@ -493,17 +493,46 @@ export default function EventAttendeeList() {
                             </button>
                           )}
                           
-                          {/* Delete button - standalone */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
-                            }}
-                            className="text-red-600 hover:text-red-900 px-1 py-0.5 rounded text-xs"
-                            title="Delete Contact"
-                          >
-                            🗑️
-                          </button>
+                          {/* Delete dropdown */}
+                          <div className="relative">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleDropdown(attendee.id);
+                              }}
+                              className="text-red-600 hover:text-red-900 px-1 py-0.5 rounded text-xs"
+                              title="Delete options"
+                            >
+                              🗑️
+                            </button>
+                            
+                            {openDropdowns[attendee.id] && (
+                              <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg z-20 border border-gray-200">
+                                <div className="py-1">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      closeAllDropdowns();
+                                      handleRemoveFromEvent(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
+                                    }}
+                                    className="block w-full text-left px-3 py-1 text-xs text-gray-700 hover:bg-gray-100"
+                                  >
+                                    Remove from Event
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      closeAllDropdowns();
+                                      handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
+                                    }}
+                                    className="block w-full text-left px-3 py-1 text-xs text-red-600 hover:bg-red-50"
+                                  >
+                                    Delete Contact Entirely
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
