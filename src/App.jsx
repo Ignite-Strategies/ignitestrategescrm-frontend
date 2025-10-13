@@ -9,6 +9,7 @@ import OrgCreate from "./pages/OrgCreate.jsx";
 import OrgJoin from "./pages/OrgJoin.jsx";
 import OrgSuccess from "./pages/OrgSuccess.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import OrgDashboard from "./pages/OrgDashboard.jsx";
 import OrgMembers from "./pages/OrgMembers.jsx";
 import OrgMembersCSVUpload from "./pages/OrgMembersCSVUpload.jsx";
 import ContactUploadSelector from "./pages/ContactUploadSelector.jsx";
@@ -98,6 +99,9 @@ export default function App() {
         {/* Main App */}
         <Route path="/dashboard" element={
           <ProtectedRoute><Dashboard /></ProtectedRoute>
+        } />
+        <Route path="/org-dashboard" element={
+          <ProtectedRoute><OrgDashboard /></ProtectedRoute>
         } />
         <Route path="/org-members" element={
           <ProtectedRoute><OrgMembers /></ProtectedRoute>

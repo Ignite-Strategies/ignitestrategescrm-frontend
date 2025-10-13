@@ -30,6 +30,10 @@ export default function Dashboard() {
       
       // Count OrgMembers (all are non-admin in Contact-First architecture)
       setSupporterCount(orgMembersRes.data.members?.length || 0);
+      
+      // 🔥 HYDRATION RULE: Always hydrate OrgMembers to localStorage when landing on Dashboard
+      localStorage.setItem(`org_${orgId}_members`, JSON.stringify(orgMembersRes.data.members || []));
+      console.log('✅ DASHBOARD HYDRATION: Cached', orgMembersRes.data.members?.length || 0, 'org members');
 
       // Find next upcoming event
       const now = new Date();
@@ -121,7 +125,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Org Members */}
           <button
-            onClick={() => navigate("/org-members")}
+            onClick={() => navigate("/org-dashboard")}
             className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition text-left border-2 border-transparent hover:border-blue-500"
           >
             <div className="flex items-center justify-between mb-2">
@@ -334,7 +338,7 @@ export default function Dashboard() {
           {/* Organization Management */}
           <button
             onClick={() => {
-              navigate("/org-members");
+              navigate("/org-dashboard");
             }}
             className="bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
           >
