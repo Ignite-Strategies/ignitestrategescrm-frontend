@@ -35,29 +35,20 @@ export default function CampaignChooserOrStarter() {
   };
   
   const handleStartFresh = () => {
-    // Clear ALL campaign data
-    localStorage.removeItem('campaignId');
-    localStorage.removeItem('currentCampaign');
-    localStorage.removeItem('listId');
-    localStorage.removeItem('resumingCampaign');
-    
     console.log('🆕 Starting fresh campaign');
     navigate('/campaign-creator');
   };
   
   const handleResume = (campaign) => {
-    // Set resuming flag and campaign data
-    localStorage.setItem('campaignId', campaign.id);
-    localStorage.setItem('currentCampaign', campaign.name);
-    localStorage.setItem('resumingCampaign', 'true');
-    
-    // If campaign has a list, set that too
-    if (campaign.contactListId) {
-      localStorage.setItem('listId', campaign.contactListId);
-    }
-    
     console.log('🔄 Resuming campaign:', campaign.name);
-    navigate('/campaign-creator');
+    
+    // Resume with URL params
+    const listId = campaign.contactListId;
+    if (listId) {
+      navigate(`/campaign-creator?campaignId=${campaign.id}&listId=${listId}`);
+    } else {
+      navigate(`/campaign-creator?campaignId=${campaign.id}`);
+    }
   };
   
   return (

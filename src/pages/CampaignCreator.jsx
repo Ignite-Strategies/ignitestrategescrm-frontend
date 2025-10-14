@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 import { signInWithGoogle, getGmailAccessToken } from "../lib/googleAuth";
@@ -10,14 +10,15 @@ import { signInWithGoogle, getGmailAccessToken } from "../lib/googleAuth";
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const orgId = getOrgId();
   
-  // Campaign data
-  const [campaignId, setCampaignId] = useState(localStorage.getItem('campaignId') || null);
-  const [campaignName, setCampaignName] = useState(localStorage.getItem('currentCampaign') || "");
+  // Get params from URL
+  const campaignId = searchParams.get('campaignId');
+  const listId = searchParams.get('listId');
   
-  // Contact list data
-  const [listId, setListId] = useState(localStorage.getItem('listId') || null);
+  // Campaign data
+  const [campaignName, setCampaignName] = useState("");
   const [contactList, setContactList] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [availableLists, setAvailableLists] = useState([]);
@@ -35,78 +36,24 @@ export default function CampaignCreator() {
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   
-  // Hydrate on mount OR reset for fresh campaign
+  // Load data based on URL params
   useEffect(() => {
-    const isResuming = localStorage.getItem('resumingCampaign') === 'true';
+    console.log('🔄 CampaignCreator loaded with params:', { campaignId, listId });
     
-    if (!isResuming) {
-      // Fresh campaign - clear everything
-      console.log('🆕 Fresh campaign - clearing localStorage');
-      localStorage.removeItem('campaignId');
-      localStorage.removeItem('currentCampaign');
-      localStorage.removeItem('listId');
-      setCampaignId(null);
-      setCampaignName('');
-      setListId(null);
-      setContactList(null);
-      setContacts([]);
-    } else {
-      // Resuming - hydrate from localStorage
-      console.log('🔄 Resuming campaign - hydrating');
-      if (campaignId) {
-        loadAvailableLists();
-      }
-      if (listId) {
-        loadContactList();
-        loadContacts();
-      }
-      localStorage.removeItem('resumingCampaign'); // Clear flag after use
+    // Load campaign name if we have a campaignId
+    if (campaignId) {
+      loadCampaignData();
+      loadAvailableLists();
+    }
+    
+    // Load contact list if we have a listId
+    if (listId) {
+      loadContactList();
+      loadContacts();
     }
     
     checkGmailAuth();
-  }, []);
-  
-  // Auto-load lists when campaignId exists
-  useEffect(() => {
-    if (campaignId && availableLists.length === 0) {
-      console.log('📋 Loading available lists for campaign:', campaignId);
-      loadAvailableLists();
-    }
-  }, [campaignId]);
-  
-  // Watch for listId changes (when user returns from list picker/builder)
-  useEffect(() => {
-    const storedListId = localStorage.getItem('listId');
-    if (storedListId && storedListId !== listId) {
-      console.log('🔄 Detected new listId from localStorage:', storedListId);
-      setListId(storedListId);
-      
-      // Load the contact list and contacts
-      const loadListData = async () => {
-        try {
-          const listResponse = await api.get(`/contact-lists/${storedListId}`);
-          setContactList(listResponse.data);
-          
-          const contactsResponse = await api.get(`/contact-lists/${storedListId}/contacts`);
-          setContacts(contactsResponse.data);
-          
-          // Update campaign with the selected list
-          if (campaignId) {
-            await api.patch(`/campaigns/${campaignId}`, {
-              contactListId: storedListId
-            });
-          }
-          
-          console.log('✅ List loaded:', listResponse.data.name, 'with', contactsResponse.data.length, 'contacts');
-        } catch (err) {
-          console.error('Error loading list data:', err);
-          setError('Failed to load contact list');
-        }
-      };
-      
-      loadListData();
-    }
-  }, [listId, campaignId]); // Re-run when component re-renders
+  }, [campaignId, listId]);
   
   const checkGmailAuth = () => {
     const token = getGmailAccessToken();
@@ -115,6 +62,16 @@ export default function CampaignCreator() {
     setUserEmail(email || '');
   };
   
+  const loadCampaignData = async () => {
+    try {
+      const response = await api.get(`/campaigns/${campaignId}`);
+      setCampaignName(response.data.name);
+    } catch (err) {
+      console.error("Error loading campaign:", err);
+      setError("Failed to load campaign data");
+    }
+  };
+
   const loadAvailableLists = async () => {
     try {
       const [listsRes, campaignsRes] = await Promise.all([
@@ -215,12 +172,10 @@ export default function CampaignCreator() {
       });
       
       const campaign = response.data;
-      setCampaignId(campaign.id);
-      localStorage.setItem('campaignId', campaign.id);
-      localStorage.setItem('currentCampaign', campaign.name);
-      
       console.log("✅ Campaign created:", campaign.id);
-      loadAvailableLists();
+      
+      // Navigate to same page but with campaignId param
+      setSearchParams({ campaignId: campaign.id });
       
     } catch (err) {
       console.error("❌ Error creating campaign:", err);
@@ -237,12 +192,8 @@ export default function CampaignCreator() {
         contactListId: list.id
       });
       
-      setListId(list.id);
-      localStorage.setItem('listId', list.id);
-      setContactList(list);
-      
-      // Pass list.id directly - state won't be updated yet!
-      await loadContacts(list.id);
+      // Navigate to same page but with listId param
+      setSearchParams({ campaignId, listId: list.id });
       
     } catch (err) {
       console.error("Error assigning list:", err);
@@ -415,10 +366,7 @@ export default function CampaignCreator() {
                     {/* Navigation Buttons - Create or Pick */}
                     <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <button
-                        onClick={() => {
-                          localStorage.setItem('resumingCampaign', 'true');
-                          navigate('/contact-list-builder');
-                        }}
+                        onClick={() => navigate(`/contact-list-builder?campaignId=${campaignId}`)}
                         className="p-6 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 bg-indigo-50 text-left transition"
                       >
                         <div className="text-4xl mb-2">✨</div>
@@ -427,10 +375,7 @@ export default function CampaignCreator() {
                       </button>
                       
                       <button
-                        onClick={() => {
-                          localStorage.setItem('resumingCampaign', 'true');
-                          navigate('/contact-list-manager');
-                        }}
+                        onClick={() => navigate(`/contact-list-manager?campaignId=${campaignId}`)}
                         className="p-6 border-2 border-gray-200 rounded-lg hover:border-indigo-400 text-left transition"
                       >
                         <div className="text-4xl mb-2">📋</div>

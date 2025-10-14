@@ -385,11 +385,13 @@ export default function CampaignHome() {
                   <div
                     key={campaign.id}
                     onClick={() => {
-                      // Resume campaign - hydrate and go back to creator
-                      localStorage.setItem('campaignId', campaign.id);
-                      localStorage.setItem('currentCampaign', campaign.name);
-                      localStorage.setItem('resumingCampaign', 'true');
-                      navigate('/campaign-creator');
+                      // Resume campaign with URL params
+                      const listId = campaign.contactListId;
+                      if (listId) {
+                        navigate(`/campaign-creator?campaignId=${campaign.id}&listId=${listId}`);
+                      } else {
+                        navigate(`/campaign-creator?campaignId=${campaign.id}`);
+                      }
                     }}
                     className="bg-white border border-gray-200 rounded-lg p-6 hover:border-indigo-300 hover:shadow-md transition cursor-pointer relative"
                   >

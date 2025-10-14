@@ -13,7 +13,7 @@ export default function ContactListBuilder() {
   const [searchParams] = useSearchParams();
   const orgId = getOrgId();
   
-  // Check if we're in campaign flow
+  // Get campaignId from URL params
   const campaignId = searchParams.get('campaignId');
   const isInCampaignFlow = !!campaignId;
   
@@ -61,9 +61,8 @@ export default function ContactListBuilder() {
       
       // Navigate based on flow
       if (isInCampaignFlow) {
-        // Campaign flow: Store listId and go back to CampaignCreator
-        localStorage.setItem('listId', listId);
-        navigate('/campaign-creator');
+        // Campaign flow: Return to CampaignCreator with both params
+        navigate(`/campaign-creator?campaignId=${campaignId}&listId=${listId}`);
       } else {
         // Standalone: Go back to manager
         navigate('/contact-list-manager');
