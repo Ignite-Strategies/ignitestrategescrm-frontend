@@ -35,15 +35,34 @@ export default function CampaignCreator() {
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   
-  // Hydrate on mount
+  // Hydrate on mount OR reset for fresh campaign
   useEffect(() => {
-    if (campaignId) {
-      loadAvailableLists();
+    const isResuming = localStorage.getItem('resumingCampaign') === 'true';
+    
+    if (!isResuming) {
+      // Fresh campaign - clear everything
+      console.log('🆕 Fresh campaign - clearing localStorage');
+      localStorage.removeItem('campaignId');
+      localStorage.removeItem('currentCampaign');
+      localStorage.removeItem('listId');
+      setCampaignId(null);
+      setCampaignName('');
+      setListId(null);
+      setContactList(null);
+      setContacts([]);
+    } else {
+      // Resuming - hydrate from localStorage
+      console.log('🔄 Resuming campaign - hydrating');
+      if (campaignId) {
+        loadAvailableLists();
+      }
+      if (listId) {
+        loadContactList();
+        loadContacts();
+      }
+      localStorage.removeItem('resumingCampaign'); // Clear flag after use
     }
-    if (listId) {
-      loadContactList();
-      loadContacts();
-    }
+    
     checkGmailAuth();
   }, []);
   
