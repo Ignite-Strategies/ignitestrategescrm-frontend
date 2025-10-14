@@ -372,14 +372,60 @@ src/pages/
 
 ---
 
-*Last Updated: October 10, 2025*
-*Status: ✅ Complete - All routes updated and working*
+---
+
+## 🆕 NEW: SequenceCreator.jsx (October 13, 2025)
+
+### **SequenceCreator.jsx** - Simple Email Sequence Creator
+- **Route:** `/sequence-creator` (NEEDS TO BE ADDED TO APP.JSX!)
+- **Purpose:** Apollo.io-style simple sequence creator
+- **Features:**
+  - Sequence name input
+  - Contact list selection (simple box UI)
+  - Email subject & message composer
+  - Token insertion ({{firstName}})
+  - Live preview
+  - Create campaign + sequence
+  - Launch immediately via Gmail OAuth
+- **Flow:**
+  1. Enter sequence name
+  2. Pick contact list (or create new)
+  3. Write subject & message
+  4. Create & Launch → sends via `/api/email/personal/send-bulk`
+- **Current Issues:**
+  - ⚠️ Routes to `/contact-list-manager` and `/contact-list-builder` DON'T EXIST
+  - ⚠️ Back button goes to `/campaignhome` (should be `/email`)
+  - ⚠️ No route in App.jsx yet
+- **Status:** ⚠️ EXISTS BUT NOT ROUTED
+
+### Recommended Changes for SequenceCreator
+```javascript
+// Line 164 - Back button
+onClick={() => navigate("/email")}  // Changed from /campaignhome
+
+// Line 222, 229, 248, 255 - Contact list routes
+onClick={() => navigate("/contact-lists")}  // Changed from /contact-list-manager
+onClick={() => navigate("/create-list")}    // Changed from /contact-list-builder
+```
+
+### Add to App.jsx
+```javascript
+<Route path="/sequence-creator" element={<SequenceCreator />} />
+// Or better: /email/sequence-creator for consistency
+```
+
+---
+
+*Last Updated: October 13, 2025*
+*Status: ⚠️ Partial - SequenceCreator exists but needs routing fixes*
 
 ---
 
 ## 🔗 Related Documentation
 
 See also:
+- `START_HERE.md` - Project overview and quick reference
+- `WHERE_WE_ARE_NOW.md` - Detailed Oct 13 session documentation
 - `CONTACTMANAGE.md` - Contact system architecture and hub
 - `ROUTER.md` - Navigation and routing logic
 - `USER_NAVIGATION.md` - User journey flows
