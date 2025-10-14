@@ -132,6 +132,12 @@ export default function SequenceCreator() {
       return;
     }
 
+    if (!orgId) {
+      setError("No organization selected. Please go to Dashboard and select an organization.");
+      alert("❌ No organization selected. Please go to Dashboard first.");
+      return;
+    }
+
     if (!sequenceData.name || !sequenceData.subject || !sequenceData.message || !sequenceData.contactListId) {
       setError("Please fill in all required fields and select a contact list");
       return;
@@ -141,6 +147,12 @@ export default function SequenceCreator() {
     setError("");
     
     try {
+      console.log("🏗️ Creating campaign with:", { 
+        orgId, 
+        name: sequenceData.name, 
+        contactListId: sequenceData.contactListId 
+      });
+      
       // Create a campaign first
       const campaignResponse = await api.post("/campaigns", {
         orgId,
@@ -186,6 +198,8 @@ export default function SequenceCreator() {
           });
           
           // Send via existing Gmail bulk route
+          console.log("🔑 Gmail token being sent:", localStorage.getItem('gmailAccessToken')?.substring(0, 20) + '...');
+          
           const gmailResponse = await api.post("/api/email/personal/send-bulk", {
             recipients: contactPayload.map(contact => ({
               email: contact.email,
