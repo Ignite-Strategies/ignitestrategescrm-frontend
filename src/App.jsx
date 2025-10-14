@@ -66,6 +66,7 @@ import ContactListView from "./pages/ContactListView.jsx";
 import ContactUploadChooser from "./pages/ContactUploadChooser.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
+import CampaignListHydratorHome from "./pages/CampaignListHydratorHome.jsx";
 import Sequence from "./pages/Sequence.jsx";
 
 // Protected Route - Check for firebaseId
@@ -231,6 +232,9 @@ export default function App() {
         {/* Campaign System - NEW 3-STEP FLOW */}
         <Route path="/campaign-creator" element={
           <ProtectedRoute><CampaignCreator /></ProtectedRoute>
+        } />
+        <Route path="/campaign-list-hydrator-home" element={
+          <ProtectedRoute><CampaignListHydratorHome /></ProtectedRoute>
         } />
         <Route path="/sequence" element={
           <ProtectedRoute><Sequence /></ProtectedRoute>

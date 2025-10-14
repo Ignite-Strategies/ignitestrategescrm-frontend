@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
@@ -6,6 +6,7 @@ import { getOrgId } from "../lib/org";
 /**
  * CampaignCreator - Step 1: Create Campaign & Generate ID
  * Simple campaign name input → generates campaignId → proceeds to list selection
+ * Can also resume existing campaigns!
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
@@ -14,12 +15,33 @@ export default function CampaignCreator() {
   const [campaignName, setCampaignName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isResuming, setIsResuming] = useState(false);
+  
+  // Check if resuming an existing campaign
+  useEffect(() => {
+    const resuming = localStorage.getItem('resumingCampaign');
+    const existingName = localStorage.getItem('currentCampaign');
+    
+    if (resuming === 'true' && existingName) {
+      setIsResuming(true);
+      setCampaignName(existingName);
+      // Clear the resume flag
+      localStorage.removeItem('resumingCampaign');
+    }
+  }, []);
 
   const handleCreateCampaign = async (e) => {
     e.preventDefault();
     
     if (!campaignName.trim()) {
       setError("Please enter a campaign name");
+      return;
+    }
+    
+    // If resuming, just navigate to next step (campaign already exists!)
+    if (isResuming) {
+      console.log("🔄 Resuming existing campaign");
+      navigate('/campaign-list-hydrator-home');
       return;
     }
     
@@ -32,7 +54,7 @@ export default function CampaignCreator() {
     setError("");
     
     try {
-      // Create campaign - Prisma auto-generates the ID via cuid()
+      // Create NEW campaign - Prisma auto-generates the ID via cuid()
       const response = await api.post("/campaigns", {
         orgId,
         name: campaignName.trim(),
@@ -43,9 +65,9 @@ export default function CampaignCreator() {
       const campaign = response.data;
       console.log("✅ Campaign created with ID:", campaign.id);
       
-      // 🎯 SURGICAL localStorage: Store ONLY campaign flow data
-      localStorage.setItem('currentCampaignId', campaign.id);
-      localStorage.setItem('currentCampaignName', campaign.name);
+      // Save to localStorage (single source of truth)
+      localStorage.setItem('campaignId', campaign.id);
+      localStorage.setItem('currentCampaign', campaign.name);
       localStorage.setItem('campaignFlowStarted', new Date().toISOString());
       
       console.log("💾 Stored in localStorage:", {
@@ -53,8 +75,8 @@ export default function CampaignCreator() {
         campaignName: campaign.name
       });
       
-      // Navigate to list selection (Step 2)
-      navigate(`/contact-list-manager?campaignId=${campaign.id}`);
+      // Navigate to the FORK (no URL params needed!)
+      navigate('/campaign-list-hydrator-home');
       
     } catch (err) {
       console.error("❌ Error creating campaign:", err);

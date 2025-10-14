@@ -354,7 +354,13 @@ export default function CampaignHome() {
                 {campaigns.slice(0, 6).map((campaign) => (
                   <div
                     key={campaign.id}
-                    onClick={() => navigate(`/campaignsequences/${campaign.id}`)}
+                    onClick={() => {
+                      // Resume campaign - hydrate and go back to creator
+                      localStorage.setItem('campaignId', campaign.id);
+                      localStorage.setItem('currentCampaign', campaign.name);
+                      localStorage.setItem('resumingCampaign', 'true');
+                      navigate('/campaign-creator');
+                    }}
                     className="bg-white border border-gray-200 rounded-lg p-6 hover:border-indigo-300 hover:shadow-md transition cursor-pointer"
                   >
                     <div className="flex justify-between items-start mb-4">
