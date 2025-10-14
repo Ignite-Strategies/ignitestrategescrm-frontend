@@ -29,15 +29,24 @@ export default function CampaignHome() {
   }, [orgId]);
 
   const checkGmailAuth = () => {
-    const authenticated = isSignedIn();
+    // Only check for Gmail access token, not Firebase auth
     const accessToken = getGmailAccessToken();
+    const gmailEmail = localStorage.getItem('gmailEmail');
     
-    if (authenticated && accessToken) {
+    console.log('🔍 Checking Gmail auth:', { 
+      hasToken: !!accessToken, 
+      email: gmailEmail,
+      tokenLength: accessToken?.length 
+    });
+    
+    if (accessToken && gmailEmail) {
       setGmailAuthenticated(true);
-      setGmailEmail(localStorage.getItem('gmailEmail') || '');
+      setGmailEmail(gmailEmail);
+      console.log('✅ Gmail authenticated:', gmailEmail);
     } else {
       setGmailAuthenticated(false);
       setGmailEmail('');
+      console.log('❌ Gmail not authenticated');
     }
   };
 

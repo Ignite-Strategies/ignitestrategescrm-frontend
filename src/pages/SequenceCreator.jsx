@@ -40,16 +40,19 @@ export default function SequenceCreator() {
   }, [searchParams, contactLists]);
 
   const checkGmailAuth = () => {
-    const authenticated = isSignedIn();
+    // Only check for Gmail access token, not Firebase auth
     const token = getGmailAccessToken();
-    const isAuthenticated = authenticated && !!token;
+    const gmailEmail = localStorage.getItem('gmailEmail');
+    const isAuthenticated = !!token && !!gmailEmail;
+    
     setGmailAuthenticated(isAuthenticated);
+    setUserEmail(gmailEmail || '');
     
-    if (authenticated) {
-      setUserEmail(localStorage.getItem('gmailEmail') || localStorage.getItem('userEmail') || '');
-    }
-    
-    console.log("📧 Gmail Auth Status:", { authenticated, hasToken: !!token, email: localStorage.getItem('gmailEmail') });
+    console.log("📧 Gmail Auth Status:", { 
+      hasToken: !!token, 
+      email: gmailEmail,
+      isAuthenticated 
+    });
     
     // Redirect to CampaignHome if not authenticated
     if (!isAuthenticated) {
