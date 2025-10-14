@@ -20,40 +20,88 @@
 
 ## 📁 Files
 
-### `src/firebase.js`
-Firebase initialization and basic auth.
-- Handles user sign-in/sign-up
-- Manages user sessions
-- Provides `auth` object for protected routes
+### `src/firebase.js` ✅ FIREBASE USER AUTH ONLY
+**User login, signup, session management**
 
-### `src/lib/googleAuth.js` (CONSOLIDATED)
-**NEW as of Oct 14, 2025** - Centralized Google OAuth for Gmail API.
+- Handles user sign-in/sign-up with Google
+- Manages Firebase user sessions  
+- Provides `auth` object for protected routes
+- NO Gmail scope (just basic user auth)
 
 **Functions:**
-- `signInWithGoogle()` - Triggers Google OAuth with Gmail scope
-- `signOutUser()` - Signs out and clears tokens
+- `signInWithGoogle()` - User login popup (NO Gmail scope)
+- `signOutUser()` - Signs out Firebase user
+- `getCurrentUser()` - Returns current Firebase user
+- `auth` - Firebase auth instance
+
+**Import for:** Welcome, Splash, Signup, Signin
+
+**Key Implementation:**
+```javascript
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
+const googleProvider = new GoogleAuthProvider();
+// NO Gmail scope here - just basic profile
+
+export async function signInWithGoogle() {
+  const result = await signInWithPopup(auth, googleProvider);
+  return {
+    uid: user.uid,
+    email: user.email,
+    name: user.displayName,
+    photoURL: user.photoURL
+  };
+}
+```
+
+---
+
+### `src/lib/googleAuth.js` ✅ GMAIL OAUTH ONLY
+**Email sending via Gmail API**
+
+- Triggers Google OAuth with Gmail scope
+- Gets access token for Gmail API
+- Stores token in localStorage
+- Used ONLY for email sending
+
+**Functions:**
+- `signInWithGoogle()` - Gmail OAuth popup (WITH Gmail scope)
+- `signOutUser()` - Signs out and clears Gmail tokens
 - `isSignedIn()` - Checks if user has valid Gmail token
 - `getGmailAccessToken()` - Returns current Gmail access token
+- `getCurrentUser()` - Returns Firebase user
+
+**Import for:** CampaignHome, Sequence, SequenceCreator, SendEmail
 
 **Key Implementation:**
 ```javascript
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebase';
 
-const provider = new GoogleAuthProvider();
-provider.addScope('https://www.googleapis.com/auth/gmail.send');
+const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
 
-export const signInWithGoogle = async () => {
-  const result = await signInWithPopup(auth, provider);
+export async function signInWithGoogle() {
+  const result = await signInWithPopup(auth, googleProvider);
   const credential = GoogleAuthProvider.credentialFromResult(result);
   const accessToken = credential.accessToken;
   
   localStorage.setItem('gmailAccessToken', accessToken);
-  return accessToken;
-};
+  localStorage.setItem('gmailEmail', user.email);
+  return { uid, email, accessToken };
+}
 ```
 
-**Note:** This is DIFFERENT from Firebase's built-in Google auth. We use Firebase for user authentication, but direct Google OAuth for Gmail API access tokens.
+---
+
+## 🚨 CRITICAL: Two Different `signInWithGoogle()` Functions!
+
+**Yes, they have the SAME NAME but do DIFFERENT THINGS:**
+
+1. `firebase.js` → `signInWithGoogle()` - User login (no Gmail scope)
+2. `googleAuth.js` → `signInWithGoogle()` - Gmail OAuth (with Gmail scope)
+
+**This is intentional!** Import from the correct file for your use case.
 
 ---
 
@@ -247,7 +295,8 @@ return (
 ---
 
 **Last Updated:** October 14, 2025  
-**Status:** ✅ Auth consolidated, Gmail OAuth working (pending backend deployment)  
+**Status:** ✅ Auth SEPARATED - Firebase + Gmail OAuth working independently  
+**Fixed:** Infinite login loop caused by conflated auth systems  
 **Next:** Token refresh logic
 
 ---
