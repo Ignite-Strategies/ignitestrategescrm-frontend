@@ -46,7 +46,7 @@ export default function Welcome() {
       console.log('🚀 UNIVERSAL HYDRATION for firebaseId:', firebaseId);
       let hydrationData;
       try {
-        const hydrationRes = await api.get(`/hydration/${firebaseId}`);
+        const hydrationRes = await api.get(`/welcome/${firebaseId}`);
         hydrationData = hydrationRes.data;
         console.log('✅ Hydration complete:', hydrationData);
       } catch (error) {
