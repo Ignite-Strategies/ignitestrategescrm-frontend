@@ -32,7 +32,6 @@ import ComposeMessage from "./pages/ComposeMessage.jsx";
 import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
-import ContactList from "./pages/ContactList.jsx";
 import ContactListManager from "./pages/ContactListManager.jsx";
 import ContactListBuilder from "./pages/ContactListBuilder.jsx";
 import ContactListDetail from "./pages/ContactListDetail.jsx";
@@ -44,7 +43,6 @@ import ContactEventUploadPreview from "./pages/ContactEventUploadPreview.jsx";
 import ContactEventUploadValidation from "./pages/ContactEventUploadValidation.jsx";
 import CampaignHome from "./pages/CampaignHome.jsx";
 import Outreach from "./pages/Outreach.jsx";
-import CreateListOptions from "./pages/CreateListOptions.jsx";
 import Templates from "./pages/Templates.jsx";
 import SendEmail from "./pages/SendEmail.jsx";
 import CreateCampaign from "./pages/CreateCampaign.jsx";
@@ -66,6 +64,7 @@ import TestEnterpriseEmail from "./pages/TestEnterpriseEmail.jsx";
 import SequenceCreator from "./pages/SequenceCreator.jsx";
 import ContactListDebug from "./pages/ContactListDebug.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
+import ContactListView from "./pages/ContactListView.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -205,9 +204,6 @@ export default function App() {
         <Route path="/authenticate" element={
           <ProtectedRoute><Authenticate /></ProtectedRoute>
         } />
-        <Route path="/contact-lists" element={
-          <ProtectedRoute><ContactList /></ProtectedRoute>
-        } />
         <Route path="/contact-list-manager" element={
           <ProtectedRoute><ContactListManager /></ProtectedRoute>
         } />
@@ -249,9 +245,6 @@ export default function App() {
         <Route path="/outreach" element={
           <ProtectedRoute><Outreach /></ProtectedRoute>
         } />
-        <Route path="/create-list" element={
-          <ProtectedRoute><CreateListOptions /></ProtectedRoute>
-        } />
         <Route path="/templates" element={
           <ProtectedRoute><Templates /></ProtectedRoute>
         } />
@@ -281,6 +274,9 @@ export default function App() {
         } />
         <Route path="/contact-list-debug" element={
           <ProtectedRoute><ContactListDebug /></ProtectedRoute>
+        } />
+        <Route path="/contact-list-view" element={
+          <ProtectedRoute><ContactListView /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>

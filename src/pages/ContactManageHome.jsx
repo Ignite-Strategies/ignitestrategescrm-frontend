@@ -181,7 +181,7 @@ export default function ContactManageHome() {
 
               {/* See Lists (Campaign Lists) */}
               <button
-                onClick={() => navigate("/contact-lists")}
+                onClick={() => navigate("/contact-list-manager")}
                 className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-lg border-2 border-blue-200 hover:border-blue-400 transition text-left"
               >
                 <div className="flex items-center mb-4">
@@ -200,7 +200,7 @@ export default function ContactManageHome() {
 
               {/* Create List */}
               <button
-                onClick={() => navigate("/create-list")}
+                onClick={() => navigate("/contact-list-builder")}
                 className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-lg border-2 border-purple-200 hover:border-purple-400 transition text-left"
               >
                 <div className="flex items-center mb-4">
@@ -227,7 +227,7 @@ export default function ContactManageHome() {
               <div className="text-center py-8 bg-gray-50 rounded-lg">
                 <p className="text-gray-500 mb-4">No contact lists yet</p>
                 <button
-                  onClick={() => navigate("/contact-lists")}
+                  onClick={() => navigate("/contact-list-builder")}
                   className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                 >
                   Create Your First List
@@ -238,7 +238,7 @@ export default function ContactManageHome() {
                 {lists.map((list) => (
                   <div
                     key={list.id}
-                    onClick={() => navigate(`/contact-lists`)}
+                    onClick={() => navigate(`/contact-list-manager`)}
                     className="bg-white border border-gray-200 rounded-lg p-6 hover:border-indigo-300 hover:shadow-md transition cursor-pointer"
                   >
                     <div className="flex items-center justify-between mb-4">
