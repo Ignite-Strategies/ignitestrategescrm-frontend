@@ -66,6 +66,7 @@ import ContactListView from "./pages/ContactListView.jsx";
 import ContactUploadChooser from "./pages/ContactUploadChooser.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
+import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignListHydratorHome from "./pages/CampaignListHydratorHome.jsx";
 import Sequence from "./pages/Sequence.jsx";
 
@@ -230,6 +231,9 @@ export default function App() {
         } />
         
         {/* Campaign System - NEW 3-STEP FLOW */}
+        <Route path="/campaign-chooser" element={
+          <ProtectedRoute><CampaignChooserOrStarter /></ProtectedRoute>
+        } />
         <Route path="/campaign-creator" element={
           <ProtectedRoute><CampaignCreator /></ProtectedRoute>
         } />

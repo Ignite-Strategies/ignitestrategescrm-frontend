@@ -176,18 +176,8 @@ export default function CampaignHome() {
             {/* Start Sequence - NEW FLOW */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition cursor-pointer"
                  onClick={() => {
-                   // Clear ALL campaign flow data for fresh start
-                   localStorage.removeItem('campaignId');
-                   localStorage.removeItem('currentCampaign');
-                   localStorage.removeItem('listId');
-                   localStorage.removeItem('resumingCampaign');
-                   localStorage.removeItem('currentCampaignId'); // old key
-                   localStorage.removeItem('currentCampaignName'); // old key
-                   
-                   console.log('🆕 Starting fresh campaign - all localStorage cleared');
-                   
-                   // Start fresh campaign flow
-                   navigate('/campaign-creator');
+                   // Go to fork page (new vs resume)
+                   navigate('/campaign-chooser');
                  }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
