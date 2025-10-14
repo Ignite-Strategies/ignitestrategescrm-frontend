@@ -167,13 +167,22 @@ export default function SequenceCreator() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setSequenceData(prev => ({ ...prev, contactListId: "" }))}
-                      className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      Change
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => navigate("/contact-list-manager")}
+                        className="px-3 py-1 text-sm text-indigo-600 hover:text-indigo-700 border border-indigo-300 rounded hover:bg-indigo-50"
+                      >
+                        Pick New List
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/contact-list-builder")}
+                        className="px-3 py-1 text-sm text-gray-600 hover:text-gray-700 border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        Create New List
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : (
