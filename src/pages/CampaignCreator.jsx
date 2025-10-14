@@ -134,7 +134,7 @@ export default function CampaignCreator() {
 
   // HYDRAULIC PRESS THE ENTIRE PAGE!
   const hydraulicPressHydration = async () => {
-    console.log('💥 HYDRAULIC PRESS: Crushing entire page with fresh data!');
+    console.log('💥 HYDRAULIC PRESS: Crushing entire page with fresh data!', new Date().toISOString());
     
     try {
       // Reload EVERYTHING
