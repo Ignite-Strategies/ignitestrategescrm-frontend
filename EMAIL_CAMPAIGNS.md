@@ -374,50 +374,106 @@ src/pages/
 
 ---
 
-## 🆕 NEW: SequenceCreator.jsx (October 13, 2025)
+## 🆕 NEW: SequenceCreator.jsx (October 14, 2025)
 
-### **SequenceCreator.jsx** - Simple Email Sequence Creator
-- **Route:** `/sequence-creator` (NEEDS TO BE ADDED TO APP.JSX!)
+### **SequenceCreator.jsx** - Simple Email Sequence Creator **✅ BUILT & WORKING**
+- **Route:** `/sequence-creator` ✅ ROUTED
 - **Purpose:** Apollo.io-style simple sequence creator
 - **Features:**
   - Sequence name input
-  - Contact list selection (simple box UI)
+  - Contact list selection (single box UI - NO TRAP!)
   - Email subject & message composer
-  - Token insertion ({{firstName}})
-  - Live preview
+  - Token insertion ({{firstName}}) with live preview
   - Create campaign + sequence
   - Launch immediately via Gmail OAuth
 - **Flow:**
   1. Enter sequence name
-  2. Pick contact list (or create new)
+  2. Pick contact list (or create new) → `/contact-list-manager` or `/contact-list-builder`
   3. Write subject & message
-  4. Create & Launch → sends via `/api/email/personal/send-bulk`
-- **Current Issues:**
-  - ⚠️ Routes to `/contact-list-manager` and `/contact-list-builder` DON'T EXIST
-  - ⚠️ Back button goes to `/campaignhome` (should be `/email`)
-  - ⚠️ No route in App.jsx yet
-- **Status:** ⚠️ EXISTS BUT NOT ROUTED
+  4. Insert {{firstName}} token
+  5. Create & Launch → sends via `/api/email/personal/send-bulk`
+- **UX Improvements:**
+  - ✅ Single-box list selection (shows "Using: [List]" or "No list selected")
+  - ✅ Two clear buttons: "Pick List" / "Create List"
+  - ✅ Button text changes when list selected: "Pick New List" / "Create New List"
+  - ✅ Live preview of token replacement
+  - ✅ No wizard, no dropdown trap, no button hell
+- **Status:** ✅ BUILT - Waiting for backend deployment fix
 
-### Recommended Changes for SequenceCreator
+---
+
+## 🆕 NEW: ContactListBuilder.jsx (October 14, 2025)
+
+### **ContactListBuilder.jsx** - Smart Lists
+- **Route:** `/contact-list-builder` ✅ ROUTED
+- **Purpose:** Quick list creation from pre-hydrated smart lists
+- **Features:**
+  - "All Org Members" smart list (Preview + Use buttons)
+  - "Test List" for quick testing (1 hardcoded contact)
+  - Future: Event Attendees, Paid Members, etc.
+- **Flow:**
+  - Preview → `/contact-list-view` (customize before saving)
+  - Use → Return to SequenceCreator with list
+- **Status:** ✅ BUILT
+
+---
+
+## 🆕 NEW: ContactListView.jsx (October 14, 2025)
+
+### **ContactListView.jsx** - List Preview & Customization
+- **Route:** `/contact-list-view` ✅ ROUTED
+- **Purpose:** Preview and customize a contact list before saving
+- **Features:**
+  - Shows all org members with checkboxes
+  - All pre-checked (uncheck to remove)
+  - "Create List" button → `POST /contact-lists/from-selection`
+  - Handles API response as array OR object with `members` array
+- **Backend Integration:**
+  - Sends `selectedContactIds` to backend
+  - Backend clears ALL org members from lists, then adds only selected
+  - This ensures deselection works correctly
+- **Status:** ✅ BUILT
+
+---
+
+## 📋 Updated Route Structure (October 14, 2025)
+
+### Sequence & List Routes (NEW)
 ```javascript
-// Line 164 - Back button
-onClick={() => navigate("/email")}  // Changed from /campaignhome
-
-// Line 222, 229, 248, 255 - Contact list routes
-onClick={() => navigate("/contact-lists")}  // Changed from /contact-list-manager
-onClick={() => navigate("/create-list")}    // Changed from /contact-list-builder
+/sequence-creator              → SequenceCreator (Main flow)
+/contact-list-builder          → ContactListBuilder (Smart lists)
+/contact-list-view             → ContactListView (Preview & customize)
+/contact-list-manager          → ContactListManager (Pick existing list)
 ```
 
-### Add to App.jsx
+### Campaign Routes (Existing)
 ```javascript
-<Route path="/sequence-creator" element={<SequenceCreator />} />
-// Or better: /email/sequence-creator for consistency
+/email                         → CampaignHome (Dashboard)
+/campaigns                     → CampaignWizard (Quick launch - OLD)
+/create-campaign               → CreateCampaign (Setup only)
+/campaigns/:id/sequences       → CampaignSequences (Detail view)
+```
+
+### Recommendation: Consolidate Routes
+```javascript
+// FUTURE: Consolidate under /email
+/email                         → CampaignHome (Dashboard)
+/email/sequence-creator        → SequenceCreator (NEW primary flow)
+/email/campaigns               → CampaignList (All campaigns)
+/email/campaigns/:id           → CampaignSequences (Detail view)
+/email/templates               → Templates
+/email/analytics               → Analytics
+
+// Contact Lists
+/contact-list-manager          → ContactListManager
+/contact-list-builder          → ContactListBuilder
+/contact-list-view             → ContactListView
 ```
 
 ---
 
-*Last Updated: October 13, 2025*
-*Status: ⚠️ Partial - SequenceCreator exists but needs routing fixes*
+*Last Updated: October 14, 2025*
+*Status: ✅ SequenceCreator built and working (pending backend deployment)*
 
 ---
 

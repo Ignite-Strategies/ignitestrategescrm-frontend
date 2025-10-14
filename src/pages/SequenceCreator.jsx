@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
+import { signInWithGoogle, isSignedIn, getGmailAccessToken } from "../lib/googleAuth";
 
 /**
  * Sequence Creator - Simple Apollo-style email sequence creator
@@ -15,6 +16,8 @@ export default function SequenceCreator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [contactLists, setContactLists] = useState([]);
+  const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
   const [sequenceData, setSequenceData] = useState({
     name: "",
     subject: "test email",
@@ -24,6 +27,7 @@ export default function SequenceCreator() {
   const [showVariables, setShowVariables] = useState(false);
   
   useEffect(() => {
+    checkGmailAuth();
     loadContactLists();
   }, [orgId]);
   
@@ -34,6 +38,26 @@ export default function SequenceCreator() {
       setSequenceData(prev => ({ ...prev, contactListId: listId }));
     }
   }, [searchParams, contactLists]);
+
+  const checkGmailAuth = () => {
+    const authenticated = isSignedIn();
+    const token = getGmailAccessToken();
+    const isAuthenticated = authenticated && !!token;
+    setGmailAuthenticated(isAuthenticated);
+    
+    if (authenticated) {
+      setUserEmail(localStorage.getItem('gmailEmail') || localStorage.getItem('userEmail') || '');
+    }
+    
+    console.log("📧 Gmail Auth Status:", { authenticated, hasToken: !!token, email: localStorage.getItem('gmailEmail') });
+    
+    // Redirect to CampaignHome if not authenticated
+    if (!isAuthenticated) {
+      console.log("⚠️ Gmail not authenticated, redirecting to CampaignHome...");
+      localStorage.setItem('redirectMessage', 'Please connect Gmail to create and send sequences');
+      navigate("/campaignhome");
+    }
+  };
   
   const loadContactLists = async () => {
     try {
@@ -54,6 +78,12 @@ export default function SequenceCreator() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!gmailAuthenticated) {
+      setError("Please authenticate with Gmail first to send emails");
+      alert("⚠️ Please authenticate with Gmail before creating and launching sequences");
+      return;
+    }
+
     if (!sequenceData.name || !sequenceData.subject || !sequenceData.message || !sequenceData.contactListId) {
       setError("Please fill in all required fields and select a contact list");
       return;

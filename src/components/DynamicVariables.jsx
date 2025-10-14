@@ -133,3 +133,4 @@ export default function DynamicVariables({ onInsertVariable, isOpen, onClose }) 
     </div>
   );
 }
+

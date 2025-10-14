@@ -12,10 +12,20 @@ export default function CampaignHome() {
   const [loading, setLoading] = useState(true);
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [gmailEmail, setGmailEmail] = useState("");
+  const [redirectMessage, setRedirectMessage] = useState("");
 
   useEffect(() => {
     loadCampaigns();
     checkGmailAuth();
+    
+    // Check for redirect message
+    const message = localStorage.getItem('redirectMessage');
+    if (message) {
+      setRedirectMessage(message);
+      localStorage.removeItem('redirectMessage');
+      // Clear message after 5 seconds
+      setTimeout(() => setRedirectMessage(""), 5000);
+    }
   }, [orgId]);
 
   const checkGmailAuth = () => {
@@ -77,6 +87,29 @@ export default function CampaignHome() {
               ← Back to Dashboard
             </button>
           </div>
+
+          {/* Redirect Message Banner */}
+          {redirectMessage && (
+            <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-300 rounded-lg animate-pulse">
+              <div className="flex items-center gap-3">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-blue-900 font-semibold">{redirectMessage}</p>
+                  <p className="text-sm text-blue-700">Use the "Connect Gmail" button below to get started</p>
+                </div>
+                <button
+                  onClick={() => setRedirectMessage("")}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Campaign Overview */}
           <div className="mb-12">

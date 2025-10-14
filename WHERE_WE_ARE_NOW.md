@@ -1,756 +1,407 @@
-# 📍 WHERE WE ARE NOW - Frontend
-**Last Updated:** October 13, 2025 (End of Day)  
-**Status:** Major Architecture Overhaul - Prisma Migration Complete, Inline Editing Implemented
+# 🎯 WHERE WE ARE NOW - October 14, 2025
+
+## 🔥 MAJOR WIN: Simplified Email Sequence Flow
+
+Tonight we **COMPLETELY REBUILT** the email sequence creation flow, replacing the wizard hell with clean, focused pages.
 
 ---
 
-## 🎯 WHAT THIS FRONTEND DOES
+## ✅ What We Built Tonight
 
-The **Ignite Strategies CRM Frontend** provides a React-based interface for:
+### 1. **SequenceCreator.jsx** - The New MVP Flow
+**Route:** `/sequence-creator`
 
-1. **Organization Management** - Central hub for org details, member stats, and management
-2. **Contact Management** - Universal contact-first architecture with event and org relationships
-3. **Event Management** - Event dashboards, attendee tracking, and pipeline management
-4. **Inline Editing** - Edit contacts, org members, and event attendees directly in tables
-5. **Contact List Creation** - Segment contacts for campaigns and targeted outreach
-6. **Form Association** - Link public forms to events for data collection
+**Purpose:** Dead-simple email sequence creator. No wizard. No button hell. Just create and send.
 
----
+**Flow:**
+1. Enter sequence name
+2. Pick a contact list (or create new)
+3. Write subject & message with {{firstName}} token
+4. Create & Launch → sends via Gmail API
 
-## 🏗️ CORE ARCHITECTURE
+**Key Features:**
+- Single-box list selection (no "select list trap")
+- "Pick List" button → goes to ContactListManager
+- "Create List" button → goes to ContactListBuilder
+- Live token preview
+- Creates campaign first (backend requirement)
+- Sends bulk email via `/api/email/personal/send-bulk`
 
-### **Contact-First Universal Personhood Model**
-
-```
-Contact (Universal Personhood)
-  ├── firstName, lastName, email, phone
-  ├── goesBy (F3 name), employer, numberOfKids
-  ├── eventId (which event they're associated with)
-  │
-  ├─→ OrgMember (Org-Specific Relationship)
-  │     ├── yearsWithOrganization
-  │     ├── leadershipRole (string for now, ref table exists for future)
-  │     ├── engagementId → Engagement (1=undetermined, 2=low, 3=medium, 4=high)
-  │     └── orgId
-  │
-  └─→ EventAttendee (Event-Specific Relationship)
-        ├── audienceType, currentStage
-        ├── spouseOrOther, howManyInParty
-        ├── likelihoodToAttendId → LikelihoodToAttend (1=high, 2=medium, 3=low, 4=support_from_afar)
-        ├── notes (Json? - for truly custom form fields)
-        └── eventId, orgId
-```
-
-### **Key Navigation Structure**
-
-```
-Main Dashboard
-  ├─→ Organization Dashboard (NEW!)
-  │     ├── Org details (editable)
-  │     ├── Member stats (active, inactive, engagement levels)
-  │     ├── See Members → OrgMembers.jsx
-  │     └── Communications (Newsletter, etc.)
-  │
-  ├─→ Contact Management Home
-  │     ├── All Contacts (primary button) → ContactManageSelector
-  │     │     ├── All Organization Contacts
-  │     │     └── Specific Event Contacts → EventAttendeeList
-  │     ├── See Lists (campaign lists) → ContactList.jsx
-  │     ├── Create List → CreateListOptions.jsx
-  │     │     ├── Import Contacts (CSV upload)
-  │     │     ├── Select from Pipeline
-  │     │     └── Manual Selection
-  │     └── Send Email → Email campaigns
-  │
-  └─→ Event Dashboard
-        ├── Event stats and quick actions
-        ├── Manage Contacts → EventAttendeeList.jsx
-        └── Pipelines → EventPipelines.jsx
-```
+**Current Status:** ✅ Built, ✅ Backend deployment FIXED (Oct 14, 2025 - commit 0da7395)
 
 ---
 
-## 📁 KEY FILES & PAGES
+### 2. **ContactListBuilder.jsx** - Smart Lists Only
+**Route:** `/contact-list-builder`
 
-### **Main Pages**
+**Purpose:** Simple list creation focused on pre-hydrated smart lists.
 
-```
-src/pages/
-  ├── Dashboard.jsx                 # Main landing, redirects to org/event dashboards
-  ├── OrgDashboard.jsx              # ✨ NEW! Org management hub
-  ├── OrgMembers.jsx                # Org member list with inline editing
-  ├── ContactManageHome.jsx         # Contact management hub
-  ├── ContactManageSelector.jsx     # ✨ NEW! Fork: All Org vs Specific Event
-  ├── EventDashboard.jsx            # Event management hub
-  ├── EventAttendeeList.jsx         # Event attendee list with inline editing
-  └── FormUserUpdate.jsx            # Notes Parser (migrates JSON to structured fields)
-```
+**Current Setup:**
+- "All Org Members" smart list with Preview/Use buttons
+- "Test List" for quick email testing (hardcoded to adam.cole.0524@gmail.com)
 
-### **Reusable Components**
-
-```
-src/components/
-  └── EditableFieldComponent.jsx    # ✨ RENAMED! Inline editing for all tables
-        - Handles text, number, tel, email, select (dropdown)
-        - Routes to correct backend (orgMembers, contacts, event-attendees)
-        - Auto-saves on blur (text/number) or immediate (dropdown)
-```
+**Flow:**
+- Preview → goes to `/contact-list-view`
+- Use → sends list back to SequenceCreator
 
 ---
 
-## 🚀 KEY FEATURES IMPLEMENTED TODAY
+### 3. **ContactListView.jsx** - List Preview & Selection
+**Route:** `/contact-list-view`
 
-### ✅ 1. Database Migration to Prisma/PostgreSQL
-
-**FROM:** MongoDB with deprecated Supporter model  
-**TO:** PostgreSQL with Contact → OrgMember/EventAttendee relationships
-
-**Migration Impact:**
-- All `supporterId` references → `orgMemberId`/`contactId`
-- All MongoDB routes deprecated
-- New Prisma-based routes for CRUD operations
-
----
-
-### ✅ 2. Reference Tables for Data Integrity
-
-**Created:**
-- `Engagement` table (value: 1-4)
-- `LikelihoodToAttend` table (value: 1-4)
-- `LeadershipRole` table (value: 1-4, with names)
-
-**Auto-Seeded on Deployment:**
-```javascript
-// package.json → postinstall script
-"postinstall": "prisma generate && prisma db push && npm run db:seed-engagement && npm run db:seed-leadership"
-```
-
-**Seeds are idempotent** - Can run multiple times without duplicates (upsert pattern).
-
----
-
-### ✅ 3. Inline Editing (EditableFieldComponent)
-
-**Replaces:** Old popup modals, separate edit pages  
-**New UX:** Click field → Edit → Auto-save on blur/change
-
-**Implemented On:**
-- `OrgMembers.jsx` - All fields (name, email, phone, years, leadership, engagement, events)
-- `EventAttendeeList.jsx` - Email, phone, audience, stage, spouseOrOther, howManyInParty, likelihoodToAttend
-
-**Backend Routes:**
-- PATCH `/orgmembers/:orgMemberId` - Updates OrgMember + Contact fields
-- PATCH `/contacts/:contactId` - Updates Contact fields
-- PATCH `/event-attendees/:attendeeId` - Updates EventAttendee fields
-
-**Field Type Support:**
-- `text` - First/last name, goesBy
-- `email` - Email addresses
-- `tel` - Phone numbers (formatted: 555-555-5555)
-- `number` - Years, party size (fixed width: w-16 min-w-16)
-- `select` - Dropdowns (engagement, leadership, events, likelihood)
-
-**Key Fixes:**
-- `onBlur={() => handleSave()}` - Prevents circular JSON error
-- `handleSave(newValue)` - Immediate save for dropdowns
-- Phone formatting helper
-- Number input width fix (was too compressed)
-
----
-
-### ✅ 4. Form Field Mapping to Structured Columns
-
-**Problem:** Custom form fields were all dumped into `EventAttendee.notes` as JSON.
-
-**Solution:**
-- Added structured columns: `spouseOrOther`, `howManyInParty`, `likelihoodToAttendId`
-- Created `fieldMappingService.js` to centralize mapping logic
-- `orgMemberFormRoute.js` maps specific fields to columns, only truly custom fields go to `notes`
-
-**Mapped Fields:**
-```javascript
-// Contact fields
-f3_name → Contact.goesBy
-
-// EventAttendee fields
-will_you_bring_your_m → spouseOrOther
-if_going_how_many_in_your_party → howManyInParty
-how_likely_are_you_to_attend → likelihoodToAttendId
-attendance_likelihood → likelihoodToAttendId (alternate form field)
-```
-
-**EventAttendee.notes:**
-- Changed from `String?` to `Json?`
-- Now only stores truly custom fields (not mapped to specific columns)
-
----
-
-### ✅ 5. localStorage Caching & Hydration Standardization
-
-**"The Rule":** All landing pages hydrate data to localStorage for instant child page loads.
-
-**Implemented:**
-```javascript
-// EventDashboard
-localStorage.setItem(`event_${eventId}_attendees`, JSON.stringify(attendees));
-
-// OrgDashboard
-localStorage.setItem(`org_${orgId}_members`, JSON.stringify(members));
-
-// ContactManageHome
-localStorage.setItem(`org_${orgId}_members`, JSON.stringify(members));
-localStorage.setItem(`org_${orgId}_contact_lists`, JSON.stringify(lists));
-```
-
-**Cache Validation:**
-- `EventAttendeeList` checks for `orgMemberId` in cached data
-- If missing → Reload from API
-- 30-second cache expiry to prevent stale data
-
-**Cache Invalidation:**
-- `localStorage.removeItem()` after delete/elevate operations
-
----
-
-### ✅ 6. OrgDashboard - Dedicated Organization Hub
-
-**NEW PAGE:** Central place for organization management
+**Purpose:** View and customize a contact list before saving.
 
 **Features:**
-- Editable org name, mission, description
-- Member stats: Total, Active, Inactive, Engagement breakdown
-- Quick actions: See Members, Upload Members, Add Member
-- Communications: Newsletter, Announcements (coming soon)
+- Loads all org members
+- All contacts pre-checked
+- Uncheck people you don't want
+- "Create List" button → calls `POST /contact-lists/from-selection`
 
-**Hydration:**
-- Loads org members to localStorage
-- Breadcrumb: Main Dashboard → Organization Dashboard
-
----
-
-### ✅ 7. Breadcrumb Navigation
-
-**Added To:**
-- OrgDashboard: Main Dashboard → Organization Dashboard
-- OrgMembers: Main Dashboard → Org Dashboard → Org Members
-- ContactManageHome: Main Dashboard → Contact Management Home
-- EventAttendeeList: Main Dashboard → Contact Management Home → Event - Attendees
-
-**UX Benefit:** Always know where you are, easy to navigate back.
+**Key Logic:**
+- Handles API response as array OR object with `members` array
+- Sends `selectedContactIds` to backend
+- Backend clears ALL org members from lists, then adds only selected ones
 
 ---
 
-### ✅ 8. OrgMembers Page Enhancements
+### 4. **ContactListManager.jsx** - List Picker
+**Route:** `/contact-list-manager`
 
-**Inline Editing for All Fields:**
-- First/Last Name, Email, Phone
-- Years with Organization (fixed width number input)
-- Leadership Role (dropdown: None, Project Lead, Committee, Board)
-- Engagement (dropdown: Undetermined, Low, Medium, High)
-- Events (dropdown: select event or "None")
+**Purpose:** Simple list picker when accessed from SequenceCreator.
 
-**Upcoming Events Column:**
-- Shows event names as badges (hydrated from `orgMembersHydrateRoute`)
-- Filter by `event.status === "upcoming"` (not `event.date`)
+**Features:**
+- Shows all available contact lists
+- "Use in Campaign" button → returns to SequenceCreator with selected list
 
-**Actions Column:**
-- Email button (one-to-one email)
-- Delete dropdown:
-  - "Remove from Organization" (DELETE `/orgmembers/:orgMemberId`)
-  - "Delete Contact Entirely" (DELETE `/contacts/:contactId` - cascades)
-  - Click outside to close (escape maneuver)
-
-**Fixes:**
-- Phone formatting: 555-555-5555
-- Capitalization: "rsvped" → "RSVPed"
-- Engagement stats: Correctly count by `engagementValue` (1-4)
-- Inactive count: Only count `!m.engagementValue`
+**Current Status:** ✅ Working as list picker
 
 ---
 
-### ✅ 9. EventAttendeeList Page Enhancements
+## 🗺️ The Complete Sequence Creation Flow
 
-**Replaced TYPE Column with Structured Fields:**
-- "Who's Coming" (spouseOrOther - editable)
-- "Party Size" (howManyInParty - editable)
-- "Likelihood" (likelihoodToAttendId - editable)
-
-**Replaced ACTIONS with Member Status:**
-- "Member of Org: Yes/No" badge
-- "Elevate" button (only if "No")
-- Delete dropdown:
-  - "Remove from Event" (soft delete)
-  - "Delete Contact Entirely" (hard delete, cascades)
-
-**Inline Editing:**
-- Email, Phone, Audience, Stage, spouseOrOther, howManyInParty, likelihoodToAttendId
-
-**Bottom Navigation:**
-- "👥 Go to Contacts Manager Hub" button
-
-**Route Fix:**
-- Changed API call from `/events/${eventId}/attendees` to `/event-attendees/${eventId}/attendees` to resolve route conflict with `pipelineHydrationRouter`
-
----
-
-### ✅ 10. ContactManageHome Navigation Fix
-
-**Problem:** Both "See Lists" and "Create List" went to the same page.
-
-**Solution:**
-- "See Lists" → `/contact-lists` (view existing lists)
-- "Create List" → `/create-list` (CreateListOptions.jsx)
-
-**CreateListOptions.jsx has 3 choices:**
-1. Import Contacts (CSV upload)
-2. Select from Pipeline
-3. Manual Selection
-
-**API Route Fix:**
-- Changed from non-existent `/orgs/{orgId}/org-members` to `/orgmembers?orgId={orgId}`
-
----
-
-### ✅ 11. Backend Route Refactoring
-
-**Renamed for Clarity:**
-- `emailRoute.js` → `personalEmailRoute.js`
-- `gmailService.js` → `personalEmailService.js`
-- `publicFormSubmissionRoute.js` → `orgMemberFormRoute.js`
-- `EditableField.jsx` → `EditableFieldComponent.jsx`
-
-**New Routes:**
-- `eventAttendeeUpdateRoute.js` - PATCH `/event-attendees/:attendeeId`
-- `orgMemberUpdateRoute.js` - PATCH `/orgmembers/:orgMemberId`
-
-**Route Mount Changes:**
-- `eventAttendeesRouter` moved from `/api/events` to `/api/event-attendees` (resolve conflict)
-- `orgMemberFormRouter` stays at `/api/contacts` (matches hardcoded form submission URL in `ignite-ticketing/PublicForm.jsx`)
-
-**CORS Configuration:**
-- Added `x-org-id` to allowed headers (later removed, now using request body for `orgId`)
-
----
-
-## 🔧 KEY BACKEND CHANGES
-
-### **Schema Updates (eventscrm-backend/prisma/schema.prisma)**
-
-**New Models:**
-```prisma
-model Engagement {
-  id    String @id @default(cuid())
-  value Int    @unique  // 1=undetermined, 2=low, 3=medium, 4=high
-  OrgMembers OrgMember[]
-}
-
-model LikelihoodToAttend {
-  id    String @id @default(cuid())
-  value Int    @unique  // 1=high, 2=medium, 3=low, 4=support_from_afar
-  EventAttendees EventAttendee[]
-}
-
-model LeadershipRole {
-  id    String @id @default(cuid())
-  value Int    @unique  // 1=none, 2=project_lead, 3=committee, 4=board
-  name  String
-}
 ```
-
-**Field Migrations:**
-```prisma
-model Contact {
-  // ...existing fields
-  employer String?     // MOVED from OrgMember
-  eventId  String?     // NEW! Links contact to event
-  // ...
-}
-
-model OrgMember {
-  // ...existing fields
-  leadershipRole String?  // NEW! (string for now, FK to LeadershipRole in future)
-  engagementId   String?  // NEW! FK to Engagement
-  engagement     Engagement? @relation(fields: [engagementId], references: [id])
-  // ...
-}
-
-model EventAttendee {
-  // ...existing fields
-  spouseOrOther       String?  // NEW! "wife", "M", "solo", etc.
-  howManyInParty      Int?     // NEW! Party size
-  likelihoodToAttendId String? // NEW! FK to LikelihoodToAttend
-  likelihoodToAttend  LikelihoodToAttend? @relation(fields: [likelihoodToAttendId], references: [id])
-  notes               Json?    // CHANGED from String? to Json?
-  // REMOVED: attendingWithSpouse (redundant with spouseOrOther)
-  // ...
-}
+CampaignHome (/email)
+  ↓ Click "Launch New Campaign"
+SequenceCreator (/sequence-creator)
+  ↓ Name sequence
+  ↓ Click "Pick List"
+ContactListManager (/contact-list-manager)
+  ↓ Click "Use in Campaign"
+SequenceCreator (list selected)
+  ↓ OR Click "Create List"
+ContactListBuilder (/contact-list-builder)
+  ↓ Click "Preview" on "All Org Members"
+ContactListView (/contact-list-view)
+  ↓ Uncheck unwanted contacts
+  ↓ Click "Create List"
+SequenceCreator (new list selected)
+  ↓ Write subject & message
+  ↓ Insert {{firstName}} token
+  ↓ Click "Create & Launch"
+  ↓ Creates campaign via POST /campaigns
+  ↓ Creates sequence via POST /sequences
+  ↓ Sends emails via POST /api/email/personal/send-bulk
+✅ DONE!
 ```
 
 ---
 
-### **Hydration Routes**
+## 🔧 Backend Routes We're Using
 
-**orgMembersHydrateRoute.js:**
-- Includes `engagement: true` for engagement data
-- Transforms `categoryOfEngagement` → `engagementValue` (1-4)
-- Includes `leadershipRole` and `employer` (from Contact)
-- Filters upcoming events by `event.status === "upcoming"` (not `event.date`)
-- Returns `upcomingEventNames` array (just names, not objects)
-- Includes `eventId: member.contact?.eventId || null` for inline editing
+### Contact Lists
+- `GET /contact-lists?orgId={id}` - Load all lists
+- `POST /contact-lists/from-selection` - Create list from selected contact IDs
+- `POST /contact-lists/test` - Create test list with hardcoded contact
 
-**eventAttendeesRoute.js:**
-- Switched from raw SQL to Prisma `findMany`
-- Includes `likelihoodToAttend: true` for reference table data
-- Transforms result to include `orgMemberId` at top level
-- Added filter routes:
-  - `GET /events/attendees?formId=xxx` (filter by `submittedFormId`)
-  - `GET /events/attendees?hasNotes=true&orgId=xxx` (for Notes Parser)
+### Campaigns & Sequences
+- `POST /campaigns` - Create campaign (required before sequence)
+- `POST /sequences` - Create sequence (requires campaignId)
+- `PATCH /sequences/{id}` - Update sequence status
 
----
+### Gmail Sending
+- `POST /api/email/personal/send-bulk` - Send bulk emails via Gmail API
+  - Payload: `{ recipients: [...], subject: "...", body: "..." }`
+  - Each recipient: `{ email: "...", variables: { firstName: "..." } }`
 
-### **Update Routes**
-
-**orgMemberUpdateRoute.js:**
-- Separates Contact fields from OrgMember fields
-- Converts `engagementValue` (1-4) to `engagementId` (FK)
-- Validates engagement value (1-4)
-- Handles empty strings for `yearsWithOrganization` (Int?) → converts to `null`
-- Includes `contact: true` and `engagement: true` in response
-
-**eventAttendeeUpdateRoute.js:**
-- NEW FILE! Handles PATCH `/event-attendees/:attendeeId`
-- Updates `spouseOrOther`, `howManyInParty`, `likelihoodToAttendId`, etc.
-
-**contactDeleteRoute.js:**
-- Removed `admin: true` from Prisma include (field doesn't exist)
-- Cascading deletes: `EventAttendee`, `OrgMember`, `FormSubmission`
+### Org Members
+- `GET /orgmembers?orgId={id}` - Load all org members
+- Returns: `{ success: true, count: X, members: [...] }` OR just array
 
 ---
 
-### **Form Submission (orgMemberFormRoute.js)**
+## 🎨 UX Improvements We Made
 
-**Field Mapping:**
-```javascript
-// Contact fields
-f3_name → Contact.goesBy
+### Before (The Wizard Hell)
+- 4-step wizard with confusing navigation
+- "Select list" dropdown trap (shows selected list but you think you need to select again)
+- Multiple duplicate list creators
+- Button hell (too many options)
+- Confusing pipeline stage dropdowns for list creation
 
-// EventAttendee fields
-will_you_bring_your_m → spouseOrOther
-bringing_m → spouseOrOther (alternate)
-if_going_how_many_in_your_party → howManyInParty
-how_many_in_party → howManyInParty (alternate)
-how_likely_are_you_to_attend → likelihoodToAttendId
-attendance_likelihood → likelihoodToAttendId (alternate)
-```
-
-**Value Transformations (fieldMappingService.js):**
-```javascript
-// likelihoodToAttend mapping
-'i\'m in — planning to be there!' → 1 (high)
-'very_likely' → 1
-'probably' → 2 (medium)
-'likely' → 2
-'maybe' → 3 (low)
-'support_from_afar' → 4
-```
-
-**Critical Fix:**
-```javascript
-// Contact creation/update
-contact = await prisma.contact.create({
-  data: {
-    firstName,
-    lastName,
-    email,
-    phone,
-    eventId,  // ← CRITICAL! Links contact to event
-    ...(goesBy && { goesBy })
-  }
-});
-
-// Always update eventId on contact update
-if (Object.keys(contactUpdates).length > 0) {
-  contactUpdates.eventId = eventId; // Always link to this event
-  contact = await prisma.contact.update({
-    where: { id: contact.id },
-    data: contactUpdates
-  });
-}
-```
+### After (The Clean Flow)
+- **Single-box list selection:** Shows "No list selected" or "Using: [List Name]"
+- **Two clear buttons:**
+  - "Pick List" (or "Pick New List" when one is selected)
+  - "Create List" (or "Create New List" when one is selected)
+- **Smart lists first:** Pre-hydrated "All Org Members" ready to use
+- **Simple deselection:** Preview list, uncheck people you don't want, save
+- **Live preview:** See {{firstName}} token replacement in real-time
+- **One-click launch:** Create campaign + sequence + send in one action
 
 ---
 
-## 🎯 WHAT'S WORKING
+## 🔐 Gmail Authentication Status
 
-✅ Contact-first universal personhood architecture  
-✅ Prisma/PostgreSQL migration complete  
-✅ Reference tables auto-seeded on deployment  
-✅ Inline editing on OrgMembers and EventAttendeeList  
-✅ Form field mapping to structured columns  
-✅ localStorage caching and hydration standardization  
-✅ Breadcrumb navigation  
-✅ OrgDashboard hub  
-✅ Delete dropdowns with "Remove vs Delete Entirely" options  
-✅ Phone formatting (555-555-5555)  
-✅ Capitalization ("rsvped" → "RSVPed")  
-✅ Engagement stats (1-4 values)  
-✅ Event hydration on OrgMembers (dropdown to select event)  
-✅ Escape maneuver for delete dropdowns (click outside to close)  
-✅ Contact list creation navigation fixed  
+### What We Have
+- Firebase authentication for user login
+- Google OAuth for Gmail API access (via `src/lib/googleAuth.js`)
+- Gmail access token stored in `localStorage`
 
----
+### Current Issue
+- `src/lib/googleAuth.js` was using Firebase's Google auth (returns Firebase ID token)
+- Gmail API needs Google OAuth access token
+- **FIX IN PROGRESS:** Consolidating all auth logic into single `src/lib/googleAuth.js` that uses direct Google OAuth
 
-## 🚧 KNOWN ISSUES / TODO
-
-### **High Priority**
-- [ ] Fix `/contact-list-select` route (doesn't exist, referenced in CreateListOptions.jsx)
-- [ ] Complete contact list creation flow
-- [ ] Email functionality (personal email route exists, enterprise SendGrid planned)
-- [ ] Automatic emails on form submission
-
-### **Medium Priority**
-- [ ] Notes Parser (`FormUserUpdate.jsx`) - Migrate old JSON notes to structured fields
-- [ ] Migration: `OrgMember.leadershipRole` (string) → `leadershipRoleId` (FK to LeadershipRole)
-- [ ] Better form response display (modal instead of alert?)
-- [ ] Contact event history timeline in ContactDetail
-
-### **Low Priority**
-- [ ] Dark mode support
-- [ ] Toast notifications instead of alerts
-- [ ] Real-time updates (WebSocket?)
+### Files Involved
+- `src/lib/googleAuth.js` - MAIN auth file (recently consolidated)
+- `src/firebase.js` - Firebase init (still needed for Firebase auth)
+- ~~`src/lib/auth.js`~~ - DELETED (was duplicate/confusing)
 
 ---
 
-## 🎓 KEY PATTERNS TO REMEMBER
+## 🐛 Known Issues
 
-### **1. Inline Editing Pattern**
-```javascript
-// Use EditableFieldComponent for all table cells
-<EditableFieldComponent
-  value={contact.firstName}
-  field="firstName"
-  contactId={contact.id}           // For Contact fields
-  orgMemberId={contact.orgMemberId} // For OrgMember fields
-  eventAttendeeId={attendee.id}    // For EventAttendee fields
-  type="text"                      // text, email, tel, number, select
-  options={options}                // For select dropdowns
-  placeholder="Enter value"
-/>
-```
+### 1. Backend Deployment Failing ❌
+**Error:** `Cannot find module '/opt/render/project/src/routes/authRoute.js'`
 
-### **2. Backend Update Pattern**
-```javascript
-// orgMemberUpdateRoute: Separate Contact vs OrgMember fields
-const contactFields = ['firstName', 'lastName', 'email', 'phone', 'goesBy', 'employer', 'numberOfKids'];
-const orgMemberFields = ['yearsWithOrganization', 'leadershipRole', 'engagementValue'];
+**Cause:** `eventscrm-backend/index.js` is trying to import `authRoute.js` which doesn't exist
 
-// Update Contact if contactUpdates exist
-if (Object.keys(contactUpdates).length > 0) {
-  await prisma.contact.update({ where: { id: contactId }, data: contactUpdates });
-}
+**Status:** NEEDS FIX - See new chat session
 
-// Update OrgMember if orgMemberUpdates exist
-if (Object.keys(orgMemberUpdates).length > 0) {
-  await prisma.orgMember.update({ where: { id: orgMemberId }, data: orgMemberUpdates });
-}
-```
+### 2. Gmail API Call Not Working ⚠️
+**Error:** `404 Not Found` on `POST /api/email/personal/send-bulk`
 
-### **3. Hydration Pattern**
-```javascript
-// Landing page (Dashboard, OrgDashboard, EventDashboard)
-const loadData = async () => {
-  const data = await api.get('/endpoint');
-  localStorage.setItem('cache_key', JSON.stringify(data));
-  setData(data);
-};
+**Possible Causes:**
+- Backend deployment is broken (see issue #1)
+- Route might be `/email/personal/send-bulk` not `/api/email/personal/send-bulk`
 
-// Child page (OrgMembers, EventAttendeeList)
-const loadCachedData = () => {
-  const cached = localStorage.getItem('cache_key');
-  if (cached) {
-    const parsed = JSON.parse(cached);
-    // Validate cached data has required fields
-    if (parsed[0]?.requiredField) {
-      setData(parsed);
-      return;
-    }
-  }
-  // Fallback to API if cache is stale/invalid
-  loadFromAPI();
-};
-```
+**Status:** BLOCKED by backend deployment
 
-### **4. Cache Invalidation Pattern**
-```javascript
-// After mutations (delete, elevate, update)
-const handleDelete = async () => {
-  await api.delete(`/contacts/${contactId}`);
-  localStorage.removeItem(`org_${orgId}_members`);    // Clear cache
-  loadContacts();  // Reload from API
-};
-```
+### 3. ContactList.save() Error (FIXED ✅)
+**Error:** `contactList.save is not a function`
 
-### **5. Navigation Pattern**
-```javascript
-// Breadcrumbs
-<div className="text-sm text-gray-600 mb-6">
-  <button onClick={() => navigate("/dashboard")} className="hover:underline">
-    Main Dashboard
-  </button>
-  <span className="mx-2">→</span>
-  <button onClick={() => navigate("/org-dashboard")} className="hover:underline">
-    Organization Dashboard
-  </button>
-  <span className="mx-2">→</span>
-  <span className="font-semibold text-gray-900">Org Members</span>
-</div>
-```
+**Cause:** `contactListService.js` was calling `.save()` on Prisma objects
 
----
+**Fix:** Replaced with `prisma.contactList.update()`
 
-## 📞 API ROUTES REFERENCE
+**Status:** ✅ FIXED
 
-### **Organization**
-```
-GET  /orgs/:orgId
-GET  /orgs/:orgId/events
-GET  /orgmembers?orgId={orgId}
-PATCH /orgmembers/:orgMemberId
-DELETE /orgmembers/:orgMemberId
-POST /org-members { contactId, orgId }
-```
+### 4. Backend Validation Error Hiding Gmail Logs (FIXED ✅)
+**Error:** "campaignId, name, subject, and html are required"
 
-### **Contacts**
-```
-GET  /contacts/:contactId
-POST /contacts (form submission via orgMemberFormRoute)
-PATCH /contacts/:contactId
-DELETE /contacts/:contactId (cascades to EventAttendee, OrgMember, FormSubmission)
-```
+**Cause:** Frontend wasn't creating campaign first or sending `html` field
 
-### **Events & Attendees**
-```
-GET  /events/:eventId
-GET  /event-attendees/${eventId}/attendees
-GET  /event-attendees?formId={formId}
-GET  /event-attendees?hasNotes=true&orgId={orgId}
-PATCH /event-attendees/:attendeeId
-```
-
-### **Contact Lists**
-```
-GET  /contact-lists?orgId={orgId}
-POST /contact-lists/from-event { eventId }
-POST /contact-lists/from-org-members { orgId }
-POST /contact-lists/from-all-contacts { orgId }
-```
-
-### **Forms**
-```
-GET  /forms?orgId={orgId}
-GET  /attendees/:attendeeId/form-response
-```
-
-### **Email**
-```
-POST /email/personal (Gmail OAuth - personalEmailRoute)
-// Future: POST /email/enterprise (SendGrid - not implemented)
-```
-
----
-
-## 💡 CRITICAL FIXES TODAY
-
-### **1. Circular JSON Error in EditableFieldComponent**
-**Problem:** `onBlur={handleSave}` passed event object → circular structure  
-**Fix:** `onBlur={() => handleSave()}`
-
-### **2. Number Input Too Compressed**
-**Problem:** `yearsWithOrganization` input was tiny  
-**Fix:** Added `w-16 min-w-16` className for `type="number"`
-
-### **3. Dropdown Save Not Triggering**
-**Problem:** `onChange` for dropdowns didn't trigger backend save  
-**Fix:** Modified `handleSave(newValue)` to accept optional value, call directly from `onChange`
-
-### **4. EventID Not Hydrating on OrgMembers**
-**Problem:** Events column always showed "No Event"  
 **Fix:**
-- Set `eventId` on Contact during form submission
-- Include `eventId` in `orgMembersHydrateRoute` response
-- Made Events column editable with dropdown
+- Create campaign first via `POST /campaigns`
+- Pass `campaignId` to `POST /sequences`
+- Send `html` field instead of `body`
 
-### **5. Route Conflict: EventAttendees**
-**Problem:** `pipelineHydrationRouter` intercepting `/events/:eventId/attendees`  
-**Fix:** Moved `eventAttendeesRouter` to `/api/event-attendees`
-
-### **6. Form Submission Route Mismatch**
-**Problem:** Form hardcoded to `/api/contacts`, backend route moved  
-**Fix:** Kept `orgMemberFormRouter` at `/api/contacts` to match frontend
-
-### **7. ContactManage White Screen of Death**
-**Problem:** `EventAttendeeList` navigated to `/contactmanage` but route was `/contacts`  
-**Fix:** Added `/contactmanage` route for backward compatibility
-
-### **8. Party Size Field Not Mapping**
-**Problem:** `if_going_how_many_in_your_party` not in field mapping  
-**Fix:** Added to `orgMemberFormRoute` and `fieldMappingService`
-
-### **9. Likelihood Field Not Mapping**
-**Problem:** `attendance_likelihood` from "Bros & Brews" form not mapping  
-**Fix:** Added to `fieldMappingService` with value transformations
-
-### **10. Delete Functionality Not Working**
-**Problem:** `contactDeleteRoute` tried to include non-existent `admin` field  
-**Fix:** Removed `admin: true` from Prisma include statement
+**Status:** ✅ FIXED
 
 ---
 
-## 🎉 WHAT'S NEXT?
+## 🗑️ Routes We Cleaned Up
 
-**Immediate:**
-1. Fix `/contact-list-select` route issue
-2. Complete contact list creation flow
-3. Test email sending (personal Gmail OAuth)
-4. Set up automatic emails on form submission
+### Deleted
+- ❌ `/contact-lists` (old duplicate)
+- ❌ `/create-list` (old duplicate)
 
-**Future:**
-- Notes Parser migration utility
-- SendGrid integration for enterprise email
-- Contact event history timeline
-- Advanced filtering/search
-- Real-time updates
+### Kept
+- ✅ `/sequence-creator` - NEW main flow
+- ✅ `/contact-list-builder` - Smart lists
+- ✅ `/contact-list-manager` - List picker
+- ✅ `/contact-list-view` - List preview & customization
 
 ---
 
-## 📝 MIGRATION BREADCRUMBS
+## 📋 Contact List Architecture
 
-### **Future Migrations (see MIGRATION_OCT13.md)**
+### Database Schema
+```javascript
+model Contact {
+  id            String   @id @default(cuid())
+  email         String
+  firstName     String?
+  lastName      String?
+  contactListId String?  // ONE-TO-MANY (1 contact = 1 list)
+  
+  contactList   ContactList? @relation(fields: [contactListId], references: [id])
+}
 
-1. **OrgMember.leadershipRole (string) → leadershipRoleId (FK)**
-   - Ref table already exists and seeded
-   - Need to map existing string values to IDs
-   - Update frontend to use ID
+model ContactList {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  type        String    // 'selection', 'smart', 'test'
+  contacts    Contact[] // Reverse relation
+}
+```
 
-2. **EventAttendee.notes JSON → Structured Fields**
-   - Notes Parser tool created (`FormUserUpdate.jsx`)
-   - Manually run to migrate old form data
-   - Not automated (too risky)
+### How List Selection Works
 
-3. **Contact.eventId Migration**
-   - Already nullable, no breaking changes
-   - Forms now set this on submission
-   - Old contacts have `null` (expected)
+**When you "Create List" from ContactListView:**
+1. User unchecks contacts they don't want
+2. Frontend sends `selectedContactIds` array to backend
+3. Backend does:
+   ```javascript
+   // Clear ALL org members from lists
+   await prisma.contact.updateMany({
+     where: { orgId },
+     data: { contactListId: null }
+   });
+   
+   // Add only selected contacts to new list
+   await prisma.contact.updateMany({
+     where: { id: { in: selectedContactIds } },
+     data: { contactListId: newListId }
+   });
+   ```
+4. This ensures deselection works (unchecked = removed from list)
+
+### Why Not Many-to-Many?
+- **Current:** One contact can be in ONE list at a time (via `contactListId` column)
+- **Future:** Might need many-to-many (junction table) for contacts in multiple lists
+- **For Now:** One-to-many works for MVP1
 
 ---
 
-**When in doubt:**
-1. Check `WHERE_WE_ARE_NOW.md` (this file)
-2. Check `MIGRATION_OCT13.md` for future work
-3. Check localStorage for cached data
-4. Use `EditableFieldComponent` for all inline editing
-5. Remember: Contact = universal personhood, OrgMember/EventAttendee = relationships
+## 🎯 The "Wiper Service" Concept
+
+### The Problem
+If a contact is already in a list, they can't be added to another list (one-to-many limitation).
+
+### The Solution (Future)
+"Wiper Service" = Emergency override to reset a contact's list membership.
+
+**Use Case:**
+- "I already sent to Event Attendees, now I want to send to ALL Org Members"
+- "Wiper Service" clears list membership so you can re-segment
+
+**Implementation:**
+- Button on ContactListBuilder: "Reset All List Memberships"
+- Calls endpoint: `POST /contact-lists/wiper`
+- Backend sets all `contactListId` to `null`
+
+**Status:** 💡 Concept only, not built yet
 
 ---
 
-**End of October 13, 2025 Session** 🎉
+## 🚀 What's Working Right Now
+
+### Frontend
+- ✅ SequenceCreator UI built
+- ✅ ContactListBuilder showing smart lists
+- ✅ ContactListView loading and displaying contacts
+- ✅ List selection UX (single box, two buttons)
+- ✅ Token picker ({{firstName}}) with live preview
+- ✅ Campaign + sequence creation flow
+- ✅ Gmail API call code (waiting for backend)
+
+### Backend
+- ✅ `POST /contact-lists/from-selection` (create list from selection)
+- ✅ `POST /contact-lists/test` (test list creation)
+- ✅ `POST /campaigns` (create campaign)
+- ✅ `POST /sequences` (create sequence)
+- ✅ `POST /api/email/personal/send-bulk` (exists, not tested due to deployment issue)
+
+---
+
+## 🔜 Next Steps (For New Chat Session)
+
+### Immediate (Tonight/Tomorrow)
+1. **FIX BACKEND DEPLOYMENT** - Remove `authRoute.js` import from `eventscrm-backend/index.js`
+2. **TEST GMAIL SENDING** - Once backend is deployed, test end-to-end sequence creation
+3. **VERIFY TOKEN REPLACEMENT** - Ensure `{{firstName}}` is replaced correctly
+
+### Short Term
+4. **ADD MORE TOKENS** - Add `{{lastName}}`, `{{email}}`, etc.
+5. **IMPROVE ERROR HANDLING** - Better error messages when Gmail sending fails
+6. **ADD SEND CONFIRMATION** - Show success message with count of emails sent
+
+### Medium Term
+7. **BUILD WIPER SERVICE** - Add list membership reset functionality
+8. **SMART LIST EXPANSION** - Add "Event Attendees", "Paid Members", etc.
+9. **MANY-TO-MANY LISTS** - Migrate to junction table for contacts in multiple lists
+
+### Long Term
+10. **SEQUENCE SCHEDULING** - Schedule send times instead of immediate
+11. **SEQUENCE ANALYTICS** - Track opens, clicks, replies
+12. **A/B TESTING** - Test different subjects/messages
+
+---
+
+## 📚 Documentation Created Tonight
+
+- ✅ This file (WHERE_WE_ARE_NOW.md) - Current status
+- ⏳ CONTACTLISTBUILD.md - List architecture (NEEDS UPDATE)
+- ⏳ SEQUENCE.md - Sequence flow (NEEDS CREATION)
+
+---
+
+## 🎉 Major Wins
+
+1. **Replaced wizard hell with clean, focused pages**
+2. **Fixed "list picker trap" UX issue**
+3. **Implemented smart lists (All Org Members)**
+4. **Built live token preview**
+5. **Simplified list selection to single box + two buttons**
+6. **Created end-to-end sequence flow (pending backend fix)**
+7. **Consolidated auth logic (in progress)**
+8. **Cleaned up duplicate routes and pages**
+
+---
+
+## 😅 The Journey
+
+Started with: "I think the UX is jacked in general"
+
+Ended with: A complete rebuild of the email sequence flow, simpler UX, cleaner code, and a clear path forward.
+
+**Along the way we:**
+- Discovered the pipeline config vodoo magic
+- Learned about stage values vs IDs
+- Realized we had 3 different sequence creators
+- Found a shrine to previous selves in `/compose`
+- Battled `.save()` errors and backend validation
+- Consolidated confusing auth systems
+- Laughed through the tears of pressing buttons
+
+---
+
+## 🔗 Related Files
+
+### Frontend
+- `src/pages/SequenceCreator.jsx` - Main sequence creator
+- `src/pages/ContactListBuilder.jsx` - Smart lists
+- `src/pages/ContactListView.jsx` - List preview
+- `src/pages/ContactListManager.jsx` - List picker
+- `src/lib/googleAuth.js` - Auth (consolidated)
+- `src/App.jsx` - Routes
+
+### Backend
+- `routes/contactListsRoute.js` - List management
+- `routes/campaignRoute.js` - Campaign creation
+- `routes/sequenceRoute.js` - Sequence creation
+- `routes/personalEmailRoute.js` - Gmail sending
+- `services/contactListService.js` - List logic
+- `index.js` - Main entry (BROKEN - needs fix)
+
+---
+
+**Last Updated:** October 14, 2025, 2:30 AM  
+**Status:** 🚧 Backend deployment broken, frontend ready to rock  
+**Next:** Fix backend `authRoute.js` import error and TEST GMAIL SENDING!
+
+---
+
+*"Just went down a rabbit hole on contact list just to think about dynamic hydration and making sure we don't trip over ourselves... but I'm good now"* - Adam, at some point tonight 😄

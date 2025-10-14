@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 export default function CampaignSequences() {
   const navigate = useNavigate();
@@ -33,7 +34,8 @@ export default function CampaignSequences() {
 
   const loadCampaign = async () => {
     try {
-      const response = await api.get(`/campaigns/${campaignId}`);
+      const orgId = getOrgId();
+      const response = await api.get(`/campaigns/${campaignId}?orgId=${orgId}`);
       setCampaign(response.data);
     } catch (err) {
       console.error("Error loading campaign:", err);
@@ -42,12 +44,16 @@ export default function CampaignSequences() {
   };
 
   const loadSequences = async () => {
+    console.log(`📋 Loading sequences for campaign ${campaignId}`);
     try {
-      const response = await api.get(`/sequences?campaignId=${campaignId}`);
+      const orgId = getOrgId();
+      const response = await api.get(`/sequences?campaignId=${campaignId}&orgId=${orgId}`);
+      console.log("✅ Sequences loaded:", response.data);
       setSequences(response.data);
     } catch (err) {
-      console.error("Error loading sequences:", err);
-      setError("Failed to load sequences");
+      console.error("❌ Error loading sequences:", err);
+      console.error("❌ Error details:", err.response?.data);
+      setError(`Failed to load sequences: ${err.response?.data?.error || err.message}`);
     }
   };
 
@@ -104,12 +110,18 @@ export default function CampaignSequences() {
 
   const handleToggleSequence = async (sequenceId, currentStatus) => {
     const newStatus = currentStatus === 'sent' ? 'paused' : 'sent';
+    console.log(`🔄 Toggling sequence ${sequenceId} from ${currentStatus} to ${newStatus}`);
+    
     try {
-      await api.patch(`/sequences/${sequenceId}`, { status: newStatus });
+      const response = await api.patch(`/sequences/${sequenceId}`, { status: newStatus });
+      console.log("✅ Toggle response:", response.data);
       loadSequences();
+      alert(`✅ Sequence ${newStatus === 'sent' ? 'activated' : 'paused'} successfully!`);
     } catch (err) {
-      console.error("Error toggling sequence:", err);
-      setError("Failed to update sequence status");
+      console.error("❌ Error toggling sequence:", err);
+      console.error("❌ Error details:", err.response?.data);
+      setError(`Failed to update sequence status: ${err.response?.data?.error || err.message}`);
+      alert(`❌ Failed to toggle sequence: ${err.response?.data?.error || err.message}`);
     }
   };
 
@@ -121,6 +133,12 @@ export default function CampaignSequences() {
       newSelected.add(sequenceId);
     }
     setSelectedSequences(newSelected);
+  };
+
+  const handleEditSequence = (sequenceId) => {
+    console.log(`✏️ Editing sequence ${sequenceId}`);
+    // Navigate to sequence creator to edit this sequence
+    navigate(`/sequence-creator?editId=${sequenceId}`);
   };
 
   const handleSelectAll = () => {
@@ -346,18 +364,9 @@ export default function CampaignSequences() {
                             />
                           </td>
                           <td className="px-4 py-4">
-                            <button
-                              onClick={() => handleToggleSequence(sequence.id, sequence.status)}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                sequence.status === 'sent' ? 'bg-green-600' : 'bg-gray-200'
-                              }`}
-                            >
-                              <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  sequence.status === 'sent' ? 'translate-x-6' : 'translate-x-1'
-                                }`}
-                              />
-                            </button>
+                            <div className="text-sm text-gray-500">
+                              {sequence.status === 'sent' ? '✅ Sent' : '📝 Draft'}
+                            </div>
                           </td>
                           <td className="px-4 py-4">
                             <div>
@@ -392,14 +401,13 @@ export default function CampaignSequences() {
                           </td>
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleSendSequence(sequence.id)}
-                                disabled={loading || sequence.status === 'sent'}
-                                className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 disabled:opacity-50 transition"
+                              <div className="text-xs text-gray-500">
+                                {sequence.status === 'sent' ? '✅ Sent' : '📝 Draft'}
+                              </div>
+                              <button 
+                                onClick={() => handleEditSequence(sequence.id)}
+                                className="px-2 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition"
                               >
-                                Send
-                              </button>
-                              <button className="px-2 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition">
                                 Edit
                               </button>
                               <button className="p-1 text-gray-400 hover:text-gray-600">
