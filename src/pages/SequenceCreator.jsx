@@ -25,6 +25,7 @@ export default function SequenceCreator() {
     contactListId: ""
   });
   const [showVariables, setShowVariables] = useState(false);
+  const [hasLoadedSequence, setHasLoadedSequence] = useState(false);
   
   useEffect(() => {
     checkGmailAuth();
@@ -38,6 +39,15 @@ export default function SequenceCreator() {
       setSequenceData(prev => ({ ...prev, contactListId: listId }));
     }
   }, [searchParams, contactLists]);
+
+  // Load existing sequence if editId is in URL (only once)
+  useEffect(() => {
+    const editId = searchParams.get('editId');
+    if (editId && !hasLoadedSequence) {
+      loadExistingSequence(editId);
+      setHasLoadedSequence(true);
+    }
+  }, [searchParams, hasLoadedSequence]);
 
   const checkGmailAuth = () => {
     // Only check for Gmail access token, not Firebase auth
@@ -62,6 +72,26 @@ export default function SequenceCreator() {
     }
   };
   
+  const loadExistingSequence = async (sequenceId) => {
+    try {
+      console.log(`📝 Loading existing sequence ${sequenceId}`);
+      const response = await api.get(`/sequences/${sequenceId}`);
+      const sequence = response.data;
+      
+      setSequenceData({
+        name: sequence.name,
+        subject: sequence.subject,
+        message: sequence.html || sequence.body || "",
+        contactListId: sequence.campaign?.contactListId || ""
+      });
+      
+      console.log("✅ Sequence loaded:", sequence);
+    } catch (err) {
+      console.error("❌ Error loading sequence:", err);
+      setError("Failed to load sequence for editing");
+    }
+  };
+
   const loadContactLists = async () => {
     try {
       const response = await api.get(`/contact-lists?orgId=${orgId}`);
@@ -190,8 +220,12 @@ export default function SequenceCreator() {
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">🚀 Create Sequence</h1>
-              <p className="text-gray-600">Simple email sequence creator.</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {searchParams.get('editId') ? '✏️ Edit Sequence' : '🚀 Create Sequence'}
+              </h1>
+              <p className="text-gray-600">
+                {searchParams.get('editId') ? 'Edit existing email sequence.' : 'Simple email sequence creator.'}
+              </p>
             </div>
             <button
               onClick={() => navigate("/campaignhome")}

@@ -405,10 +405,11 @@ export default function CampaignSequences() {
                                 {sequence.status === 'sent' ? '✅ Sent' : '📝 Draft'}
                               </div>
                               <button 
-                                onClick={() => handleEditSequence(sequence.id)}
-                                className="px-2 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition"
+                                onClick={() => alert('Edit functionality coming soon! Campaigns need to be saved to database first.')}
+                                className="px-2 py-1 bg-gray-400 text-white text-xs rounded cursor-not-allowed"
+                                disabled
                               >
-                                Edit
+                                Edit (Coming Soon)
                               </button>
                               <button className="p-1 text-gray-400 hover:text-gray-600">
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
