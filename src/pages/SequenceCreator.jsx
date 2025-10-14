@@ -63,12 +63,21 @@ export default function SequenceCreator() {
     setError("");
     
     try {
-      // Create the sequence
-      const sequenceResponse = await api.post("/sequences", {
+      // Create a campaign first
+      const campaignResponse = await api.post("/campaigns", {
         orgId,
         name: sequenceData.name,
+        contactListId: sequenceData.contactListId,
+        status: "draft"
+      });
+      
+      const campaignId = campaignResponse.data.id;
+      
+      // Create the sequence
+      const sequenceResponse = await api.post("/sequences", {
+        campaignId,
+        name: sequenceData.name,
         subject: sequenceData.subject,
-        text: sequenceData.message,
         html: sequenceData.message,
         delayDays: 0,
         order: 1
