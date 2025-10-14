@@ -66,6 +66,14 @@ export default function CampaignCreator() {
     checkGmailAuth();
   }, []);
   
+  // Auto-load lists when campaignId exists
+  useEffect(() => {
+    if (campaignId && availableLists.length === 0) {
+      console.log('📋 Loading available lists for campaign:', campaignId);
+      loadAvailableLists();
+    }
+  }, [campaignId]);
+  
   const checkGmailAuth = () => {
     const token = getGmailAccessToken();
     const email = localStorage.getItem('gmailEmail');
