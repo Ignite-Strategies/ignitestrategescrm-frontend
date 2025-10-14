@@ -63,8 +63,7 @@ import SequenceCreator from "./pages/SequenceCreator.jsx";
 import ContactListDebug from "./pages/ContactListDebug.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
 import ContactListView from "./pages/ContactListView.jsx";
-import ContactList from "./pages/ContactList.jsx";
-import ContactListSelect from "./pages/ContactListSelect.jsx";
+import ContactUploadChooser from "./pages/ContactUploadChooser.jsx";
 import CreateListOptions from "./pages/CreateListOptions.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
 import Sequence from "./pages/Sequence.jsx";
@@ -284,15 +283,12 @@ export default function App() {
           <ProtectedRoute><ContactListView /></ProtectedRoute>
         } />
         
-        {/* 🎃 Ghost Routes - Testing unmounted files */}
-        <Route path="/contact-lists" element={
-          <ProtectedRoute><ContactList /></ProtectedRoute>
-        } />
-        <Route path="/contact-list-select" element={
-          <ProtectedRoute><ContactListSelect /></ProtectedRoute>
-        } />
+        {/* Contact List Creation Hub - PRIMARY ENTRY POINT */}
         <Route path="/create-list-options" element={
           <ProtectedRoute><CreateListOptions /></ProtectedRoute>
+        } />
+        <Route path="/contact-upload-chooser" element={
+          <ProtectedRoute><ContactUploadChooser /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
