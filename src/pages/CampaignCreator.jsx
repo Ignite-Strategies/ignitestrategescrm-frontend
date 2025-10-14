@@ -121,21 +121,25 @@ export default function CampaignCreator() {
     
     try {
       console.log('📞 Loading contacts for list:', id);
+      console.log('🔍 Debug - campaignId:', campaignId, 'listId:', id);
       
       // Use campaign hydration endpoint if we have campaignId
       if (campaignId) {
         console.log('🔄 Using campaign hydration for contacts');
         const response = await api.get(`/campaigns/${campaignId}/contacts`);
         console.log('✅ Loaded campaign contacts:', response.data.length);
+        console.log('🔍 Campaign contacts data:', response.data);
         setContacts(response.data);
       } else {
         // Fallback to direct list contacts
         const response = await api.get(`/contact-lists/${id}/contacts`);
         console.log('✅ Loaded list contacts:', response.data.length);
+        console.log('🔍 List contacts data:', response.data);
         setContacts(response.data);
       }
     } catch (err) {
-      console.error("Error loading contacts:", err);
+      console.error("❌ Error loading contacts:", err);
+      console.error("❌ Error response:", err.response?.data);
       setContacts([]);
       setError('Failed to load contacts. Please try again.');
     }
