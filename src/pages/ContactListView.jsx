@@ -90,7 +90,18 @@ export default function ContactListView() {
       });
       
       alert(`✅ Contact list "${listName}" created with ${selectedContactIds.length} contacts!`);
-      navigate("/contact-list-manager");
+      
+      // Check if we're in campaign flow
+      const campaignId = localStorage.getItem('campaignId');
+      if (campaignId) {
+        // Campaign flow: Store listId and go back to CampaignCreator
+        localStorage.setItem('listId', response.data.id);
+        localStorage.setItem('resumingCampaign', 'true');
+        navigate('/campaign-creator');
+      } else {
+        // Standalone: Go back to manager
+        navigate("/contact-list-manager");
+      }
       
     } catch (err) {
       console.error("Error creating list:", err);
