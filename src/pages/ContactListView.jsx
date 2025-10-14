@@ -82,7 +82,7 @@ export default function ContactListView() {
     try {
       const selectedContactIds = Array.from(selectedContacts);
       
-      await api.post("/contact-lists/from-selection", {
+      const response = await api.post("/contact-lists/from-selection", {
         orgId,
         name: listName.trim(),
         description: "Selected org members",
