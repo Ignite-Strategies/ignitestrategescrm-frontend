@@ -358,25 +358,56 @@ export default function CampaignCreator() {
                       Change
                     </button>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {availableLists.map(list => (
+                ) : campaignId ? (
+                  <div>
+                    {/* Navigation Buttons - Create or Pick */}
+                    <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <button
-                        key={list.id}
-                        onClick={() => handleSelectList(list)}
-                        disabled={loading}
-                        className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-400 text-left transition disabled:opacity-50"
+                        onClick={() => navigate('/contact-list-builder')}
+                        className="p-6 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 bg-indigo-50 text-left transition"
                       >
-                        <h4 className="font-medium text-gray-900 mb-1">{list.name}</h4>
-                        <p className="text-sm text-gray-600 mb-2">{list.description || "No description"}</p>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-700">{list.totalContacts} contacts</span>
-                          {list.inUse && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">In Use</span>}
-                          {list.assigned && !list.inUse && <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">Assigned</span>}
-                        </div>
+                        <div className="text-4xl mb-2">✨</div>
+                        <h4 className="font-semibold text-gray-900 mb-1">Create New List</h4>
+                        <p className="text-sm text-gray-600">Build a smart list (All Org Members, etc.)</p>
                       </button>
-                    ))}
+                      
+                      <button
+                        onClick={() => navigate('/contact-list-manager')}
+                        className="p-6 border-2 border-gray-200 rounded-lg hover:border-indigo-400 text-left transition"
+                      >
+                        <div className="text-4xl mb-2">📋</div>
+                        <h4 className="font-semibold text-gray-900 mb-1">Pick Existing List</h4>
+                        <p className="text-sm text-gray-600">Choose from your saved lists</p>
+                      </button>
+                    </div>
+                    
+                    {/* Available Lists */}
+                    {availableLists.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-700 mb-3">Available Lists</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {availableLists.map(list => (
+                            <button
+                              key={list.id}
+                              onClick={() => handleSelectList(list)}
+                              disabled={loading}
+                              className="p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-400 text-left transition disabled:opacity-50"
+                            >
+                              <h4 className="font-medium text-gray-900 mb-1">{list.name}</h4>
+                              <p className="text-sm text-gray-600 mb-2">{list.description || "No description"}</p>
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-gray-700">{list.totalContacts} contacts</span>
+                                {list.inUse && <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">In Use</span>}
+                                {list.assigned && !list.inUse && <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs">Assigned</span>}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">Create a campaign first to select a contact list</p>
                 )}
             </div>
             

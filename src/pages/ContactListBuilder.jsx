@@ -137,43 +137,6 @@ export default function ContactListBuilder() {
                 </button>
               </div>
             </div>
-            
-            {/* Test List - Hardcoded for Quick Testing */}
-            <div className="p-8 border-2 border-green-200 rounded-lg hover:border-green-400 transition bg-green-50">
-              <div className="text-6xl mb-4 text-center">🧪</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">Test List</h2>
-              <p className="text-gray-600 mb-4 text-center">adam.cole.0524@gmail.com</p>
-              
-              <div className="text-3xl font-bold text-green-600 mb-6 text-center">
-                1 contact
-              </div>
-              
-              <div className="space-y-3">
-                <button
-                  onClick={async () => {
-                    setLoading(true);
-                    setError("");
-                    try {
-                      // Create test list with hardcoded contact (adam.cole.0524@gmail.com)
-                      const response = await api.post("/contact-lists/test", { orgId });
-                      
-                      console.log("✅ Test list created:", response.data);
-                      alert("✅ Test list created! Ready to send test email.");
-                      navigate("/sequence-creator");
-                    } catch (err) {
-                      console.error("Error creating test list:", err);
-                      setError(err.response?.data?.error || "Failed to create test list");
-                    } finally {
-                      setLoading(false);
-                    }
-                  }}
-                  disabled={loading}
-                  className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition font-medium"
-                >
-                  {loading ? "Creating..." : "Create & Test 🚀"}
-                </button>
-              </div>
-            </div>
           </div>
           
           {/* Preview Section */}
