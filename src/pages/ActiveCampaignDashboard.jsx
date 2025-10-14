@@ -243,10 +243,10 @@ export default function ActiveCampaignDashboard() {
                         </button>
                       ) : (
                         <button
-                          onClick={() => navigate(`/campaign-preview?campaignId=${campaign.id}&listId=${campaign.contactListId}`)}
+                          onClick={() => navigate(`/campaign-success?campaignId=${campaign.id}`)}
                           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
                         >
-                          👁️ View
+                          👁️ View Results
                         </button>
                       )}
                       

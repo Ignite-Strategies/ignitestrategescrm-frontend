@@ -43,6 +43,7 @@ import ContactEventUploadPreview from "./pages/ContactEventUploadPreview.jsx";
 import ContactEventUploadValidation from "./pages/ContactEventUploadValidation.jsx";
 import CampaignHome from "./pages/CampaignHome.jsx";
 import ActiveCampaignDashboard from "./pages/ActiveCampaignDashboard.jsx";
+import CampaignSuccess from "./pages/CampaignSuccess.jsx";
 import Outreach from "./pages/Outreach.jsx";
 import Templates from "./pages/Templates.jsx";
 import SendEmail from "./pages/SendEmail.jsx";
@@ -253,6 +254,9 @@ export default function App() {
         } />
         <Route path="/campaign-dashboard" element={
           <ProtectedRoute><ActiveCampaignDashboard /></ProtectedRoute>
+        } />
+        <Route path="/campaign-success" element={
+          <ProtectedRoute><CampaignSuccess /></ProtectedRoute>
         } />
         <Route path="/campaignlist" element={
           <ProtectedRoute><CampaignList /></ProtectedRoute>
