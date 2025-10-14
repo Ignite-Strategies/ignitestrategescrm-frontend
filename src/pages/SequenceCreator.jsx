@@ -77,14 +77,21 @@ export default function SequenceCreator() {
         order: 1
       });
       
-      // Send the sequence
-      const sequenceId = sequenceResponse.data.id;
-      await api.post("/enterprise-email/send-sequence", {
-        sequenceId,
-        delaySeconds: 2
-      });
+      // Show preview first
+      alert(`✅ Sequence "${sequenceData.name}" created!\n\nReady to launch? This will send to ${getSelectedList()?.totalContacts || 0} contacts.`);
       
-      alert(`🚀 Sequence "${sequenceData.name}" created and launched!`);
+      if (confirm("🚀 Launch sequence now?")) {
+        // Send the sequence
+        const sequenceId = sequenceResponse.data.id;
+        await api.post("/enterprise-email/send-sequence", {
+          sequenceId,
+          delaySeconds: 2
+        });
+        
+        alert(`🚀 Sequence "${sequenceData.name}" LAUNCHED!`);
+      } else {
+        alert(`✅ Sequence "${sequenceData.name}" saved for later!`);
+      }
       
       // Reset form
       setSequenceData({
