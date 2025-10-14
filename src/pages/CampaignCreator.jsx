@@ -121,20 +121,23 @@ export default function CampaignCreator() {
     
     try {
       console.log('📞 Loading contacts for list:', id);
-      const response = await api.get(`/contact-lists/${id}/contacts`);
-      console.log('✅ Loaded contacts:', response.data.length);
-      setContacts(response.data);
+      
+      // Use campaign hydration endpoint if we have campaignId
+      if (campaignId) {
+        console.log('🔄 Using campaign hydration for contacts');
+        const response = await api.get(`/campaigns/${campaignId}/contacts`);
+        console.log('✅ Loaded campaign contacts:', response.data.length);
+        setContacts(response.data);
+      } else {
+        // Fallback to direct list contacts
+        const response = await api.get(`/contact-lists/${id}/contacts`);
+        console.log('✅ Loaded list contacts:', response.data.length);
+        setContacts(response.data);
+      }
     } catch (err) {
       console.error("Error loading contacts:", err);
-      // If list was deleted (404), clear stale localStorage
-      if (err.response?.status === 404) {
-        console.warn('⚠️ Contact list was deleted, clearing stale localStorage');
-        localStorage.removeItem('listId');
-        setListId(null);
-        setContactList(null);
-        setContacts([]);
-        setError('Contact list no longer exists. Please select a new list.');
-      }
+      setContacts([]);
+      setError('Failed to load contacts. Please try again.');
     }
   };
   
@@ -152,6 +155,35 @@ export default function CampaignCreator() {
     setSubject(template.subject);
     setMessage(template.body);
     setShowTemplates(false);
+  };
+  
+  const insertVariable = (variable) => {
+    const textarea = document.querySelector('textarea');
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const newText = message.substring(0, start) + variable + message.substring(end);
+      setMessage(newText);
+      
+      // Set cursor position after the inserted variable
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + variable.length, start + variable.length);
+      }, 0);
+    }
+  };
+  
+  const saveCampaignContent = async () => {
+    try {
+      await api.patch(`/campaigns/${campaignId}`, {
+        subject,
+        body: message
+      });
+      console.log('✅ Campaign content saved');
+    } catch (err) {
+      console.error('❌ Error saving campaign content:', err);
+      throw err;
+    }
   };
   
   const handleCreateCampaign = async () => {
@@ -250,6 +282,8 @@ export default function CampaignCreator() {
       });
       
       await api.patch(`/campaigns/${campaignId}`, {
+        subject,
+        body: message,
         status: 'sent'
       });
       
@@ -479,19 +513,85 @@ export default function CampaignCreator() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Message Body</label>
+                    
+                    {/* Variable Insertion Buttons */}
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => insertVariable('{{firstName}}')}
+                        className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition font-medium"
+                        title="Insert {{firstName}} - Example: Adam"
+                      >
+                        + First Name
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => insertVariable('{{lastName}}')}
+                        className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition font-medium"
+                        title="Insert {{lastName}} - Example: Smith"
+                      >
+                        + Last Name
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => insertVariable('{{email}}')}
+                        className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition font-medium"
+                        title="Insert {{email}} - Example: john@example.com"
+                      >
+                        + Email
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => insertVariable('{{goesBy}}')}
+                        className="px-3 py-1 text-xs bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition font-medium"
+                        title="Insert {{goesBy}} - Preferred name"
+                      >
+                        + Preferred Name
+                      </button>
+                    </div>
+                    
                     <textarea
                       rows={10}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Write your message here..."
+                      placeholder="Hi {{firstName}},&#10;&#10;This is your personalized message..."
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
                     />
+                    
+                    {/* Live Preview */}
+                    {message && (message.includes('{{firstName}}') || message.includes('{{lastName}}') || message.includes('{{email}}') || message.includes('{{goesBy}}')) && (
+                      <div className="mt-3 p-4 bg-gray-50 rounded-lg border">
+                        <div className="text-sm text-gray-600 font-medium mb-2">📧 Live Preview:</div>
+                        <div className="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border">
+                          {message
+                            .replace(/\{\{firstName\}\}/g, 'Adam')
+                            .replace(/\{\{lastName\}\}/g, 'Smith')
+                            .replace(/\{\{email\}\}/g, 'adam.smith@example.com')
+                            .replace(/\{\{goesBy\}\}/g, 'Adam')
+                          }
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
             </div>
             
-            {/* Send Button */}
-            <div className="flex justify-end">
+            {/* Preview & Send Buttons */}
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={async () => {
+                  try {
+                    await saveCampaignContent();
+                    navigate(`/campaign-preview?campaignId=${campaignId}&listId=${listId}`);
+                  } catch (err) {
+                    setError("Failed to save campaign content");
+                  }
+                }}
+                disabled={!campaignId || !listId || !subject.trim() || !message.trim()}
+                className="px-6 py-3 border border-indigo-600 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                👁️ Preview Campaign
+              </button>
               <button
                 onClick={handleSend}
                 disabled={sending || !campaignId || !listId || !subject.trim() || !message.trim()}
