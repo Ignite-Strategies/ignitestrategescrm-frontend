@@ -102,8 +102,8 @@ export default function CampaignPreview() {
     setError("");
     
     try {
-      // Send via Enterprise Email (SendGrid)
-      await api.post('/enterprise-email/send-campaign', {
+      // Send via Enterprise Gmail API
+      await api.post('/enterprise-gmail/send-campaign', {
         campaignId,
         subject,
         message,

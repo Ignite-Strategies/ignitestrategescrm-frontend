@@ -60,7 +60,8 @@ handleToggleContact(member.contactId)
 ## The Rule
 **FOR CAMPAIGNS:**
 - ❌ **NEVER use:** `/email/personal` (personal Gmail only)
-- ✅ **ALWAYS use:** `/enterprise-email/send-campaign` (SendGrid for campaigns)
+- ❌ **NEVER use:** `/enterprise-email/send-campaign` (SendGrid - DELETED!)
+- ✅ **ALWAYS use:** `/enterprise-gmail/send-campaign` (Gmail API for campaigns)
 
 ## Files That Keep Breaking
 1. `CampaignPreview.jsx` - Send campaign button
@@ -76,8 +77,8 @@ await api.post('/email/personal', {
   contacts: contacts.map(c => c.email)
 });
 
-// CORRECT (Enterprise SendGrid)
-await api.post('/enterprise-email/send-campaign', {
+// CORRECT (Enterprise Gmail API)
+await api.post('/enterprise-gmail/send-campaign', {
   campaignId,
   subject,
   message,

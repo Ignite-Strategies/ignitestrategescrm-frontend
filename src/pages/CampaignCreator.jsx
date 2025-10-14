@@ -290,7 +290,7 @@ export default function CampaignCreator() {
         }
       }
       
-      await api.post('/enterprise-email/send-campaign', {
+      await api.post('/enterprise-gmail/send-campaign', {
         campaignId,
         subject,
         message,
