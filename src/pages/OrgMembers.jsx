@@ -272,7 +272,7 @@ export default function OrgMembers() {
                           Add to List ({selectedContacts.size})
                         </button>
                         <button
-                          onClick={() => navigate("/campaignwizard", { state: { selectedContacts: Array.from(selectedContacts) } })}
+                          onClick={() => navigate("/campaignhome")}
                           className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition flex items-center gap-2"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

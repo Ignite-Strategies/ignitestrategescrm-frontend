@@ -45,10 +45,8 @@ import CampaignHome from "./pages/CampaignHome.jsx";
 import Outreach from "./pages/Outreach.jsx";
 import Templates from "./pages/Templates.jsx";
 import SendEmail from "./pages/SendEmail.jsx";
-import CreateCampaign from "./pages/CreateCampaign.jsx";
 import CampaignSequences from "./pages/CampaignSequences.jsx";
 import CampaignList from "./pages/CampaignList.jsx";
-import CampaignWizard from "./pages/CampaignWizard.jsx";
 import EventDashboard from "./pages/EventDashboard.jsx";
 import EventAttendeeList from "./pages/EventAttendeeList.jsx";
 import FormSubmissionView from "./pages/FormSubmissionView.jsx";
@@ -230,14 +228,8 @@ export default function App() {
         <Route path="/campaignhome" element={
           <ProtectedRoute><CampaignHome /></ProtectedRoute>
         } />
-        <Route path="/campaignwizard" element={
-          <ProtectedRoute><CampaignWizard /></ProtectedRoute>
-        } />
         <Route path="/campaignlist" element={
           <ProtectedRoute><CampaignList /></ProtectedRoute>
-        } />
-        <Route path="/createcampaign" element={
-          <ProtectedRoute><CreateCampaign /></ProtectedRoute>
         } />
         <Route path="/campaignsequences/:campaignId" element={
           <ProtectedRoute><CampaignSequences /></ProtectedRoute>

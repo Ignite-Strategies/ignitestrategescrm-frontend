@@ -70,7 +70,7 @@ export default function CampaignList() {
                 ← Campaign Home
               </button>
               <button
-                onClick={() => navigate("/createcampaign")}
+                onClick={() => navigate("/campaignhome")}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
               >
                 + New Campaign
@@ -96,7 +96,7 @@ export default function CampaignList() {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No campaigns yet</h3>
               <p className="text-gray-600 mb-6">Create your first email campaign to get started</p>
               <button
-                onClick={() => navigate("/createcampaign")}
+                onClick={() => navigate("/campaignhome")}
                 className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
               >
                 Create Your First Campaign
