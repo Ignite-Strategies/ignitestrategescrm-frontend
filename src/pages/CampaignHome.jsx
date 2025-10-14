@@ -173,16 +173,15 @@ export default function CampaignHome() {
               </div>
             </div>
 
-            {/* Start Sequence */}
+            {/* Start Sequence - NEW FLOW */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition cursor-pointer"
                  onClick={() => {
-                   if (campaigns.length === 0) {
-                     alert("❌ No campaigns available. Please create a campaign first.");
-                     return;
-                   }
-                   // Use the first campaign or let user select
-                   const firstCampaign = campaigns[0];
-                   navigate(`/sequence-creator?campaignId=${firstCampaign.id}`);
+                   // Clear any old campaign flow data
+                   localStorage.removeItem('currentCampaignId');
+                   localStorage.removeItem('currentCampaignName');
+                   
+                   // Start fresh campaign flow
+                   navigate('/campaign-creator');
                  }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">

@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
 /**
  * Smart Contact List Builder - Simple & Focused
  * Pre-selected smart lists + basic custom options
+ * Can be used standalone OR within campaign flow
  */
 export default function ContactListBuilder() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const orgId = getOrgId();
+  
+  // Check if we're in campaign flow
+  const campaignId = searchParams.get('campaignId');
+  const isInCampaignFlow = !!campaignId;
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -50,8 +56,17 @@ export default function ContactListBuilder() {
         smartListType: "all_org_members"
       });
       
+      const listId = response.data.id;
       alert(`✅ Smart list "All Org Members" created!`);
-      navigate("/contact-list-manager");
+      
+      // Navigate based on flow
+      if (isInCampaignFlow) {
+        // Campaign flow: Go to Sequence builder
+        navigate(`/sequence?campaignId=${campaignId}&listId=${listId}`);
+      } else {
+        // Standalone: Go back to manager
+        navigate("/contact-list-manager");
+      }
       
     } catch (err) {
       console.error("Error creating smart list:", err);
@@ -72,7 +87,13 @@ export default function ContactListBuilder() {
               <p className="text-gray-600">Choose from smart lists or customize your own</p>
             </div>
             <button
-              onClick={() => navigate("/contact-list-manager")}
+              onClick={() => {
+                if (isInCampaignFlow) {
+                  navigate(`/contact-list-manager?campaignId=${campaignId}`);
+                } else {
+                  navigate("/contact-list-manager");
+                }
+              }}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
             >
               ← Back

@@ -63,6 +63,11 @@ import SequenceCreator from "./pages/SequenceCreator.jsx";
 import ContactListDebug from "./pages/ContactListDebug.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
 import ContactListView from "./pages/ContactListView.jsx";
+import ContactList from "./pages/ContactList.jsx";
+import ContactListSelect from "./pages/ContactListSelect.jsx";
+import CreateListOptions from "./pages/CreateListOptions.jsx";
+import CampaignCreator from "./pages/CampaignCreator.jsx";
+import Sequence from "./pages/Sequence.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -224,7 +229,15 @@ export default function App() {
           <ProtectedRoute><FormUserUpdate /></ProtectedRoute>
         } />
         
-        {/* Campaign System - Routes match file names */}
+        {/* Campaign System - NEW 3-STEP FLOW */}
+        <Route path="/campaign-creator" element={
+          <ProtectedRoute><CampaignCreator /></ProtectedRoute>
+        } />
+        <Route path="/sequence" element={
+          <ProtectedRoute><Sequence /></ProtectedRoute>
+        } />
+        
+        {/* Campaign System - Legacy routes */}
         <Route path="/campaignhome" element={
           <ProtectedRoute><CampaignHome /></ProtectedRoute>
         } />
@@ -269,6 +282,17 @@ export default function App() {
         } />
         <Route path="/contact-list-view" element={
           <ProtectedRoute><ContactListView /></ProtectedRoute>
+        } />
+        
+        {/* 🎃 Ghost Routes - Testing unmounted files */}
+        <Route path="/contact-lists" element={
+          <ProtectedRoute><ContactList /></ProtectedRoute>
+        } />
+        <Route path="/contact-list-select" element={
+          <ProtectedRoute><ContactListSelect /></ProtectedRoute>
+        } />
+        <Route path="/create-list-options" element={
+          <ProtectedRoute><CreateListOptions /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>

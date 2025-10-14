@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
 /**
  * Unified Contact List Manager - Production Ready
+ * Step 2: Pick or create a contact list
  * Consolidates all list creation methods into one clean interface
  */
 export default function ContactListManager() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const orgId = getOrgId();
+  
+  // Get campaignId from URL if in campaign flow
+  const campaignId = searchParams.get('campaignId');
+  const isInCampaignFlow = !!campaignId;
   
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -101,28 +107,69 @@ export default function ContactListManager() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
+          {/* Campaign Flow Progress */}
+          {isInCampaignFlow && (
+            <div className="mb-6 pb-6 border-b">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-indigo-600">Step 2: Select Contact List</span>
+                <span className="text-sm text-gray-500">66% Complete</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-indigo-600 h-2 rounded-full transition-all" style={{ width: '66%' }}></div>
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                Campaign: <span className="font-semibold">{localStorage.getItem('currentCampaignName') || 'Unnamed'}</span>
+              </p>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                >
-                  ← Dashboard
-                </button>
-                <button
-                  onClick={() => navigate("/campaignhome")}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-                >
-                  ← Campaigns
-                </button>
+                {isInCampaignFlow ? (
+                  <button
+                    onClick={() => navigate("/campaign-creator")}
+                    className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                  >
+                    ← Back to Campaign
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => navigate("/dashboard")}
+                      className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      ← Dashboard
+                    </button>
+                    <button
+                      onClick={() => navigate("/campaignhome")}
+                      className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      ← Campaigns
+                    </button>
+                  </>
+                )}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">Contact Lists</h1>
-              <p className="text-gray-600 mt-1">Manage and organize your contact segments</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {isInCampaignFlow ? '📋 Pick Your Contact List' : 'Contact Lists'}
+              </h1>
+              <p className="text-gray-600 mt-1">
+                {isInCampaignFlow 
+                  ? 'Choose an existing list or create a new one for your campaign' 
+                  : 'Manage and organize your contact segments'}
+              </p>
             </div>
             
             <button
-              onClick={() => navigate("/contact-list-builder")}
+              onClick={() => {
+                if (isInCampaignFlow) {
+                  // In campaign flow: Pass campaignId to list builder
+                  navigate(`/contact-list-builder?campaignId=${campaignId}`);
+                } else {
+                  // Standalone: Just create list
+                  navigate("/contact-list-builder");
+                }
+              }}
               className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 shadow-md"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,7 +267,15 @@ export default function ContactListManager() {
                 list={list}
                 onDelete={handleDeleteList}
                 onDuplicate={handleDuplicateList}
-                onUse={() => navigate(`/sequence-creator?listId=${list.id}`)}
+                onUse={() => {
+                  if (isInCampaignFlow) {
+                    // Campaign flow: Go to Sequence builder
+                    navigate(`/sequence?campaignId=${campaignId}&listId=${list.id}`);
+                  } else {
+                    // Standalone: Need to create campaign first
+                    navigate(`/campaign-creator`);
+                  }
+                }}
                 onView={() => navigate(`/contact-list/${list.id}`)}
               />
             ))}
