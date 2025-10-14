@@ -34,8 +34,8 @@ export default function ContactListView() {
       
       setOrgMembers(members);
       
-      // Auto-select all org members
-      setSelectedContacts(new Set(members.map(m => m.id)));
+      // Auto-select all org members (use contactId, not id!)
+      setSelectedContacts(new Set(members.map(m => m.contactId)));
     } catch (err) {
       console.error("Error loading org members:", err);
       setError("Failed to load org members");
@@ -212,9 +212,9 @@ export default function ContactListView() {
             ) : (
               filteredMembers.map(member => (
                 <div
-                  key={member.id}
+                  key={member.contactId}
                   className={`p-4 border-2 rounded-lg transition ${
-                    selectedContacts.has(member.id)
+                    selectedContacts.has(member.contactId)
                       ? 'border-indigo-500 bg-indigo-50'
                       : 'border-gray-200 hover:border-indigo-300'
                   }`}
@@ -222,8 +222,8 @@ export default function ContactListView() {
                   <div className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={selectedContacts.has(member.id)}
-                      onChange={() => handleToggleContact(member.id)}
+                      checked={selectedContacts.has(member.contactId)}
+                      onChange={() => handleToggleContact(member.contactId)}
                       className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                     />
                     <div className="ml-4 flex-1">
