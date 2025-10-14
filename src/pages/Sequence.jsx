@@ -7,16 +7,16 @@ import { signInWithGoogle, isSignedIn, getGmailAccessToken } from "../lib/google
 /**
  * Sequence.jsx - Step 3: Build Your Message & Send
  * Everything hydrates here: campaign, contact list, message body
+ * Uses localStorage as single source of truth
  * Future: timing controls, follow-ups, etc.
  */
 export default function Sequence() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const orgId = getOrgId();
   
-  // Get IDs from URL
-  const campaignId = searchParams.get('campaignId');
-  const listId = searchParams.get('listId');
+  // Get IDs from localStorage (single source of truth!)
+  const campaignId = localStorage.getItem('campaignId');
+  const listId = localStorage.getItem('listId');
   
   // Data states
   const [campaign, setCampaign] = useState(null);

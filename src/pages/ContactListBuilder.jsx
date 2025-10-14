@@ -61,11 +61,12 @@ export default function ContactListBuilder() {
       
       // Navigate based on flow
       if (isInCampaignFlow) {
-        // Campaign flow: Go to Sequence builder
-        navigate(`/sequence?campaignId=${campaignId}&listId=${listId}`);
+        // Campaign flow: Store listId and go to Sequence
+        localStorage.setItem('listId', listId);
+        navigate('/sequence');
       } else {
         // Standalone: Go back to manager
-        navigate("/contact-list-manager");
+        navigate('/contact-list-manager');
       }
       
     } catch (err) {

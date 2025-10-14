@@ -293,11 +293,12 @@ export default function ContactListManager() {
                 onDuplicate={handleDuplicateList}
                 onUse={() => {
                   if (isInCampaignFlow) {
-                    // Campaign flow: Go to Sequence builder
-                    navigate(`/sequence?campaignId=${campaignId}&listId=${list.id}`);
+                    // Campaign flow: Store listId and go to Sequence
+                    localStorage.setItem('listId', list.id);
+                    navigate('/sequence');
                   } else {
                     // Standalone: Need to create campaign first
-                    navigate(`/campaign-creator`);
+                    navigate('/campaign-creator');
                   }
                 }}
                 onView={() => navigate(`/contact-list/${list.id}`)}
