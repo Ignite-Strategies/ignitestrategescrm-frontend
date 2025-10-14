@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
+import { signInWithGoogle, isSignedIn, getGmailAccessToken } from "../lib/googleAuth";
 
 export default function ContactManageHome() {
   const navigate = useNavigate();
@@ -14,10 +15,41 @@ export default function ContactManageHome() {
   });
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
+  const [gmailEmail, setGmailEmail] = useState("");
 
   useEffect(() => {
     loadData();
+    checkGmailAuth();
   }, [orgId]);
+
+  const checkGmailAuth = async () => {
+    const signedIn = isSignedIn();
+    const accessToken = getGmailAccessToken();
+    
+    if (signedIn && accessToken) {
+      setGmailAuthenticated(true);
+      setGmailEmail(localStorage.getItem('gmailEmail') || '');
+    } else {
+      setGmailAuthenticated(false);
+      setGmailEmail('');
+    }
+  };
+
+  const handleGmailAuth = async () => {
+    try {
+      const result = await signInWithGoogle();
+      if (result.accessToken) {
+        setGmailAuthenticated(true);
+        setGmailEmail(result.email);
+        localStorage.setItem('gmailEmail', result.email);
+        console.log('✅ Gmail authentication successful');
+      }
+    } catch (error) {
+      console.error('❌ Gmail authentication failed:', error);
+      alert('Gmail authentication failed. Please try again.');
+    }
+  };
 
   const loadData = async () => {
     try {

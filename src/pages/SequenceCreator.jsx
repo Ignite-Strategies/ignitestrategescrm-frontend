@@ -21,6 +21,7 @@ export default function SequenceCreator() {
     message: "test email",
     contactListId: ""
   });
+  const [showVariables, setShowVariables] = useState(false);
   
   useEffect(() => {
     loadContactLists();
@@ -78,14 +79,31 @@ export default function SequenceCreator() {
       alert(`✅ Sequence "${sequenceData.name}" created!\n\nReady to launch? This will send to ${selectedList?.totalContacts || 0} contacts.`);
       
       if (confirm("🚀 Launch sequence now?")) {
-        // Send the sequence
-        const sequenceId = sequenceResponse.data.id;
-        await api.post("/enterprise-email/send-sequence", {
-          sequenceId,
-          delaySeconds: 2
+        // Get contacts for the selected list
+        const selectedList = getSelectedList();
+        const contactsResponse = await api.get(`/contact-lists/${selectedList.id}/contacts`);
+        const contacts = contactsResponse.data;
+        
+        // Prepare contact payload for Gmail service
+        const contactPayload = contacts.map(contact => ({
+          id: contact.id,
+          firstName: contact.firstName,
+          email: contact.email
+        }));
+        
+        // Send via existing Gmail bulk route
+        await api.post("/email/send-bulk", {
+          recipients: contactPayload.map(contact => ({
+            email: contact.email,
+            variables: {
+              firstName: contact.firstName
+            }
+          })),
+          subject: sequenceData.subject,
+          body: sequenceData.message
         });
         
-        alert(`🚀 Sequence "${sequenceData.name}" LAUNCHED!`);
+        alert(`🚀 Sequence "${sequenceData.name}" LAUNCHED via Gmail!`);
       } else {
         alert(`✅ Sequence "${sequenceData.name}" saved for later!`);
       }
@@ -242,14 +260,50 @@ export default function SequenceCreator() {
               <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Message *
               </label>
+              
+              {/* Simple Token Picker - MVP1 Style */}
+              <div className="mb-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const textarea = document.querySelector('textarea[name="message"]');
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const tokenText = '{{firstName}}';
+                    const newText = sequenceData.message.substring(0, start) + tokenText + sequenceData.message.substring(end);
+                    setSequenceData(prev => ({ ...prev, message: newText }));
+                    
+                    setTimeout(() => {
+                      textarea.focus();
+                      textarea.setSelectionRange(start + tokenText.length, start + tokenText.length);
+                    }, 0);
+                  }}
+                  className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition font-medium"
+                  title="Insert {{firstName}} - Example: Adam"
+                >
+                  + First Name
+                </button>
+              </div>
+              
               <textarea
                 name="message"
                 value={sequenceData.message}
                 onChange={handleInputChange}
                 rows={6}
+                placeholder="Hi {{firstName}},&#10;&#10;This is your personalized message..."
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 required
               />
+              
+              {/* Live Preview - MVP1 Style */}
+              {sequenceData.message && sequenceData.message.includes('{{firstName}}') && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                  <div className="text-sm text-gray-600 font-medium mb-1">Preview:</div>
+                  <div className="text-sm text-gray-800 whitespace-pre-wrap">
+                    {sequenceData.message.replace(/\{\{firstName\}\}/g, 'Adam')}
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Submit Button */}
