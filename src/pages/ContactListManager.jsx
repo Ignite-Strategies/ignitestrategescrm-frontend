@@ -293,9 +293,9 @@ export default function ContactListManager() {
                 onDuplicate={handleDuplicateList}
                 onUse={() => {
                   if (isInCampaignFlow) {
-                    // Campaign flow: Store listId and go to Sequence
+                    // Campaign flow: Store listId and go back to CampaignCreator
                     localStorage.setItem('listId', list.id);
-                    navigate('/sequence');
+                    navigate('/campaign-creator');
                   } else {
                     // Standalone: Need to create campaign first
                     navigate('/campaign-creator');

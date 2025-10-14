@@ -61,9 +61,9 @@ export default function ContactListBuilder() {
       
       // Navigate based on flow
       if (isInCampaignFlow) {
-        // Campaign flow: Store listId and go to Sequence
+        // Campaign flow: Store listId and go back to CampaignCreator
         localStorage.setItem('listId', listId);
-        navigate('/sequence');
+        navigate('/campaign-creator');
       } else {
         // Standalone: Go back to manager
         navigate('/contact-list-manager');

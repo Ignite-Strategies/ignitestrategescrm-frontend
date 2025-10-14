@@ -45,7 +45,6 @@ import CampaignHome from "./pages/CampaignHome.jsx";
 import Outreach from "./pages/Outreach.jsx";
 import Templates from "./pages/Templates.jsx";
 import SendEmail from "./pages/SendEmail.jsx";
-import CampaignSequences from "./pages/CampaignSequences.jsx";
 import CampaignList from "./pages/CampaignList.jsx";
 import EventDashboard from "./pages/EventDashboard.jsx";
 import EventAttendeeList from "./pages/EventAttendeeList.jsx";
@@ -59,7 +58,6 @@ import FormSuccess from "./pages/FormSuccess.jsx";
 import PostOrgCreate from "./pages/PostOrgCreate.jsx";
 import AdsDashboard from "./pages/AdsDashboard.jsx";
 import TestEnterpriseEmail from "./pages/TestEnterpriseEmail.jsx";
-import SequenceCreator from "./pages/SequenceCreator.jsx";
 import ContactListDebug from "./pages/ContactListDebug.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
 import ContactListView from "./pages/ContactListView.jsx";
@@ -251,9 +249,6 @@ export default function App() {
         <Route path="/campaignlist" element={
           <ProtectedRoute><CampaignList /></ProtectedRoute>
         } />
-        <Route path="/campaignsequences/:campaignId" element={
-          <ProtectedRoute><CampaignSequences /></ProtectedRoute>
-        } />
         <Route path="/outreach" element={
           <ProtectedRoute><Outreach /></ProtectedRoute>
         } />
@@ -277,9 +272,6 @@ export default function App() {
         } />
         <Route path="/test-enterprise-email" element={
           <ProtectedRoute><TestEnterpriseEmail /></ProtectedRoute>
-        } />
-        <Route path="/sequence-creator" element={
-          <ProtectedRoute><SequenceCreator /></ProtectedRoute>
         } />
         <Route path="/smart-lists" element={
           <ProtectedRoute><SmartLists /></ProtectedRoute>

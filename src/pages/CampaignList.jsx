@@ -141,7 +141,15 @@ export default function CampaignList() {
                     
                     <div className="flex gap-2">
                       <button
-                        onClick={() => navigate(`/campaignsequences/${campaign.id}`)}
+                        onClick={() => {
+                          localStorage.setItem('campaignId', campaign.id);
+                          localStorage.setItem('currentCampaign', campaign.name);
+                          localStorage.setItem('resumingCampaign', 'true');
+                          if (campaign.contactListId) {
+                            localStorage.setItem('listId', campaign.contactListId);
+                          }
+                          navigate('/campaign-creator');
+                        }}
                         className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition"
                       >
                         Edit
