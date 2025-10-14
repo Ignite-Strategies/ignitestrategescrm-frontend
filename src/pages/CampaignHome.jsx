@@ -98,9 +98,9 @@ export default function CampaignHome() {
               </div>
             </div>
 
-            {/* Launch New Campaign */}
+            {/* Start Sequence */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-xl border-2 border-indigo-200 hover:border-indigo-400 transition cursor-pointer"
-                 onClick={() => navigate("/campaignwizard")}>
+                 onClick={() => navigate("/sequence-creator")}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="w-16 h-16 bg-indigo-500 text-white rounded-xl flex items-center justify-center mr-4">
