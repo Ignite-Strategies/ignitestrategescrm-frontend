@@ -54,7 +54,22 @@ export default function CampaignCreator() {
   const loadCampaignData = async () => {
     try {
       const response = await api.get(`/campaigns/${campaignId}`);
-      setCampaignName(response.data.name);
+      const campaign = response.data;
+      console.log('🔍 DEBUG: Loading campaign data:', campaign);
+      
+      setCampaignName(campaign.name);
+      
+      // Load subject and body if they exist
+      if (campaign.subject) {
+        console.log('🔍 DEBUG: Loading subject:', campaign.subject);
+        setSubject(campaign.subject);
+      }
+      if (campaign.body) {
+        console.log('🔍 DEBUG: Loading body:', campaign.body);
+        setMessage(campaign.body);
+      }
+      
+      console.log('🔍 DEBUG: Campaign data loaded - name:', campaign.name, 'subject:', campaign.subject, 'body:', campaign.body);
     } catch (err) {
       console.error("Error loading campaign:", err);
       setError("Failed to load campaign data");
