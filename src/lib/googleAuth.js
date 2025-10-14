@@ -34,7 +34,8 @@ export async function signInWithGoogle() {
     if (accessToken) {
       localStorage.setItem('gmailAccessToken', accessToken);
       localStorage.setItem('gmailEmail', user.email);
-      console.log("🔑 Gmail access token stored");
+      localStorage.setItem('gmailTokenTimestamp', Date.now()); // Store when token was created
+      console.log("🔑 Gmail access token stored with timestamp");
     }
     
     return {
@@ -84,4 +85,27 @@ export function isSignedIn() {
  */
 export function getGmailAccessToken() {
   return localStorage.getItem('gmailAccessToken');
+}
+
+/**
+ * Check if Gmail token is expired (older than 45 minutes)
+ */
+export function isGmailTokenExpired() {
+  const timestamp = localStorage.getItem('gmailTokenTimestamp');
+  if (!timestamp) return true; // No timestamp = expired
+  
+  const tokenAge = Date.now() - parseInt(timestamp);
+  const fortyFiveMinutes = 45 * 60 * 1000; // 45 minutes in milliseconds
+  
+  return tokenAge > fortyFiveMinutes;
+}
+
+/**
+ * Clear Gmail authentication data
+ */
+export function clearGmailAuth() {
+  localStorage.removeItem('gmailAccessToken');
+  localStorage.removeItem('gmailEmail');
+  localStorage.removeItem('gmailTokenTimestamp');
+  console.log('🧹 Gmail auth data cleared');
 }
