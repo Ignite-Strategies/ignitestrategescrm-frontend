@@ -197,18 +197,13 @@ export default function SequenceCreator() {
             subject: sequenceData.subject
           });
           
-          // Send via existing Gmail bulk route
+          // Send via enterprise Gmail route (with variable replacement!)
           console.log("🔑 Gmail token being sent:", localStorage.getItem('gmailAccessToken')?.substring(0, 20) + '...');
           
-          const gmailResponse = await api.post("/email/personal/send-bulk", {
-            recipients: contactPayload.map(contact => ({
-              email: contact.email,
-              variables: {
-                firstName: contact.firstName
-              }
-            })),
-            subject: sequenceData.subject,
-            body: sequenceData.message
+          const gmailResponse = await api.post("/enterprise-gmail/send-sequence", {
+            sequenceId: sequenceId,
+            contacts: contactPayload,
+            delaySeconds: 4
           });
           
           console.log("✅ Gmail response:", gmailResponse.data);
