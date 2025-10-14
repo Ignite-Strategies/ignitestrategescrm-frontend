@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signOutUser } from "../lib/googleAuth";
+import { signOutUser } from "../firebase";
 
 export default function Dashboard() {
   const orgId = getOrgId();
