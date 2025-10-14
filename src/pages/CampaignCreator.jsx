@@ -345,7 +345,7 @@ export default function CampaignCreator() {
             )}
             
             {/* 3. Message Content */}
-            {contactList && (
+            {listId && (
               <div className="bg-gray-50 p-6 rounded-lg">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">3. Message</h3>
@@ -414,7 +414,7 @@ export default function CampaignCreator() {
             )}
             
             {/* Send Button */}
-            {contactList && (
+            {listId && (
               <div className="flex justify-end">
                 <button
                   onClick={handleSend}
