@@ -104,9 +104,17 @@ export default function CampaignCreator() {
     }
   };
   
-  const loadContacts = async () => {
+  const loadContacts = async (contactListId) => {
+    const id = contactListId || listId; // Use param or fall back to state
+    if (!id) {
+      console.log('⚠️ No listId provided to loadContacts');
+      return;
+    }
+    
     try {
-      const response = await api.get(`/contact-lists/${listId}/contacts`);
+      console.log('📞 Loading contacts for list:', id);
+      const response = await api.get(`/contact-lists/${id}/contacts`);
+      console.log('✅ Loaded contacts:', response.data.length);
       setContacts(response.data);
     } catch (err) {
       console.error("Error loading contacts:", err);
@@ -173,7 +181,8 @@ export default function CampaignCreator() {
       localStorage.setItem('listId', list.id);
       setContactList(list);
       
-      await loadContacts();
+      // Pass list.id directly - state won't be updated yet!
+      await loadContacts(list.id);
       
     } catch (err) {
       console.error("Error assigning list:", err);
