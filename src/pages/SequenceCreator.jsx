@@ -18,11 +18,22 @@ export default function SequenceCreator() {
   const [contactLists, setContactLists] = useState([]);
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  const [sequenceData, setSequenceData] = useState({
-    name: "",
-    subject: "test email",
-    message: "test email",
-    contactListId: ""
+  const [sequenceData, setSequenceData] = useState(() => {
+    // Load from localStorage if available, otherwise use defaults
+    const saved = localStorage.getItem('sequenceDraft');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.log('Failed to parse saved sequence data');
+      }
+    }
+    return {
+      name: "",
+      subject: "test email",
+      message: "test email",
+      contactListId: ""
+    };
   });
   const [showVariables, setShowVariables] = useState(false);
   const [hasLoadedSequence, setHasLoadedSequence] = useState(false);
@@ -105,7 +116,11 @@ export default function SequenceCreator() {
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSequenceData(prev => ({ ...prev, [name]: value }));
+    const newData = { ...sequenceData, [name]: value };
+    setSequenceData(newData);
+    
+    // Save to localStorage so it persists across navigation
+    localStorage.setItem('sequenceDraft', JSON.stringify(newData));
   };
   
   const handleSubmit = async (e) => {
@@ -193,13 +208,14 @@ export default function SequenceCreator() {
         alert(`✅ Sequence "${sequenceData.name}" saved for later!`);
       }
       
-      // Reset form
+      // Reset form and clear localStorage
       setSequenceData({
         name: "",
         subject: "test email",
         message: "test email",
         contactListId: ""
       });
+      localStorage.removeItem('sequenceDraft');
       
     } catch (err) {
       console.error("Error creating sequence:", err);
