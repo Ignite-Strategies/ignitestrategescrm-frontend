@@ -50,8 +50,10 @@ export default function ContactEventUploadPreview() {
 
   const availableFields = [
     { value: 'unmapped', label: 'Ignore this column' },
+    { value: 'fullName', label: 'Full Name (will split into First/Last)' },
     { value: 'firstName', label: 'First Name' },
     { value: 'lastName', label: 'Last Name' },
+    { value: 'goesBy', label: 'Goes By (Nickname)' },
     { value: 'email', label: 'Email Address' },
     { value: 'phone', label: 'Phone Number' }
   ];
@@ -155,6 +157,26 @@ export default function ContactEventUploadPreview() {
     localStorage.setItem('fieldMapping', JSON.stringify(updatedMapping));
   };
 
+  // Simple name parser for frontend preview (matches backend logic)
+  const parseFullName = (fullName) => {
+    if (!fullName || typeof fullName !== 'string') {
+      return { firstName: '', lastName: '' };
+    }
+    
+    const cleanName = fullName.trim().replace(/\s+/g, ' ');
+    const nameParts = cleanName.split(' ');
+    
+    if (nameParts.length === 0) return { firstName: '', lastName: '' };
+    if (nameParts.length === 1) return { firstName: nameParts[0], lastName: '' };
+    if (nameParts.length === 2) return { firstName: nameParts[0], lastName: nameParts[1] };
+    
+    // For 3+ parts, take first as first name, last as last name
+    return { 
+      firstName: nameParts[0], 
+      lastName: nameParts[nameParts.length - 1] 
+    };
+  };
+
   const parsePreviewData = () => {
     if (!file) return [];
     
@@ -167,7 +189,17 @@ export default function ContactEventUploadPreview() {
       headers.forEach((header, index) => {
         const mapping = fieldMapping.find(m => m.csvHeader === header);
         if (mapping && mapping.mappedField !== 'unmapped') {
-          row[mapping.mappedField] = values[index] || '';
+          const value = values[index] || '';
+          
+          // Handle fullName parsing for preview
+          if (mapping.mappedField === 'fullName') {
+            const parsed = parseFullName(value);
+            row.firstName = parsed.firstName;
+            row.lastName = parsed.lastName;
+            row.fullName = value; // Keep original for reference
+          } else {
+            row[mapping.mappedField] = value;
+          }
         }
       });
       return row;
