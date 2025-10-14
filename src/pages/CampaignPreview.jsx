@@ -93,16 +93,24 @@ export default function CampaignPreview() {
   };
   
   const handleSend = async () => {
+    // DOUBLE-CLICK PROTECTION! 🚨
+    if (sending) {
+      console.log('⚠️ Already sending, ignoring duplicate click');
+      return;
+    }
+    
     if (!gmailAuthenticated) {
       setError("Gmail authentication required");
       return;
     }
     
+    console.log('🚀 Starting campaign send...');
     setSending(true);
     setError("");
     
     try {
       // Send via Enterprise Gmail API
+      console.log('📧 Sending campaign via Gmail API...');
       await api.post('/enterprise-gmail/send-campaign', {
         campaignId,
         subject,
@@ -111,15 +119,17 @@ export default function CampaignPreview() {
       });
       
       // Update campaign status
+      console.log('✅ Campaign sent! Updating status...');
       await api.patch(`/campaigns/${campaignId}`, {
         status: 'sent'
       });
       
+      console.log('✅ Campaign complete!');
       alert(`✅ Campaign sent to ${contacts.length} contacts!`);
       navigate('/campaignhome');
       
     } catch (err) {
-      console.error("Error sending campaign:", err);
+      console.error("❌ Error sending campaign:", err);
       setError(err.response?.data?.error || "Failed to send campaign");
     } finally {
       setSending(false);
