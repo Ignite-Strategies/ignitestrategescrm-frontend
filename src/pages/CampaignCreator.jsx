@@ -25,6 +25,8 @@ export default function CampaignCreator() {
   // Message data
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [templates, setTemplates] = useState([]);
+  const [showTemplates, setShowTemplates] = useState(false);
   
   // UI states
   const [loading, setLoading] = useState(false);
@@ -90,6 +92,22 @@ export default function CampaignCreator() {
     } catch (err) {
       console.error("Error loading contacts:", err);
     }
+  };
+  
+  const loadTemplates = async () => {
+    try {
+      const response = await api.get(`/templates?orgId=${orgId}`);
+      setTemplates(response.data);
+      setShowTemplates(true);
+    } catch (err) {
+      console.error("Error loading templates:", err);
+    }
+  };
+  
+  const handleTemplateSelect = (template) => {
+    setSubject(template.subject);
+    setMessage(template.body);
+    setShowTemplates(false);
   };
   
   const handleCreateCampaign = async () => {
@@ -350,7 +368,47 @@ export default function CampaignCreator() {
             {/* 3. Message Content */}
             {contactList && (
               <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">3. Message</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">3. Message</h3>
+                  <button
+                    onClick={loadTemplates}
+                    className="px-3 py-1 text-sm text-indigo-600 hover:text-indigo-700 border border-indigo-300 rounded-lg hover:bg-indigo-50 transition"
+                  >
+                    📄 Use Template
+                  </button>
+                </div>
+                
+                {/* Template Picker */}
+                {showTemplates && (
+                  <div className="mb-4 p-4 border border-indigo-200 bg-indigo-50 rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-indigo-900">Select a Template</span>
+                      <button
+                        onClick={() => setShowTemplates(false)}
+                        className="text-sm text-gray-600 hover:text-gray-800"
+                      >
+                        ✕ Close
+                      </button>
+                    </div>
+                    {templates.length === 0 ? (
+                      <p className="text-sm text-gray-600">No templates available</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {templates.map(template => (
+                          <button
+                            key={template.id}
+                            onClick={() => handleTemplateSelect(template)}
+                            className="w-full p-3 bg-white border border-gray-200 rounded-lg hover:border-indigo-400 text-left transition"
+                          >
+                            <h4 className="font-medium text-gray-900">{template.name}</h4>
+                            <p className="text-sm text-gray-600 mt-1">{template.subject}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
