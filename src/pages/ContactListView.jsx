@@ -26,10 +26,16 @@ export default function ContactListView() {
     try {
       setLoading(true);
       const response = await api.get(`/orgmembers?orgId=${orgId}`);
-      setOrgMembers(response.data);
+      
+      // Handle both array and object response formats
+      const members = Array.isArray(response.data) 
+        ? response.data 
+        : response.data.members || [];
+      
+      setOrgMembers(members);
       
       // Auto-select all org members
-      setSelectedContacts(new Set(response.data.map(m => m.id)));
+      setSelectedContacts(new Set(members.map(m => m.id)));
     } catch (err) {
       console.error("Error loading org members:", err);
       setError("Failed to load org members");
