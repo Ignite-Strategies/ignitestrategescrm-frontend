@@ -92,7 +92,7 @@ export default function SequenceCreator() {
         }));
         
         // Send via existing Gmail bulk route
-        await api.post("/email/send-bulk", {
+        await api.post("/email/personal/send-bulk", {
           recipients: contactPayload.map(contact => ({
             email: contact.email,
             variables: {
