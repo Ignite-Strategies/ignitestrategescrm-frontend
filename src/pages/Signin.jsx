@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithGoogle } from "../lib/googleAuth";
+import { signInWithGoogle } from "../firebase";
 import api from "../lib/api";
 
 export default function Signin() {

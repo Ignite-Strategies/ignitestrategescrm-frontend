@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../lib/googleAuth";
+import { auth } from "../firebase";
 import api from "../lib/api";
 
 export default function Welcome() {

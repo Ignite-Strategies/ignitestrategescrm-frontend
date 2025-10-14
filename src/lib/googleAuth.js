@@ -1,26 +1,15 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, setPersistence, browserLocalPersistence, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { auth } from "../firebase";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBN2rKiMfUg4qW98r1FxsCe9CeqO6E0Vgk",
-  authDomain: "high-impact-events-6d1a9.firebaseapp.com",
-  projectId: "high-impact-events-6d1a9",
-  storageBucket: "high-impact-events-6d1a9.firebasestorage.app",
-  messagingSenderId: "878823250089",
-  appId: "1:878823250089:web:f985c5dbc42286620bb1b8",
-  measurementId: "G-CP6MJ8EFK9"
-};
+/**
+ * Google OAuth for Gmail API - EMAIL SENDING ONLY
+ * This is ONLY for getting Gmail access tokens to send emails
+ * NOT for user login/signup!
+ * 
+ * For user authentication, import from '../firebase.js' instead
+ */
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-
-// Set persistence to keep user logged in
-setPersistence(auth, browserLocalPersistence).catch((error) => {
-  console.error('Failed to set auth persistence:', error);
-});
-
-// Google OAuth with Gmail scope
+// Google OAuth provider with Gmail scope
 const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
 
