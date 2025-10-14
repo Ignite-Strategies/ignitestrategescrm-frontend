@@ -300,8 +300,7 @@ export default function CampaignCreator() {
             </div>
             
             {/* 2. Contact List */}
-            {campaignId && (
-              <div className="bg-gray-50 p-6 rounded-lg">
+            <div className="bg-gray-50 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">2. Contact List</h3>
                 {contactList ? (
                   <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
@@ -342,11 +341,10 @@ export default function CampaignCreator() {
                   </div>
                 )}
               </div>
-            )}
+            </div>
             
             {/* 3. Message Content */}
-            {listId && (
-              <div className="bg-gray-50 p-6 rounded-lg">
+            <div className="bg-gray-50 p-6 rounded-lg">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">3. Message</h3>
                   <button
@@ -411,20 +409,19 @@ export default function CampaignCreator() {
                   </div>
                 </div>
               </div>
-            )}
+            </div>
             
             {/* Send Button */}
-            {listId && (
               <div className="flex justify-end">
                 <button
                   onClick={handleSend}
-                  disabled={sending || !subject.trim() || !message.trim()}
+                  disabled={sending || !campaignId || !listId || !subject.trim() || !message.trim()}
                   className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {sending ? "Sending..." : `📨 Send to ${contacts.length} contacts`}
+                  {sending ? "Sending..." : `📨 Send to ${contacts.length || 0} contacts`}
                 </button>
               </div>
-            )}
+            </div>
             
           </div>
         </div>
