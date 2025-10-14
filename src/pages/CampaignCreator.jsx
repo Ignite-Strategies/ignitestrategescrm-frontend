@@ -359,7 +359,6 @@ export default function CampaignCreator() {
                     ))}
                   </div>
                 )}
-              </div>
             </div>
             
             {/* 3. Message Content */}
@@ -427,7 +426,6 @@ export default function CampaignCreator() {
                     />
                   </div>
                 </div>
-              </div>
             </div>
             
             {/* Send Button */}
@@ -440,7 +438,6 @@ export default function CampaignCreator() {
                 {sending ? "Sending..." : `📨 Send to ${contacts.length || 0} contacts`}
               </button>
             </div>
-            
           </div>
         </div>
       </div>
