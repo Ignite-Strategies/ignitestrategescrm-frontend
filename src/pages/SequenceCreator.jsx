@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
@@ -9,6 +9,7 @@ import { getOrgId } from "../lib/org";
  */
 export default function SequenceCreator() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const orgId = getOrgId();
   
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,14 @@ export default function SequenceCreator() {
   useEffect(() => {
     loadContactLists();
   }, [orgId]);
+  
+  // Auto-select list if listId is in URL
+  useEffect(() => {
+    const listId = searchParams.get('listId');
+    if (listId && contactLists.length > 0) {
+      setSequenceData(prev => ({ ...prev, contactListId: listId }));
+    }
+  }, [searchParams, contactLists]);
   
   const loadContactLists = async () => {
     try {

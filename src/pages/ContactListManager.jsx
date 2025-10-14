@@ -220,7 +220,7 @@ export default function ContactListManager() {
                 list={list}
                 onDelete={handleDeleteList}
                 onDuplicate={handleDuplicateList}
-                onUse={() => navigate(`/compose?listId=${list.id}`)}
+                onUse={() => navigate(`/sequence-creator?listId=${list.id}`)}
                 onView={() => navigate(`/contact-list/${list.id}`)}
               />
             ))}
