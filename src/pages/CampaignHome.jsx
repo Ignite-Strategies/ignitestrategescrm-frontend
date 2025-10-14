@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
+import { signInWithGoogle, isSignedIn, getGmailAccessToken } from "../lib/auth";
 
 export default function CampaignHome() {
   const navigate = useNavigate();
@@ -9,10 +10,42 @@ export default function CampaignHome() {
   
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
+  const [gmailEmail, setGmailEmail] = useState("");
 
   useEffect(() => {
     loadCampaigns();
+    checkGmailAuth();
   }, [orgId]);
+
+  const checkGmailAuth = () => {
+    const authenticated = isSignedIn();
+    const accessToken = getGmailAccessToken();
+    
+    if (authenticated && accessToken) {
+      setGmailAuthenticated(true);
+      setGmailEmail(localStorage.getItem('gmailEmail') || '');
+    } else {
+      setGmailAuthenticated(false);
+      setGmailEmail('');
+    }
+  };
+
+  const handleGmailAuth = async () => {
+    try {
+      const result = await signInWithGoogle();
+      if (result.accessToken) {
+        setGmailAuthenticated(true);
+        setGmailEmail(result.email);
+        localStorage.setItem('gmailEmail', result.email);
+        console.log('✅ Gmail authentication successful');
+        alert(`✅ Gmail authenticated! You can now send emails via ${result.email}`);
+      }
+    } catch (error) {
+      console.error('❌ Gmail authentication failed:', error);
+      alert('❌ Gmail authentication failed. Please try again.');
+    }
+  };
 
   const loadCampaigns = async () => {
     try {
@@ -117,6 +150,43 @@ export default function CampaignHome() {
                   Start Campaign →
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* Gmail Authentication */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-blue-500 text-white rounded-lg flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">📧 Gmail Authentication</h2>
+                  <p className="text-gray-600">
+                    {gmailAuthenticated 
+                      ? `Connected as ${gmailEmail}` 
+                      : "Connect Gmail to send emails"
+                    }
+                  </p>
+                </div>
+              </div>
+              {gmailAuthenticated ? (
+                <div className="flex items-center text-green-600">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="font-semibold">Connected</span>
+                </div>
+              ) : (
+                <button
+                  onClick={handleGmailAuth}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                >
+                  Connect Gmail
+                </button>
+              )}
             </div>
           </div>
 

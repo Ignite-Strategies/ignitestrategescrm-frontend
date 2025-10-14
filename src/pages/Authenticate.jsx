@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithGoogle, clearAllGoogleAuth, isSignedIn } from "../lib/googleAuth";
+import { signInWithGoogle, signOutUser, isSignedIn } from "../lib/auth";
 
 export default function Authenticate() {
   const navigate = useNavigate();

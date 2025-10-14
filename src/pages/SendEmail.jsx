@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, isSignedIn } from "../lib/googleAuth";
+import { signInWithGoogle, isSignedIn } from "../lib/auth";
 
 export default function SendEmail() {
   const navigate = useNavigate();
