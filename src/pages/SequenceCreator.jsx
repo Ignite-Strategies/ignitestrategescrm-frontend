@@ -79,31 +79,46 @@ export default function SequenceCreator() {
       alert(`✅ Sequence "${sequenceData.name}" created!\n\nReady to launch? This will send to ${selectedList?.totalContacts || 0} contacts.`);
       
       if (confirm("🚀 Launch sequence now?")) {
-        // Get contacts for the selected list
-        const selectedList = getSelectedList();
-        const contactsResponse = await api.get(`/contact-lists/${selectedList.id}/contacts`);
-        const contacts = contactsResponse.data;
-        
-        // Prepare contact payload for Gmail service
-        const contactPayload = contacts.map(contact => ({
-          id: contact.id,
-          firstName: contact.firstName,
-          email: contact.email
-        }));
-        
-        // Send via existing Gmail bulk route
-        await api.post("/email/personal/send-bulk", {
-          recipients: contactPayload.map(contact => ({
-            email: contact.email,
-            variables: {
-              firstName: contact.firstName
-            }
-          })),
-          subject: sequenceData.subject,
-          body: sequenceData.message
-        });
-        
-        alert(`🚀 Sequence "${sequenceData.name}" LAUNCHED via Gmail!`);
+        try {
+          // Get contacts for the selected list
+          const selectedList = getSelectedList();
+          console.log("📋 Getting contacts for list:", selectedList.id);
+          
+          const contactsResponse = await api.get(`/contact-lists/${selectedList.id}/contacts`);
+          const contacts = contactsResponse.data;
+          console.log("👥 Contacts loaded:", contacts);
+          
+          // Prepare contact payload for Gmail service
+          const contactPayload = contacts.map(contact => ({
+            id: contact.id,
+            firstName: contact.firstName,
+            email: contact.email
+          }));
+          
+          console.log("📤 Sending via Gmail API:", {
+            recipients: contactPayload.length,
+            subject: sequenceData.subject
+          });
+          
+          // Send via existing Gmail bulk route
+          const gmailResponse = await api.post("/api/email/personal/send-bulk", {
+            recipients: contactPayload.map(contact => ({
+              email: contact.email,
+              variables: {
+                firstName: contact.firstName
+              }
+            })),
+            subject: sequenceData.subject,
+            body: sequenceData.message
+          });
+          
+          console.log("✅ Gmail response:", gmailResponse.data);
+          alert(`🚀 Sequence "${sequenceData.name}" LAUNCHED via Gmail!`);
+          
+        } catch (gmailError) {
+          console.error("❌ Gmail sending failed:", gmailError);
+          alert(`❌ Failed to send via Gmail: ${gmailError.response?.data?.error || gmailError.message}`);
+        }
       } else {
         alert(`✅ Sequence "${sequenceData.name}" saved for later!`);
       }
