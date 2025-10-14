@@ -49,3 +49,46 @@ handleToggleContact(member.contactId)
 
 ## Status
 ✅ **FIXED** - Contact lists now properly assign selected contacts!
+
+---
+
+# CRITICAL EMAIL ENDPOINT RULE - NEVER FORGET! 🚨
+
+## The Problem
+**Frontend keeps calling `/email/personal` instead of `/enterprise-email/send-campaign`!**
+
+## The Rule
+**FOR CAMPAIGNS:**
+- ❌ **NEVER use:** `/email/personal` (personal Gmail only)
+- ✅ **ALWAYS use:** `/enterprise-email/send-campaign` (SendGrid for campaigns)
+
+## Files That Keep Breaking
+1. `CampaignPreview.jsx` - Send campaign button
+2. `CampaignCreator.jsx` - Any send functionality
+
+## The Fix
+```javascript
+// WRONG (Personal Gmail)
+await api.post('/email/personal', {
+  campaignId,
+  subject,
+  message,
+  contacts: contacts.map(c => c.email)
+});
+
+// CORRECT (Enterprise SendGrid)
+await api.post('/enterprise-email/send-campaign', {
+  campaignId,
+  subject,
+  message,
+  contactListId: listId
+});
+```
+
+## Why This Happens
+- Copy-paste from old personal email code
+- Not testing full campaign flow
+- Multiple files have wrong endpoints
+
+## Lesson Learned
+**ALWAYS use enterprise endpoints for campaigns! Personal endpoints are for individual emails only!**

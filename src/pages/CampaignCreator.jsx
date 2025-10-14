@@ -290,11 +290,11 @@ export default function CampaignCreator() {
         }
       }
       
-      await api.post('/email/personal', {
+      await api.post('/enterprise-email/send-campaign', {
         campaignId,
         subject,
         message,
-        contacts: contacts.map(c => c.email)
+        contactListId: listId
       });
       
       await api.patch(`/campaigns/${campaignId}`, {

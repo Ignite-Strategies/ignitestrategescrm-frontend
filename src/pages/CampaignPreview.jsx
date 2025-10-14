@@ -102,12 +102,12 @@ export default function CampaignPreview() {
     setError("");
     
     try {
-      // Send via Gmail API
-      await api.post('/email/personal', {
+      // Send via Enterprise Email (SendGrid)
+      await api.post('/enterprise-email/send-campaign', {
         campaignId,
         subject,
         message,
-        contacts: contacts.map(c => c.email)
+        contactListId: listId
       });
       
       // Update campaign status
