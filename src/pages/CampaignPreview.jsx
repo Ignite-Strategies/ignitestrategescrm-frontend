@@ -130,7 +130,23 @@ export default function CampaignPreview() {
       
     } catch (err) {
       console.error("❌ Error sending campaign:", err);
-      setError(err.response?.data?.error || "Failed to send campaign");
+      const errorMsg = err.response?.data?.error || "Failed to send campaign";
+      
+      // Check if it's a Gmail auth error
+      if (errorMsg.includes("authentication") || errorMsg.includes("Gmail")) {
+        setError("⚠️ Gmail authentication expired! Please reconnect Gmail and try again.");
+        
+        // Clear the expired token
+        localStorage.removeItem('gmailAccessToken');
+        setGmailAuthenticated(false);
+        
+        // Ask user to reconnect
+        if (window.confirm("Gmail authentication expired. Click OK to reconnect now.")) {
+          window.location.href = '/campaignhome'; // Redirect to auth page
+        }
+      } else {
+        setError(errorMsg);
+      }
     } finally {
       setSending(false);
     }
