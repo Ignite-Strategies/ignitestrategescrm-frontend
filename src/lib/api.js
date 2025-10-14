@@ -14,6 +14,14 @@ api.interceptors.request.use(request => {
   const gmailAccessToken = localStorage.getItem('gmailAccessToken');
   if (gmailAccessToken) {
     request.headers.Authorization = `Bearer ${gmailAccessToken}`;
+    console.log('🔑 Adding Gmail token to request:', {
+      url: request.url,
+      tokenStart: gmailAccessToken.substring(0, 20) + '...',
+      tokenLength: gmailAccessToken.length,
+      authHeader: request.headers.Authorization.substring(0, 30) + '...'
+    });
+  } else {
+    console.warn('⚠️ No Gmail token found in localStorage for request:', request.url);
   }
   
   const adminId = localStorage.getItem('adminId');
@@ -22,6 +30,7 @@ api.interceptors.request.use(request => {
   }
   
   console.log('API Request:', request.method.toUpperCase(), request.url, request.data);
+  console.log('Request Headers:', request.headers);
   return request;
 });
 
