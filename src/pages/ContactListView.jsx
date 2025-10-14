@@ -103,7 +103,13 @@ export default function ContactListView() {
       
     } catch (err) {
       console.error("Error creating list:", err);
-      setError(err.response?.data?.error || "Failed to create contact list");
+      
+      // Make unique constraint error clearer
+      if (err.response?.data?.error?.includes("Unique constraint failed")) {
+        setError("⚠️ List name already exists! Please choose a different name like 'My Org Members' or 'All Members 2024'");
+      } else {
+        setError(err.response?.data?.error || "Failed to create contact list");
+      }
     } finally {
       setLoading(false);
     }
