@@ -49,7 +49,7 @@ export default function CampaignCreator() {
     // Load contact list if we have a listId
     if (listId) {
       loadContactList();
-      loadContacts();
+      hydrateContacts(); // Use new hydration approach
     }
     
     checkGmailAuth();
@@ -112,38 +112,34 @@ export default function CampaignCreator() {
     }
   };
   
-  const loadContacts = async (contactListId) => {
-    const id = contactListId || listId; // Use param or fall back to state
-    if (!id) {
-      console.log('⚠️ No listId provided to loadContacts');
+  // Hydrate contacts on load
+  const hydrateContacts = async () => {
+    if (!listId) {
+      console.log('⚠️ No listId for hydration');
       return;
     }
     
     try {
-      console.log('📞 Loading contacts for list:', id);
-      console.log('🔍 Debug - campaignId:', campaignId, 'listId:', id);
-      
-      // Use campaign hydration endpoint if we have campaignId
-      if (campaignId) {
-        console.log('🔄 Using campaign hydration for contacts');
-        const response = await api.get(`/campaigns/${campaignId}/contacts`);
-        console.log('✅ Loaded campaign contacts:', response.data.length);
-        console.log('🔍 Campaign contacts data:', response.data);
-        setContacts(response.data);
-        console.log('🔧 setContacts called with:', response.data);
-        console.log('🔧 contacts state should now be:', response.data.length);
-      } else {
-        // Fallback to direct list contacts
-        const response = await api.get(`/contact-lists/${id}/contacts`);
-        console.log('✅ Loaded list contacts:', response.data.length);
-        console.log('🔍 List contacts data:', response.data);
-        setContacts(response.data);
-      }
+      console.log('💧 Hydrating contacts for list:', listId);
+      const response = await api.get(`/contact-lists/${listId}/contacts`);
+      console.log('💧 Hydrated contacts:', response.data.length);
+      setContacts(response.data);
     } catch (err) {
-      console.error("❌ Error loading contacts:", err);
-      console.error("❌ Error response:", err.response?.data);
+      console.error("❌ Hydration failed:", err);
       setContacts([]);
-      setError('Failed to load contacts. Please try again.');
+    }
+  };
+
+  // Rehydrate when contacts are added/changed
+  const rehydrateContacts = async () => {
+    if (!listId) return;
+    
+    try {
+      console.log('🔄 Rehydrating contacts...');
+      await hydrateContacts();
+      console.log('✅ Rehydration complete');
+    } catch (err) {
+      console.error("❌ Rehydration failed:", err);
     }
   };
   
