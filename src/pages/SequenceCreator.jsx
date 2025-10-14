@@ -147,25 +147,33 @@ export default function SequenceCreator() {
     setError("");
     
     try {
-      console.log("🏗️ Creating campaign with:", { 
-        orgId, 
-        name: sequenceData.name, 
-        contactListId: sequenceData.contactListId 
-      });
+      // Check if we're editing an existing campaign
+      const campaignId = searchParams.get('campaignId');
+      let finalCampaignId = campaignId;
       
-      // Create a campaign first
-      const campaignResponse = await api.post("/campaigns", {
-        orgId,
-        name: sequenceData.name,
-        contactListId: sequenceData.contactListId,
-        status: "draft"
-      });
-      
-      const campaignId = campaignResponse.data.id;
+      if (!campaignId) {
+        // Create a new campaign
+        console.log("🏗️ Creating NEW campaign with:", { 
+          orgId, 
+          name: sequenceData.name, 
+          contactListId: sequenceData.contactListId 
+        });
+        
+        const campaignResponse = await api.post("/campaigns", {
+          orgId,
+          name: sequenceData.name,
+          contactListId: sequenceData.contactListId,
+          status: "draft"
+        });
+        
+        finalCampaignId = campaignResponse.data.id;
+      } else {
+        console.log("📝 Using EXISTING campaign:", campaignId);
+      }
       
       // Create the sequence
       const sequenceResponse = await api.post("/sequences", {
-        campaignId,
+        campaignId: finalCampaignId,
         name: sequenceData.name,
         subject: sequenceData.subject,
         html: sequenceData.message,
