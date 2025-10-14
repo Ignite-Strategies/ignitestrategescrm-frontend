@@ -74,6 +74,40 @@ export default function CampaignCreator() {
     }
   }, [campaignId]);
   
+  // Watch for listId changes (when user returns from list picker/builder)
+  useEffect(() => {
+    const storedListId = localStorage.getItem('listId');
+    if (storedListId && storedListId !== listId) {
+      console.log('🔄 Detected new listId from localStorage:', storedListId);
+      setListId(storedListId);
+      
+      // Load the contact list and contacts
+      const loadListData = async () => {
+        try {
+          const listResponse = await api.get(`/contact-lists/${storedListId}`);
+          setContactList(listResponse.data);
+          
+          const contactsResponse = await api.get(`/contact-lists/${storedListId}/contacts`);
+          setContacts(contactsResponse.data);
+          
+          // Update campaign with the selected list
+          if (campaignId) {
+            await api.patch(`/campaigns/${campaignId}`, {
+              contactListId: storedListId
+            });
+          }
+          
+          console.log('✅ List loaded:', listResponse.data.name, 'with', contactsResponse.data.length, 'contacts');
+        } catch (err) {
+          console.error('Error loading list data:', err);
+          setError('Failed to load contact list');
+        }
+      };
+      
+      loadListData();
+    }
+  }, [listId, campaignId]); // Re-run when component re-renders
+  
   const checkGmailAuth = () => {
     const token = getGmailAccessToken();
     const email = localStorage.getItem('gmailEmail');
@@ -109,6 +143,15 @@ export default function CampaignCreator() {
       setContactList(response.data);
     } catch (err) {
       console.error("Error loading contact list:", err);
+      // If list was deleted (404), clear stale localStorage
+      if (err.response?.status === 404) {
+        console.warn('⚠️ Contact list was deleted, clearing stale localStorage');
+        localStorage.removeItem('listId');
+        setListId(null);
+        setContactList(null);
+        setContacts([]);
+        setError('Contact list no longer exists. Please select a new list.');
+      }
     }
   };
   
@@ -126,6 +169,15 @@ export default function CampaignCreator() {
       setContacts(response.data);
     } catch (err) {
       console.error("Error loading contacts:", err);
+      // If list was deleted (404), clear stale localStorage
+      if (err.response?.status === 404) {
+        console.warn('⚠️ Contact list was deleted, clearing stale localStorage');
+        localStorage.removeItem('listId');
+        setListId(null);
+        setContactList(null);
+        setContacts([]);
+        setError('Contact list no longer exists. Please select a new list.');
+      }
     }
   };
   
@@ -363,7 +415,10 @@ export default function CampaignCreator() {
                     {/* Navigation Buttons - Create or Pick */}
                     <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <button
-                        onClick={() => navigate('/contact-list-builder')}
+                        onClick={() => {
+                          localStorage.setItem('resumingCampaign', 'true');
+                          navigate('/contact-list-builder');
+                        }}
                         className="p-6 border-2 border-indigo-200 rounded-lg hover:border-indigo-400 bg-indigo-50 text-left transition"
                       >
                         <div className="text-4xl mb-2">✨</div>
@@ -372,7 +427,10 @@ export default function CampaignCreator() {
                       </button>
                       
                       <button
-                        onClick={() => navigate('/contact-list-manager')}
+                        onClick={() => {
+                          localStorage.setItem('resumingCampaign', 'true');
+                          navigate('/contact-list-manager');
+                        }}
                         className="p-6 border-2 border-gray-200 rounded-lg hover:border-indigo-400 text-left transition"
                       >
                         <div className="text-4xl mb-2">📋</div>

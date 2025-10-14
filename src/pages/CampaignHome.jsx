@@ -79,6 +79,40 @@ export default function CampaignHome() {
     }
   };
 
+  const handleDeleteCampaign = async (e, campaign) => {
+    e.stopPropagation(); // Prevent card click
+    
+    const confirmMsg = `🗑️ Delete "${campaign.name}"?\n\n` +
+      `Status: ${campaign.status}\n` +
+      `Contact List: ${campaign.contactList?.name || 'None'}\n\n` +
+      `⚠️ Note: The contact list will be preserved for reuse.\n\n` +
+      `Are you sure?`;
+    
+    if (!window.confirm(confirmMsg)) return;
+    
+    try {
+      await api.delete(`/campaigns/${campaign.id}`);
+      
+      // Remove from local state immediately
+      setCampaigns(prev => prev.filter(c => c.id !== campaign.id));
+      
+      // Clear localStorage if this was the current campaign
+      const currentCampaignId = localStorage.getItem('campaignId');
+      if (currentCampaignId === campaign.id) {
+        localStorage.removeItem('campaignId');
+        localStorage.removeItem('currentCampaign');
+        localStorage.removeItem('listId');
+        console.log('🧹 Cleared localStorage for deleted campaign');
+      }
+      
+      console.log('✅ Campaign deleted:', campaign.name);
+      alert(`✅ Campaign "${campaign.name}" deleted successfully!`);
+    } catch (err) {
+      console.error('❌ Error deleting campaign:', err);
+      alert(`❌ Failed to delete campaign: ${err.response?.data?.error || err.message}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-7xl mx-auto">
@@ -357,10 +391,21 @@ export default function CampaignHome() {
                       localStorage.setItem('resumingCampaign', 'true');
                       navigate('/campaign-creator');
                     }}
-                    className="bg-white border border-gray-200 rounded-lg p-6 hover:border-indigo-300 hover:shadow-md transition cursor-pointer"
+                    className="bg-white border border-gray-200 rounded-lg p-6 hover:border-indigo-300 hover:shadow-md transition cursor-pointer relative"
                   >
-                    <div className="flex justify-between items-start mb-4">
-                      <h4 className="text-lg font-semibold text-gray-900 truncate pr-4">{campaign.name}</h4>
+                    {/* Delete Button */}
+                    <button
+                      onClick={(e) => handleDeleteCampaign(e, campaign)}
+                      className="absolute top-4 right-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                      title="Delete campaign"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                    
+                    <div className="flex justify-between items-start mb-4 pr-8">
+                      <h4 className="text-lg font-semibold text-gray-900 truncate">{campaign.name}</h4>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         campaign.status === 'active' ? 'bg-green-100 text-green-700' :
                         campaign.status === 'sent' ? 'bg-blue-100 text-blue-700' :
