@@ -63,6 +63,9 @@ import FormSuccess from "./pages/FormSuccess.jsx";
 import PostOrgCreate from "./pages/PostOrgCreate.jsx";
 import AdsDashboard from "./pages/AdsDashboard.jsx";
 import TestEnterpriseEmail from "./pages/TestEnterpriseEmail.jsx";
+import SequenceCreator from "./pages/SequenceCreator.jsx";
+import ContactListDebug from "./pages/ContactListDebug.jsx";
+import SmartLists from "./pages/SmartLists.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -269,6 +272,15 @@ export default function App() {
         } />
         <Route path="/test-enterprise-email" element={
           <ProtectedRoute><TestEnterpriseEmail /></ProtectedRoute>
+        } />
+        <Route path="/sequence-creator" element={
+          <ProtectedRoute><SequenceCreator /></ProtectedRoute>
+        } />
+        <Route path="/smart-lists" element={
+          <ProtectedRoute><SmartLists /></ProtectedRoute>
+        } />
+        <Route path="/contact-list-debug" element={
+          <ProtectedRoute><ContactListDebug /></ProtectedRoute>
         } />
       </Routes>
     </BrowserRouter>
