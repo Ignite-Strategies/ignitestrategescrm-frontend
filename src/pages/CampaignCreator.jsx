@@ -130,6 +130,8 @@ export default function CampaignCreator() {
         console.log('✅ Loaded campaign contacts:', response.data.length);
         console.log('🔍 Campaign contacts data:', response.data);
         setContacts(response.data);
+        console.log('🔧 setContacts called with:', response.data);
+        console.log('🔧 contacts state should now be:', response.data.length);
       } else {
         // Fallback to direct list contacts
         const response = await api.get(`/contact-lists/${id}/contacts`);
