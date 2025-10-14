@@ -393,7 +393,13 @@ export default function CampaignHome() {
                   <div
                     key={campaign.id}
                     onClick={() => {
-                      // Resume campaign with URL params
+                      // If campaign is sent, go to dashboard to view results
+                      if (campaign.status === 'sent') {
+                        navigate('/campaign-dashboard');
+                        return;
+                      }
+                      
+                      // For draft campaigns, resume editing
                       const listId = campaign.contactListId;
                       if (listId) {
                         navigate(`/campaign-creator?campaignId=${campaign.id}&listId=${listId}`);
