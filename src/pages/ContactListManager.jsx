@@ -37,8 +37,32 @@ export default function ContactListManager() {
   const loadLists = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/contact-lists?orgId=${orgId}`);
-      setLists(response.data);
+      const [listsRes, campaignsRes] = await Promise.all([
+        api.get(`/contact-lists?orgId=${orgId}`),
+        api.get(`/campaigns?orgId=${orgId}`)
+      ]);
+      
+      // Enrich lists with campaign status
+      const enrichedLists = listsRes.data.map(list => {
+        const linkedCampaigns = campaignsRes.data.filter(c => c.contactListId === list.id);
+        const draftCampaigns = linkedCampaigns.filter(c => c.status === 'draft');
+        const sentCampaigns = linkedCampaigns.filter(c => c.status === 'sent');
+        const activeCampaigns = linkedCampaigns.filter(c => c.status === 'active');
+        
+        return {
+          ...list,
+          campaignStatus: {
+            assigned: draftCampaigns.length > 0,
+            used: sentCampaigns.length > 0 || activeCampaigns.length > 0,
+            totalCampaigns: linkedCampaigns.length,
+            draftCampaigns,
+            sentCampaigns,
+            activeCampaigns
+          }
+        };
+      });
+      
+      setLists(enrichedLists);
     } catch (err) {
       console.error("Error loading lists:", err);
       setError("Failed to load contact lists");
@@ -287,6 +311,41 @@ export default function ContactListManager() {
 }
 
 /**
+ * Campaign Status Badge - 4-State System
+ */
+function CampaignStatusBadge({ status }) {
+  if (!status) {
+    return <span className="text-gray-500 text-xs">Loading...</span>;
+  }
+  
+  // Priority order: used > assigned > available
+  if (status.used) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
+        <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+        Used ({status.sentCampaigns.length + status.activeCampaigns.length})
+      </span>
+    );
+  }
+  
+  if (status.assigned) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-700">
+        <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
+        Assigned ({status.draftCampaigns.length})
+      </span>
+    );
+  }
+  
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+      Available
+    </span>
+  );
+}
+
+/**
  * Individual List Card Component
  */
 function ListCard({ list, onDelete, onDuplicate, onUse, onView }) {
@@ -370,10 +429,13 @@ function ListCard({ list, onDelete, onDuplicate, onUse, onView }) {
             <span className="text-gray-600">Contacts:</span>
             <span className="font-semibold text-gray-900">{list.totalContacts || 0}</span>
           </div>
+          
+          {/* Campaign Status (4-state system) */}
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Used:</span>
-            <span className="font-semibold text-gray-900">{list.usageCount || 0} times</span>
+            <span className="text-gray-600">Status:</span>
+            <CampaignStatusBadge status={list.campaignStatus} />
           </div>
+          
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Updated:</span>
             <span className="text-gray-500">{new Date(list.lastUpdated || list.updatedAt).toLocaleDateString()}</span>
