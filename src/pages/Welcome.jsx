@@ -50,7 +50,10 @@ export default function Welcome() {
         hydrationData = hydrationRes.data;
         console.log('✅ Hydration complete:', hydrationData);
       } catch (error) {
-        console.error('❌ Hydration failed:', error);
+        console.error('❌ Hydration API failed:', error);
+        console.error('❌ Error details:', error.response?.data || error.message);
+        console.error('❌ Status:', error.response?.status);
+        alert(`Hydration failed: ${error.response?.data?.error || error.message}. Redirecting to signup...`);
         setTimeout(() => navigate('/signup'), 3000);
         return;
       }
@@ -58,10 +61,14 @@ export default function Welcome() {
       const { adminId, orgId, eventId, admin } = hydrationData;
       
       // ROUTING LOGIC - Check what's missing
+      console.log('🔍 Hydration data check:', { adminId, orgId, eventId, hasAdmin: !!admin });
       
       // 1. Check if admin exists
       if (!adminId || !admin) {
-        console.log('⚠️ No admin found, go to signup');
+        console.log('⚠️ No admin found in hydration data');
+        console.log('⚠️ AdminId:', adminId);
+        console.log('⚠️ Admin object:', admin);
+        alert(`No admin record found for firebaseId ${firebaseId}. Redirecting to signup...`);
         navigate('/signup');
         return;
       }
