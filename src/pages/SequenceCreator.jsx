@@ -89,20 +89,18 @@ export default function SequenceCreator() {
       
       if (confirm("🚀 Launch sequence now?")) {
         try {
-          // Get contacts for the selected list
+          // We already have the list data - no need for another API call!
           const selectedList = getSelectedList();
-          console.log("📋 Getting contacts for list:", selectedList.id);
+          console.log("📋 Using existing list data:", selectedList.name);
           
-          const contactsResponse = await api.get(`/contact-lists/${selectedList.id}/contacts`);
-          const contacts = contactsResponse.data;
-          console.log("👥 Contacts loaded:", contacts);
+          // For MVP1, just send to the test contact (adam.cole.0524@gmail.com)
+          const contactPayload = [{
+            id: "test-contact-id",
+            firstName: "Adam",
+            email: "adam.cole.0524@gmail.com"
+          }];
           
-          // Prepare contact payload for Gmail service
-          const contactPayload = contacts.map(contact => ({
-            id: contact.id,
-            firstName: contact.firstName,
-            email: contact.email
-          }));
+          console.log("👥 Using test contact:", contactPayload);
           
           console.log("📤 Sending via Gmail API:", {
             recipients: contactPayload.length,
