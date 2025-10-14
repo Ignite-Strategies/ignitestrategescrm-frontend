@@ -337,11 +337,13 @@ export default function CampaignCreator() {
                       <p className="text-sm text-gray-600">{contacts.length} contacts</p>
                     </div>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setContactList(null);
                         setListId(null);
                         setContacts([]);
                         localStorage.removeItem('listId');
+                        // Reload available lists to show them again
+                        await loadAvailableLists();
                       }}
                       className="text-red-600 hover:text-red-700"
                     >
