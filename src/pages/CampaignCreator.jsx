@@ -36,23 +36,12 @@ export default function CampaignCreator() {
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   
-  // Load data based on URL params
+  // HYDRAULIC PRESS THE ENTIRE PAGE ON LOAD!
   useEffect(() => {
     console.log('🔄 CampaignCreator loaded with params:', { campaignId, listId });
     
-    // Load campaign name if we have a campaignId
-    if (campaignId) {
-      loadCampaignData();
-      loadAvailableLists();
-    }
-    
-    // Load contact list if we have a listId
-    if (listId) {
-      loadContactList();
-      hydrateContacts(); // Use new hydration approach
-    }
-    
-    checkGmailAuth();
+    // CRUSH EVERYTHING AND REBUILD!
+    hydraulicPressHydration();
   }, [campaignId, listId]);
   
   const checkGmailAuth = () => {
@@ -140,6 +129,31 @@ export default function CampaignCreator() {
       console.log('✅ Rehydration complete');
     } catch (err) {
       console.error("❌ Rehydration failed:", err);
+    }
+  };
+
+  // HYDRAULIC PRESS THE ENTIRE PAGE!
+  const hydraulicPressHydration = async () => {
+    console.log('💥 HYDRAULIC PRESS: Crushing entire page with fresh data!');
+    
+    try {
+      // Reload EVERYTHING
+      if (campaignId) {
+        await loadCampaignData();
+        await loadAvailableLists();
+      }
+      
+      if (listId) {
+        await loadContactList();
+        await hydrateContacts();
+      }
+      
+      await checkGmailAuth();
+      await loadTemplates();
+      
+      console.log('💥 HYDRAULIC PRESS COMPLETE: Page completely crushed and rebuilt!');
+    } catch (err) {
+      console.error("💥 HYDRAULIC PRESS FAILED:", err);
     }
   };
   
