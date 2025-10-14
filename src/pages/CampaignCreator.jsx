@@ -2,34 +2,101 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
+import { signInWithGoogle, getGmailAccessToken } from "../lib/googleAuth";
 
 /**
- * CampaignCreator - Step 1: Create Campaign & Generate ID
- * Simple campaign name input → generates campaignId → proceeds to list selection
- * Can also resume existing campaigns!
+ * CampaignCreator - ALL-IN-ONE Campaign Builder
+ * Progressive disclosure: Name → List → Message → Send
+ * Everything hydrates inline - no more page hopping!
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   
-  const [campaignName, setCampaignName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [isResuming, setIsResuming] = useState(false);
+  // Campaign data
+  const [campaignId, setCampaignId] = useState(localStorage.getItem('campaignId') || null);
+  const [campaignName, setCampaignName] = useState(localStorage.getItem('currentCampaign') || "");
   
-  // Check if resuming an existing campaign
+  // Contact list data
+  const [listId, setListId] = useState(localStorage.getItem('listId') || null);
+  const [contactList, setContactList] = useState(null);
+  const [contacts, setContacts] = useState([]);
+  const [availableLists, setAvailableLists] = useState([]);
+  
+  // Message data
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  
+  // UI states
+  const [step, setStep] = useState(1); // 1=name, 2=list, 3=message
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
+  
+  // Hydrate on mount
   useEffect(() => {
-    const resuming = localStorage.getItem('resumingCampaign');
-    const existingName = localStorage.getItem('currentCampaign');
-    
-    if (resuming === 'true' && existingName) {
-      setIsResuming(true);
-      setCampaignName(existingName);
-      // Clear the resume flag
-      localStorage.removeItem('resumingCampaign');
+    // If we have campaignId and listId, jump to step 3
+    if (campaignId && listId) {
+      setStep(3);
+      loadContactList();
+      loadContacts();
+    } else if (campaignId) {
+      setStep(2);
+      loadAvailableLists();
     }
+    
+    checkGmailAuth();
   }, []);
-
+  
+  const loadAvailableLists = async () => {
+    try {
+      const [listsRes, campaignsRes] = await Promise.all([
+        api.get(`/contact-lists?orgId=${orgId}`),
+        api.get(`/campaigns?orgId=${orgId}`)
+      ]);
+      
+      // Enrich with campaign status
+      const enrichedLists = listsRes.data.map(list => {
+        const linkedCampaigns = campaignsRes.data.filter(c => c.contactListId === list.id);
+        return {
+          ...list,
+          inUse: linkedCampaigns.some(c => c.status === 'sent' || c.status === 'active'),
+          assigned: linkedCampaigns.some(c => c.status === 'draft')
+        };
+      });
+      
+      setAvailableLists(enrichedLists);
+    } catch (err) {
+      console.error("Error loading lists:", err);
+      setError("Failed to load contact lists");
+    }
+  };
+  
+  const loadContactList = async () => {
+    try {
+      const response = await api.get(`/contact-lists/${listId}`);
+      setContactList(response.data);
+    } catch (err) {
+      console.error("Error loading contact list:", err);
+    }
+  };
+  
+  const loadContacts = async () => {
+    try {
+      const response = await api.get(`/contact-lists/${listId}/contacts`);
+      setContacts(response.data);
+    } catch (err) {
+      console.error("Error loading contacts:", err);
+    }
+  };
+  
+  const checkGmailAuth = () => {
+    const token = getGmailAccessToken();
+    setGmailAuthenticated(!!token);
+  };
+  
+  // STEP 1: Create campaign
   const handleCreateCampaign = async (e) => {
     e.preventDefault();
     
@@ -38,23 +105,10 @@ export default function CampaignCreator() {
       return;
     }
     
-    // If resuming, just navigate to next step (campaign already exists!)
-    if (isResuming) {
-      console.log("🔄 Resuming existing campaign");
-      navigate('/campaign-list-hydrator-home');
-      return;
-    }
-    
-    if (!orgId) {
-      setError("No organization selected");
-      return;
-    }
-    
     setLoading(true);
     setError("");
     
     try {
-      // Create NEW campaign - Prisma auto-generates the ID via cuid()
       const response = await api.post("/campaigns", {
         orgId,
         name: campaignName.trim(),
@@ -63,20 +117,15 @@ export default function CampaignCreator() {
       });
       
       const campaign = response.data;
-      console.log("✅ Campaign created with ID:", campaign.id);
-      
-      // Save to localStorage (single source of truth)
+      setCampaignId(campaign.id);
       localStorage.setItem('campaignId', campaign.id);
       localStorage.setItem('currentCampaign', campaign.name);
-      localStorage.setItem('campaignFlowStarted', new Date().toISOString());
       
-      console.log("💾 Stored in localStorage:", {
-        campaignId: campaign.id,
-        campaignName: campaign.name
-      });
+      console.log("✅ Campaign created:", campaign.id);
       
-      // Navigate to the FORK (no URL params needed!)
-      navigate('/campaign-list-hydrator-home');
+      // Move to step 2
+      setStep(2);
+      loadAvailableLists();
       
     } catch (err) {
       console.error("❌ Error creating campaign:", err);
@@ -85,125 +134,273 @@ export default function CampaignCreator() {
       setLoading(false);
     }
   };
-
+  
+  // STEP 2: Pick list
+  const handleSelectList = async (list) => {
+    setLoading(true);
+    try {
+      // Assign list to campaign
+      await api.patch(`/campaigns/${campaignId}`, {
+        contactListId: list.id
+      });
+      
+      setListId(list.id);
+      localStorage.setItem('listId', list.id);
+      
+      await loadContactList();
+      await loadContacts();
+      
+      // Move to step 3
+      setStep(3);
+      
+    } catch (err) {
+      console.error("Error assigning list:", err);
+      setError(err.response?.data?.error || "Failed to assign list");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // STEP 3: Send campaign
+  const handleSend = async () => {
+    if (!subject.trim() || !message.trim()) {
+      setError("Please fill in subject and message");
+      return;
+    }
+    
+    if (!gmailAuthenticated) {
+      setError("Please authenticate with Gmail first");
+      return;
+    }
+    
+    setSending(true);
+    setError("");
+    
+    try {
+      // Send via personal Gmail endpoint
+      await api.post('/email/personal', {
+        campaignId,
+        subject,
+        message,
+        contacts: contacts.map(c => c.email)
+      });
+      
+      // Update campaign status
+      await api.patch(`/campaigns/${campaignId}`, {
+        status: 'sent'
+      });
+      
+      alert(`✅ Campaign sent to ${contacts.length} contacts!`);
+      
+      // Clear localStorage and go home
+      localStorage.removeItem('campaignId');
+      localStorage.removeItem('currentCampaign');
+      localStorage.removeItem('listId');
+      
+      navigate('/campaignhome');
+      
+    } catch (err) {
+      console.error("Error sending:", err);
+      setError(err.response?.data?.error || "Failed to send campaign");
+    } finally {
+      setSending(false);
+    }
+  };
+  
+  const handleGmailAuth = async () => {
+    try {
+      await signInWithGoogle();
+      checkGmailAuth();
+      alert('✅ Gmail authenticated!');
+    } catch (error) {
+      console.error('Gmail auth failed:', error);
+      alert('❌ Gmail authentication failed');
+    }
+  };
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-              </svg>
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">🚀 Launch Your Campaign</h1>
-            <p className="text-lg text-gray-600">Step 1 of 3: Name your campaign</p>
-          </div>
-
-          {/* Progress Bar */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-indigo-600">Step 1: Campaign Name</span>
-              <span className="text-sm text-gray-500">33% Complete</span>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-3xl font-bold text-gray-900">🚀 Campaign Builder</h1>
+              <button
+                onClick={() => navigate("/campaignhome")}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                ← Back
+              </button>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-indigo-600 h-2 rounded-full transition-all" style={{ width: '33%' }}></div>
-            </div>
-          </div>
-
-          {/* Error Display */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-red-800 font-medium">{error}</p>
+            
+            {/* Progress */}
+            <div className="flex items-center gap-4">
+              <div className={`flex items-center gap-2 ${step >= 1 ? 'text-indigo-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>1</div>
+                <span className="font-medium">Name</span>
+              </div>
+              <div className="flex-1 h-1 bg-gray-200 rounded">
+                <div className={`h-1 rounded transition-all ${step >= 2 ? 'bg-indigo-600 w-full' : 'w-0'}`}></div>
+              </div>
+              <div className={`flex items-center gap-2 ${step >= 2 ? 'text-indigo-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>2</div>
+                <span className="font-medium">List</span>
+              </div>
+              <div className="flex-1 h-1 bg-gray-200 rounded">
+                <div className={`h-1 rounded transition-all ${step >= 3 ? 'bg-indigo-600 w-full' : 'w-0'}`}></div>
+              </div>
+              <div className={`flex items-center gap-2 ${step >= 3 ? 'text-indigo-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>3</div>
+                <span className="font-medium">Send</span>
               </div>
             </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleCreateCampaign} className="space-y-6">
-            <div>
-              <label htmlFor="campaignName" className="block text-sm font-semibold text-gray-700 mb-3">
-                Campaign Name *
-              </label>
-              <input
-                id="campaignName"
-                type="text"
-                value={campaignName}
-                onChange={(e) => setCampaignName(e.target.value)}
-                placeholder="e.g., Spring Fundraiser 2025, Member Outreach, Event Invites"
-                className="w-full px-4 py-4 text-lg border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-                autoFocus
-                required
-              />
-              <p className="mt-2 text-sm text-gray-500">
-                Give your campaign a descriptive name to help you identify it later
-              </p>
+          </div>
+          
+          {/* Error */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-800">{error}</p>
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-6 border-t">
-              <button
-                type="button"
-                onClick={() => navigate("/campaignhome")}
-                className="flex-1 px-6 py-4 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition font-semibold"
-              >
-                ← Cancel
-              </button>
+          )}
+          
+          {/* STEP 1: Campaign Name */}
+          {step === 1 && (
+            <form onSubmit={handleCreateCampaign} className="space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Campaign Name *</label>
+                <input
+                  type="text"
+                  value={campaignName}
+                  onChange={(e) => setCampaignName(e.target.value)}
+                  placeholder="e.g., Spring Fundraiser 2025"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  autoFocus
+                  required
+                />
+              </div>
+              
               <button
                 type="submit"
                 disabled={loading || !campaignName.trim()}
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold text-lg shadow-lg flex items-center justify-center gap-2"
+                className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 font-semibold"
               >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    Save & Continue
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </>
-                )}
+                {loading ? "Creating..." : "Save & Continue →"}
+              </button>
+            </form>
+          )}
+          
+          {/* STEP 2: Pick List */}
+          {step === 2 && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">📋 Select Contact List</h2>
+                <p className="text-gray-600">Campaign: <span className="font-semibold">{campaignName}</span></p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {availableLists.map(list => (
+                  <button
+                    key={list.id}
+                    onClick={() => handleSelectList(list)}
+                    disabled={loading}
+                    className="p-6 border-2 border-gray-200 rounded-lg hover:border-indigo-400 text-left transition disabled:opacity-50"
+                  >
+                    <h3 className="font-bold text-gray-900 mb-2">{list.name}</h3>
+                    <p className="text-sm text-gray-600 mb-3">{list.description || "No description"}</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-700">{list.totalContacts} contacts</span>
+                      {list.inUse && <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">In Use</span>}
+                      {list.assigned && !list.inUse && <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">Assigned</span>}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
+              <button
+                onClick={() => setStep(1)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                ← Back to Name
               </button>
             </div>
-          </form>
-
-          {/* Help Text */}
-          <div className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <div className="flex gap-3">
-              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+          )}
+          
+          {/* STEP 3: Compose & Send */}
+          {step === 3 && (
+            <div className="space-y-6">
               <div>
-                <h4 className="font-semibold text-blue-900 mb-1">What happens next?</h4>
-                <p className="text-sm text-blue-800">
-                  After saving, you'll select your contact list, then write your message. 
-                  Your campaign ID will be auto-generated and saved.
+                <h2 className="text-xl font-bold text-gray-900 mb-2">✉️ Compose Your Message</h2>
+                <p className="text-gray-600">
+                  Campaign: <span className="font-semibold">{campaignName}</span> · 
+                  List: <span className="font-semibold">{contactList?.name}</span> ({contacts.length} contacts)
                 </p>
               </div>
+              
+              {/* Gmail Auth */}
+              {!gmailAuthenticated && (
+                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-yellow-800 mb-3">⚠️ Gmail authentication required to send emails</p>
+                  <button
+                    onClick={handleGmailAuth}
+                    className="px-4 py-2 bg-white border border-yellow-300 rounded-lg text-yellow-800 hover:bg-yellow-50"
+                  >
+                    🔐 Authenticate with Gmail
+                  </button>
+                </div>
+              )}
+              
+              {/* Subject */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Subject *</label>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="Email subject line"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+              
+              {/* Message */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Message *</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Write your message here..."
+                  rows={10}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 font-mono text-sm"
+                  required
+                />
+              </div>
+              
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setStep(2);
+                    setListId(null);
+                    localStorage.removeItem('listId');
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  ← Change List
+                </button>
+                
+                <button
+                  onClick={handleSend}
+                  disabled={sending || !gmailAuthenticated || !subject.trim() || !message.trim()}
+                  className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 font-semibold"
+                >
+                  {sending ? "Sending..." : `📨 Send to ${contacts.length} contacts`}
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* Back Link */}
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate("/campaignhome")}
-              className="text-sm text-gray-600 hover:text-indigo-600 transition"
-            >
-              ← Back to Campaign Dashboard
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-
