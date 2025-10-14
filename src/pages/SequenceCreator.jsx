@@ -200,7 +200,7 @@ export default function SequenceCreator() {
           // Send via existing Gmail bulk route
           console.log("🔑 Gmail token being sent:", localStorage.getItem('gmailAccessToken')?.substring(0, 20) + '...');
           
-          const gmailResponse = await api.post("/api/email/personal/send-bulk", {
+          const gmailResponse = await api.post("/email/personal/send-bulk", {
             recipients: contactPayload.map(contact => ({
               email: contact.email,
               variables: {
