@@ -85,6 +85,3 @@ export function isSignedIn() {
 export function getGmailAccessToken() {
   return localStorage.getItem('gmailAccessToken');
 }
-
-export default app;
-
