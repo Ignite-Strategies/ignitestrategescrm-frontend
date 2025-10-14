@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { signInWithGoogle, signOutUser } from "../lib/auth";
+import { signInWithGoogle, signOutUser } from "../lib/googleAuth";
 
 export default function TestAuth() {
   const [result, setResult] = useState("");

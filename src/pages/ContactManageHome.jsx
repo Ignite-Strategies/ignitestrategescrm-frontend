@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, isSignedIn, getGmailAccessToken } from "../lib/auth";
+import { signInWithGoogle, isSignedIn, getGmailAccessToken } from "../lib/googleAuth";
 
 export default function ContactManageHome() {
   const navigate = useNavigate();
