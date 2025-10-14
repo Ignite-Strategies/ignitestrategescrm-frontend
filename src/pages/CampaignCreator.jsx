@@ -431,15 +431,14 @@ export default function CampaignCreator() {
             </div>
             
             {/* Send Button */}
-              <div className="flex justify-end">
-                <button
-                  onClick={handleSend}
-                  disabled={sending || !campaignId || !listId || !subject.trim() || !message.trim()}
-                  className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {sending ? "Sending..." : `📨 Send to ${contacts.length || 0} contacts`}
-                </button>
-              </div>
+            <div className="flex justify-end">
+              <button
+                onClick={handleSend}
+                disabled={sending || !campaignId || !listId || !subject.trim() || !message.trim()}
+                className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {sending ? "Sending..." : `📨 Send to ${contacts.length || 0} contacts`}
+              </button>
             </div>
             
           </div>
