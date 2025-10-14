@@ -58,64 +58,34 @@ export default function Welcome() {
         return;
       }
       
-      const { adminId, orgId, eventId, admin } = hydrationData;
+      const { adminId, orgId, eventId } = hydrationData;
       
       // ROUTING LOGIC - Check what's missing
-      console.log('🔍 Hydration data check:', { adminId, orgId, eventId, hasAdmin: !!admin });
+      console.log('🔍 Hydration data check:', { adminId, orgId, eventId });
       
-      // 1. Check if admin exists
-      if (!adminId || !admin) {
-        console.log('⚠️ No admin found in hydration data');
+      // 1. Check if admin exists (just need adminId)
+      if (!adminId) {
+        console.log('⚠️ No adminId found in hydration data');
         console.log('⚠️ AdminId:', adminId);
-        console.log('⚠️ Admin object:', admin);
         alert(`No admin record found for firebaseId ${firebaseId}. Redirecting to signup...`);
         navigate('/signup');
         return;
       }
       
-      // 2. Check if org exists
-      if (!orgId) {
-        console.log('⚠️ No org linked, go to org/choose');
-        navigate('/org/choose');
-        return;
-      }
+      console.log('✅ Admin found! AdminId:', adminId);
       
-      // 3. SAVE CORE IDS TO LOCALSTORAGE
+      // 2. SAVE CORE IDS TO LOCALSTORAGE
       localStorage.setItem('adminId', adminId);
-      localStorage.setItem('orgId', orgId);
+      if (orgId) {
+        localStorage.setItem('orgId', orgId);
+      }
       if (eventId) {
         localStorage.setItem('eventId', eventId);
       }
       
-      // 4. HYDRATE EVENTATTENDEE SCHEMA CONFIG
-      try {
-        const schemaResponse = await api.get('/schema/event-attendee');
-        const { audienceTypes, stages } = schemaResponse.data;
-        
-        localStorage.setItem('eventAttendeeSchema', JSON.stringify({
-          audienceTypes,
-          stages,
-          hydratedAt: new Date().toISOString()
-        }));
-        
-        console.log('✅ EventAttendee schema hydrated:', { audienceTypes, stages });
-      } catch (error) {
-        console.error('❌ Failed to hydrate EventAttendee schema:', error);
-        // Don't block the flow - schema will be fetched on demand
-      }
-      
-      // 5. Check if event exists
-      if (!eventId) {
-        console.log('⚠️ No event, go to event creation');
-        navigate('/event/create');
-        return;
-      }
-      
-      // 6. All good - show welcome screen!
-      console.log('✅ All data exists, showing welcome screen');
-      setOrgName('Your Organization'); // We'll fetch org name later if needed
-      setMemberName(admin.role || 'Admin');
-      setLoading(false);
+      // 3. Admin is logged in - go to dashboard!
+      console.log('✅ Admin authenticated, redirecting to dashboard');
+      navigate('/dashboard');
       
     } catch (error) {
       console.error('❌ Hydration error:', error);
