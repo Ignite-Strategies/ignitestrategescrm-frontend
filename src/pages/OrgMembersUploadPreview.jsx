@@ -32,7 +32,7 @@ export default function UploadPreview() {
   // Call backend universal preview endpoint for parsing and mapping
   useEffect(() => {
     const loadPreviewFromBackend = async () => {
-      if (file && file.content) {
+    if (file && file.content) {
         try {
           const formData = new FormData();
           const blob = new Blob([file.content], { type: 'text/csv' });
@@ -59,11 +59,11 @@ export default function UploadPreview() {
           const lines = file.content.split('\n').filter(line => line.trim());
           const headers = lines[0].split(',').map(h => h.trim());
           const rows = lines.slice(1, 6).map(line => {
-            const values = line.split(',').map(v => v.trim());
-            return values;
-          });
-          setCsvPreviewData(rows);
-        }
+        const values = line.split(',').map(v => v.trim());
+        return values;
+      });
+      setCsvPreviewData(rows);
+    }
       }
     };
 
@@ -238,11 +238,10 @@ export default function UploadPreview() {
           </div>
         </div>
 
-        {/* Main Content - Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Main Content - Vertical Layout */}
+        <div className="space-y-8">
           
-          {/* Left Column - Field Mapping */}
-          <div className="space-y-6">
+          {/* Field Mapping Section */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Field Mapping</h2>
           
@@ -333,12 +332,9 @@ export default function UploadPreview() {
               );
             })()
           )}
-
-            </div>
           </div>
 
-          {/* Right Column - Data Preview and Event Assignment */}
-          <div className="space-y-6">
+          {/* Data Preview Section */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Data Preview</h2>
               
@@ -380,10 +376,9 @@ export default function UploadPreview() {
                   <p>No data preview available</p>
                 </div>
               )}
-            </div>
           </div>
 
-            {/* Event Assignment Section */}
+          {/* Event Assignment Section */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow p-6 border border-indigo-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">🎯 Add to Event</h2>
               
@@ -451,8 +446,6 @@ export default function UploadPreview() {
                   </div>
                 )}
               </div>
-            </div>
-            </div>
           </div>
         </div>
 
