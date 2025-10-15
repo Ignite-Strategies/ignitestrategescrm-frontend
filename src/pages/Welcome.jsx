@@ -83,9 +83,13 @@ export default function Welcome() {
         localStorage.setItem('eventId', eventId);
       }
       
-      // 3. Admin is logged in - go to dashboard!
-      console.log('✅ Admin authenticated, redirecting to dashboard');
-      navigate('/dashboard');
+      // 3. Admin is logged in - show welcome screen!
+      console.log('✅ Admin authenticated, showing welcome screen');
+      
+      // Set org name and member name for display
+      setOrgName(hydrationData.orgName || 'Your Organization');
+      setMemberName(hydrationData.memberName || firebaseUser.displayName || 'Team Member');
+      setLoading(false);
       
     } catch (error) {
       console.error('❌ Hydration error:', error);
