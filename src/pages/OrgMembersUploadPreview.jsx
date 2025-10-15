@@ -80,27 +80,24 @@ export default function OrgMembersUploadPreview() {
       if (cachedEvent) {
         try {
           const event = JSON.parse(cachedEvent);
-          console.log('✅ Using cached event from Welcome hydration:', event.name);
           setAvailableEvents([event]);
           setSelectedEvent(event.id);
           return;
         } catch (error) {
-          console.error('⚠️ Failed to parse cached event, loading from API');
+          // Cache parse failed, load from API
         }
       }
       
       // If no cache, fetch all events from API
       try {
-        console.log('🔍 Fetching events for org:', orgId);
         const response = await api.get(`/events/${orgId}/events`);
         const events = response.data;
-        console.log('✅ Events loaded:', events);
         setAvailableEvents(events);
         if (events.length > 0) {
           setSelectedEvent(events[0].id);
         }
       } catch (error) {
-        console.error('❌ Error loading events:', error);
+        console.error('Failed to load events:', error);
       }
     };
 
@@ -128,7 +125,6 @@ export default function OrgMembersUploadPreview() {
 
       try {
         setLoading(true);
-        console.log('📋 Loading preview data...');
         
         const formData = new FormData();
         const blob = new Blob([file.content], { type: 'text/csv' });
@@ -151,7 +147,6 @@ export default function OrgMembersUploadPreview() {
             return mappings.map(mapping => record[mapping.mappedField] || '');
           });
           setCsvPreviewData(previewRows);
-          console.log('✅ Preview data loaded');
         }
       } catch (error) {
         console.error('❌ Error loading preview:', error);
@@ -174,29 +169,24 @@ export default function OrgMembersUploadPreview() {
       
       // Add event assignment if enabled
       if (addToEvent && selectedEvent) {
-        console.log('🎯 Adding event assignment:', {
-          eventId: selectedEvent,
-          audienceType: selectedAudience,
-          currentStage: selectedStage
-        });
-        
-        // eventId goes as separate field (backend expects it in req.body)
         formData.append('eventId', selectedEvent);
-        
-        // assignments contains audience and stage
         formData.append('assignments', JSON.stringify({
           audienceType: selectedAudience,
-          defaultStage: selectedStage  // Backend uses 'defaultStage', not 'currentStage'
+          defaultStage: selectedStage
         }));
       }
 
-      console.log('📤 Uploading org members with formData');
+      console.log('📤 Saving org members from CSV upload...');
       const response = await api.post('/contacts/upload/save', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      console.log('✅ Upload response:', response.data);
-      console.log('✅ Response.data.success:', response.data.success);
+      console.log('✅ Upload complete:', {
+        contacts: response.data.contacts,
+        orgMembers: response.data.orgMembers,
+        eventAttendees: response.data.eventAttendees,
+        errors: response.data.errorCount
+      });
       
       // Build event assignment info if event was selected
       let eventAssignment = null;
@@ -208,7 +198,6 @@ export default function OrgMembersUploadPreview() {
           audienceType: selectedAudience,
           stage: selectedStage
         };
-        console.log('🎯 Event assignment info:', eventAssignment);
       }
       
       const stateToPass = { 
@@ -216,22 +205,12 @@ export default function OrgMembersUploadPreview() {
         eventAssignment: eventAssignment
       };
       
-      console.log('🚀 ALWAYS NAVIGATING TO SUCCESS PAGE');
-      console.log('🚀 State to pass:', stateToPass);
+      console.log('✅ Navigating to success page');
       navigate('/org-members/upload/success', { state: stateToPass });
       
     } catch (error) {
-      console.error('❌ Upload failed:', error);
+      console.error('❌ Upload failed:', error.response?.data || error.message);
       alert('Upload failed: ' + (error.response?.data?.error || error.message));
-      
-      // EVEN ON ERROR, GO TO SUCCESS PAGE (for debugging)
-      console.log('🚨 ERROR - Still navigating to success page for debugging');
-      navigate('/org-members/upload/success', { 
-        state: { 
-          uploadResults: { error: error.message },
-          eventAssignment: null
-        } 
-      });
     } finally {
       setUploading(false);
     }
