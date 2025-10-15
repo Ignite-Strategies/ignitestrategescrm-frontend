@@ -83,7 +83,7 @@ export default function ContactListView() {
   };
   
   const handleSelectAll = () => {
-    const allIds = new Set(filteredMembers.map(m => m.id));
+    const allIds = new Set(filteredContacts.map(m => m.contactId));
     setSelectedContacts(allIds);
   };
   
@@ -141,11 +141,11 @@ export default function ContactListView() {
     }
   };
   
-  // Filter members based on search
-  const filteredMembers = orgMembers.filter(member => 
-    member.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter contacts based on search
+  const filteredContacts = contacts.filter(contact => 
+    contact.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contact.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contact.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   return (
@@ -194,7 +194,7 @@ export default function ContactListView() {
                 <span className="text-lg font-bold text-indigo-600">
                   {selectedContacts.size}
                 </span>
-                <span className="text-gray-600 ml-1">of {orgMembers.length} selected</span>
+                <span className="text-gray-600 ml-1">of {contacts.length} selected</span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -231,16 +231,16 @@ export default function ContactListView() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
                 <p className="text-gray-500 mt-2">Loading contacts...</p>
               </div>
-            ) : filteredMembers.length === 0 ? (
+            ) : filteredContacts.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 No contacts found
               </div>
             ) : (
-              filteredMembers.map(member => (
+              filteredContacts.map(contact => (
                 <div
-                  key={member.contactId}
+                  key={contact.contactId}
                   className={`p-4 border-2 rounded-lg transition ${
-                    selectedContacts.has(member.contactId)
+                    selectedContacts.has(contact.contactId)
                       ? 'border-indigo-500 bg-indigo-50'
                       : 'border-gray-200 hover:border-indigo-300'
                   }`}
@@ -248,20 +248,20 @@ export default function ContactListView() {
                   <div className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={selectedContacts.has(member.contactId)}
-                      onChange={() => handleToggleContact(member.contactId)}
+                      checked={selectedContacts.has(contact.contactId)}
+                      onChange={() => handleToggleContact(contact.contactId)}
                       className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                     />
                     <div className="ml-4 flex-1">
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="font-semibold text-gray-900">
-                            {member.firstName} {member.lastName}
+                            {contact.firstName} {contact.lastName}
                           </h3>
-                          <p className="text-sm text-gray-600">{member.email}</p>
+                          <p className="text-sm text-gray-600">{contact.email}</p>
                         </div>
                         <div className="text-sm text-gray-500">
-                          {member.phone || 'No phone'}
+                          {contact.phone || 'No phone'}
                         </div>
                       </div>
                     </div>
