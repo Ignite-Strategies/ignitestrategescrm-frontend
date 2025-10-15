@@ -447,10 +447,9 @@ export default function UploadPreview() {
                 )}
               </div>
           </div>
-        </div>
 
-        {/* Actions - Full Width */}
-        <div className="mt-8 flex gap-4">
+          {/* Actions */}
+          <div className="flex gap-4">
           <button
             onClick={() => navigate("/org-members/upload")}
             className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
@@ -464,6 +463,7 @@ export default function UploadPreview() {
           >
             {uploading ? "Importing..." : "Import My Contacts"}
           </button>
+        </div>
         </div>
       </div>
     </div>
