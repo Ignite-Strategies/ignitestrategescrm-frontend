@@ -76,19 +76,38 @@ export default function ContactListBuilder() {
       
       switch (listType) {
         case 'org_members':
-          // Navigate to contact list view for org members
-          navigate('/contact-list-view?type=org_members');
-          return;
+          // Create the contact list and assign to campaign
+          response = await api.post("/contact-lists", {
+            orgId,
+            name: "All Org Members",
+            description: "All organization members",
+            type: "smart",
+            smartListType: "all_org_members",
+            contactCount: orgMembers.length
+          });
+          break;
           
         case 'all_attendees':
-          // Navigate to contact list view for all attendees
-          navigate('/contact-list-view?type=all_attendees');
-          return;
+          response = await api.post("/contact-lists", {
+            orgId,
+            name: "All Event Attendees",
+            description: "All contacts from all event pipelines",
+            type: "smart", 
+            smartListType: "all_event_attendees",
+            contactCount: allAttendees.length
+          });
+          break;
           
         case 'paid_attendees':
-          // Navigate to contact list view for paid attendees
-          navigate('/contact-list-view?type=paid_attendees');
-          return;
+          response = await api.post("/contact-lists", {
+            orgId,
+            name: "Paid Event Attendees", 
+            description: "All contacts who have paid across all events",
+            type: "smart",
+            smartListType: "paid_event_attendees", 
+            contactCount: paidAttendees.length
+          });
+          break;
       }
       
       const listId = response.data.id;
@@ -162,7 +181,7 @@ export default function ContactListBuilder() {
                 
                 <div className="space-y-3">
                   <button
-                    onClick={() => navigate('/contact-list-view?type=org_members')}
+                    onClick={() => navigate(`/contact-list-view?type=org_members${campaignId ? `&campaignId=${campaignId}` : ''}`)}
                     disabled={loading}
                     className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition font-medium"
                   >
