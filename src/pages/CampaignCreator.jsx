@@ -72,7 +72,15 @@ export default function CampaignCreator() {
       console.log('🔍 DEBUG: Campaign data loaded - name:', campaign.name, 'subject:', campaign.subject, 'body:', campaign.body);
     } catch (err) {
       console.error("Error loading campaign:", err);
-      setError("Failed to load campaign data");
+      if (err.response?.status === 404) {
+        // Campaign was deleted, clear the campaignId and start fresh
+        console.log('🗑️ Campaign not found (likely deleted), starting fresh');
+        localStorage.removeItem('campaignId');
+        setSearchParams({});
+        setError("");
+      } else {
+        setError("Failed to load campaign data");
+      }
     }
   };
 
