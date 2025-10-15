@@ -58,8 +58,13 @@ export default function UploadPreview() {
             });
             setCsvPreviewData(previewRows);
             
+            // Cache in localStorage for retrieval
+            localStorage.setItem('fieldMapping', JSON.stringify(mappings));
+            localStorage.setItem('csvPreviewData', JSON.stringify(previewRows));
+            
             console.log('✅ Backend preview loaded:', response.data);
             console.log('📊 Preview rows:', previewRows);
+            console.log('💾 Cached to localStorage');
           }
         } catch (error) {
           console.error('❌ Backend preview failed, using local parsing:', error);
