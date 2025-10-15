@@ -205,8 +205,12 @@ export default function OrgMembersUploadPreview() {
         eventAssignment: eventAssignment
       };
       
-      console.log('✅ Navigating to success page');
+      console.log('🚀🚀🚀 ABOUT TO NAVIGATE! 🚀🚀🚀');
+      console.log('🚀 Target URL: /org-members/upload/success');
+      console.log('🚀 State being passed:', stateToPass);
+      console.log('🚀 Calling navigate() NOW...');
       navigate('/org-members/upload/success', { state: stateToPass });
+      console.log('🚀 navigate() call completed!');
       
     } catch (error) {
       console.error('❌ Upload failed:', error.response?.data || error.message);
