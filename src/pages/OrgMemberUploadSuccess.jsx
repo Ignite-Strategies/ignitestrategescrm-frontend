@@ -6,10 +6,13 @@ export default function OrgMemberUploadSuccess() {
   const location = useLocation();
   const [uploadResults, setUploadResults] = useState(null);
 
+  const [eventAssignment, setEventAssignment] = useState(null);
+
   useEffect(() => {
     // Get results from navigation state (passed from Preview page)
     if (location.state?.uploadResults) {
       setUploadResults(location.state.uploadResults);
+      setEventAssignment(location.state.eventAssignment || null);
     } else {
       // Fallback to localStorage if state is lost
       const savedResults = localStorage.getItem('orgMemberUploadResults');
@@ -87,16 +90,18 @@ export default function OrgMemberUploadSuccess() {
           </div>
 
           {/* Event Assignment Info */}
-          {eventAttendeesCreated > 0 && (
+          {eventAssignment && (
             <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
               <div className="flex items-center mb-2">
                 <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <h3 className="text-sm font-semibold text-indigo-900">Added to Event</h3>
+                <h3 className="text-sm font-semibold text-indigo-900">🎯 Added to Event</h3>
               </div>
               <p className="text-sm text-indigo-800">
-                <strong>{eventAttendeesCreated}</strong> contacts were successfully added to the event as attendees.
+                <strong>{successCount}</strong> contacts were added to <strong>{eventAssignment.eventName}</strong> as{' '}
+                <strong className="capitalize">{eventAssignment.audienceType.replace(/_/g, ' ')}</strong> in{' '}
+                <strong className="capitalize">{eventAssignment.stage.replace(/_/g, ' ')}</strong> stage.
               </p>
             </div>
           )}

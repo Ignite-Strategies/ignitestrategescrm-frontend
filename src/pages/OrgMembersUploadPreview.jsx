@@ -197,8 +197,23 @@ export default function OrgMembersUploadPreview() {
 
       console.log('✅ Upload response:', response.data);
       if (response.data.success) {
+        // Build event assignment info if event was selected
+        let eventAssignment = null;
+        if (addToEvent && selectedEvent) {
+          const selectedEventObj = availableEvents.find(e => e.id === selectedEvent);
+          eventAssignment = {
+            eventId: selectedEvent,
+            eventName: selectedEventObj?.name || 'Selected Event',
+            audienceType: selectedAudience,
+            stage: selectedStage
+          };
+        }
+        
         navigate('/org-members/upload/success', { 
-          state: { uploadResults: response.data } 
+          state: { 
+            uploadResults: response.data,
+            eventAssignment: eventAssignment
+          } 
         });
       }
     } catch (error) {
