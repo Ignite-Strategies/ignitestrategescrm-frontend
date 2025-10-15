@@ -69,17 +69,42 @@ export default function OrgMembersUploadPreview() {
   const [availableEvents, setAvailableEvents] = useState([]);
   const [availableStages, setAvailableStages] = useState([]);
 
-  // Load events from localStorage
+  // Load events - check cache first, then API
   useEffect(() => {
-    const cachedEvents = localStorage.getItem('availableEvents');
-    if (cachedEvents) {
-      const events = JSON.parse(cachedEvents);
-      setAvailableEvents(events);
-      if (events.length > 0) {
-        setSelectedEvent(events[0].id);
+    const loadEvents = async () => {
+      if (!orgId) return;
+      
+      // Try to get current event from cache (set by Welcome)
+      const cachedEvent = localStorage.getItem('event');
+      if (cachedEvent) {
+        try {
+          const event = JSON.parse(cachedEvent);
+          console.log('✅ Using cached event from Welcome hydration:', event.name);
+          setAvailableEvents([event]);
+          setSelectedEvent(event.id);
+          return;
+        } catch (error) {
+          console.error('⚠️ Failed to parse cached event, loading from API');
+        }
       }
-    }
-  }, []);
+      
+      // If no cache, fetch all events from API
+      try {
+        console.log('🔍 Fetching events for org:', orgId);
+        const response = await api.get(`/events/${orgId}/events`);
+        const events = response.data;
+        console.log('✅ Events loaded:', events);
+        setAvailableEvents(events);
+        if (events.length > 0) {
+          setSelectedEvent(events[0].id);
+        }
+      } catch (error) {
+        console.error('❌ Error loading events:', error);
+      }
+    };
+
+    loadEvents();
+  }, [orgId]);
 
   // Load stages when audience changes
   useEffect(() => {
@@ -135,24 +160,36 @@ export default function OrgMembersUploadPreview() {
       
       // Add event assignment if enabled
       if (addToEvent && selectedEvent) {
-        formData.append('assignments', JSON.stringify({
+        console.log('🎯 Adding event assignment:', {
           eventId: selectedEvent,
           audienceType: selectedAudience,
           currentStage: selectedStage
+        });
+        
+        // eventId goes as separate field (backend expects it in req.body)
+        formData.append('eventId', selectedEvent);
+        
+        // assignments contains audience and stage
+        formData.append('assignments', JSON.stringify({
+          audienceType: selectedAudience,
+          defaultStage: selectedStage  // Backend uses 'defaultStage', not 'currentStage'
         }));
       }
 
+      console.log('📤 Uploading org members with formData');
       const response = await api.post('/contacts/upload/save', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
+      console.log('✅ Upload response:', response.data);
       if (response.data.success) {
         navigate('/org-members/upload/complete', { 
           state: { results: response.data } 
         });
       }
     } catch (error) {
-      console.error('Upload failed:', error);
+      console.error('❌ Upload failed:', error);
+      alert('Upload failed: ' + (error.response?.data?.error || error.message));
     } finally {
       setUploading(false);
     }
@@ -276,7 +313,7 @@ export default function OrgMembersUploadPreview() {
                     <option value="">Choose an event...</option>
                     {availableEvents.map(event => (
                       <option key={event.id} value={event.id}>
-                        {event.name} {event.eventDate ? `- ${new Date(event.eventDate).toLocaleDateString()}` : ''}
+                        {event.name}
                       </option>
                     ))}
                   </select>

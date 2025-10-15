@@ -58,7 +58,7 @@ export default function Welcome() {
         return;
       }
       
-      const { adminId, orgId, eventId } = hydrationData;
+      const { adminId, orgId, eventId, admin, org, event } = hydrationData;
       
       // ROUTING LOGIC - Check what's missing
       console.log('🔍 Hydration data check:', { adminId, orgId, eventId });
@@ -74,7 +74,8 @@ export default function Welcome() {
       
       console.log('✅ Admin found! AdminId:', adminId);
       
-      // 2. SAVE CORE IDS TO LOCALSTORAGE
+      // 2. 🔥 CACHE EVERYTHING TO LOCALSTORAGE (IDs + Full Objects)
+      // IDs (backwards compatibility)
       localStorage.setItem('adminId', adminId);
       if (orgId) {
         localStorage.setItem('orgId', orgId);
@@ -83,12 +84,26 @@ export default function Welcome() {
         localStorage.setItem('eventId', eventId);
       }
       
+      // FULL OBJECTS (new hydration pattern)
+      if (admin) {
+        localStorage.setItem('admin', JSON.stringify(admin));
+        console.log('✅ Cached admin object');
+      }
+      if (org) {
+        localStorage.setItem('org', JSON.stringify(org));
+        console.log('✅ Cached org object:', org.name);
+      }
+      if (event) {
+        localStorage.setItem('event', JSON.stringify(event));
+        console.log('✅ Cached event object:', event.name);
+      }
+      
       // 3. Admin is logged in - show welcome screen!
       console.log('✅ Admin authenticated, showing welcome screen');
       
       // Set org name and member name for display
-      setOrgName(hydrationData.orgName || 'Your Organization');
-      setMemberName(hydrationData.memberName || firebaseUser.displayName || 'Team Member');
+      setOrgName(hydrationData.orgName || org?.name || 'Your Organization');
+      setMemberName(hydrationData.memberName || admin?.name || firebaseUser.displayName || 'Team Member');
       setLoading(false);
       
     } catch (error) {

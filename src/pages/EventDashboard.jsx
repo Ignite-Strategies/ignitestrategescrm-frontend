@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
+import { OFFICIAL_AUDIENCES } from "../config/pipelineConfig";
 
 export default function Events() {
   const navigate = useNavigate();
@@ -62,8 +63,7 @@ export default function Events() {
           console.log(`✅ Cached ALL attendees for event ${eventId}:`, allAttendeesRes.data.length);
           
           // Load attendees for all audiences (for pipeline views)
-          const audiences = ['org_members', 'friends_family', 'champions', 'community_partners', 'business_sponsor'];
-          for (const audience of audiences) {
+          for (const audience of OFFICIAL_AUDIENCES) {
             const attendeesRes = await api.get(`/events/${eventId}/pipeline?audienceType=${audience}`);
             localStorage.setItem(`event_${eventId}_pipeline_${audience}`, JSON.stringify(attendeesRes.data));
             console.log(`✅ Cached ${audience} attendees for event ${eventId}`);

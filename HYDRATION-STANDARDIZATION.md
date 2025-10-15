@@ -165,15 +165,40 @@ await loadData();
 
 | Key | Data | Hydrated By | Used By |
 |-----|------|-------------|---------|
+| `adminId` | String | Welcome | All pages |
+| `orgId` | String | Welcome | All pages |
+| `eventId` | String | Welcome | Event pages |
+| `admin` | Admin Object | Welcome | All pages |
+| `org` | Organization Object | Welcome | All pages |
+| `event` | Event Object | Welcome | Event pages, OrgMembersUploadPreview |
 | `event_{eventId}_attendees` | EventAttendee[] | EventDashboard, EventAttendeeList | EventAttendeeList, EventPipelines |
 | `org_{orgId}_members` | OrgMember[] | OrgDashboard, Dashboard | OrgMembers |
 | `pipelineConfigs` | PipelineConfig[] | EventDashboard | EventPipelines |
-| `orgId` | String | Auth flow | All pages |
-| `eventId` | String | Event selection | Event pages |
 
 ---
 
-**Last Updated:** October 13, 2025
-**Status:** In Progress - ContactManageHome hydration pending
+## 🔥 NEW PATTERN (Oct 15, 2025)
+
+### Welcome = Universal Hydrator
+
+Welcome.jsx now caches FULL objects, not just IDs:
+- `localStorage.admin` - Full admin object (id, name, email, firebaseId)
+- `localStorage.org` - Full org object (id, name, slug, mission, website)
+- `localStorage.event` - Full event object (id, name, slug, date, time, description)
+
+**Plus** backward-compatible IDs:
+- `localStorage.adminId`
+- `localStorage.orgId`
+- `localStorage.eventId`
+
+**Child pages should:**
+1. Check cache first (`localStorage.event`)
+2. Fall back to API if cache miss
+3. Parse JSON carefully with try/catch
+
+---
+
+**Last Updated:** October 15, 2025
+**Status:** ✅ Welcome hydration upgraded to full objects!
 
 
