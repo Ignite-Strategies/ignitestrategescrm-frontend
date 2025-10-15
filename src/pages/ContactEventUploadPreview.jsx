@@ -110,7 +110,7 @@ export default function ContactEventUploadPreview() {
           }
         } catch (cacheError) {
           console.log('⚠️ No cached schema, fetching from API...');
-          const schemaResponse = await api.get('/schema/event-attendee');
+          const schemaResponse = await api.get('/contacts/event/schema');
           const schemaData = schemaResponse.data;
           audienceTypes = schemaData.audienceTypes;
           stages = schemaData.stages;

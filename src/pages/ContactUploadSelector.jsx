@@ -62,7 +62,7 @@ export default function ContactUpload() {
 
             {/* Event Attendees */}
             <button
-              onClick={() => navigate('/contacts/event/select')}
+              onClick={() => navigate('/contacts/event/upload')}
               className="p-8 border-2 border-emerald-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition text-left group"
             >
               <div className="flex items-center mb-4">
