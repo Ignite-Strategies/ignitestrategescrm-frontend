@@ -70,18 +70,18 @@ export default function ContactListBuilder() {
       
       switch (listType) {
         case 'org_members':
-          // Navigate to contact selection page instead of auto-creating list
-          navigate(`/contact-selection?type=org_members&campaignId=${campaignId}`);
+          // Navigate to contact list view for org members
+          navigate('/contact-list-view?type=org_members');
           return;
           
         case 'all_attendees':
-          // Navigate to contact selection page instead of auto-creating list
-          navigate(`/contact-selection?type=all_attendees&campaignId=${campaignId}`);
+          // Navigate to contact list view for all attendees
+          navigate('/contact-list-view?type=all_attendees');
           return;
           
         case 'paid_attendees':
-          // Navigate to contact selection page instead of auto-creating list
-          navigate(`/contact-selection?type=paid_attendees&campaignId=${campaignId}`);
+          // Navigate to contact list view for paid attendees
+          navigate('/contact-list-view?type=paid_attendees');
           return;
       }
       
@@ -155,11 +155,11 @@ export default function ContactListBuilder() {
                 </div>
                 
                 <button
-                  onClick={() => handleUseList('org_members', { name: 'All Org Members' })}
+                  onClick={() => navigate('/contact-list-view?type=org_members')}
                   disabled={loading}
                   className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition font-medium"
                 >
-                  {loading ? "Loading..." : "View & Select"}
+                  {loading ? "Loading..." : "View & Modify"}
                 </button>
               </div>
 
@@ -174,11 +174,11 @@ export default function ContactListBuilder() {
                 </div>
                 
                 <button
-                  onClick={() => handleUseList('all_attendees', { name: 'All Event Attendees' })}
+                  onClick={() => navigate('/contact-list-view?type=all_attendees')}
                   disabled={loading}
                   className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition font-medium"
                 >
-                  {loading ? "Loading..." : "View & Select"}
+                  {loading ? "Loading..." : "View & Modify"}
                 </button>
               </div>
 
