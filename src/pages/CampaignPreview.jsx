@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { getGmailAccessToken } from "../lib/googleAuth";
+import { getGmailAccessToken, isGmailAuthenticated } from "../lib/googleAuth";
 
 /**
  * CampaignPreview - Final Review Before Send
@@ -66,7 +66,7 @@ export default function CampaignPreview() {
         hasBody: !!campaignData.body
       });
       
-      setGmailAuthenticated(!!getGmailAccessToken());
+      setGmailAuthenticated(isGmailAuthenticated());
       
     } catch (err) {
       console.error("Error loading campaign data:", err);
