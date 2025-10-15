@@ -94,12 +94,14 @@ export default function OrgMemberUploadSuccess() {
     );
   }
 
-  // Backend returns: contacts, orgMembers, eventAttendees, validCount, errorCount, errors
+  // Backend returns: contacts, contactsCreated, contactsUpdated, orgMembers, orgMembersCreated, orgMembersUpdated
   const totalProcessed = uploadResults.totalProcessed || 0;
   const successCount = uploadResults.validCount || 0;
   const errorCount = uploadResults.errorCount || 0;
-  const contactsCreated = uploadResults.contacts || 0;
-  const orgMembersCreated = uploadResults.orgMembers || 0;
+  const contactsCreated = uploadResults.contactsCreated || 0;
+  const contactsUpdated = uploadResults.contactsUpdated || 0;
+  const orgMembersCreated = uploadResults.orgMembersCreated || 0;
+  const orgMembersUpdated = uploadResults.orgMembersUpdated || 0;
   const eventAttendeesCreated = uploadResults.eventAttendees || 0;
 
   return (
@@ -133,7 +135,15 @@ export default function OrgMemberUploadSuccess() {
               <div className="text-sm text-green-900 font-medium">
                 Successfully Imported
                 <div className="text-xs text-green-700 mt-1">
-                  {contactsCreated} contacts · {orgMembersCreated} org members
+                  {contactsCreated > 0 && `${contactsCreated} new`}
+                  {contactsCreated > 0 && contactsUpdated > 0 && ' · '}
+                  {contactsUpdated > 0 && `${contactsUpdated} updated`}
+                  {(contactsCreated > 0 || contactsUpdated > 0) && ' contacts'}
+                  {(orgMembersCreated > 0 || orgMembersUpdated > 0) && ' · '}
+                  {orgMembersCreated > 0 && `${orgMembersCreated} new`}
+                  {orgMembersCreated > 0 && orgMembersUpdated > 0 && ' · '}
+                  {orgMembersUpdated > 0 && `${orgMembersUpdated} updated`}
+                  {(orgMembersCreated > 0 || orgMembersUpdated > 0) && ' org members'}
                   {eventAttendeesCreated > 0 && ` · ${eventAttendeesCreated} event attendees`}
                 </div>
               </div>
