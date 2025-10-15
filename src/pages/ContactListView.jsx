@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
@@ -9,36 +9,62 @@ import { getOrgId } from "../lib/org";
  */
 export default function ContactListView() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const orgId = getOrgId();
+  
+  // Get type from URL params
+  const type = searchParams.get('type') || 'org_members';
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [orgMembers, setOrgMembers] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState(new Set());
   const [listName, setListName] = useState("All Org Members");
   const [searchTerm, setSearchTerm] = useState("");
   
   useEffect(() => {
-    loadOrgMembers();
-  }, [orgId]);
+    loadContacts();
+  }, [orgId, type]);
   
-  const loadOrgMembers = async () => {
+  const loadContacts = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/orgmembers?orgId=${orgId}`);
       
-      // Handle both array and object response formats
-      const members = Array.isArray(response.data) 
-        ? response.data 
-        : response.data.members || [];
+      // 🌊 UNIVERSAL HYDRATION - Load everything at once!
+      const response = await api.get(`/universal-hydration?orgId=${orgId}`);
+      const universalData = response.data;
+      console.log('🌊 ContactListView using universal hydration:', universalData.summary);
       
-      setOrgMembers(members);
+      // Filter contacts based on type
+      let filteredContacts = [];
+      let displayName = "";
       
-      // Auto-select all org members (use contactId, not id!)
-      setSelectedContacts(new Set(members.map(m => m.contactId)));
+      switch (type) {
+        case 'org_members':
+          filteredContacts = universalData.contacts.filter(c => c.isOrgMember);
+          displayName = "All Org Members";
+          break;
+        case 'all_attendees':
+          filteredContacts = universalData.contacts.filter(c => c.totalEventsAttended > 0);
+          displayName = "All Event Attendees";
+          break;
+        case 'paid_attendees':
+          filteredContacts = universalData.contacts.filter(c => c.paidEvents > 0);
+          displayName = "Paid Event Attendees";
+          break;
+        default:
+          filteredContacts = universalData.contacts.filter(c => c.isOrgMember);
+          displayName = "All Org Members";
+      }
+      
+      setContacts(filteredContacts);
+      setListName(displayName);
+      
+      // Auto-select all contacts (use contactId!)
+      setSelectedContacts(new Set(filteredContacts.map(c => c.contactId)));
     } catch (err) {
-      console.error("Error loading org members:", err);
-      setError("Failed to load org members");
+      console.error("Error loading contacts:", err);
+      setError("Failed to load contacts");
     } finally {
       setLoading(false);
     }
