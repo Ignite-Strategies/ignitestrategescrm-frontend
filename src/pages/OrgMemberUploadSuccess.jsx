@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function OrgMemberUploadSuccess() {
+  console.log('🔴🔴🔴 SUCCESS PAGE COMPONENT RENDERING! 🔴🔴🔴');
+  
   const navigate = useNavigate();
   const location = useLocation();
   const [uploadResults, setUploadResults] = useState(null);
@@ -9,8 +11,9 @@ export default function OrgMemberUploadSuccess() {
 
   useEffect(() => {
     console.log('═══════════════════════════════════════════');
-    console.log('🎉 SUCCESS PAGE LOADED!');
+    console.log('🎉 SUCCESS PAGE USEEFFECT RUNNING!');
     console.log('═══════════════════════════════════════════');
+    console.log('📍 Current URL:', window.location.href);
     console.log('📍 Full location object:', location);
     console.log('📍 Location.state:', location.state);
     console.log('📍 Location.state?.uploadResults:', location.state?.uploadResults);
