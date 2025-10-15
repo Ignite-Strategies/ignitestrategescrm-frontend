@@ -33,7 +33,7 @@ export default function Events() {
       setLoading(true);
       
       // Load events for org
-      const response = await api.get(`/orgs/${orgId}/events`);
+      const response = await api.get(`/events/${orgId}/events`);
       setEvents(response.data);
       
       // Load stats for the main event if we have events
