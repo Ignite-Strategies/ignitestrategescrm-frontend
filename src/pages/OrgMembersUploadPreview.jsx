@@ -196,31 +196,42 @@ export default function OrgMembersUploadPreview() {
       });
 
       console.log('✅ Upload response:', response.data);
-      if (response.data.success) {
-        // Build event assignment info if event was selected
-        let eventAssignment = null;
-        if (addToEvent && selectedEvent) {
-          const selectedEventObj = availableEvents.find(e => e.id === selectedEvent);
-          eventAssignment = {
-            eventId: selectedEvent,
-            eventName: selectedEventObj?.name || 'Selected Event',
-            audienceType: selectedAudience,
-            stage: selectedStage
-          };
-          console.log('🎯 Event assignment info:', eventAssignment);
-        }
-        
-        const stateToPass = { 
-          uploadResults: response.data,
-          eventAssignment: eventAssignment
+      console.log('✅ Response.data.success:', response.data.success);
+      
+      // Build event assignment info if event was selected
+      let eventAssignment = null;
+      if (addToEvent && selectedEvent) {
+        const selectedEventObj = availableEvents.find(e => e.id === selectedEvent);
+        eventAssignment = {
+          eventId: selectedEvent,
+          eventName: selectedEventObj?.name || 'Selected Event',
+          audienceType: selectedAudience,
+          stage: selectedStage
         };
-        
-        console.log('🚀 Navigating to success page with state:', stateToPass);
-        navigate('/org-members/upload/success', { state: stateToPass });
+        console.log('🎯 Event assignment info:', eventAssignment);
       }
+      
+      const stateToPass = { 
+        uploadResults: response.data,
+        eventAssignment: eventAssignment
+      };
+      
+      console.log('🚀 ALWAYS NAVIGATING TO SUCCESS PAGE');
+      console.log('🚀 State to pass:', stateToPass);
+      navigate('/org-members/upload/success', { state: stateToPass });
+      
     } catch (error) {
       console.error('❌ Upload failed:', error);
       alert('Upload failed: ' + (error.response?.data?.error || error.message));
+      
+      // EVEN ON ERROR, GO TO SUCCESS PAGE (for debugging)
+      console.log('🚨 ERROR - Still navigating to success page for debugging');
+      navigate('/org-members/upload/success', { 
+        state: { 
+          uploadResults: { error: error.message },
+          eventAssignment: null
+        } 
+      });
     } finally {
       setUploading(false);
     }
