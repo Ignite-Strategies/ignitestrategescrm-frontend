@@ -87,7 +87,7 @@ export default function CampaignCreator() {
         const linkedCampaigns = campaignsRes.data.filter(c => c.contactListId === list.id);
         return {
           ...list,
-          inUse: linkedCampaigns.some(c => c.status === 'sent' || c.status === 'active'),
+          inUse: linkedCampaigns.some(c => c.status === 'sent' || c.status === 'active' || c.status === 'draft'),
           assigned: linkedCampaigns.some(c => c.status === 'draft')
         };
       });

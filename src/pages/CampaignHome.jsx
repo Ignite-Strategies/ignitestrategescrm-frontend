@@ -104,6 +104,9 @@ export default function CampaignHome() {
         console.log('🧹 Cleared localStorage for deleted campaign');
       }
       
+      // Refresh campaigns to update contact list "assigned" status
+      await loadCampaigns();
+      
       console.log('✅ Campaign deleted:', campaign.name);
       alert(`✅ Campaign "${campaign.name}" deleted successfully!`);
     } catch (err) {
