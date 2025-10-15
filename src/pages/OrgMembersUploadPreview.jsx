@@ -32,8 +32,9 @@ export default function UploadPreview() {
   // Call backend universal preview endpoint for parsing and mapping
   useEffect(() => {
     const loadPreviewFromBackend = async () => {
-    if (file && file.content) {
+      if (file && file.content) {
         try {
+          console.log('🔄 Starting backend preview load...');
           const formData = new FormData();
           const blob = new Blob([file.content], { type: 'text/csv' });
           formData.append('file', blob, file.name);
@@ -65,18 +66,25 @@ export default function UploadPreview() {
             console.log('✅ Backend preview loaded:', response.data);
             console.log('📊 Preview rows:', previewRows);
             console.log('💾 Cached to localStorage');
+          } else {
+            console.error('❌ Backend returned success=false:', response.data);
+            throw new Error('Backend preview failed');
           }
         } catch (error) {
-          console.error('❌ Backend preview failed, using local parsing:', error);
+          console.error('❌ Backend preview failed:', error);
+          console.error('❌ Error details:', error.response?.data || error.message);
+          console.log('🔄 Falling back to local parsing...');
+          
           // Fallback to local parsing if backend fails
           const lines = file.content.split('\n').filter(line => line.trim());
           const headers = lines[0].split(',').map(h => h.trim());
           const rows = lines.slice(1, 6).map(line => {
-        const values = line.split(',').map(v => v.trim());
-        return values;
-      });
-      setCsvPreviewData(rows);
-    }
+            const values = line.split(',').map(v => v.trim());
+            return values;
+          });
+          setCsvPreviewData(rows);
+          console.log('✅ Local parsing fallback completed');
+        }
       }
     };
 
@@ -99,8 +107,30 @@ export default function UploadPreview() {
     loadEvents();
   }, [orgId]);
 
-  // For OrgMember uploads, we don't need audience stages
-  // This is only needed for EventAttendee uploads
+  // Load audience stages only when adding to an event
+  useEffect(() => {
+    const loadStagesForEvent = async () => {
+      if (addToEvent && selectedEvent && selectedAudience) {
+        try {
+          console.log('🔄 Loading stages for event audience:', selectedAudience);
+          const response = await api.get(`/schema/audience-stages/${selectedAudience}`);
+          if (response.data.success) {
+            const stages = response.data.stages;
+            setAvailableStages(stages);
+            if (stages.length > 0) {
+              setSelectedStage(stages[0]);
+            }
+            console.log('✅ Loaded stages:', stages);
+          }
+        } catch (error) {
+          console.error('❌ Error loading stages for audience:', selectedAudience, error);
+          console.error('❌ Error details:', error.response?.data || error.message);
+        }
+      }
+    };
+
+    loadStagesForEvent();
+  }, [addToEvent, selectedEvent, selectedAudience]);
 
   const availableFields = [
     { value: 'unmapped', label: 'Ignore this column' },
