@@ -17,6 +17,13 @@ export default function Events() {
   const [associatedForm, setAssociatedForm] = useState(null);
 
   useEffect(() => {
+    // Wait for orgId to be available from hydration
+    if (!orgId) {
+      console.log('⏳ Waiting for orgId from hydration...');
+      return;
+    }
+    
+    console.log('✅ OrgId available, loading events:', orgId);
     loadEvents();
     loadAssociatedForm();
   }, [orgId]);
