@@ -46,12 +46,20 @@ export default function UploadPreview() {
 
           if (response.data.success) {
             // Use backend's parsed and mapped data
-            setFieldMapping(response.data.fieldMappingSuggestions.map(suggestion => ({
+            const mappings = response.data.fieldMappingSuggestions.map(suggestion => ({
               csvHeader: suggestion.csvHeader,
               mappedField: suggestion.suggestedField
-            })));
-            setCsvPreviewData(response.data.preview);
+            }));
+            setFieldMapping(mappings);
+            
+            // Convert backend's mapped objects to array format for table display
+            const previewRows = response.data.preview.map(record => {
+              return mappings.map(mapping => record[mapping.mappedField] || '');
+            });
+            setCsvPreviewData(previewRows);
+            
             console.log('✅ Backend preview loaded:', response.data);
+            console.log('📊 Preview rows:', previewRows);
           }
         } catch (error) {
           console.error('❌ Backend preview failed, using local parsing:', error);
