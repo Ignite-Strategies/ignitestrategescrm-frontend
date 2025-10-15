@@ -42,6 +42,10 @@ export default function ContactManageSelector() {
     navigate(`/event/${selectedEventId}/attendees`);
   };
 
+  const handleAllContacts = () => {
+    navigate("/contacts/all");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-5xl mx-auto">
@@ -62,8 +66,8 @@ export default function ContactManageSelector() {
           </p>
         </div>
 
-        {/* Two Options */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Three Options */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           {/* Organization Contacts */}
           <button
@@ -205,6 +209,63 @@ export default function ContactManageSelector() {
               </button>
             </div>
           </div>
+
+          {/* All Contacts */}
+          <button
+            onClick={handleAllContacts}
+            className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group border-2 border-transparent hover:border-green-500"
+          >
+            <div className="flex flex-col h-full">
+              {/* Icon */}
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                  🔍 All Contacts
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  Search and manage anyone across your entire database
+                </p>
+                
+                <ul className="space-y-2 text-sm text-gray-600 mb-6">
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Universal search
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Cross-reference data
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Edit any contact
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Find duplicates
+                  </li>
+                </ul>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex items-center justify-end text-green-600 font-semibold group-hover:translate-x-2 transition">
+                Search All Contacts →
+              </div>
+            </div>
+          </button>
 
         </div>
 

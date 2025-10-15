@@ -63,8 +63,6 @@ import TestEnterpriseEmail from "./pages/TestEnterpriseEmail.jsx";
 import ContactListDebug from "./pages/ContactListDebug.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
 import ContactListView from "./pages/ContactListView.jsx";
-import ContactUploadChooser from "./pages/ContactUploadChooser.jsx";
-import CreateListOptions from "./pages/CreateListOptions.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
@@ -122,7 +120,7 @@ export default function App() {
         <Route path="/org-members/upload" element={
           <ProtectedRoute><OrgMembersCSVUpload /></ProtectedRoute>
         } />
-        <Route path="/contacteventmanual" element={
+        <Route path="/contact-upload-selector" element={
           <ProtectedRoute><ContactUploadSelector /></ProtectedRoute>
         } />
         <Route path="/contacts/event/upload" element={
@@ -143,7 +141,7 @@ export default function App() {
         <Route path="/org-members/upload/resolve" element={
           <ProtectedRoute><ResolveErrors /></ProtectedRoute>
         } />
-        <Route path="/orgmembermanual" element={
+        <Route path="/org-members/manual" element={
           <ProtectedRoute><OrgMemberManual /></ProtectedRoute>
         } />
         <Route path="/contact/:contactId" element={
@@ -224,7 +222,7 @@ export default function App() {
         <Route path="/contactmanage" element={
           <ProtectedRoute><ContactManageHome /></ProtectedRoute>
         } />
-        <Route path="/contacts/selector" element={
+        <Route path="/contact-manage-chooser" element={
           <ProtectedRoute><ContactManageSelector /></ProtectedRoute>
         } />
         <Route path="/form-user-update" element={
@@ -295,13 +293,6 @@ export default function App() {
           <ProtectedRoute><ContactListView /></ProtectedRoute>
         } />
         
-        {/* Contact List Creation Hub - PRIMARY ENTRY POINT */}
-        <Route path="/create-list-options" element={
-          <ProtectedRoute><CreateListOptions /></ProtectedRoute>
-        } />
-        <Route path="/contact-upload-chooser" element={
-          <ProtectedRoute><ContactUploadChooser /></ProtectedRoute>
-        } />
       </Routes>
     </BrowserRouter>
   );

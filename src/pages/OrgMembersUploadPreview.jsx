@@ -82,8 +82,9 @@ export default function UploadPreview() {
   const availableFields = [
     { value: 'unmapped', label: 'Ignore this column' },
     { value: 'firstName', label: 'First Name' },
-    { value: 'goesBy', label: 'Goes By (Nickname)' },
     { value: 'lastName', label: 'Last Name' },
+    { value: 'fullName', label: 'Full Name (will be parsed)' }, // Add fullName option
+    { value: 'goesBy', label: 'Goes By (Nickname)' },
     { value: 'email', label: 'Email Address' },
     { value: 'phone', label: 'Phone Number' },
     { value: 'street', label: 'Street Address' },
@@ -107,13 +108,17 @@ export default function UploadPreview() {
       'first name': 'firstName',
       'firstname': 'firstName',
       'fname': 'firstName',
+      'last name': 'lastName',
+      'lastname': 'lastName',
+      'lname': 'lastName',
+      'full name': 'fullName', // Add fullName mapping
+      'fullname': 'fullName',
+      'name': 'fullName',
+      'complete name': 'fullName',
       'goes by': 'goesBy',
       'goesby': 'goesBy',
       'nickname': 'goesBy',
       'preferred name': 'goesBy',
-      'last name': 'lastName',
-      'lastname': 'lastName',
-      'lname': 'lastName',
       'email': 'email',
       'email address': 'email',
       'phone': 'phone',
@@ -142,6 +147,7 @@ export default function UploadPreview() {
     const fileObj = new File([blob], file.name, { type: 'text/csv' });
     formData.append("file", fileObj);
     formData.append("orgId", orgId); // Send orgId in body, not URL
+    formData.append("uploadType", "orgMember");
     
     // Add event assignment data if checked
     if (addToEvent && selectedEvent) {
@@ -152,7 +158,7 @@ export default function UploadPreview() {
     }
 
     try {
-      const response = await api.post(`/orgmember/csv`, formData, {
+      const response = await api.post(`/contacts/upload/save`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
@@ -277,7 +283,11 @@ export default function UploadPreview() {
           {fieldMapping && (
             (() => {
               const mappedFields = fieldMapping.map(f => f.mappedField);
-              const missingRequired = ['firstName', 'lastName', 'email'].filter(req => !mappedFields.includes(req));
+              // Check if we have firstName+lastName OR fullName (which will be parsed)
+              const hasNameFields = (mappedFields.includes('firstName') && mappedFields.includes('lastName')) || mappedFields.includes('fullName');
+              const missingRequired = [];
+              if (!hasNameFields) missingRequired.push('firstName, lastName, or fullName');
+              if (!mappedFields.includes('email')) missingRequired.push('email');
               return missingRequired.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center mb-2">
@@ -288,7 +298,7 @@ export default function UploadPreview() {
                   </div>
                   <p className="text-sm text-red-800">
                     Your CSV is missing these required fields: <strong>{missingRequired.join(', ')}</strong>. 
-                    Please add these columns or rename existing columns to match our field names.
+                    Please add these columns or rename existing columns to match our field names. Note: "Full Name" will be automatically parsed into First Name and Last Name.
                   </p>
                 </div>
               );

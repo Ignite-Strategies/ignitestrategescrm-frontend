@@ -1,11 +1,7 @@
 /**
- * ⚠️ DEPRECATED - Uses old Supporter model (MongoDB)
- * 
- * TODO: Refactor to ContactManual.jsx
- * - Contact-First flow: Create Contact → Optionally elevate to OrgMember
- * - Should use Contact + OrgMember APIs (Prisma)
- * 
- * See: DEPRECATION-STATUS.md in backend
+ * OrgMemberManual - Manual Org Member Creation
+ * Contact-First flow: Create Contact → Create OrgMember link
+ * Uses Contact + OrgMember APIs (Prisma)
  */
 
 import { useState, useEffect } from "react";
@@ -13,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
-export default function ContactManual() {
+export default function OrgMemberManual() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   const [loading, setLoading] = useState(false);
@@ -70,26 +66,43 @@ export default function ContactManual() {
     setLoading(true);
 
     try {
-      // Create FormData (same as CSV upload)
-      const formDataObj = new FormData();
-      formDataObj.append("orgId", orgId);
-      
-      // Add all the form fields
-      Object.keys(formData).forEach(key => {
-        if (formData[key]) {
-          formDataObj.append(key, formData[key]);
-        }
-      });
+      // Create Contact first (Contact-First Architecture)
+      const contactData = {
+        firstName: formData.firstName,
+        goesBy: formData.goesBy || null,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone || null,
+        street: formData.street || null,
+        city: formData.city || null,
+        state: formData.state || null,
+        zip: formData.zip || null,
+        employer: formData.employer || null,
+        notes: formData.notes || null
+      };
 
-      const response = await api.post(`/orgmember/csv`, formDataObj, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
+      // Create the contact
+      const contactResponse = await api.post('/contacts', contactData);
+      const contactId = contactResponse.data.id;
+
+      // Create OrgMember link
+      const orgMemberData = {
+        contactId: contactId,
+        orgId: orgId,
+        yearsWithOrganization: formData.yearsWithOrganization ? parseInt(formData.yearsWithOrganization) : null,
+        categoryOfEngagement: formData.categoryOfEngagement,
+        status: 'active'
+      };
+
+      const orgMemberResponse = await api.post('/orgmembers', orgMemberData);
       
-      // Navigate to success page with results
-      navigate("/org-members/upload/success", {
-        state: { uploadResults: response.data }
-      });
+      alert(`✅ Org member "${formData.firstName} ${formData.lastName}" added successfully!`);
+      
+      // Navigate back to org members list
+      navigate("/org-members");
+      
     } catch (error) {
+      console.error("Error adding org member:", error);
       alert("Error adding org member: " + (error.response?.data?.error || error.message));
     } finally {
       setLoading(false);
@@ -101,8 +114,8 @@ export default function ContactManual() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-lg shadow p-8">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Add Supporter Manually</h1>
-            <p className="text-gray-600">Enter supporter details one by one</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Add Org Member Manually</h1>
+            <p className="text-gray-600">Enter org member details one by one</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -333,7 +346,7 @@ export default function ContactManual() {
                 disabled={loading}
                 className="flex-1 bg-indigo-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
               >
-                {loading ? "Adding..." : "Add Supporter"}
+                {loading ? "Adding..." : "Add Org Member"}
               </button>
             </div>
           </form>

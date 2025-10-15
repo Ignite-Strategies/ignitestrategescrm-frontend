@@ -175,7 +175,7 @@ export default function ContactManageHome() {
               
               {/* All Contacts - PRIMARY ACTION */}
               <button
-                onClick={() => navigate("/contacts/selector")}
+                onClick={() => navigate("/contact-manage-chooser")}
                 className="bg-gradient-to-br from-indigo-600 to-indigo-700 text-white p-6 rounded-lg shadow-lg hover:shadow-xl transition text-left border-2 border-indigo-500"
               >
                 <div className="flex items-center mb-4">

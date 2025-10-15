@@ -110,7 +110,7 @@ export default function ContactEventUploadPreview() {
           }
         } catch (cacheError) {
           console.log('⚠️ No cached schema, fetching from API...');
-          const schemaResponse = await api.get('/contacts/event/schema');
+          const schemaResponse = await api.get('/contacts/upload/schema/eventAttendee');
           const schemaData = schemaResponse.data;
           audienceTypes = schemaData.audienceTypes;
           stages = schemaData.stages;
@@ -215,6 +215,7 @@ export default function ContactEventUploadPreview() {
       const blob = new Blob([file.content], { type: file.type });
       formData.append('file', blob, file.name);
       formData.append('orgId', orgId);
+      formData.append('uploadType', 'eventAttendee');
       formData.append('eventId', selectedEvent.id);
       formData.append('assignments', JSON.stringify({
         mode: assignmentMode,
@@ -226,7 +227,7 @@ export default function ContactEventUploadPreview() {
         eventId: addToEvent ? selectedEventForAssignment?.id : null
       }));
 
-      const response = await api.post('/contacts/event/save', formData, {
+      const response = await api.post('/contacts/upload/save', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
