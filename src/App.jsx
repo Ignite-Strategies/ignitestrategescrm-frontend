@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Navigation from "./components/Navigation.jsx";
 import Splash from "./pages/Splash.jsx";
 import Signup from "./pages/Signup.jsx";
 import Signin from "./pages/Signin.jsx";
@@ -81,6 +82,7 @@ function ProtectedRoute({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <Navigation />
       <Routes>
         {/* Splash Screen (checks auth) */}
         <Route path="/" element={<Splash />} />
