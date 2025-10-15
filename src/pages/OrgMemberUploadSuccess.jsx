@@ -79,8 +79,8 @@ export default function OrgMemberUploadSuccess() {
             </div>
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-gray-900">Importing Your Contacts...</h2>
-            <p className="text-gray-600">Please wait while we save your data</p>
+            <h2 className="text-2xl font-bold text-gray-900">Loading Your Import Results...</h2>
+            <p className="text-gray-600">Saving contacts to database</p>
           </div>
           <div className="flex justify-center pt-4">
             <div className="flex gap-2">
