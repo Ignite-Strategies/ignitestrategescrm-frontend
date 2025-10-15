@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, isSignedIn, getGmailAccessToken } from "../lib/googleAuth";
+import { signInWithGoogle, isSignedIn, getGmailAccessToken, isGmailAuthenticated } from "../lib/googleAuth";
 
 export default function CampaignHome() {
   const navigate = useNavigate();
@@ -29,24 +29,23 @@ export default function CampaignHome() {
   }, [orgId]);
 
   const checkGmailAuth = () => {
-    // Only check for Gmail access token, not Firebase auth
-    const accessToken = getGmailAccessToken();
+    // Use the new function that checks token expiration too
+    const isAuthenticated = isGmailAuthenticated();
     const gmailEmail = localStorage.getItem('gmailEmail');
     
     console.log('🔍 Checking Gmail auth:', { 
-      hasToken: !!accessToken, 
-      email: gmailEmail,
-      tokenLength: accessToken?.length 
+      isAuthenticated, 
+      email: gmailEmail
     });
     
-    if (accessToken && gmailEmail) {
+    if (isAuthenticated && gmailEmail) {
       setGmailAuthenticated(true);
       setGmailEmail(gmailEmail);
       console.log('✅ Gmail authenticated:', gmailEmail);
     } else {
       setGmailAuthenticated(false);
       setGmailEmail('');
-      console.log('❌ Gmail not authenticated');
+      console.log('❌ Gmail not authenticated (token expired or missing)');
     }
   };
 

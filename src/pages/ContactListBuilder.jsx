@@ -33,17 +33,24 @@ export default function ContactListBuilder() {
     try {
       setLoading(true);
       
-      // Load org members and events in parallel
-      const [orgMembersRes, eventsRes] = await Promise.all([
-        api.get(`/orgmembers?orgId=${orgId}`),
+      // 🌊 UNIVERSAL HYDRATION - Load everything at once!
+      const [universalRes, eventsRes] = await Promise.all([
+        api.get(`/universal-hydration?orgId=${orgId}`),
         api.get(`/orgs/${orgId}/events`)
       ]);
       
-      setOrgMembers(orgMembersRes.data);
-      setEvents(eventsRes.data);
+      const universalData = universalRes.data;
+      console.log('🌊 Universal hydration loaded:', universalData.summary);
       
-      // Load attendees data
-      await loadAttendeesData();
+      // Extract what we need from universal data
+      const orgMembers = universalData.contacts.filter(c => c.isOrgMember);
+      const allAttendees = universalData.contacts.filter(c => c.totalEventsAttended > 0);
+      const paidAttendees = universalData.contacts.filter(c => c.paidEvents > 0);
+      
+      setOrgMembers(orgMembers);
+      setAllAttendees(allAttendees);
+      setPaidAttendees(paidAttendees);
+      setEvents(eventsRes.data);
       
     } catch (err) {
       console.error("Error loading data:", err);
@@ -53,24 +60,6 @@ export default function ContactListBuilder() {
     }
   };
   
-  const loadAttendeesData = async () => {
-    try {
-      // Get all attendees across all events
-      const allAttendeesResponse = await api.get(`/orgs/${orgId}/attendees`);
-      setAllAttendees(allAttendeesResponse.data);
-      
-      // Get paid attendees across all events
-      const paidAttendeesResponse = await api.get(`/orgs/${orgId}/attendees`, {
-        params: { stage: 'paid' }
-      });
-      setPaidAttendees(paidAttendeesResponse.data);
-      
-    } catch (err) {
-      console.error("Error loading attendees:", err);
-      setAllAttendees([]);
-      setPaidAttendees([]);
-    }
-  };
   
   const handleUseList = async (listType, listData) => {
     setLoading(true);
@@ -81,37 +70,19 @@ export default function ContactListBuilder() {
       
       switch (listType) {
         case 'org_members':
-          response = await api.post("/contact-lists", {
-            orgId,
-            name: "All Org Members",
-            description: "All organization members",
-            type: "smart",
-            smartListType: "all_org_members",
-            contactCount: orgMembers.length
-          });
-          break;
+          // Navigate to contact selection page instead of auto-creating list
+          navigate(`/contact-selection?type=org_members&campaignId=${campaignId}`);
+          return;
           
         case 'all_attendees':
-          response = await api.post("/contact-lists", {
-            orgId,
-            name: "All Event Attendees",
-            description: "All contacts from all event pipelines",
-            type: "smart", 
-            smartListType: "all_event_attendees",
-            contactCount: allAttendees.length
-          });
-          break;
+          // Navigate to contact selection page instead of auto-creating list
+          navigate(`/contact-selection?type=all_attendees&campaignId=${campaignId}`);
+          return;
           
         case 'paid_attendees':
-          response = await api.post("/contact-lists", {
-            orgId,
-            name: "Paid Event Attendees", 
-            description: "All contacts who have paid across all events",
-            type: "smart",
-            smartListType: "paid_event_attendees", 
-            contactCount: paidAttendees.length
-          });
-          break;
+          // Navigate to contact selection page instead of auto-creating list
+          navigate(`/contact-selection?type=paid_attendees&campaignId=${campaignId}`);
+          return;
       }
       
       const listId = response.data.id;
@@ -188,7 +159,7 @@ export default function ContactListBuilder() {
                   disabled={loading}
                   className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition font-medium"
                 >
-                  {loading ? "Creating..." : "Use This List"}
+                  {loading ? "Loading..." : "View & Select"}
                 </button>
               </div>
 
@@ -207,7 +178,7 @@ export default function ContactListBuilder() {
                   disabled={loading}
                   className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition font-medium"
                 >
-                  {loading ? "Creating..." : "Use This List"}
+                  {loading ? "Loading..." : "View & Select"}
                 </button>
               </div>
 
@@ -226,7 +197,7 @@ export default function ContactListBuilder() {
                   disabled={loading}
                   className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition font-medium"
                 >
-                  {loading ? "Creating..." : "Use This List"}
+                  {loading ? "Loading..." : "View & Select"}
                 </button>
               </div>
             </div>

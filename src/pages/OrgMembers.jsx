@@ -51,9 +51,13 @@ export default function OrgMembers() {
 
   const loadContacts = async () => {
     try {
-      // Load org members
-      const response = await api.get(`/orgmembers?orgId=${orgId}`);
-      const members = response.data.members || [];
+      // 🌊 UNIVERSAL HYDRATION - Load everything at once!
+      const response = await api.get(`/universal-hydration?orgId=${orgId}`);
+      const universalData = response.data;
+      console.log('🌊 OrgMembers using universal hydration:', universalData.summary);
+      
+      // Extract org members from universal data
+      const members = universalData.contacts.filter(c => c.isOrgMember);
       setContacts(members);
       
       // Load events for dropdown
