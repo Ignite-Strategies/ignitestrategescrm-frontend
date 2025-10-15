@@ -29,17 +29,46 @@ export default function UploadPreview() {
     return savedMapping ? JSON.parse(savedMapping) : [];
   });
 
-  // Parse CSV data for preview
+  // Call backend universal preview endpoint for parsing and mapping
   useEffect(() => {
-    if (file && file.content) {
-      const lines = file.content.split('\n').filter(l => l.trim());
-      const rows = lines.slice(1, 6).map(line => {  // Get first 5 data rows
-        const values = line.split(',').map(v => v.trim());
-        return values;
-      });
-      setCsvPreviewData(rows);
-    }
-  }, [file]);
+    const loadPreviewFromBackend = async () => {
+      if (file && file.content) {
+        try {
+          const formData = new FormData();
+          const blob = new Blob([file.content], { type: 'text/csv' });
+          formData.append('file', blob, file.name);
+          formData.append('uploadType', 'orgMember');
+          formData.append('orgId', orgId);
+
+          const response = await api.post('/contacts/upload/preview', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+
+          if (response.data.success) {
+            // Use backend's parsed and mapped data
+            setFieldMapping(response.data.fieldMappingSuggestions.map(suggestion => ({
+              csvHeader: suggestion.csvHeader,
+              mappedField: suggestion.suggestedField
+            })));
+            setCsvPreviewData(response.data.preview);
+            console.log('✅ Backend preview loaded:', response.data);
+          }
+        } catch (error) {
+          console.error('❌ Backend preview failed, using local parsing:', error);
+          // Fallback to local parsing if backend fails
+          const lines = file.content.split('\n').filter(line => line.trim());
+          const headers = lines[0].split(',').map(h => h.trim());
+          const rows = lines.slice(1, 6).map(line => {
+            const values = line.split(',').map(v => v.trim());
+            return values;
+          });
+          setCsvPreviewData(rows);
+        }
+      }
+    };
+
+    loadPreviewFromBackend();
+  }, [file, orgId]);
 
   // Hydrate available events
   useEffect(() => {
@@ -209,11 +238,11 @@ export default function UploadPreview() {
           </div>
         </div>
 
-        {/* Main Content - Three Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Main Content - Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Left Column - Field Mapping (4 columns) */}
-          <div className="lg:col-span-4">
+          {/* Left Column - Field Mapping */}
+          <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Field Mapping</h2>
           
@@ -308,8 +337,8 @@ export default function UploadPreview() {
             </div>
           </div>
 
-          {/* Middle Column - Data Preview (5 columns) */}
-          <div className="lg:col-span-5">
+          {/* Right Column - Data Preview and Event Assignment */}
+          <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Data Preview</h2>
               
@@ -354,8 +383,7 @@ export default function UploadPreview() {
             </div>
           </div>
 
-          {/* Right Column - Event Assignment (3 columns) */}
-          <div className="lg:col-span-3">
+            {/* Event Assignment Section */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow p-6 border border-indigo-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">🎯 Add to Event</h2>
               
@@ -423,6 +451,7 @@ export default function UploadPreview() {
                   </div>
                 )}
               </div>
+            </div>
             </div>
           </div>
         </div>
