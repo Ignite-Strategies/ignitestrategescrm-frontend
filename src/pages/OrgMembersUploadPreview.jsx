@@ -207,14 +207,16 @@ export default function OrgMembersUploadPreview() {
             audienceType: selectedAudience,
             stage: selectedStage
           };
+          console.log('🎯 Event assignment info:', eventAssignment);
         }
         
-        navigate('/org-members/upload/success', { 
-          state: { 
-            uploadResults: response.data,
-            eventAssignment: eventAssignment
-          } 
-        });
+        const stateToPass = { 
+          uploadResults: response.data,
+          eventAssignment: eventAssignment
+        };
+        
+        console.log('🚀 Navigating to success page with state:', stateToPass);
+        navigate('/org-members/upload/success', { state: stateToPass });
       }
     } catch (error) {
       console.error('❌ Upload failed:', error);
