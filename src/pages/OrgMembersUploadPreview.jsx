@@ -67,36 +67,31 @@ export default function UploadPreview() {
     loadPreviewFromBackend();
   }, [file, orgId]);
 
-  // Hydrate available events
+  // Hydrate events from localStorage
   useEffect(() => {
-    const loadEvents = async () => {
-      const response = await api.get(`/orgs/${orgId}/events`);
-      const events = response.data || [];
+    const cachedEvents = localStorage.getItem('availableEvents');
+    if (cachedEvents) {
+      const events = JSON.parse(cachedEvents);
       setAvailableEvents(events);
-      
       if (events.length > 0) {
         setSelectedEvent(events[0].id);
       }
-    };
-    
-    if (orgId) {
-      loadEvents();
     }
-  }, [orgId]);
+  }, []);
 
-  // Load audience stages from pipeline config when adding to an event
+  // HARDCODED PIPELINE CONFIG - Frontend version
+  const PIPELINE_CONFIG = {
+    'org_members': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+    'friends_family': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+    'community_partners': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+    'business_sponsor': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+    'champions': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up']
+  };
+
+  // Load audience stages from hardcoded pipeline config
   useEffect(() => {
     if (addToEvent && selectedEvent && selectedAudience) {
-      // Use hardcoded pipeline config instead of API call
-      const audienceStages = {
-        'org_members': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
-        'friends_family': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
-        'community_partners': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
-        'business_sponsor': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
-        'champions': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up']
-      };
-      
-      const stages = audienceStages[selectedAudience] || [];
+      const stages = PIPELINE_CONFIG[selectedAudience] || [];
       setAvailableStages(stages);
       if (stages.length > 0) {
         setSelectedStage(stages[0]);
