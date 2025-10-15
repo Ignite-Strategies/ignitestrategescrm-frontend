@@ -29,46 +29,17 @@ export default function UploadPreview() {
     return savedMapping ? JSON.parse(savedMapping) : [];
   });
 
-  // Call backend universal preview endpoint for parsing and mapping
+  // Parse CSV data for preview
   useEffect(() => {
-    const loadPreviewFromBackend = async () => {
-      if (file && file.content) {
-        try {
-          const formData = new FormData();
-          const blob = new Blob([file.content], { type: 'text/csv' });
-          formData.append('file', blob, file.name);
-          formData.append('uploadType', 'orgMember');
-          formData.append('orgId', orgId);
-
-          const response = await api.post('/contacts/upload/preview', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
-
-          if (response.data.success) {
-            // Use backend's parsed and mapped data
-            setFieldMapping(response.data.fieldMappingSuggestions.map(suggestion => ({
-              csvHeader: suggestion.csvHeader,
-              mappedField: suggestion.suggestedField
-            })));
-            setCsvPreviewData(response.data.preview);
-            console.log('✅ Backend preview loaded:', response.data);
-          }
-        } catch (error) {
-          console.error('❌ Backend preview failed, using local parsing:', error);
-          // Fallback to local parsing if backend fails
-          const lines = file.content.split('\n').filter(l => l.trim());
-          const headers = lines[0].split(',').map(h => h.trim());
-          const rows = lines.slice(1, 6).map(line => {
-            const values = line.split(',').map(v => v.trim());
-            return values;
-          });
-          setCsvPreviewData(rows);
-        }
-      }
-    };
-
-    loadPreviewFromBackend();
-  }, [file, orgId]);
+    if (file && file.content) {
+      const lines = file.content.split('\n').filter(l => l.trim());
+      const rows = lines.slice(1, 6).map(line => {  // Get first 5 data rows
+        const values = line.split(',').map(v => v.trim());
+        return values;
+      });
+      setCsvPreviewData(rows);
+    }
+  }, [file]);
 
   // Hydrate available events
   useEffect(() => {
@@ -112,7 +83,7 @@ export default function UploadPreview() {
     { value: 'unmapped', label: 'Ignore this column' },
     { value: 'firstName', label: 'First Name' },
     { value: 'lastName', label: 'Last Name' },
-    { value: 'fullName', label: 'Full Name (auto-parsed)' }, // Backend will split into first/last
+    { value: 'fullName', label: 'Full Name (will be parsed)' }, // Add fullName option
     { value: 'goesBy', label: 'Goes By (Nickname)' },
     { value: 'email', label: 'Email Address' },
     { value: 'phone', label: 'Phone Number' },
@@ -140,7 +111,7 @@ export default function UploadPreview() {
       'last name': 'lastName',
       'lastname': 'lastName',
       'lname': 'lastName',
-      'full name': 'fullName', // Keep as fullName - backend parser will split it
+      'full name': 'fullName', // Add fullName mapping
       'fullname': 'fullName',
       'name': 'fullName',
       'complete name': 'fullName',
@@ -238,11 +209,11 @@ export default function UploadPreview() {
           </div>
         </div>
 
-        {/* Main Content - Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Main Content - Three Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
-          {/* Left Column - Field Mapping */}
-          <div className="space-y-6">
+          {/* Left Column - Field Mapping (4 columns) */}
+          <div className="lg:col-span-4">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Field Mapping</h2>
           
@@ -337,8 +308,8 @@ export default function UploadPreview() {
             </div>
           </div>
 
-          {/* Right Column - Data Preview and Event Assignment */}
-          <div className="space-y-6">
+          {/* Middle Column - Data Preview (5 columns) */}
+          <div className="lg:col-span-5">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Data Preview</h2>
               
@@ -383,7 +354,8 @@ export default function UploadPreview() {
             </div>
           </div>
 
-            {/* Event Assignment Section */}
+          {/* Right Column - Event Assignment (3 columns) */}
+          <div className="lg:col-span-3">
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow p-6 border border-indigo-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">🎯 Add to Event</h2>
               
