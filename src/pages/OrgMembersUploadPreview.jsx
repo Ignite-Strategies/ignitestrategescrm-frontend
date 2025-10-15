@@ -158,66 +158,40 @@ export default function OrgMembersUploadPreview() {
     loadPreview();
   }, [file, orgId]);
 
-  const handleUpload = async () => {
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      const blob = new Blob([file.content], { type: 'text/csv' });
-      formData.append('file', blob, file.name);
-      formData.append('uploadType', 'orgMember');
-      formData.append('orgId', orgId);
-      
-      // Add event assignment if enabled
-      if (addToEvent && selectedEvent) {
-        formData.append('eventId', selectedEvent);
-        formData.append('assignments', JSON.stringify({
-          audienceType: selectedAudience,
-          defaultStage: selectedStage
-        }));
-      }
-
-      console.log('📤 Saving org members from CSV upload...');
-      const response = await api.post('/contacts/upload/save', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      console.log('✅ Upload complete:', {
-        contacts: response.data.contacts,
-        orgMembers: response.data.orgMembers,
-        eventAttendees: response.data.eventAttendees,
-        errors: response.data.errorCount
-      });
-      
-      // Build event assignment info if event was selected
-      let eventAssignment = null;
-      if (addToEvent && selectedEvent) {
-        const selectedEventObj = availableEvents.find(e => e.id === selectedEvent);
-        eventAssignment = {
-          eventId: selectedEvent,
-          eventName: selectedEventObj?.name || 'Selected Event',
-          audienceType: selectedAudience,
-          stage: selectedStage
-        };
-      }
-      
-      const stateToPass = { 
-        uploadResults: response.data,
-        eventAssignment: eventAssignment
+  const handleUpload = () => {
+    console.log('🚀 BUTTON CLICKED - NAVIGATING IMMEDIATELY!');
+    
+    // Build upload data to pass to success page
+    const uploadData = {
+      file: file,
+      orgId: orgId,
+      uploadType: 'orgMember'
+    };
+    
+    // Add event assignment if enabled
+    if (addToEvent && selectedEvent) {
+      const selectedEventObj = availableEvents.find(e => e.id === selectedEvent);
+      uploadData.eventAssignment = {
+        eventId: selectedEvent,
+        eventName: selectedEventObj?.name || 'Selected Event',
+        audienceType: selectedAudience,
+        stage: selectedStage
       };
-      
-      console.log('🚀🚀🚀 ABOUT TO NAVIGATE! 🚀🚀🚀');
-      console.log('🚀 Target URL: /org-members/upload/success');
-      console.log('🚀 State being passed:', stateToPass);
-      console.log('🚀 Calling navigate() NOW...');
-      navigate('/org-members/upload/success', { state: stateToPass });
-      console.log('🚀 navigate() call completed!');
-      
-    } catch (error) {
-      console.error('❌ Upload failed:', error.response?.data || error.message);
-      alert('Upload failed: ' + (error.response?.data?.error || error.message));
-    } finally {
-      setUploading(false);
+      uploadData.assignments = {
+        audienceType: selectedAudience,
+        defaultStage: selectedStage
+      };
     }
+    
+    console.log('🚀 Navigating to success page with upload data');
+    console.log('🚀 Success page will handle the actual upload');
+    
+    // Navigate IMMEDIATELY - success page will do the upload
+    navigate('/org-members/upload/success', { 
+      state: { 
+        uploadData: uploadData
+      } 
+    });
   };
 
   if (!file) {
@@ -417,10 +391,9 @@ export default function OrgMembersUploadPreview() {
           </button>
           <button
             onClick={handleUpload}
-            disabled={uploading}
-            className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
+            className="flex-1 bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition"
           >
-            {uploading ? "Importing..." : "Import My Contacts"}
+            Import My Contacts
           </button>
         </div>
 

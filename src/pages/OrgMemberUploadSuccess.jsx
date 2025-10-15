@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import api from "../lib/api";
 
 export default function OrgMemberUploadSuccess() {
   console.log('🔴🔴🔴 SUCCESS PAGE COMPONENT RENDERING! 🔴🔴🔴');
@@ -8,48 +9,86 @@ export default function OrgMemberUploadSuccess() {
   const location = useLocation();
   const [uploadResults, setUploadResults] = useState(null);
   const [eventAssignment, setEventAssignment] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     console.log('═══════════════════════════════════════════');
-    console.log('🎉 SUCCESS PAGE USEEFFECT RUNNING!');
-    console.log('═══════════════════════════════════════════');
+    console.log('🎉 SUCCESS PAGE LOADED!');
     console.log('📍 Current URL:', window.location.href);
-    console.log('📍 Full location object:', location);
     console.log('📍 Location.state:', location.state);
-    console.log('📍 Location.state?.uploadResults:', location.state?.uploadResults);
     console.log('═══════════════════════════════════════════');
     
-    // Get results from navigation state (passed from Preview page)
-    if (location.state?.uploadResults) {
-      console.log('✅ FOUND uploadResults in state!');
-      console.log('📊 Upload results data:', location.state.uploadResults);
-      setUploadResults(location.state.uploadResults);
-      setEventAssignment(location.state.eventAssignment || null);
+    // Get upload data from Preview page
+    const uploadData = location.state?.uploadData;
+    
+    if (uploadData) {
+      console.log('✅ Found uploadData, performing upload NOW');
+      performUpload(uploadData);
     } else {
-      console.log('❌ NO uploadResults found in location.state');
-      console.log('⚠️ Showing "No Results" screen (NOT redirecting)');
+      console.log('❌ No uploadData found');
     }
   }, [location]);
+  
+  const performUpload = async (uploadData) => {
+    setUploading(true);
+    setEventAssignment(uploadData.eventAssignment || null);
+    
+    try {
+      console.log('📤 Uploading to backend...');
+      
+      const formData = new FormData();
+      const blob = new Blob([uploadData.file.content], { type: 'text/csv' });
+      formData.append('file', blob, uploadData.file.name);
+      formData.append('uploadType', uploadData.uploadType);
+      formData.append('orgId', uploadData.orgId);
+      
+      if (uploadData.eventAssignment) {
+        formData.append('eventId', uploadData.eventAssignment.eventId);
+        formData.append('assignments', JSON.stringify(uploadData.assignments));
+      }
+      
+      const response = await api.post('/contacts/upload/save', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      console.log('✅ Upload complete!', response.data);
+      setUploadResults(response.data);
+      
+    } catch (error) {
+      console.error('❌ Upload error:', error);
+      setUploadResults({
+        success: false,
+        error: error.message,
+        errorCount: 1,
+        validCount: 0
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
 
-  if (!uploadResults) {
+  if (!uploadResults || uploading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-8">
-          <div className="mb-6">
-            <div className="w-20 h-20 bg-yellow-100 rounded-full mx-auto flex items-center justify-center mb-4">
-              <svg className="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        <div className="text-center space-y-6">
+          <div className="flex justify-center">
+            <div className="w-20 h-20 bg-indigo-100 rounded-2xl flex items-center justify-center">
+              <svg className="w-10 h-10 text-indigo-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">No Upload Results</h2>
-            <p className="text-gray-600 mb-6">The upload results were not found. This might happen if you refreshed the page.</p>
           </div>
-          <button
-            onClick={() => navigate("/org-members/upload")}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
-          >
-            Start New Upload
-          </button>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-gray-900">Importing Your Contacts...</h2>
+            <p className="text-gray-600">Please wait while we save your data</p>
+          </div>
+          <div className="flex justify-center pt-4">
+            <div className="flex gap-2">
+              <div className="w-3 h-3 bg-indigo-600 rounded-full animate-bounce"></div>
+              <div className="w-3 h-3 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-3 h-3 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            </div>
+          </div>
         </div>
       </div>
     );
