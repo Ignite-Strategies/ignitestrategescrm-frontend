@@ -88,16 +88,35 @@ export function getGmailAccessToken() {
 }
 
 /**
- * Check if Gmail token is expired (older than 45 minutes)
+ * Check if Gmail token is expired (older than 50 minutes for safety)
  */
 export function isGmailTokenExpired() {
   const timestamp = localStorage.getItem('gmailTokenTimestamp');
   if (!timestamp) return true; // No timestamp = expired
   
   const tokenAge = Date.now() - parseInt(timestamp);
-  const fortyFiveMinutes = 45 * 60 * 1000; // 45 minutes in milliseconds
+  const fiftyMinutes = 50 * 60 * 1000; // 50 minutes in milliseconds (10 min safety buffer)
   
-  return tokenAge > fortyFiveMinutes;
+  return tokenAge > fiftyMinutes;
+}
+
+/**
+ * Check if user has valid Gmail authentication (not just token exists)
+ */
+export function isGmailAuthenticated() {
+  const token = getGmailAccessToken();
+  const email = localStorage.getItem('gmailEmail');
+  
+  if (!token || !email) return false;
+  
+  // Check if token is expired
+  if (isGmailTokenExpired()) {
+    console.log('🔑 Gmail token expired, clearing auth data');
+    clearGmailAuth();
+    return false;
+  }
+  
+  return true;
 }
 
 /**

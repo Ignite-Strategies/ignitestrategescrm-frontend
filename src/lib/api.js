@@ -45,6 +45,31 @@ api.interceptors.response.use(
   },
   error => {
     console.error('API Error:', error.response?.status, error.response?.data || error.message);
+    
+    // 🚨 GMAIL TOKEN EXPIRATION DETECTION
+    if (error.response?.status === 401 && error.config?.url?.includes('/enterprise-gmail/')) {
+      console.log('🔑 Gmail token expired (401 on Gmail route)');
+      
+      // Clear expired token
+      localStorage.removeItem('gmailAccessToken');
+      localStorage.removeItem('gmailEmail');
+      localStorage.removeItem('gmailTokenTimestamp');
+      
+      // Show user-friendly message and redirect
+      const shouldRedirect = window.confirm(
+        '🚨 Gmail authentication expired!\n\n' +
+        'Your Gmail connection has timed out (tokens expire after 1 hour).\n\n' +
+        'Click OK to reconnect now, or Cancel to stay on this page.'
+      );
+      
+      if (shouldRedirect) {
+        // Store where they were trying to go
+        localStorage.setItem('redirectMessage', 'Gmail authentication expired. Please reconnect below.');
+        // Redirect to campaign home to reconnect
+        window.location.href = '/campaignhome';
+      }
+    }
+    
     return Promise.reject(error);
   }
 );
