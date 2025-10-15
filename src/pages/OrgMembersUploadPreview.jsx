@@ -45,38 +45,16 @@ export default function UploadPreview() {
           });
 
           if (response.data.success) {
-            // Field Mapping: Show original CSV headers and how they map
+            // Use backend's parsed and mapped data
             const mappings = response.data.fieldMappingSuggestions.map(suggestion => ({
               csvHeader: suggestion.csvHeader,
-              mappedField: suggestion.suggestedField === 'fullName' ? 'firstName + lastName (auto-parsed)' : suggestion.suggestedField
+              mappedField: suggestion.suggestedField
             }));
             setFieldMapping(mappings);
             
-            // Data Preview: Show the actual parsed fields for display
-            const previewFields = [];
-            
-            // Check if we have firstName/lastName from parsing
-            const hasFirstName = response.data.preview.some(record => record.firstName);
-            const hasLastName = response.data.preview.some(record => record.lastName);
-            
-            if (hasFirstName || hasLastName) {
-              previewFields.push({ header: 'First Name', field: 'firstName' });
-              previewFields.push({ header: 'Last Name', field: 'lastName' });
-            }
-            
-            // Add other mapped fields (excluding fullName since it's parsed)
-            response.data.fieldMappingSuggestions
-              .filter(suggestion => suggestion.suggestedField !== 'fullName')
-              .forEach(suggestion => {
-                previewFields.push({
-                  header: suggestion.csvHeader,
-                  field: suggestion.suggestedField
-                });
-              });
-            
             // Convert backend's mapped objects to array format for table display
             const previewRows = response.data.preview.map(record => {
-              return previewFields.map(field => record[field.field] || '');
+              return mappings.map(mapping => record[mapping.mappedField] || '');
             });
             setCsvPreviewData(previewRows);
             
@@ -379,15 +357,11 @@ export default function UploadPreview() {
                     <table className="w-full text-sm">
                       <thead className="bg-gray-50">
                         <tr>
-                          {(() => {
-                            // Use previewFields for headers, but fallback to fieldMapping if not available
-                            const headers = previewFields || fieldMapping;
-                            return headers.map((field, idx) => (
-                              <th key={idx} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                                {field.header || field.csvHeader}
-                              </th>
-                            ));
-                          })()}
+                          {fieldMapping.map((field, idx) => (
+                            <th key={idx} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                              {field.csvHeader}
+                            </th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
