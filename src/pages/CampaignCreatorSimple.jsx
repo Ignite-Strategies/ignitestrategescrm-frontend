@@ -84,33 +84,40 @@ export default function CampaignCreatorSimple() {
         {/* STEP 2: Pick a List */}
         <div className="bg-white p-6 rounded-lg shadow mb-6">
           <h2 className="text-xl font-semibold mb-4">2. Pick a List</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              onClick={() => setSelectedList({ name: 'All Org Members', type: 'org_members' })}
-              className={`p-4 border-2 rounded-lg text-left transition ${
-                selectedList?.type === 'org_members' 
-                  ? 'border-indigo-500 bg-indigo-50' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="text-2xl mb-2">👥</div>
-              <div className="font-semibold">All Org Members</div>
-              <div className="text-sm text-gray-600">All organization members</div>
-            </button>
-            
-            <button
-              onClick={() => setSelectedList({ name: 'Event Attendees', type: 'event_attendees' })}
-              className={`p-4 border-2 rounded-lg text-left transition ${
-                selectedList?.type === 'event_attendees' 
-                  ? 'border-indigo-500 bg-indigo-50' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="text-2xl mb-2">📅</div>
-              <div className="font-semibold">Event Attendees</div>
-              <div className="text-sm text-gray-600">All event attendees</div>
-            </button>
-          </div>
+          {!selectedList ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                onClick={() => setSelectedList({ name: 'All Org Members', type: 'org_members' })}
+                className="p-4 border-2 border-gray-200 rounded-lg text-left hover:border-gray-300 transition"
+              >
+                <div className="text-2xl mb-2">👥</div>
+                <div className="font-semibold">All Org Members</div>
+                <div className="text-sm text-gray-600">All organization members</div>
+              </button>
+              
+              <button
+                onClick={() => setSelectedList({ name: 'Event Attendees', type: 'event_attendees' })}
+                className="p-4 border-2 border-gray-200 rounded-lg text-left hover:border-gray-300 transition"
+              >
+                <div className="text-2xl mb-2">📅</div>
+                <div className="font-semibold">Event Attendees</div>
+                <div className="text-sm text-gray-600">All event attendees</div>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+              <div>
+                <div className="font-semibold text-indigo-900">{selectedList.name}</div>
+                <div className="text-sm text-indigo-600">Selected contact list</div>
+              </div>
+              <button
+                onClick={() => setSelectedList(null)}
+                className="px-3 py-1 text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-300 rounded"
+              >
+                Change
+              </button>
+            </div>
+          )}
         </div>
         
         {/* STEP 3: Message */}
