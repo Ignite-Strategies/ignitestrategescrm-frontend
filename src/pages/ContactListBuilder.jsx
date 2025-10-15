@@ -25,42 +25,76 @@ export default function ContactListBuilder() {
   const [allAttendees, setAllAttendees] = useState([]);
   const [paidAttendees, setPaidAttendees] = useState([]);
   
-  useEffect(() => {
-    loadData();
-  }, [orgId]);
+  // REMOVED: Auto-load on mount - we'll load on click instead
   
-  const loadData = async () => {
+  const loadOrgMembers = async () => {
     try {
       setLoading(true);
+      setError("");
       
-      // TEMPORARY: Fall back to old API calls while debugging universal hydration
-      const [orgMembersRes, eventsRes, allAttendeesRes, paidAttendeesRes] = await Promise.all([
-        api.get(`/orgmembers?orgId=${orgId}`),
-        api.get(`/orgs/${orgId}/events`),
-        api.get(`/orgs/${orgId}/attendees`),
-        api.get(`/orgs/${orgId}/attendees?stage=paid`)
-      ]);
+      console.log('📞 Loading org members...');
+      const response = await api.get(`/orgmembers?orgId=${orgId}`);
       
       // Handle both array and object response formats
-      const orgMembers = Array.isArray(orgMembersRes.data) 
-        ? orgMembersRes.data 
-        : orgMembersRes.data.members || [];
+      const orgMembers = Array.isArray(response.data) 
+        ? response.data 
+        : response.data.members || [];
       
       setOrgMembers(orgMembers);
-      setAllAttendees(allAttendeesRes.data || []);
-      setPaidAttendees(paidAttendeesRes.data || []);
-      setEvents(eventsRes.data);
+      console.log('✅ Loaded org members:', orgMembers.length);
       
-      console.log('✅ Loaded data:', {
-        orgMembers: orgMembers.length,
-        allAttendees: allAttendeesRes.data?.length || 0,
-        paidAttendees: paidAttendeesRes.data?.length || 0,
-        events: eventsRes.data?.length || 0
-      });
+      return orgMembers; // Return the data so we can use it immediately
       
     } catch (err) {
-      console.error("Error loading data:", err);
-      setError("Failed to load organization data");
+      console.error("Error loading org members:", err);
+      setError("Failed to load org members");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const loadEventAttendees = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      
+      console.log('📅 Loading event attendees...');
+      const response = await api.get(`/orgs/${orgId}/attendees`);
+      
+      const attendees = response.data || [];
+      setAllAttendees(attendees);
+      console.log('✅ Loaded event attendees:', attendees.length);
+      
+      return attendees; // Return the data so we can use it immediately
+      
+    } catch (err) {
+      console.error("Error loading event attendees:", err);
+      setError("Failed to load event attendees");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const loadPaidAttendees = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      
+      console.log('💰 Loading paid attendees...');
+      const response = await api.get(`/orgs/${orgId}/attendees?stage=paid`);
+      
+      const attendees = response.data || [];
+      setPaidAttendees(attendees);
+      console.log('✅ Loaded paid attendees:', attendees.length);
+      
+      return attendees; // Return the data so we can use it immediately
+      
+    } catch (err) {
+      console.error("Error loading paid attendees:", err);
+      setError("Failed to load paid attendees");
+      return [];
     } finally {
       setLoading(false);
     }
@@ -176,23 +210,41 @@ export default function ContactListBuilder() {
                 <p className="text-gray-600 mb-4 text-center">All organization members and supporters</p>
                 
                 <div className="text-3xl font-bold text-indigo-600 mb-6 text-center">
-                  {orgMembers.length} contacts
+                  {orgMembers.length > 0 ? `${orgMembers.length} contacts` : "Click to load"}
                 </div>
                 
                 <div className="space-y-3">
                   <button
-                    onClick={() => navigate(`/contact-list-view?type=org_members${campaignId ? `&campaignId=${campaignId}` : ''}`)}
+                    onClick={async () => {
+                      if (orgMembers.length === 0) {
+                        const members = await loadOrgMembers();
+                        if (members.length > 0) {
+                          navigate(`/contact-list-view?type=org_members${campaignId ? `&campaignId=${campaignId}` : ''}`);
+                        }
+                      } else {
+                        navigate(`/contact-list-view?type=org_members${campaignId ? `&campaignId=${campaignId}` : ''}`);
+                      }
+                    }}
                     disabled={loading}
                     className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition font-medium"
                   >
-                    {loading ? "Loading..." : "View & Modify"}
+                    {loading ? "🔄 Loading contacts..." : orgMembers.length > 0 ? "View & Modify" : "Load & View"}
                   </button>
                   <button
-                    onClick={() => handleUseList('org_members', { name: 'All Org Members' })}
+                    onClick={async () => {
+                      if (orgMembers.length === 0) {
+                        const members = await loadOrgMembers();
+                        if (members.length > 0) {
+                          handleUseList('org_members', { name: 'All Org Members' });
+                        }
+                      } else {
+                        handleUseList('org_members', { name: 'All Org Members' });
+                      }
+                    }}
                     disabled={loading}
                     className="w-full px-6 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition font-medium text-sm"
                   >
-                    Use as Is
+                    {loading ? "Loading..." : orgMembers.length > 0 ? "Use as Is" : "Load & Use"}
                   </button>
                 </div>
               </div>
@@ -204,23 +256,41 @@ export default function ContactListBuilder() {
                 <p className="text-gray-600 mb-4 text-center">All contacts from all event pipelines</p>
                 
                 <div className="text-3xl font-bold text-purple-600 mb-6 text-center">
-                  {allAttendees.length} contacts
+                  {allAttendees.length > 0 ? `${allAttendees.length} contacts` : "Click to load"}
                 </div>
                 
                 <div className="space-y-3">
                   <button
-                    onClick={() => navigate(`/contact-list-view?type=all_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`)}
+                    onClick={async () => {
+                      if (allAttendees.length === 0) {
+                        const attendees = await loadEventAttendees();
+                        if (attendees.length > 0) {
+                          navigate(`/contact-list-view?type=all_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`);
+                        }
+                      } else {
+                        navigate(`/contact-list-view?type=all_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`);
+                      }
+                    }}
                     disabled={loading}
                     className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition font-medium"
                   >
-                    {loading ? "Loading..." : "View & Modify"}
+                    {loading ? "🔄 Loading contacts..." : allAttendees.length > 0 ? "View & Modify" : "Load & View"}
                   </button>
                   <button
-                    onClick={() => handleUseList('all_attendees', { name: 'All Event Attendees' })}
+                    onClick={async () => {
+                      if (allAttendees.length === 0) {
+                        const attendees = await loadEventAttendees();
+                        if (attendees.length > 0) {
+                          handleUseList('all_attendees', { name: 'All Event Attendees' });
+                        }
+                      } else {
+                        handleUseList('all_attendees', { name: 'All Event Attendees' });
+                      }
+                    }}
                     disabled={loading}
                     className="w-full px-6 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition font-medium text-sm"
                   >
-                    Use as Is
+                    {loading ? "Loading..." : allAttendees.length > 0 ? "Use as Is" : "Load & Use"}
                   </button>
                 </div>
               </div>
@@ -232,23 +302,41 @@ export default function ContactListBuilder() {
                 <p className="text-gray-600 mb-4 text-center">All contacts who have paid across all events</p>
                 
                 <div className="text-3xl font-bold text-green-600 mb-6 text-center">
-                  {paidAttendees.length} contacts
+                  {paidAttendees.length > 0 ? `${paidAttendees.length} contacts` : "Click to load"}
                 </div>
                 
                 <div className="space-y-3">
                   <button
-                    onClick={() => navigate(`/contact-list-view?type=paid_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`)}
+                    onClick={async () => {
+                      if (paidAttendees.length === 0) {
+                        const attendees = await loadPaidAttendees();
+                        if (attendees.length > 0) {
+                          navigate(`/contact-list-view?type=paid_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`);
+                        }
+                      } else {
+                        navigate(`/contact-list-view?type=paid_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`);
+                      }
+                    }}
                     disabled={loading}
                     className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition font-medium"
                   >
-                    {loading ? "Loading..." : "View & Modify"}
+                    {loading ? "🔄 Loading contacts..." : paidAttendees.length > 0 ? "View & Modify" : "Load & View"}
                   </button>
                   <button
-                    onClick={() => handleUseList('paid_attendees', { name: 'Paid Event Attendees' })}
+                    onClick={async () => {
+                      if (paidAttendees.length === 0) {
+                        const attendees = await loadPaidAttendees();
+                        if (attendees.length > 0) {
+                          handleUseList('paid_attendees', { name: 'Paid Event Attendees' });
+                        }
+                      } else {
+                        handleUseList('paid_attendees', { name: 'Paid Event Attendees' });
+                      }
+                    }}
                     disabled={loading}
                     className="w-full px-6 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition font-medium text-sm"
                   >
-                    Use as Is
+                    {loading ? "Loading..." : paidAttendees.length > 0 ? "Use as Is" : "Load & Use"}
                   </button>
                 </div>
               </div>
