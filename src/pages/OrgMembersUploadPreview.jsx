@@ -29,15 +29,26 @@ export default function UploadPreview() {
     return savedMapping ? JSON.parse(savedMapping) : [];
   });
 
-  // Parse CSV data for preview
+  // Parse CSV data for preview and auto-map fields
   useEffect(() => {
     if (file && file.content) {
       const lines = file.content.split('\n').filter(l => l.trim());
+      const headers = lines[0].split(',').map(h => h.trim());
       const rows = lines.slice(1, 6).map(line => {  // Get first 5 data rows
         const values = line.split(',').map(v => v.trim());
         return values;
       });
       setCsvPreviewData(rows);
+      
+      // Auto-map fields if not already mapped
+      if (fieldMapping.length === 0) {
+        const autoMapped = headers.map(header => ({
+          csvHeader: header,
+          mappedField: mapHeaderToField(header)
+        }));
+        setFieldMapping(autoMapped);
+        localStorage.setItem('fieldMapping', JSON.stringify(autoMapped));
+      }
     }
   }, [file]);
 
@@ -83,7 +94,7 @@ export default function UploadPreview() {
     { value: 'unmapped', label: 'Ignore this column' },
     { value: 'firstName', label: 'First Name' },
     { value: 'lastName', label: 'Last Name' },
-    { value: 'fullName', label: 'Full Name (will be parsed)' }, // Add fullName option
+    { value: 'fullName', label: 'Full Name (auto-parsed)' }, // Backend will split into first/last
     { value: 'goesBy', label: 'Goes By (Nickname)' },
     { value: 'email', label: 'Email Address' },
     { value: 'phone', label: 'Phone Number' },
@@ -111,7 +122,7 @@ export default function UploadPreview() {
       'last name': 'lastName',
       'lastname': 'lastName',
       'lname': 'lastName',
-      'full name': 'fullName', // Add fullName mapping
+      'full name': 'fullName', // Keep as fullName - backend parser will split it
       'fullname': 'fullName',
       'name': 'fullName',
       'complete name': 'fullName',
@@ -209,11 +220,11 @@ export default function UploadPreview() {
           </div>
         </div>
 
-        {/* Main Content - Three Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Main Content - Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Left Column - Field Mapping (4 columns) */}
-          <div className="lg:col-span-4">
+          {/* Left Column - Field Mapping */}
+          <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Field Mapping</h2>
           
@@ -308,8 +319,8 @@ export default function UploadPreview() {
             </div>
           </div>
 
-          {/* Middle Column - Data Preview (5 columns) */}
-          <div className="lg:col-span-5">
+          {/* Right Column - Data Preview and Event Assignment */}
+          <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Data Preview</h2>
               
@@ -354,8 +365,7 @@ export default function UploadPreview() {
             </div>
           </div>
 
-          {/* Right Column - Event Assignment (3 columns) */}
-          <div className="lg:col-span-3">
+            {/* Event Assignment Section */}
             <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow p-6 border border-indigo-200">
               <h2 className="text-xl font-bold text-gray-900 mb-4">🎯 Add to Event</h2>
               
