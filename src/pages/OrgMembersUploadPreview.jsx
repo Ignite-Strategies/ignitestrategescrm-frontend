@@ -198,7 +198,7 @@ export default function OrgMembersUploadPreview() {
       console.log('✅ Upload response:', response.data);
       if (response.data.success) {
         navigate('/org-members/upload/success', { 
-          state: { results: response.data } 
+          state: { uploadResults: response.data } 
         });
       }
     } catch (error) {

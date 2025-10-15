@@ -34,9 +34,13 @@ export default function OrgMemberUploadSuccess() {
     );
   }
 
-  const totalProcessed = (uploadResults.inserted || 0) + (uploadResults.updated || 0) + (uploadResults.errors?.length || 0);
-  const successCount = (uploadResults.inserted || 0) + (uploadResults.updated || 0);
-  const errorCount = uploadResults.errors?.length || 0;
+  // Backend returns: contacts, orgMembers, eventAttendees, validCount, errorCount, errors
+  const totalProcessed = uploadResults.totalProcessed || 0;
+  const successCount = uploadResults.validCount || 0;
+  const errorCount = uploadResults.errorCount || 0;
+  const contactsCreated = uploadResults.contacts || 0;
+  const orgMembersCreated = uploadResults.orgMembers || 0;
+  const eventAttendeesCreated = uploadResults.eventAttendees || 0;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -69,7 +73,8 @@ export default function OrgMemberUploadSuccess() {
               <div className="text-sm text-green-900 font-medium">
                 Successfully Imported
                 <div className="text-xs text-green-700 mt-1">
-                  {uploadResults.inserted || 0} new · {uploadResults.updated || 0} updated
+                  {contactsCreated} contacts · {orgMembersCreated} org members
+                  {eventAttendeesCreated > 0 && ` · ${eventAttendeesCreated} event attendees`}
                 </div>
               </div>
             </div>
@@ -82,7 +87,7 @@ export default function OrgMemberUploadSuccess() {
           </div>
 
           {/* Event Assignment Info */}
-          {uploadResults.eventAssignment && (
+          {eventAttendeesCreated > 0 && (
             <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
               <div className="flex items-center mb-2">
                 <svg className="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,9 +96,7 @@ export default function OrgMemberUploadSuccess() {
                 <h3 className="text-sm font-semibold text-indigo-900">Added to Event</h3>
               </div>
               <p className="text-sm text-indigo-800">
-                {successCount} contacts were added to <strong>{uploadResults.eventAssignment.eventName}</strong> as 
-                <strong> {uploadResults.eventAssignment.audienceType}</strong> in 
-                <strong> {uploadResults.eventAssignment.stage}</strong> stage.
+                <strong>{eventAttendeesCreated}</strong> contacts were successfully added to the event as attendees.
               </p>
             </div>
           )}
