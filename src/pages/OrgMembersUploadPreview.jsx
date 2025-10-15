@@ -45,40 +45,43 @@ export default function UploadPreview() {
           });
 
           if (response.data.success) {
-            // Use backend's parsed and mapped data
-            // The backend has already parsed fullName into firstName/lastName
-            // So we need to show the actual parsed fields, not the original CSV headers
-            const allFields = [];
+            // Field Mapping: Show original CSV headers and how they map
+            const mappings = response.data.fieldMappingSuggestions.map(suggestion => ({
+              csvHeader: suggestion.csvHeader,
+              mappedField: suggestion.suggestedField === 'fullName' ? 'firstName + lastName (auto-parsed)' : suggestion.suggestedField
+            }));
+            setFieldMapping(mappings);
+            
+            // Data Preview: Show the actual parsed fields for display
+            const previewFields = [];
             
             // Check if we have firstName/lastName from parsing
             const hasFirstName = response.data.preview.some(record => record.firstName);
             const hasLastName = response.data.preview.some(record => record.lastName);
             
             if (hasFirstName || hasLastName) {
-              allFields.push({ csvHeader: 'First Name', mappedField: 'firstName' });
-              allFields.push({ csvHeader: 'Last Name', mappedField: 'lastName' });
+              previewFields.push({ header: 'First Name', field: 'firstName' });
+              previewFields.push({ header: 'Last Name', field: 'lastName' });
             }
             
             // Add other mapped fields (excluding fullName since it's parsed)
             response.data.fieldMappingSuggestions
               .filter(suggestion => suggestion.suggestedField !== 'fullName')
               .forEach(suggestion => {
-                allFields.push({
-                  csvHeader: suggestion.csvHeader,
-                  mappedField: suggestion.suggestedField
+                previewFields.push({
+                  header: suggestion.csvHeader,
+                  field: suggestion.suggestedField
                 });
               });
             
-            setFieldMapping(allFields);
-            
             // Convert backend's mapped objects to array format for table display
             const previewRows = response.data.preview.map(record => {
-              return allFields.map(field => record[field.mappedField] || '');
+              return previewFields.map(field => record[field.field] || '');
             });
             setCsvPreviewData(previewRows);
             
             // Cache in localStorage for retrieval
-            localStorage.setItem('fieldMapping', JSON.stringify(allFields));
+            localStorage.setItem('fieldMapping', JSON.stringify(mappings));
             localStorage.setItem('csvPreviewData', JSON.stringify(previewRows));
             
             console.log('✅ Backend preview loaded:', response.data);
@@ -376,11 +379,15 @@ export default function UploadPreview() {
                     <table className="w-full text-sm">
                       <thead className="bg-gray-50">
                         <tr>
-                          {fieldMapping.map((field, idx) => (
-                            <th key={idx} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                              {field.csvHeader}
-                            </th>
-                          ))}
+                          {(() => {
+                            // Use previewFields for headers, but fallback to fieldMapping if not available
+                            const headers = previewFields || fieldMapping;
+                            return headers.map((field, idx) => (
+                              <th key={idx} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                {field.header || field.csvHeader}
+                              </th>
+                            ));
+                          })()}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
