@@ -95,41 +95,51 @@ export default function UploadPreview() {
   useEffect(() => {
     const loadEvents = async () => {
       try {
+        console.log('🔄 Loading events for orgId:', orgId);
         const response = await api.get(`/orgs/${orgId}/events`);
-        setAvailableEvents(response.data || []);
-        if (response.data && response.data.length > 0) {
-          setSelectedEvent(response.data[0].id);
+        console.log('📅 Events response:', response.data);
+        
+        const events = response.data || [];
+        setAvailableEvents(events);
+        
+        if (events.length > 0) {
+          setSelectedEvent(events[0].id);
+          console.log('✅ Auto-selected first event:', events[0].name, events[0].id);
+        } else {
+          console.log('⚠️ No events found for orgId:', orgId);
         }
       } catch (error) {
-        console.error('Failed to load events:', error);
+        console.error('❌ Failed to load events:', error);
+        console.error('❌ Error details:', error.response?.data || error.message);
       }
     };
-    loadEvents();
+    
+    if (orgId) {
+      loadEvents();
+    }
   }, [orgId]);
 
-  // Load audience stages only when adding to an event
+  // Load audience stages from pipeline config when adding to an event
   useEffect(() => {
-    const loadStagesForEvent = async () => {
-      if (addToEvent && selectedEvent && selectedAudience) {
-        try {
-          console.log('🔄 Loading stages for event audience:', selectedAudience);
-          const response = await api.get(`/schema/audience-stages/${selectedAudience}`);
-          if (response.data.success) {
-            const stages = response.data.stages;
-            setAvailableStages(stages);
-            if (stages.length > 0) {
-              setSelectedStage(stages[0]);
-            }
-            console.log('✅ Loaded stages:', stages);
-          }
-        } catch (error) {
-          console.error('❌ Error loading stages for audience:', selectedAudience, error);
-          console.error('❌ Error details:', error.response?.data || error.message);
-        }
+    if (addToEvent && selectedEvent && selectedAudience) {
+      console.log('🔄 Loading stages for audience from pipeline config:', selectedAudience);
+      
+      // Use hardcoded pipeline config instead of API call
+      const audienceStages = {
+        'org_members': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+        'friends_family': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+        'community_partners': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+        'business_sponsor': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+        'champions': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up']
+      };
+      
+      const stages = audienceStages[selectedAudience] || [];
+      setAvailableStages(stages);
+      if (stages.length > 0) {
+        setSelectedStage(stages[0]);
       }
-    };
-
-    loadStagesForEvent();
+      console.log('✅ Loaded stages from config:', stages);
+    }
   }, [addToEvent, selectedEvent, selectedAudience]);
 
   const availableFields = [
