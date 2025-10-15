@@ -1,6 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+// Pipeline config imported inline (from backend config/pipelineConfig.js)
+const AUDIENCE_STAGES = {
+  'org_members': [
+    'in_funnel',
+    'general_awareness',
+    'personal_invite',
+    'expressed_interest',
+    'rsvped',
+    'thanked',
+    'paid',
+    'thanked_paid',
+    'attended',
+    'followed_up'
+  ],
+  'friends_family': [
+    'in_funnel',
+    'general_awareness',
+    'personal_invite',
+    'expressed_interest',
+    'rsvped',
+    'thanked',
+    'paid',
+    'thanked_paid',
+    'attended',
+    'followed_up'
+  ],
+  'community_partners': [
+    'interested',
+    'contacted',
+    'partner',
+    'thanked'
+  ],
+  'business_sponsor': [
+    'interested',
+    'contacted',
+    'sponsor',
+    'thanked'
+  ],
+  'champions': [
+    'aware',
+    'contacted',
+    'committed',
+    'thanked',
+    'executing',
+    'recognized'
+  ]
+};
 
 export default function OrgMembersUploadPreview() {
   const navigate = useNavigate();
@@ -22,15 +69,6 @@ export default function OrgMembersUploadPreview() {
   const [availableEvents, setAvailableEvents] = useState([]);
   const [availableStages, setAvailableStages] = useState([]);
 
-  // HARDCODED PIPELINE CONFIG
-  const PIPELINE_CONFIG = {
-    'org_members': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
-    'friends_family': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
-    'community_partners': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
-    'business_sponsor': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
-    'champions': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up']
-  };
-
   // Load events from localStorage
   useEffect(() => {
     const cachedEvents = localStorage.getItem('availableEvents');
@@ -46,7 +84,7 @@ export default function OrgMembersUploadPreview() {
   // Load stages when audience changes
   useEffect(() => {
     if (addToEvent && selectedAudience) {
-      const stages = PIPELINE_CONFIG[selectedAudience] || [];
+      const stages = AUDIENCE_STAGES[selectedAudience] || [];
       setAvailableStages(stages);
       if (stages.length > 0) {
         setSelectedStage(stages[0]);

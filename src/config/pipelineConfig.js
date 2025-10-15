@@ -15,6 +15,7 @@ export const OFFICIAL_AUDIENCES = [
 
 // AUDIENCE-SPECIFIC STAGES
 // Each audience type has its own pipeline stages
+// FOLLOW-UP STAGES: Every action stage has a follow-up (rsvped → thanked, paid → thanked_paid, attended → followed_up)
 export const AUDIENCE_STAGES = {
   'org_members': [
     'in_funnel',
@@ -22,8 +23,11 @@ export const AUDIENCE_STAGES = {
     'personal_invite',
     'expressed_interest',
     'rsvped',
+    'thanked',          // Follow-up after RSVP
     'paid',
-    'attended'
+    'thanked_paid',     // Follow-up after payment
+    'attended',
+    'followed_up'       // Follow-up after attendance
   ],
   'friends_family': [
     'in_funnel',
@@ -31,21 +35,31 @@ export const AUDIENCE_STAGES = {
     'personal_invite',
     'expressed_interest',
     'rsvped',
+    'thanked',          // Follow-up after RSVP
     'paid',
-    'attended'
+    'thanked_paid',     // Follow-up after payment
+    'attended',
+    'followed_up'       // Follow-up after attendance
   ],
   'community_partners': [
     'interested',
-    'partner'
+    'contacted',        // Follow-up after interest
+    'partner',
+    'thanked'           // Follow-up after partnership
   ],
   'business_sponsor': [
     'interested',
-    'sponsor'
+    'contacted',        // Follow-up after interest
+    'sponsor',
+    'thanked'           // Follow-up after sponsorship
   ],
   'champions': [
     'aware',
+    'contacted',        // Follow-up after awareness
     'committed',
-    'executing'
+    'thanked',          // Follow-up after commitment
+    'executing',
+    'recognized'        // Follow-up after execution
   ]
 };
 
@@ -70,7 +84,18 @@ export const STAGE_DISPLAY_NAMES = {
   'personal_invite': 'Personal Invite',
   'expressed_interest': 'Expressed Interest',
   'rsvped': 'RSVPed',
+  'thanked': 'Thanked',
   'paid': 'Paid',
-  'attended': 'Attended'
+  'thanked_paid': 'Thanked (Paid)',
+  'attended': 'Attended',
+  'followed_up': 'Followed Up',
+  'interested': 'Interested',
+  'contacted': 'Contacted',
+  'partner': 'Partner',
+  'sponsor': 'Sponsor',
+  'aware': 'Aware',
+  'committed': 'Committed',
+  'executing': 'Executing',
+  'recognized': 'Recognized'
 };
 
