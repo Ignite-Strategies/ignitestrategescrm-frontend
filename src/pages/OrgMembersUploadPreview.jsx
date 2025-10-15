@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import api from '../lib/api';
 
 export default function OrgMembersUploadPreview() {
   const navigate = useNavigate();
@@ -13,6 +13,46 @@ export default function OrgMembersUploadPreview() {
   const [fieldMapping, setFieldMapping] = useState([]);
   const [csvPreviewData, setCsvPreviewData] = useState([]);
   const [uploading, setUploading] = useState(false);
+  
+  // Event assignment
+  const [addToEvent, setAddToEvent] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState('');
+  const [selectedAudience, setSelectedAudience] = useState('org_members');
+  const [selectedStage, setSelectedStage] = useState('in_funnel');
+  const [availableEvents, setAvailableEvents] = useState([]);
+  const [availableStages, setAvailableStages] = useState([]);
+
+  // HARDCODED PIPELINE CONFIG
+  const PIPELINE_CONFIG = {
+    'org_members': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+    'friends_family': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+    'community_partners': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+    'business_sponsor': ['interested', 'contacted', 'partner', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up'],
+    'champions': ['in_funnel', 'general_awareness', 'personal_invite', 'expressed_interest', 'rsvped', 'thanked', 'paid', 'thanked_paid', 'attended', 'followed_up']
+  };
+
+  // Load events from localStorage
+  useEffect(() => {
+    const cachedEvents = localStorage.getItem('availableEvents');
+    if (cachedEvents) {
+      const events = JSON.parse(cachedEvents);
+      setAvailableEvents(events);
+      if (events.length > 0) {
+        setSelectedEvent(events[0].id);
+      }
+    }
+  }, []);
+
+  // Load stages when audience changes
+  useEffect(() => {
+    if (addToEvent && selectedAudience) {
+      const stages = PIPELINE_CONFIG[selectedAudience] || [];
+      setAvailableStages(stages);
+      if (stages.length > 0) {
+        setSelectedStage(stages[0]);
+      }
+    }
+  }, [addToEvent, selectedAudience]);
 
   // Load preview from backend
   useEffect(() => {
@@ -54,6 +94,15 @@ export default function OrgMembersUploadPreview() {
       formData.append('file', blob, file.name);
       formData.append('uploadType', 'orgMember');
       formData.append('orgId', orgId);
+      
+      // Add event assignment if enabled
+      if (addToEvent && selectedEvent) {
+        formData.append('assignments', JSON.stringify({
+          eventId: selectedEvent,
+          audienceType: selectedAudience,
+          currentStage: selectedStage
+        }));
+      }
 
       const response = await api.post('/contacts/upload/save', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -159,6 +208,76 @@ export default function OrgMembersUploadPreview() {
               <p>No data preview available</p>
             </div>
           )}
+        </div>
+
+        {/* Event Assignment */}
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow p-6 border border-indigo-200 mb-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">🎯 Add to Event (Optional)</h2>
+          
+          <div className="space-y-4">
+            <label className="flex items-center cursor-pointer bg-white rounded-lg p-3 border border-indigo-200">
+              <input
+                type="checkbox"
+                checked={addToEvent}
+                onChange={(e) => setAddToEvent(e.target.checked)}
+                className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              />
+              <span className="ml-3 text-sm font-medium text-gray-700">Add these contacts to an event</span>
+            </label>
+
+            {addToEvent && (
+              <div className="space-y-4 bg-white rounded-lg p-4 border border-indigo-200">
+                {/* Event Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Select Event</label>
+                  <select
+                    value={selectedEvent || ''}
+                    onChange={(e) => setSelectedEvent(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
+                  >
+                    <option value="">Choose an event...</option>
+                    {availableEvents.map(event => (
+                      <option key={event.id} value={event.id}>
+                        {event.name} {event.eventDate ? `- ${new Date(event.eventDate).toLocaleDateString()}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Audience Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Audience Type</label>
+                  <select
+                    value={selectedAudience}
+                    onChange={(e) => setSelectedAudience(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
+                  >
+                    <option value="org_members">Org Members</option>
+                    <option value="friends_family">Friends & Family</option>
+                    <option value="community_partners">Community Partners</option>
+                    <option value="business_sponsor">Business Sponsor</option>
+                    <option value="champions">Champions</option>
+                  </select>
+                </div>
+
+                {/* Stage Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Pipeline Stage</label>
+                  <select
+                    value={selectedStage}
+                    onChange={(e) => setSelectedStage(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm"
+                  >
+                    {availableStages.map(stage => (
+                      <option key={stage} value={stage}>
+                        {stage.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Actions */}
