@@ -300,6 +300,10 @@ export default function ContactListManager() {
                     navigate('/campaign-creator');
                   }
                 }}
+                onUnassign={async () => {
+                  // Refresh the page to recalculate "assigned" status
+                  window.location.reload();
+                }}
                 onView={() => navigate(`/contact-list/${list.id}`)}
               />
             ))}
