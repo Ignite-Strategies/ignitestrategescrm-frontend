@@ -29,28 +29,46 @@ export default function UploadPreview() {
     return savedMapping ? JSON.parse(savedMapping) : [];
   });
 
-  // Parse CSV data for preview and auto-map fields
+  // Call backend universal preview endpoint for parsing and mapping
   useEffect(() => {
-    if (file && file.content) {
-      const lines = file.content.split('\n').filter(l => l.trim());
-      const headers = lines[0].split(',').map(h => h.trim());
-      const rows = lines.slice(1, 6).map(line => {  // Get first 5 data rows
-        const values = line.split(',').map(v => v.trim());
-        return values;
-      });
-      setCsvPreviewData(rows);
-      
-      // Auto-map fields if not already mapped
-      if (fieldMapping.length === 0) {
-        const autoMapped = headers.map(header => ({
-          csvHeader: header,
-          mappedField: mapHeaderToField(header)
-        }));
-        setFieldMapping(autoMapped);
-        localStorage.setItem('fieldMapping', JSON.stringify(autoMapped));
+    const loadPreviewFromBackend = async () => {
+      if (file && file.content) {
+        try {
+          const formData = new FormData();
+          const blob = new Blob([file.content], { type: 'text/csv' });
+          formData.append('file', blob, file.name);
+          formData.append('uploadType', 'orgMember');
+          formData.append('orgId', orgId);
+
+          const response = await api.post('/contacts/upload/preview', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+
+          if (response.data.success) {
+            // Use backend's parsed and mapped data
+            setFieldMapping(response.data.fieldMappingSuggestions.map(suggestion => ({
+              csvHeader: suggestion.csvHeader,
+              mappedField: suggestion.suggestedField
+            })));
+            setCsvPreviewData(response.data.preview);
+            console.log('✅ Backend preview loaded:', response.data);
+          }
+        } catch (error) {
+          console.error('❌ Backend preview failed, using local parsing:', error);
+          // Fallback to local parsing if backend fails
+          const lines = file.content.split('\n').filter(l => l.trim());
+          const headers = lines[0].split(',').map(h => h.trim());
+          const rows = lines.slice(1, 6).map(line => {
+            const values = line.split(',').map(v => v.trim());
+            return values;
+          });
+          setCsvPreviewData(rows);
+        }
       }
-    }
-  }, [file]);
+    };
+
+    loadPreviewFromBackend();
+  }, [file, orgId]);
 
   // Hydrate available events
   useEffect(() => {
