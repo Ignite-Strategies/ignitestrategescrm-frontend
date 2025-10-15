@@ -36,12 +36,12 @@ export default function CampaignCreator() {
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   
-  // HYDRAULIC PRESS THE ENTIRE PAGE ON LOAD!
+  // SMART LOADING - only load what's needed!
   useEffect(() => {
     console.log('🔄 CampaignCreator loaded with params:', { campaignId, listId });
     
-    // CRUSH EVERYTHING AND REBUILD!
-    hydraulicPressHydration();
+    // Load only what's needed, not everything!
+    loadNeededData();
   }, [campaignId, listId]);
   
   const checkGmailAuth = () => {
@@ -155,28 +155,31 @@ export default function CampaignCreator() {
     }
   };
 
-  // HYDRAULIC PRESS THE ENTIRE PAGE!
-  const hydraulicPressHydration = async () => {
-    console.log('💥 HYDRAULIC PRESS: Crushing entire page with fresh data!', new Date().toISOString());
+  // SMART LOADING - only load what's needed!
+  const loadNeededData = async () => {
+    console.log('🧠 SMART LOADING: Loading only what we need!', new Date().toISOString());
     
     try {
-      // Reload EVERYTHING
+      // Always load these basics
+      await checkGmailAuth();
+      
+      // Load campaign data only if we have a campaignId
       if (campaignId) {
         await loadCampaignData();
-        await loadAvailableLists();
       }
       
+      // Load contact list only if we have a listId
       if (listId) {
         await loadContactList();
         await hydrateContacts();
       }
       
-      await checkGmailAuth();
-      await loadTemplates();
+      // Load available lists only if we're selecting a list
+      await loadAvailableLists();
       
-      console.log('💥 HYDRAULIC PRESS COMPLETE: Page completely crushed and rebuilt!');
+      console.log('🧠 SMART LOADING COMPLETE: Loaded only what was needed!');
     } catch (err) {
-      console.error("💥 HYDRAULIC PRESS FAILED:", err);
+      console.error("🧠 SMART LOADING FAILED:", err);
     }
   };
   
