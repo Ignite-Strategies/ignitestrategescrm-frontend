@@ -5,20 +5,27 @@ export default function OrgMemberUploadSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
   const [uploadResults, setUploadResults] = useState(null);
-
   const [eventAssignment, setEventAssignment] = useState(null);
 
   useEffect(() => {
-    console.log('🎉 Success page loaded!');
-    console.log('📍 Location state:', location.state);
+    console.log('═══════════════════════════════════════════');
+    console.log('🎉 SUCCESS PAGE LOADED!');
+    console.log('═══════════════════════════════════════════');
+    console.log('📍 Full location object:', location);
+    console.log('📍 Location.state:', location.state);
+    console.log('📍 Location.state?.uploadResults:', location.state?.uploadResults);
+    console.log('═══════════════════════════════════════════');
     
     // Get results from navigation state (passed from Preview page)
     if (location.state?.uploadResults) {
-      console.log('✅ Found uploadResults in state:', location.state.uploadResults);
+      console.log('✅ FOUND uploadResults in state!');
+      console.log('📊 Upload results data:', location.state.uploadResults);
       setUploadResults(location.state.uploadResults);
       setEventAssignment(location.state.eventAssignment || null);
+    } else {
+      console.log('❌ NO uploadResults found in location.state');
+      console.log('⚠️ Showing "No Results" screen (NOT redirecting)');
     }
-    // NO REDIRECT FALLBACK - just stay on the page and show what we have
   }, [location]);
 
   if (!uploadResults) {
