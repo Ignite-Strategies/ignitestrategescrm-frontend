@@ -4,8 +4,8 @@ import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
 /**
- * Smart Contact List Builder - Simple & Focused
- * Pre-selected smart lists + basic custom options
+ * UNIFIED Contact List Builder
+ * Two forks: Smart Lists (Org Members + Event Attendees) OR Custom Upload
  * Can be used standalone OR within campaign flow
  */
 export default function ContactListBuilder() {
@@ -20,21 +20,59 @@ export default function ContactListBuilder() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   
-  // Data
+  // Builder mode: 'smart' or 'custom'
+  const [builderMode, setBuilderMode] = useState('smart');
+  
+  // Smart Lists data
   const [orgMembers, setOrgMembers] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedAudience, setSelectedAudience] = useState('');
+  const [selectedStage, setSelectedStage] = useState('');
+  const [filteredAttendees, setFilteredAttendees] = useState([]);
+  
+  // Custom upload
+  const [csvFile, setCsvFile] = useState(null);
+  const [csvPreview, setCsvPreview] = useState([]);
+  
   const [showPreview, setShowPreview] = useState(false);
   
   useEffect(() => {
-    loadOrgMembers();
+    loadData();
   }, [orgId]);
   
-  const loadOrgMembers = async () => {
+  const loadData = async () => {
     try {
-      const response = await api.get(`/orgmembers?orgId=${orgId}`);
-      setOrgMembers(response.data);
+      // Load org members and events in parallel
+      const [orgMembersRes, eventsRes] = await Promise.all([
+        api.get(`/orgmembers?orgId=${orgId}`),
+        api.get(`/orgs/${orgId}/events`)
+      ]);
+      
+      setOrgMembers(orgMembersRes.data);
+      setEvents(eventsRes.data);
     } catch (err) {
-      console.error("Error loading org members:", err);
-      setError("Failed to load org members");
+      console.error("Error loading data:", err);
+      setError("Failed to load organization data");
+    }
+  };
+  
+  // Filter attendees when event/audience/stage changes
+  useEffect(() => {
+    if (selectedEvent && selectedAudience && selectedStage) {
+      loadFilteredAttendees();
+    }
+  }, [selectedEvent, selectedAudience, selectedStage]);
+  
+  const loadFilteredAttendees = async () => {
+    try {
+      const response = await api.get(`/events/${selectedEvent}/attendees`, {
+        params: { audience: selectedAudience, stage: selectedStage }
+      });
+      setFilteredAttendees(response.data);
+    } catch (err) {
+      console.error("Error loading filtered attendees:", err);
+      setFilteredAttendees([]);
     }
   };
   

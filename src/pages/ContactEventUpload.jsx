@@ -142,7 +142,7 @@ export default function ContactEventUpload() {
             📅 Upload Event Contacts
           </h1>
           <p className="text-gray-600">
-            Upload contacts for <strong>"{currentEvent?.title}"</strong>
+            Upload contacts for <strong>"{currentEvent?.title || 'Selected Event'}"</strong>
           </p>
         </div>
 
@@ -198,20 +198,6 @@ export default function ContactEventUpload() {
                   <p className="text-gray-600">Click to browse or drag and drop your CSV file</p>
                 </label>
                 
-                {/* DEBUG: Test button */}
-                <div className="mt-4">
-                  <button
-                    onClick={() => {
-                      console.log('🧪 TEST: Simulating file upload...');
-                      const testFile = new File(['First Name,Last Name,Email,Phone\nJohn,Doe,john@test.com,555-1234'], 'test.csv', { type: 'text/csv' });
-                      const testEvent = { target: { files: [testFile] } };
-                      handleFileSelect(testEvent);
-                    }}
-                    className="bg-red-500 text-white px-4 py-2 rounded text-sm"
-                  >
-                    🧪 TEST: Simulate File Upload
-                  </button>
-                </div>
               </div>
             </div>
           </div>
