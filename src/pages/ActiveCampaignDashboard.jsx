@@ -72,6 +72,48 @@ export default function ActiveCampaignDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         
+        {/* Navigation Tabs */}
+        <div className="mb-6">
+          <nav className="flex space-x-8 border-b border-gray-200">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition"
+            >
+              🏠 Main Dashboard
+            </button>
+            <button
+              onClick={() => navigate('/campaign-dashboard')}
+              className="py-2 px-1 border-b-2 border-indigo-500 text-indigo-600 font-medium"
+            >
+              📊 Campaign Dashboard
+            </button>
+            <button
+              onClick={() => navigate('/contact-list-manager')}
+              className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition"
+            >
+              👥 Contact Lists
+            </button>
+            <button
+              onClick={() => navigate('/orgmembers')}
+              className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition"
+            >
+              👤 Org Members
+            </button>
+            <button
+              onClick={() => navigate('/eventdashboard')}
+              className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition"
+            >
+              📅 Events
+            </button>
+            <button
+              onClick={() => navigate('/outreach')}
+              className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition"
+            >
+              📧 Outreach
+            </button>
+          </nav>
+        </div>
+
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
