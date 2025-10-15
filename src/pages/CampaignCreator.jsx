@@ -10,35 +10,18 @@ import { signInWithGoogle, getGmailAccessToken } from "../lib/googleAuth";
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const orgId = getOrgId();
   
-  // Get params from URL
-  const campaignId = searchParams.get('campaignId');
-  const listId = searchParams.get('listId');
-  
-  // Campaign data
+  // SIMPLE STATE - just what we need
   const [campaignName, setCampaignName] = useState("");
-  const [contactList, setContactList] = useState(null);
-  const [contacts, setContacts] = useState([]);
-  const [availableLists, setAvailableLists] = useState([]);
-  
-  // Message data
+  const [selectedList, setSelectedList] = useState(null);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [templates, setTemplates] = useState([]);
-  const [showTemplates, setShowTemplates] = useState(false);
-  
-  // UI states
   const [loading, setLoading] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
   
-  // SIMPLE LOADING - just check Gmail auth!
+  // Check Gmail auth on load
   useEffect(() => {
-    console.log('🔄 CampaignCreator loaded - SIMPLE MODE');
     checkGmailAuth();
   }, []);
   
