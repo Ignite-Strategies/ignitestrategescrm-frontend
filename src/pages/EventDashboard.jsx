@@ -382,7 +382,7 @@ export default function Events() {
                       📝 Associate Form
                     </button>
                     <button
-                      onClick={() => navigate("/contacteventmanual")}
+                      onClick={() => navigate("/contact-upload-selector")}
                       className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                     >
                       ➕ Add More Contacts

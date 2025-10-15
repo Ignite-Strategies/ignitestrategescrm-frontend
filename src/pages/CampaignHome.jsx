@@ -322,7 +322,7 @@ export default function CampaignHome() {
 
             {/* 👥 Upload Contacts */}
             <button
-              onClick={() => navigate("/contacteventmanual")}
+              onClick={() => navigate("/contact-upload-selector")}
               className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-lg border-2 border-blue-200 hover:border-blue-400 transition text-left"
             >
               <div className="flex items-center mb-4">
