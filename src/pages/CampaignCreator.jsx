@@ -589,6 +589,51 @@ export default function CampaignCreator() {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
                     />
                     
+                    {/* File Attachments */}
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">📎 Attachments (Optional)</label>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                        <input
+                          type="file"
+                          multiple
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          id="file-upload"
+                          accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.jpg,.jpeg,.png,.gif"
+                        />
+                        <label
+                          htmlFor="file-upload"
+                          className="cursor-pointer flex flex-col items-center justify-center text-gray-500 hover:text-gray-700"
+                        >
+                          <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span className="text-sm">Click to upload files</span>
+                          <span className="text-xs text-gray-400">PDF, DOC, XLS, images, etc. (10MB max each)</span>
+                        </label>
+                      </div>
+                      
+                      {/* Uploaded Files List */}
+                      {uploadedFiles.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {uploadedFiles.map((file, index) => (
+                            <div key={index} className="flex items-center justify-between bg-blue-50 p-2 rounded-lg">
+                              <div className="flex items-center">
+                                <span className="text-sm font-medium text-blue-900">{file.name}</span>
+                                <span className="text-xs text-blue-600 ml-2">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                              </div>
+                              <button
+                                onClick={() => removeFile(index)}
+                                className="text-red-500 hover:text-red-700 text-sm"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
                     {/* Live Preview */}
                     {message && (message.includes('{{firstName}}') || message.includes('{{lastName}}') || message.includes('{{email}}') || message.includes('{{goesBy}}')) && (
                       <div className="mt-3 p-4 bg-gray-50 rounded-lg border">
