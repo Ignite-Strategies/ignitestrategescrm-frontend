@@ -99,27 +99,8 @@ export default function UploadPreview() {
     loadEvents();
   }, [orgId]);
 
-  // Hydrate stages when audience changes
-  useEffect(() => {
-    const loadStagesForAudience = async () => {
-      try {
-        const response = await api.get(`/schema/audience-stages/${selectedAudience}`);
-        if (response.data.success) {
-          const stages = response.data.stages;
-          setAvailableStages(stages);
-          if (stages.length > 0) {
-            setSelectedStage(stages[0]); // Reset to first stage
-          }
-        }
-      } catch (error) {
-        console.error('Error loading stages for audience:', error);
-      }
-    };
-
-    if (selectedAudience) {
-      loadStagesForAudience();
-    }
-  }, [selectedAudience]);
+  // For OrgMember uploads, we don't need audience stages
+  // This is only needed for EventAttendee uploads
 
   const availableFields = [
     { value: 'unmapped', label: 'Ignore this column' },
