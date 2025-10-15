@@ -46,20 +46,39 @@ export default function UploadPreview() {
 
           if (response.data.success) {
             // Use backend's parsed and mapped data
-            const mappings = response.data.fieldMappingSuggestions.map(suggestion => ({
-              csvHeader: suggestion.csvHeader,
-              mappedField: suggestion.suggestedField
-            }));
-            setFieldMapping(mappings);
+            // The backend has already parsed fullName into firstName/lastName
+            // So we need to show the actual parsed fields, not the original CSV headers
+            const allFields = [];
+            
+            // Check if we have firstName/lastName from parsing
+            const hasFirstName = response.data.preview.some(record => record.firstName);
+            const hasLastName = response.data.preview.some(record => record.lastName);
+            
+            if (hasFirstName || hasLastName) {
+              allFields.push({ csvHeader: 'First Name', mappedField: 'firstName' });
+              allFields.push({ csvHeader: 'Last Name', mappedField: 'lastName' });
+            }
+            
+            // Add other mapped fields (excluding fullName since it's parsed)
+            response.data.fieldMappingSuggestions
+              .filter(suggestion => suggestion.suggestedField !== 'fullName')
+              .forEach(suggestion => {
+                allFields.push({
+                  csvHeader: suggestion.csvHeader,
+                  mappedField: suggestion.suggestedField
+                });
+              });
+            
+            setFieldMapping(allFields);
             
             // Convert backend's mapped objects to array format for table display
             const previewRows = response.data.preview.map(record => {
-              return mappings.map(mapping => record[mapping.mappedField] || '');
+              return allFields.map(field => record[field.mappedField] || '');
             });
             setCsvPreviewData(previewRows);
             
             // Cache in localStorage for retrieval
-            localStorage.setItem('fieldMapping', JSON.stringify(mappings));
+            localStorage.setItem('fieldMapping', JSON.stringify(allFields));
             localStorage.setItem('csvPreviewData', JSON.stringify(previewRows));
             
             console.log('✅ Backend preview loaded:', response.data);
