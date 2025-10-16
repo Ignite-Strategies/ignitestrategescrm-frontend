@@ -43,12 +43,27 @@ export default function ContactListManager() {
         api.get(`/campaigns?orgId=${orgId}`)
       ]);
       
-      // Enrich lists with campaign status
+      // Enrich lists with campaign status and conflict detection
       const enrichedLists = listsRes.data.map(list => {
         const linkedCampaigns = campaignsRes.data.filter(c => c.contactListId === list.id);
         const draftCampaigns = linkedCampaigns.filter(c => c.status === 'draft');
         const sentCampaigns = linkedCampaigns.filter(c => c.status === 'sent');
         const activeCampaigns = linkedCampaigns.filter(c => c.status === 'active');
+        
+        // Determine conflict level
+        let conflictLevel = 'none';
+        let conflictMessage = '';
+        
+        if (draftCampaigns.length > 0) {
+          conflictLevel = 'draft';
+          conflictMessage = `⚠️ In draft campaign${draftCampaigns.length > 1 ? 's' : ''}: ${draftCampaigns.map(c => c.name).join(', ')}`;
+        } else if (sentCampaigns.length > 0) {
+          conflictLevel = 'sent';
+          conflictMessage = `🚨 Sent in campaign${sentCampaigns.length > 1 ? 's' : ''}: ${sentCampaigns.map(c => c.name).join(', ')}`;
+        } else if (activeCampaigns.length > 0) {
+          conflictLevel = 'active';
+          conflictMessage = `🔄 Active in campaign${activeCampaigns.length > 1 ? 's' : ''}: ${activeCampaigns.map(c => c.name).join(', ')}`;
+        }
         
         return {
           ...list,
@@ -58,7 +73,9 @@ export default function ContactListManager() {
             totalCampaigns: linkedCampaigns.length,
             draftCampaigns,
             sentCampaigns,
-            activeCampaigns
+            activeCampaigns,
+            conflictLevel,
+            conflictMessage
           }
         };
       });
