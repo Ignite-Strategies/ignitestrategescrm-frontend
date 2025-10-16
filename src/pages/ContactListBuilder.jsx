@@ -277,15 +277,8 @@ export default function ContactListBuilder() {
                 
                 <div className="space-y-3">
                   <button
-                    onClick={async () => {
-                      if (allAttendees.length === 0) {
-                        const attendees = await loadEventAttendees();
-                        if (attendees.length > 0) {
-                          navigate(`/contact-list-view?type=all_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`);
-                        }
-                      } else {
-                        navigate(`/contact-list-view?type=all_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`);
-                      }
+                    onClick={() => {
+                      navigate(`/contact-list-view?type=all_attendees${campaignId ? `&campaignId=${campaignId}` : ''}`);
                     }}
                     disabled={loading}
                     className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition font-medium"
@@ -293,15 +286,8 @@ export default function ContactListBuilder() {
                     {loading ? "🔄 Loading contacts..." : allAttendees.length > 0 ? "View & Modify" : "Load & View"}
                   </button>
                   <button
-                    onClick={async () => {
-                      if (allAttendees.length === 0) {
-                        const attendees = await loadEventAttendees();
-                        if (attendees.length > 0) {
-                          handleUseList('all_attendees', { name: 'All Event Attendees' });
-                        }
-                      } else {
-                        handleUseList('all_attendees', { name: 'All Event Attendees' });
-                      }
+                    onClick={() => {
+                      handleUseList('all_attendees', { name: 'All Event Attendees' });
                     }}
                     disabled={loading}
                     className="w-full px-6 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition font-medium text-sm"
