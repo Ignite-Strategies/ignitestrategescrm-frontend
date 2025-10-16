@@ -43,7 +43,26 @@ export default function CampaignPreview() {
   
   const loadCampaignData = async () => {
     try {
-      // Use campaign hydration - campaignId → listId → contacts (all in one call!)
+      console.log('🔄 Starting campaign preview load...');
+      
+      // STEP 1: Save any unsaved content from localStorage
+      const previewSubject = localStorage.getItem('previewSubject');
+      const previewMessage = localStorage.getItem('previewMessage');
+      
+      if (previewSubject || previewMessage) {
+        console.log('💾 Saving unsaved content from creator...');
+        await api.patch(`/campaigns/${campaignId}`, {
+          subject: previewSubject || undefined,
+          body: previewMessage || undefined
+        });
+        console.log('✅ Content saved!');
+        
+        // Clear localStorage
+        localStorage.removeItem('previewSubject');
+        localStorage.removeItem('previewMessage');
+      }
+      
+      // STEP 2: Hydrate everything from backend
       console.log('🔄 Hydrating campaign data via campaignId:', campaignId);
       
       const [campaignRes, contactsRes] = await Promise.all([
