@@ -180,7 +180,7 @@ export default function OrgMemberUploadSuccess() {
               <div className="max-h-40 overflow-y-auto space-y-1">
                 {uploadResults.errors.map((error, idx) => (
                   <div key={idx} className="text-sm text-red-800">
-                    • {error.email}: {error.error}
+                    • {error.record?.email || 'Unknown'}: {error.errors?.join(', ') || error.error || 'Unknown error'}
                   </div>
                 ))}
               </div>
