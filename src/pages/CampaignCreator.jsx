@@ -102,12 +102,13 @@ export default function CampaignCreator() {
         api.get(`/campaigns?orgId=${orgId}`)
       ]);
       
-      // Mark lists as "in use" if linked to sent/active/draft campaigns
+      // Show which campaigns are using each list (but don't block reuse!)
       const enrichedLists = listsRes.data.map(list => {
         const linkedCampaigns = campaignsRes.data.filter(c => c.contactListId === list.id);
         return {
           ...list,
-          inUse: linkedCampaigns.some(c => c.status === 'sent' || c.status === 'active' || c.status === 'draft'),
+          linkedCampaigns,  // Show info, don't block
+          usageCount: linkedCampaigns.length,
         };
       });
       
@@ -379,19 +380,21 @@ export default function CampaignCreator() {
                           {availableLists.map(list => (
                             <button
                               key={list.id}
-                              onClick={() => !list.inUse && handleSelectList(list)}
-                              disabled={list.inUse || loading}
-                              className={`p-4 border-2 rounded-lg text-left transition ${
-                                list.inUse 
-                                  ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-60' 
-                                  : 'border-gray-200 hover:border-indigo-400 hover:bg-indigo-50'
-                              }`}
+                              onClick={() => handleSelectList(list)}
+                              disabled={loading}
+                              className="p-4 border-2 border-gray-200 rounded-lg text-left transition hover:border-indigo-400 hover:bg-indigo-50"
                             >
                               <div className="font-semibold text-gray-900">
                                 {list.name}
-                                {list.inUse && <span className="ml-2 text-xs text-red-600">(In Use)</span>}
                               </div>
-                              <div className="text-sm text-gray-600">{list.contactCount || 0} contacts</div>
+                              <div className="text-sm text-gray-600">
+                                {list.contactCount || 0} contacts
+                                {list.usageCount > 0 && (
+                                  <span className="ml-2 text-blue-600">
+                                    • Used by {list.usageCount} campaign(s)
+                                  </span>
+                                )}
+                              </div>
                             </button>
                           ))}
                         </div>
