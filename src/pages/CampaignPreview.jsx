@@ -113,8 +113,14 @@ export default function CampaignPreview() {
         status: 'sent'
       });
 
-      alert(`✅ Sent to ${contacts.length} contacts!`);
-      navigate('/campaignhome');
+      // Navigate to success page instead of popup
+      navigate('/campaign-success', { 
+        state: { 
+          campaignId, 
+          contactCount: contacts.length,
+          campaignName: campaign.name 
+        } 
+      });
 
     } catch (err) {
       console.error('❌ Send failed:', err);
