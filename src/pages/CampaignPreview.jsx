@@ -73,10 +73,15 @@ export default function CampaignPreview() {
     });
     
     const result = campaign.body
+      // Try double braces first, then single closing brace (forgiving!)
       .replace(/\{\{firstName\}\}/g, firstContact.firstName || '')
+      .replace(/\{\{firstName\}/g, firstContact.firstName || '')
       .replace(/\{\{lastName\}\}/g, firstContact.lastName || '')
+      .replace(/\{\{lastName\}/g, firstContact.lastName || '')
       .replace(/\{\{email\}\}/g, firstContact.email || '')
-      .replace(/\{\{goesBy\}\}/g, firstContact.goesBy || firstContact.firstName || '');
+      .replace(/\{\{email\}/g, firstContact.email || '')
+      .replace(/\{\{goesBy\}\}/g, firstContact.goesBy || firstContact.firstName || '')
+      .replace(/\{\{goesBy\}/g, firstContact.goesBy || firstContact.firstName || ''); // Catches typo!
     
     console.log('✅ Preview Result:', result);
     return result;
