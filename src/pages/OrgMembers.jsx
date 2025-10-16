@@ -508,11 +508,9 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {/* 🔥 HARDCODED: Bros & Brews (from backend upcomingEventNames) */}
+                      {/* 🔥 HARDCODED: Bros & Brews - everything is just a damn string */}
                       <span className="text-gray-900 font-medium">
-                        {contact.upcomingEventNames && contact.upcomingEventNames.length > 0 
-                          ? contact.upcomingEventNames.join(', ')
-                          : 'Bros & Brews'}
+                        Bros & Brews
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
