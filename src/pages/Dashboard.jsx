@@ -26,35 +26,35 @@ export default function Dashboard() {
 
   const loadData = async () => {
     try {
-      console.log('🚀 Dashboard loadData starting with orgId:', orgId, '- CACHE BUST VERSION');
-      const [orgRes, eventsRes, orgMembersRes] = await Promise.all([
-        api.get(`/orgs/${orgId}`),
-        api.get(`/events?orgId=${orgId}&v=${Date.now()}`),
-        api.get(`/orgmembers?orgId=${orgId}`)
-      ]);
-      console.log('📊 Dashboard API responses:', {
-        org: orgRes.data,
-        events: eventsRes.data,
-        orgMembers: orgMembersRes.data
+      console.log('🚀 Dashboard loadData from localStorage - orgId:', orgId);
+      
+      // Get data from localStorage (cached from Welcome page)
+      const cachedOrg = JSON.parse(localStorage.getItem('org') || 'null');
+      const cachedEvent = JSON.parse(localStorage.getItem('event') || 'null');
+      const cachedMembers = JSON.parse(localStorage.getItem(`org_${orgId}_members`) || '[]');
+      
+      console.log('📊 Dashboard data from cache:', {
+        org: cachedOrg,
+        event: cachedEvent,
+        members: cachedMembers
       });
-      setOrg(orgRes.data);
-      setEvents(eventsRes.data);
       
-      // Count OrgMembers (all are non-admin in Contact-First architecture)
-      setSupporterCount(orgMembersRes.data.members?.length || 0);
+      setOrg(cachedOrg);
+      setEvents(cachedEvent ? [cachedEvent] : []);
+      setSupporterCount(cachedMembers.length);
       
-      // 🔥 HYDRATION RULE: Always hydrate OrgMembers to localStorage when landing on Dashboard
-      localStorage.setItem(`org_${orgId}_members`, JSON.stringify(orgMembersRes.data.members || []));
-      console.log('✅ DASHBOARD HYDRATION: Cached', orgMembersRes.data.members?.length || 0, 'org members');
-
-      // Find next upcoming event
-      const now = new Date();
-      const upcoming = eventsRes.data
-        .filter(e => e.date && new Date(e.date) >= now)
-        .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
-      setUpcomingEvent(upcoming);
+      // Find next upcoming event (if we have events)
+      if (cachedEvent) {
+        const now = new Date();
+        const eventDate = new Date(cachedEvent.date);
+        if (eventDate >= now) {
+          setUpcomingEvent(cachedEvent);
+        }
+      }
+      
+      console.log('✅ Dashboard loaded from localStorage');
     } catch (error) {
-      console.error("Error loading dashboard:", error);
+      console.error("Error loading dashboard from cache:", error);
     }
   };
 
