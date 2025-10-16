@@ -30,7 +30,6 @@ import EventEdit from "./pages/EventEdit.jsx";
 import EngageEmail from "./pages/EngageEmail.jsx";
 import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
 import ComposeMessage from "./pages/ComposeMessage.jsx";
-import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactListCampaignSelector from "./pages/ContactListCampaignSelector.jsx";
@@ -200,9 +199,6 @@ export default function App() {
         } />
         <Route path="/compose" element={
           <ProtectedRoute><ComposeMessage /></ProtectedRoute>
-        } />
-        <Route path="/lists" element={
-          <ProtectedRoute><ListManagement /></ProtectedRoute>
         } />
         <Route path="/test-auth" element={
           <TestAuth />
