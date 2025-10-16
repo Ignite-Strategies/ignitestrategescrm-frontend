@@ -6,15 +6,15 @@ import { signInWithGoogle, getGmailAccessToken, isGmailAuthenticated } from "../
 
 /**
  * CampaignCreator - Clean 3-Step Flow with Preview
- * NO URL PARAMS! Everything in localStorage and hydrated from backend
+ * NO URL PARAMS! NO LOCALSTORAGE! Just React state + navigation state
  * 1. Name → 2. Pick List → 3. Write Message → Preview & Send
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
   const orgId = getOrgId();
 
-  // Get campaignId from localStorage - NO URL PARAMS!
-  const [campaignId, setCampaignId] = useState(localStorage.getItem("currentCampaignId"));
+  // Pure state - user picks/creates campaign, we hold it here
+  const [campaignId, setCampaignId] = useState(null);
 
   // Campaign data
   const [campaignName, setCampaignName] = useState("");
@@ -93,7 +93,6 @@ export default function CampaignCreator() {
       console.error("Error loading campaign:", err);
       if (err.response?.status === 404) {
         // Campaign deleted, start fresh
-        localStorage.removeItem("currentCampaignId");
         setCampaignId(null);
         setError("");
       }
@@ -170,8 +169,7 @@ export default function CampaignCreator() {
       const campaign = response.data;
       console.log("✅ Campaign created:", campaign.id);
 
-      // Store in localStorage - NO URL PARAMS!
-      localStorage.setItem("currentCampaignId", campaign.id);
+      // Just set in state - that's it!
       setCampaignId(campaign.id);
     } catch (err) {
       console.error("❌ Error creating campaign:", err);
@@ -263,9 +261,9 @@ export default function CampaignCreator() {
       
       console.log('✅ Content saved!');
       
-      // STEP 2: Navigate to TEST PAGE - NO PARAMS!
-      console.log('🎯 Navigating to TEST page (pure URL)...');
-      navigate('/preview-test');
+      // STEP 2: Navigate with campaignId in React Router state
+      console.log('🎯 Navigating to TEST page with state...');
+      navigate('/preview-test', { state: { campaignId } });
       
     } catch (err) {
       console.error('❌ Save failed:', err);
