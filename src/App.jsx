@@ -33,7 +33,7 @@ import ComposeMessage from "./pages/ComposeMessage.jsx";
 import ListManagement from "./pages/ListManagement.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
-import ContactListManager from "./pages/ContactListManager.jsx";
+import ContactListManager from "./pages/ContactListManagerSimple.jsx";
 import ContactListBuilder from "./pages/ContactListBuilder.jsx";
 import ContactListDetail from "./pages/ContactListDetail.jsx";
 import ContactManageHome from "./pages/ContactManageHome.jsx";
