@@ -36,7 +36,8 @@ import ComposeMessage from "./pages/ComposeMessage.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactListManager from "./pages/ContactListManager.jsx";
-import UniversalListBuilder from "./pages/UniversalListBuilder.jsx";
+import ContactListBuilder from "./pages/ContactListBuilder.jsx";
+import ListCreatedSuccess from "./pages/ListCreatedSuccess.jsx";
 import ContactListDetail from "./pages/ContactListDetail.jsx";
 import ContactManageHome from "./pages/ContactManageHome.jsx";
 import ContactManageSelector from "./pages/ContactManageSelector.jsx";
@@ -61,8 +62,6 @@ import FormBuilder from "./pages/FormBuilder.jsx";
 import FormSuccess from "./pages/FormSuccess.jsx";
 import PostOrgCreate from "./pages/PostOrgCreate.jsx";
 import AdsDashboard from "./pages/AdsDashboard.jsx";
-import TestEnterpriseEmail from "./pages/TestEnterpriseEmail.jsx";
-import ContactListDebug from "./pages/ContactListDebug.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
@@ -222,7 +221,10 @@ export default function App() {
           <ProtectedRoute><ContactListManager /></ProtectedRoute>
         } />
         <Route path="/contact-list-builder" element={
-          <ProtectedRoute><UniversalListBuilder /></ProtectedRoute>
+          <ProtectedRoute><ContactListBuilder /></ProtectedRoute>
+        } />
+        <Route path="/list-created-success" element={
+          <ProtectedRoute><ListCreatedSuccess /></ProtectedRoute>
         } />
         <Route path="/contact-list/:listId" element={
           <ProtectedRoute><ContactListDetail /></ProtectedRoute>
@@ -291,14 +293,8 @@ export default function App() {
         <Route path="/ads" element={
           <ProtectedRoute><AdsDashboard /></ProtectedRoute>
         } />
-        <Route path="/test-enterprise-email" element={
-          <ProtectedRoute><TestEnterpriseEmail /></ProtectedRoute>
-        } />
         <Route path="/smart-lists" element={
           <ProtectedRoute><SmartLists /></ProtectedRoute>
-        } />
-        <Route path="/contact-list-debug" element={
-          <ProtectedRoute><ContactListDebug /></ProtectedRoute>
         } />
         <Route path="/contact-list-view" element={
           <ProtectedRoute><ContactListView /></ProtectedRoute>
