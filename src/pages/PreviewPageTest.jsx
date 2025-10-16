@@ -1,8 +1,8 @@
-import { useSearchParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function PreviewPageTest() {
-  const [searchParams] = useSearchParams();
-  const campaignId = searchParams.get('campaignId');
+  const location = useLocation();
+  const campaignId = location.state?.campaignId;
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 flex items-center justify-center">
