@@ -36,7 +36,7 @@ import ComposeMessage from "./pages/ComposeMessage.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactListManager from "./pages/ContactListManager.jsx";
-import ContactListBuilder from "./pages/ContactListBuilder.jsx";
+import UniversalListBuilder from "./pages/UniversalListBuilder.jsx";
 import ContactListDetail from "./pages/ContactListDetail.jsx";
 import ContactManageHome from "./pages/ContactManageHome.jsx";
 import ContactManageSelector from "./pages/ContactManageSelector.jsx";
@@ -69,7 +69,6 @@ import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
 import PreviewPageTest from "./pages/PreviewPageTest.jsx";
 import Sequence from "./pages/Sequence.jsx";
-import UniversalListBuilder from "./pages/UniversalListBuilder.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -223,7 +222,7 @@ export default function App() {
           <ProtectedRoute><ContactListManager /></ProtectedRoute>
         } />
         <Route path="/contact-list-builder" element={
-          <ProtectedRoute><ContactListBuilder /></ProtectedRoute>
+          <ProtectedRoute><UniversalListBuilder /></ProtectedRoute>
         } />
         <Route path="/contact-list/:listId" element={
           <ProtectedRoute><ContactListDetail /></ProtectedRoute>
@@ -303,9 +302,6 @@ export default function App() {
         } />
         <Route path="/contact-list-view" element={
           <ProtectedRoute><ContactListView /></ProtectedRoute>
-        } />
-        <Route path="/universal-list-builder" element={
-          <ProtectedRoute><UniversalListBuilder /></ProtectedRoute>
         } />
         
       </Routes>
