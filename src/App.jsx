@@ -253,6 +253,9 @@ export default function App() {
         } />
         
         {/* Campaign System - Legacy routes */}
+        <Route path="/campaigns" element={
+          <ProtectedRoute><CampaignList /></ProtectedRoute>
+        } />
         <Route path="/campaignhome" element={
           <ProtectedRoute><CampaignHome /></ProtectedRoute>
         } />
