@@ -135,7 +135,7 @@ export default function CampaignCreatorV2() {
       const campaign = response.data;
       console.log("✅ Campaign created:", campaign.id);
       setCampaignId(campaign.id);
-      alert(`✅ Campaign "${campaignName}" created!`);
+      // No alert - just flow to next step!
     } catch (err) {
       console.error("Error creating campaign:", err);
       setError(err.response?.data?.error || "Failed to create campaign");
@@ -161,7 +161,7 @@ export default function CampaignCreatorV2() {
       await loadContactList(list.id);
       await loadContacts(list.id);
       
-      alert(`✅ List "${list.name}" attached!`);
+      // No alert - UI updates automatically!
     } catch (err) {
       console.error("Error assigning list:", err);
       setError(err.response?.data?.error || "Failed to assign list");
@@ -175,7 +175,7 @@ export default function CampaignCreatorV2() {
       setLoading(true);
       await signInWithGoogle();
       checkGmailAuth();
-      alert("✅ Gmail authenticated!");
+      // No alert - status shows in UI!
     } catch (err) {
       console.error("Gmail auth error:", err);
       setError("Failed to authenticate with Gmail");
