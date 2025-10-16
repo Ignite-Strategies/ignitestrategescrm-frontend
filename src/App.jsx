@@ -19,6 +19,7 @@ import OrgMemberUploadSuccess from "./pages/OrgMemberUploadSuccess.jsx";
 import ResolveErrors from "./pages/ResolveErrors.jsx";
 import OrgMemberManual from "./pages/OrgMemberManual.jsx";
 import ReadTheError from "./pages/ReadTheError.jsx";
+import ContactListView from "./pages/ContactListView.jsx";
 import AdminMaker from "./pages/AdminMaker.jsx";
 import ContactDetail from "./pages/ContactDetail.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
@@ -151,6 +152,9 @@ export default function App() {
         } />
         <Route path="/read-the-error" element={
           <ProtectedRoute><ReadTheError /></ProtectedRoute>
+        } />
+        <Route path="/contact-list-view" element={
+          <ProtectedRoute><ContactListView /></ProtectedRoute>
         } />
         <Route path="/admin-maker" element={
           <ProtectedRoute><AdminMaker /></ProtectedRoute>

@@ -1,324 +1,243 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import api from "../lib/api";
-import { getOrgId } from "../lib/org";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import api from '../lib/api';
+import { getOrgId } from '../lib/org';
 
-/**
- * Contact List View - Preview and Select Contacts
- * Shows all org members with checkboxes for selection
- */
 export default function ContactListView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const orgId = getOrgId();
   
-  // Get type from URL params
-  const type = searchParams.get('type') || 'org_members';
+  const type = searchParams.get('type');
+  const campaignId = searchParams.get('campaignId');
   
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [contacts, setContacts] = useState([]);
-  const [selectedContacts, setSelectedContacts] = useState(new Set());
-  const [listName, setListName] = useState("All Org Members");
-  const [listDescription, setListDescription] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   
   useEffect(() => {
     loadContacts();
-  }, [orgId, type]);
+  }, [type]);
   
   const loadContacts = async () => {
     try {
       setLoading(true);
-      setError("");
+      setError('');
       
-      console.log('📞 Loading contacts for type:', type);
-      
-      // SIMPLE API CALLS - No more universal hydration madness!
       let response;
-      let filteredContacts = [];
-      let displayName = "";
       
-      switch (type) {
-        case 'org_members':
-          response = await api.get(`/orgmembers?orgId=${orgId}`);
-          // Handle both array and object response formats
-          filteredContacts = Array.isArray(response.data) 
-            ? response.data 
-            : response.data.members || [];
-          displayName = "All Org Members";
-          break;
-          
-        case 'all_attendees':
-          response = await api.get(`/orgs/${orgId}/attendees`);
-          filteredContacts = response.data || [];
-          displayName = "All Event Attendees";
-          break;
-          
-        case 'paid_attendees':
-          response = await api.get(`/orgs/${orgId}/attendees?stage=paid`);
-          filteredContacts = response.data || [];
-          displayName = "Paid Event Attendees";
-          break;
-          
-        default:
-          response = await api.get(`/orgmembers?orgId=${orgId}`);
-          filteredContacts = Array.isArray(response.data) 
-            ? response.data 
-            : response.data.members || [];
-          displayName = "All Org Members";
+      if (type === 'org_members') {
+        console.log('📞 Loading org members...');
+        response = await api.get(`/orgmembers?orgId=${orgId}`);
+        const members = response.data.members || response.data || [];
+        setContacts(members);
+        console.log('✅ Loaded org members:', members.length);
+        
+      } else if (type === 'all_attendees') {
+        console.log('📅 Loading event attendees...');
+        const cachedEvent = JSON.parse(localStorage.getItem('event') || 'null');
+        if (!cachedEvent) {
+          throw new Error('No event found. Please go to Events page first.');
+        }
+        response = await api.get(`/events/${cachedEvent.id}/attendees`);
+        setContacts(response.data || []);
+        console.log('✅ Loaded event attendees:', response.data?.length || 0);
+        
+      } else if (type === 'paid_attendees') {
+        console.log('💰 Loading paid attendees...');
+        response = await api.get(`/orgs/${orgId}/attendees?stage=paid`);
+        setContacts(response.data || []);
+        console.log('✅ Loaded paid attendees:', response.data?.length || 0);
+        
+      } else {
+        throw new Error('Invalid contact type');
       }
       
-      setContacts(filteredContacts);
-      setListName(displayName);
-      
-      // Auto-select all contacts (use contactId or id)
-      setSelectedContacts(new Set(filteredContacts.map(c => c.contactId || c.id)));
-      
-      console.log('✅ Loaded contacts:', filteredContacts.length, displayName);
-      
     } catch (err) {
-      console.error("Error loading contacts:", err);
-      setError("Failed to load contacts");
+      console.error('Error loading contacts:', err);
+      setError(err.message || 'Failed to load contacts');
     } finally {
       setLoading(false);
     }
   };
   
-  const handleToggleContact = (contactId) => {
-    setSelectedContacts(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(contactId)) {
-        newSet.delete(contactId);
-      } else {
-        newSet.add(contactId);
-      }
-      return newSet;
-    });
-  };
-  
-  const handleSelectAll = () => {
-    const allIds = new Set(filteredContacts.map(m => m.contactId));
-    setSelectedContacts(allIds);
-  };
-  
-  const handleDeselectAll = () => {
-    setSelectedContacts(new Set());
-  };
-  
-  const handleSaveList = async () => {
-    if (!listName.trim()) {
-      setError("Please enter a list name");
-      return;
-    }
-    
-    if (selectedContacts.size === 0) {
-      setError("Please select at least one contact");
-      return;
-    }
-    
-    setLoading(true);
-    setError("");
-    
+  const handleUseList = async () => {
     try {
-      const selectedContactIds = Array.from(selectedContacts);
+      setLoading(true);
       
-      const response = await api.post("/contact-lists/from-selection", {
+      // Create contact list
+      const listData = {
+        name: getListName(),
+        description: getListDescription(),
         orgId,
-        name: listName.trim(),
-        description: listDescription.trim() || `Custom list with ${selectedContactIds.length} contacts`,
-        selectedContactIds
-      });
+        contactIds: contacts.map(c => c.contactId || c.id)
+      };
       
-      alert(`✅ Contact list "${listName}" created with ${selectedContactIds.length} contacts!`);
+      console.log('📝 Creating contact list:', listData.name);
+      const response = await api.post('/contact-lists', listData);
+      const listId = response.data.id;
       
-      // Check if we're in campaign flow
-      const campaignId = new URLSearchParams(window.location.search).get('campaignId');
+      console.log('✅ Contact list created:', listId);
+      
+      // Navigate based on campaign flow
       if (campaignId) {
-        // Campaign flow: Return to CampaignCreator with both params
-        navigate(`/campaign-creator?campaignId=${campaignId}&listId=${response.data.id}`);
+        navigate(`/campaign-creator?campaignId=${campaignId}&listId=${listId}`);
       } else {
-        // Standalone: Go back to manager
-        navigate("/contact-list-manager");
+        navigate('/contact-list-manager');
       }
       
     } catch (err) {
-      console.error("Error creating list:", err);
-      
-      // Make unique constraint error clearer
-      if (err.response?.data?.error?.includes("Unique constraint failed")) {
-        setError("⚠️ List name already exists! Please choose a different name like 'My Org Members' or 'All Members 2024'");
-      } else {
-        setError(err.response?.data?.error || "Failed to create contact list");
-      }
+      console.error('Error creating list:', err);
+      setError('Failed to create contact list');
     } finally {
       setLoading(false);
     }
   };
   
-  // Filter contacts based on search
-  const filteredContacts = contacts.filter(contact => 
-    contact.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contact.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getListName = () => {
+    switch (type) {
+      case 'org_members': return 'All Org Members';
+      case 'all_attendees': return 'All Event Attendees';
+      case 'paid_attendees': return 'Paid Attendees';
+      default: return 'Contact List';
+    }
+  };
+  
+  const getListDescription = () => {
+    switch (type) {
+      case 'org_members': return 'All organization members';
+      case 'all_attendees': return 'All attendees from the current event';
+      case 'paid_attendees': return 'Attendees who have paid';
+      default: return 'Contact list';
+    }
+  };
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-gray-900 mb-2">Loading Contacts...</div>
+          <div className="text-gray-600">Fetching {getListName().toLowerCase()}...</div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-red-600 mb-2">Error</div>
+          <div className="text-gray-600 mb-4">{error}</div>
+          <button
+            onClick={() => navigate('/contact-list-builder')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            ← Back to Contact List Builder
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">👥 Select Contacts</h1>
-              <p className="text-gray-600">Choose which org members to include in your list</p>
+              <h1 className="text-3xl font-bold text-gray-900">{getListName()}</h1>
+              <p className="text-gray-600 mt-2">
+                {contacts.length} contacts • {getListDescription()}
+              </p>
             </div>
             <button
-              onClick={() => navigate("/contact-list-builder")}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+              onClick={() => navigate('/contact-list-builder')}
+              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
             >
-              ← Back
+              ← Back to Builder
             </button>
           </div>
-          
-          {/* Error */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800">{error}</p>
-            </div>
-          )}
-          
-          {/* List Name & Description Input */}
-          <div className="mb-6 space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                List Name *
-              </label>
-              <input
-                type="text"
-                value={listName}
-                onChange={(e) => setListName(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="e.g. 'High Value Donors 2024' or 'VIP Members'"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description (Optional)
-              </label>
-              <input
-                type="text"
-                value={listDescription}
-                onChange={(e) => setListDescription(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="e.g. 'Members who donated $500+ in 2024' - helps you remember what this list is for"
-              />
-              <p className="text-xs text-gray-500 mt-1">💡 No more "what is Test 1?" - describe it here!</p>
-            </div>
+        </div>
+        
+        {/* Contact List */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-900">Contacts ({contacts.length})</h2>
           </div>
           
-          {/* Stats */}
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-lg font-bold text-indigo-600">
-                  {selectedContacts.size}
-                </span>
-                <span className="text-gray-600 ml-1">of {contacts.length} selected</span>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSelectAll}
-                  className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition"
-                >
-                  Select All
-                </button>
-                <button
-                  onClick={handleDeselectAll}
-                  className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                >
-                  Deselect All
-                </button>
-              </div>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                  {type === 'all_attendees' && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
+                  )}
+                  {type === 'org_members' && (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Engagement</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {contacts.map((contact, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {contact.firstName} {contact.lastName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {contact.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {contact.phone || 'N/A'}
+                    </td>
+                    {type === 'all_attendees' && (
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                          {contact.currentStage || 'Unknown'}
+                        </span>
+                      </td>
+                    )}
+                    {type === 'org_members' && (
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          contact.engagementValue === 4 ? 'bg-green-100 text-green-800' :
+                          contact.engagementValue === 3 ? 'bg-yellow-100 text-yellow-800' :
+                          contact.engagementValue === 2 ? 'bg-orange-100 text-orange-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {contact.engagementValue === 4 ? 'Champion' :
+                           contact.engagementValue === 3 ? 'High' :
+                           contact.engagementValue === 2 ? 'Medium' :
+                           'Low'}
+                        </span>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          
-          {/* Search */}
-          <div className="mb-6">
-            <input
-              type="text"
-              placeholder="Search contacts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          
-          {/* Contact List */}
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                <p className="text-gray-500 mt-2">Loading contacts...</p>
-              </div>
-            ) : filteredContacts.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No contacts found
-              </div>
-            ) : (
-              filteredContacts.map(contact => (
-                <div
-                  key={contact.contactId}
-                  className={`p-4 border-2 rounded-lg transition ${
-                    selectedContacts.has(contact.contactId)
-                      ? 'border-indigo-500 bg-indigo-50'
-                      : 'border-gray-200 hover:border-indigo-300'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedContacts.has(contact.contactId)}
-                      onChange={() => handleToggleContact(contact.contactId)}
-                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                    />
-                    <div className="ml-4 flex-1">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold text-gray-900">
-                            {contact.firstName} {contact.lastName}
-                          </h3>
-                          <p className="text-sm text-gray-600">{contact.email}</p>
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {contact.phone || 'No phone'}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          
-          {/* Save Button */}
-          <div className="mt-8 pt-6 border-t">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-500">
-                {selectedContacts.size > 0 && (
-                  <span>Ready to create list with <strong>{selectedContacts.size} contacts</strong></span>
-                )}
-              </div>
-              <button
-                onClick={handleSaveList}
-                disabled={loading || selectedContacts.size === 0}
-                className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold"
-              >
-                {loading ? "Creating..." : "Create List"}
-              </button>
-            </div>
-          </div>
+        </div>
+        
+        {/* Actions */}
+        <div className="mt-6 flex gap-3">
+          <button
+            onClick={handleUseList}
+            disabled={loading}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 transition font-medium"
+          >
+            {loading ? 'Creating List...' : 'Use This List'}
+          </button>
+          <button
+            onClick={() => navigate('/contact-list-builder')}
+            className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition font-medium"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
