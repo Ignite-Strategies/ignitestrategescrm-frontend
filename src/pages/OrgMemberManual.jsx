@@ -41,7 +41,7 @@ export default function OrgMemberManual() {
   useEffect(() => {
     const loadEvents = async () => {
       try {
-        const response = await api.get(`/orgs/${orgId}/events`);
+        const response = await api.get(`/events/${orgId}/events`);
         setAvailableEvents(response.data || []);
         if (response.data && response.data.length > 0) {
           setSelectedEvent(response.data[0].id);
