@@ -31,12 +31,14 @@ export default function CampaignPreview() {
   const [selectedContactIndex, setSelectedContactIndex] = useState(0);
   
   useEffect(() => {
-    if (campaignId) {
-      loadCampaignData();
-    } else {
+    if (!campaignId) {
       setError("Missing campaign ID");
       setLoading(false);
+      return;
     }
+    
+    loadCampaignData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaignId]);
   
   const loadCampaignData = async () => {
