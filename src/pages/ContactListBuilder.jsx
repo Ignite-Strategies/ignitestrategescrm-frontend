@@ -19,6 +19,8 @@ export default function ContactListBuilder() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   
+  console.log('🔍 ContactListBuilder loaded - no hydration should happen yet');
+  
   // Data state
   const [orgMembers, setOrgMembers] = useState([]);
   const [events, setEvents] = useState([]);
