@@ -52,8 +52,30 @@ export default function CampaignPreview() {
       ]);
       
       const campaignData = campaignRes.data;
+      
+      // NULL CHECK: Campaign not found
+      if (!campaignData) {
+        setError("Sorry bro - campaign not found");
+        setLoading(false);
+        return;
+      }
+      
+      // NULL CHECK: No contact list attached
+      if (!campaignData.contactList) {
+        setError("Sorry bro - no contact list attached to this campaign");
+        setLoading(false);
+        return;
+      }
+      
+      // NULL CHECK: No contacts in list
+      if (!contactsRes.data || contactsRes.data.length === 0) {
+        setError("Sorry bro - no contacts found in this list");
+        setLoading(false);
+        return;
+      }
+      
       setCampaign(campaignData);
-      setContactList(campaignData.contactList); // ContactList is included in campaign response
+      setContactList(campaignData.contactList);
       setContacts(contactsRes.data);
       
       // Load subject and body from campaign
@@ -72,7 +94,7 @@ export default function CampaignPreview() {
       
     } catch (err) {
       console.error("Error loading campaign data:", err);
-      setError("Failed to load campaign data");
+      setError(`Sorry bro - ${err.response?.data?.error || err.message || "Failed to load campaign data"}`);
     } finally {
       setLoading(false);
     }
