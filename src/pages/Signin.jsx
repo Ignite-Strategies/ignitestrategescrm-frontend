@@ -29,16 +29,32 @@ export default function Signin() {
       });
       
       const orgMember = res.data;
-      console.log("✅ Returning user found:", orgMember.id);
+      console.log("✅ User found:", orgMember.id);
       
       // Store auth data
       localStorage.setItem("firebaseId", result.uid);
       localStorage.setItem("orgMemberId", orgMember.id);
       localStorage.setItem("email", orgMember.email);
       
-      // Returning user → Go to Welcome (universal hydrator)
-      console.log("✅ Routing to Welcome (hydrator)...");
-      navigate("/welcome");
+      // Check if user has orgId (existing user) or needs setup (new user)
+      if (orgMember.orgId) {
+        console.log("✅ Existing user with org → Welcome");
+        navigate("/welcome");
+      } else {
+        console.log("✅ New user without org → Auto-assign to F3 Capital");
+        // Auto-assign to F3 Capital org (you can change this)
+        try {
+          await api.patch(`/orgmembers/${orgMember.id}`, {
+            orgId: "cmgfvz9v10000nt284k875eoc" // F3 Capital org ID
+          });
+          console.log("✅ Auto-assigned to F3 Capital");
+          navigate("/welcome");
+        } catch (assignError) {
+          console.error("❌ Auto-assign failed:", assignError);
+          // Fallback to signup
+          navigate("/signup");
+        }
+      }
       
     } catch (error) {
       console.error("❌ Sign-in failed:", error);
