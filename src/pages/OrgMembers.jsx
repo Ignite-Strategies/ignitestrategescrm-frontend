@@ -509,15 +509,10 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {/* 🔥 HYDRATE X = X SCHEMA: OrgMember.upcomingEventId */}
-                      <EditableFieldComponent
-                        value={contact.upcomingEventId || EVENT_OPTIONS[0].value}
-                        field="upcomingEventId"
-                        orgMemberId={contact.orgMemberId}
-                        type="select"
-                        onUpdate={loadContacts}
-                        options={EVENT_OPTIONS}
-                      />
+                      {/* 🔥 DISPLAY ONLY: Value from eventConfig.js (like pipelines) */}
+                      <span className="text-gray-900 font-medium">
+                        {EVENT_OPTIONS[0].label}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <div className="flex items-center justify-end gap-2">
