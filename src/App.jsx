@@ -18,6 +18,7 @@ import OrgMembersUploadPreview from "./pages/OrgMembersUploadPreview.jsx";
 import OrgMemberUploadSuccess from "./pages/OrgMemberUploadSuccess.jsx";
 import ResolveErrors from "./pages/ResolveErrors.jsx";
 import OrgMemberManual from "./pages/OrgMemberManual.jsx";
+import AdminMaker from "./pages/AdminMaker.jsx";
 import ContactDetail from "./pages/ContactDetail.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
 import EventSuccess from "./pages/EventSuccess.jsx";
@@ -145,6 +146,9 @@ export default function App() {
         } />
         <Route path="/org-members/manual" element={
           <ProtectedRoute><OrgMemberManual /></ProtectedRoute>
+        } />
+        <Route path="/admin-maker" element={
+          <ProtectedRoute><AdminMaker /></ProtectedRoute>
         } />
         <Route path="/contact/:contactId" element={
           <ProtectedRoute><ContactDetail /></ProtectedRoute>

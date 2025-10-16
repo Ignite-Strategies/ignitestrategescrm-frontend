@@ -18,6 +18,7 @@ export default function Navigation() {
     { path: '/campaignhome', label: '🏠 Campaigns', icon: '🏠' },
     { path: '/contact-list-manager', label: '📋 Contact Lists', icon: '📋' },
     { path: '/org-members', label: '👥 Org Members', icon: '👥' },
+    { path: '/admin-maker', label: '👑 Make Admin', icon: '👑' },
     { path: '/events', label: '📅 Events', icon: '📅' },
   ];
 
