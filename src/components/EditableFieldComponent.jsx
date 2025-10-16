@@ -31,7 +31,7 @@ export default function EditableField({
       
       // 🔥 HYDRATE X = X SCHEMA: Route based on FIELD, not just ID!
       const contactFields = ['eventId', 'firstName', 'lastName', 'email', 'phone'];
-      const orgMemberFields = ['leadershipRole', 'yearsWithOrganization', 'engagementValue', 'upcomingEventId', 'chapterresponsiblefor'];
+      const orgMemberFields = ['goesBy', 'leadershipRole', 'yearsWithOrganization', 'engagementValue', 'upcomingEventId', 'chapterresponsiblefor'];
       
       if (eventAttendeeId) {
         // Update EventAttendee

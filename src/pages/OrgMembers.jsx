@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 import EditableFieldComponent from "../components/EditableFieldComponent";
+import { EVENT_OPTIONS } from "../config/eventConfig";
 
 export default function OrgMembers() {
   const orgId = getOrgId();
@@ -510,18 +511,15 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {/* 🔥 HARDCODED: Bros & Brews or None */}
+                      {/* 🔥 DROPDOWN: Options from eventConfig.js */}
                       <EditableFieldComponent
-                        value={contact.eventId || 'cmggljv7z0002nt28gckp1jpe'}
+                        value={contact.eventId || EVENT_OPTIONS[0].value}
                         field="eventId"
                         contactId={contact.contactId}
                         orgMemberId={contact.orgMemberId}
                         type="select"
                         onUpdate={loadContacts}
-                        options={[
-                          { value: 'cmggljv7z0002nt28gckp1jpe', label: 'Bros & Brews' },
-                          { value: '', label: 'None' }
-                        ]}
+                        options={EVENT_OPTIONS}
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
