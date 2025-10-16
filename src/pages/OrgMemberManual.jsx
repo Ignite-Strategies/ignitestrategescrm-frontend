@@ -62,6 +62,7 @@ export default function OrgMemberManual() {
     try {
       // Create Contact first (Contact-First Architecture)
       const contactData = {
+        orgId: orgId,
         firstName: formData.firstName,
         goesBy: formData.goesBy || null,
         lastName: formData.lastName,
@@ -71,8 +72,7 @@ export default function OrgMemberManual() {
         city: formData.city || null,
         state: formData.state || null,
         zip: formData.zip || null,
-        employer: formData.employer || null,
-        notes: formData.notes || null
+        employer: formData.employer || null
       };
 
       // Create the contact
@@ -85,6 +85,7 @@ export default function OrgMemberManual() {
         orgId: orgId,
         yearsWithOrganization: formData.yearsWithOrganization ? parseInt(formData.yearsWithOrganization) : null,
         categoryOfEngagement: formData.categoryOfEngagement,
+        notes: formData.notes || null,
         status: 'active'
       };
 

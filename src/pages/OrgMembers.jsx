@@ -360,12 +360,16 @@ export default function OrgMembers() {
                     <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
                       High
                     </span>
-                    <button
-                      onClick={() => navigate(`/contact/${engager.contactId}`)}
-                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-                    >
-                      View →
-                    </button>
+                    {engager.contactId ? (
+                      <button
+                        onClick={() => navigate(`/contact/${engager.contactId}`)}
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        View →
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-400" title="Legacy record">⚠️</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -443,12 +447,18 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      <button
-                        onClick={() => navigate(`/contact/${contact.contactId}`)}
-                        className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
-                      >
-                        {contact.firstName} {contact.lastName}
-                      </button>
+                      {contact.contactId ? (
+                        <button
+                          onClick={() => navigate(`/contact/${contact.contactId}`)}
+                          className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
+                        >
+                          {contact.firstName} {contact.lastName}
+                        </button>
+                      ) : (
+                        <span className="text-gray-900" title="Legacy record - missing contact link">
+                          {contact.firstName} {contact.lastName} ⚠️
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <EditableFieldComponent
