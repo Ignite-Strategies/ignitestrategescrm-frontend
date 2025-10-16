@@ -29,39 +29,53 @@ export default function ContactListView() {
   const loadContacts = async () => {
     try {
       setLoading(true);
+      setError("");
       
-      // 🌊 UNIVERSAL HYDRATION - Load everything at once!
-      const response = await api.get(`/universal-hydration?orgId=${orgId}`);
-      const universalData = response.data;
-      console.log('🌊 ContactListView using universal hydration:', universalData.summary);
+      console.log('📞 Loading contacts for type:', type);
       
-      // Filter contacts based on type
+      // SIMPLE API CALLS - No more universal hydration madness!
+      let response;
       let filteredContacts = [];
       let displayName = "";
       
       switch (type) {
         case 'org_members':
-          filteredContacts = universalData.contacts.filter(c => c.isOrgMember);
+          response = await api.get(`/orgmembers?orgId=${orgId}`);
+          // Handle both array and object response formats
+          filteredContacts = Array.isArray(response.data) 
+            ? response.data 
+            : response.data.members || [];
           displayName = "All Org Members";
           break;
+          
         case 'all_attendees':
-          filteredContacts = universalData.contacts.filter(c => c.totalEventsAttended > 0);
+          response = await api.get(`/orgs/${orgId}/attendees`);
+          filteredContacts = response.data || [];
           displayName = "All Event Attendees";
           break;
+          
         case 'paid_attendees':
-          filteredContacts = universalData.contacts.filter(c => c.paidEvents > 0);
+          response = await api.get(`/orgs/${orgId}/attendees?stage=paid`);
+          filteredContacts = response.data || [];
           displayName = "Paid Event Attendees";
           break;
+          
         default:
-          filteredContacts = universalData.contacts.filter(c => c.isOrgMember);
+          response = await api.get(`/orgmembers?orgId=${orgId}`);
+          filteredContacts = Array.isArray(response.data) 
+            ? response.data 
+            : response.data.members || [];
           displayName = "All Org Members";
       }
       
       setContacts(filteredContacts);
       setListName(displayName);
       
-      // Auto-select all contacts (use contactId!)
-      setSelectedContacts(new Set(filteredContacts.map(c => c.contactId)));
+      // Auto-select all contacts (use contactId or id)
+      setSelectedContacts(new Set(filteredContacts.map(c => c.contactId || c.id)));
+      
+      console.log('✅ Loaded contacts:', filteredContacts.length, displayName);
+      
     } catch (err) {
       console.error("Error loading contacts:", err);
       setError("Failed to load contacts");
