@@ -295,23 +295,37 @@ export default function CampaignCreator() {
   // Handle PDF file upload
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
-    if (!file) return;
+    console.log('📎 File selected:', file);
+    
+    if (!file) {
+      console.log('❌ No file selected');
+      return;
+    }
+    
+    console.log('📎 File details:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
     
     // Only allow PDFs
     if (file.type !== 'application/pdf') {
+      console.log('❌ Not a PDF file:', file.type);
       setError('Please select a PDF file');
       return;
     }
     
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setError('File size must be less than 10MB');
+    // Check file size (max 5MB for backend compatibility)
+    if (file.size > 5 * 1024 * 1024) {
+      console.log('❌ File too large:', file.size);
+      setError('File size must be less than 5MB for backend compatibility');
       return;
     }
     
     try {
       setUploadingFile(true);
       setError("");
+      console.log('📎 Starting file upload...');
       
       // Convert file to base64
       const reader = new FileReader();
@@ -324,13 +338,18 @@ export default function CampaignCreator() {
           content: base64Content
         };
         
-        setAttachments([...attachments, newAttachment]);
+        console.log('📎 Adding attachment:', newAttachment.filename);
+        setAttachments(prev => {
+          const updated = [...prev, newAttachment];
+          console.log('📎 Updated attachments:', updated.length);
+          return updated;
+        });
         setUploadingFile(false);
       };
       
       reader.readAsDataURL(file);
     } catch (err) {
-      console.error('Error uploading file:', err);
+      console.error('❌ Error uploading file:', err);
       setError('Failed to upload file');
       setUploadingFile(false);
     }

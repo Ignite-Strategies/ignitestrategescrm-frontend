@@ -211,7 +211,37 @@ export default function ContactListManager() {
       
     } catch (err) {
       console.error('Error using list:', err);
-      alert('Failed to use list: ' + err.message);
+      
+      // Handle conflict detection
+      if (err.response?.status === 409) {
+        const conflictData = err.response.data;
+        const conflictNames = conflictData.conflicts.map(c => `${c.name} (${c.status})`).join(', ');
+        
+        const proceed = confirm(
+          `⚠️ CONFLICT DETECTED!\n\n` +
+          `"${list.name}" is already used by:\n${conflictNames}\n\n` +
+          `This means some contacts might receive duplicate emails.\n\n` +
+          `Do you want to proceed anyway?`
+        );
+        
+        if (proceed) {
+          // Force the attachment by calling the API again with a flag
+          try {
+            await api.patch(`/campaigns/${campaign.id}`, {
+              contactListId: list.id,
+              forceConflict: true
+            });
+            
+            navigate('/campaign-creator', { 
+              state: { campaignId: campaign.id } 
+            });
+          } catch (forceErr) {
+            alert('Failed to force conflict resolution: ' + forceErr.message);
+          }
+        }
+      } else {
+        alert('Failed to use list: ' + err.message);
+      }
     }
   };
   
