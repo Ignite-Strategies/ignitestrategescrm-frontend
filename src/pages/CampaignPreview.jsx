@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import api from "../lib/api";
 import { isGmailAuthenticated } from "../lib/googleAuth";
 
 /**
  * CampaignPreview - SIMPLE VERSION
- * Intercepts params, cleans URL, uses state
+ * Accepts campaignId from params OR location.state, cleans URL
  * 1. Rehydrate from backend
  * 2. Show message preview
  * 3. Show contacts
@@ -14,6 +14,7 @@ import { isGmailAuthenticated } from "../lib/googleAuth";
 export default function CampaignPreview() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   
   // State (campaignId in state, not URL!)
   const [campaignId, setCampaignId] = useState(null);
@@ -24,8 +25,17 @@ export default function CampaignPreview() {
   const [error, setError] = useState("");
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   
-  // On mount: intercept param, clean URL
+  // On mount: grab from state OR param, clean URL
   useEffect(() => {
+    // Priority 1: location.state (clean approach from V2)
+    const stateCampaignId = location.state?.campaignId;
+    if (stateCampaignId) {
+      console.log("📦 CampaignPreview: Got campaignId from state:", stateCampaignId);
+      setCampaignId(stateCampaignId);
+      return;
+    }
+    
+    // Priority 2: URL param (backward compat), but CLEAN IT!
     const paramCampaignId = searchParams.get('campaignId');
     if (paramCampaignId) {
       console.log("🧹 CampaignPreview: Found param, grabbing and cleaning URL...");
