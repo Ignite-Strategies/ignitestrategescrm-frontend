@@ -44,11 +44,24 @@ export default function ContactListManager() {
       ]);
       
       // Enrich lists with campaign status and conflict detection
+      console.log('🔍 DEBUG: Loading lists and campaigns...', {
+        listsCount: listsRes.data?.length,
+        campaignsCount: campaignsRes.data?.length,
+        campaigns: campaignsRes.data?.map(c => ({ id: c.id, name: c.name, status: c.status, contactListId: c.contactListId }))
+      });
+      
       const enrichedLists = listsRes.data.map(list => {
         const linkedCampaigns = campaignsRes.data.filter(c => c.contactListId === list.id);
         const draftCampaigns = linkedCampaigns.filter(c => c.status === 'draft');
         const sentCampaigns = linkedCampaigns.filter(c => c.status === 'sent');
         const activeCampaigns = linkedCampaigns.filter(c => c.status === 'active');
+        
+        console.log(`🔍 DEBUG: List "${list.name}" (${list.id})`, {
+          linkedCampaigns: linkedCampaigns.length,
+          draftCampaigns: draftCampaigns.length,
+          sentCampaigns: sentCampaigns.length,
+          activeCampaigns: activeCampaigns.length
+        });
         
         // Determine conflict level
         let conflictLevel = 'none';
@@ -65,7 +78,7 @@ export default function ContactListManager() {
           conflictMessage = `🔄 Active in campaign${activeCampaigns.length > 1 ? 's' : ''}: ${activeCampaigns.map(c => c.name).join(', ')}`;
         }
         
-        return {
+        const enrichedList = {
           ...list,
           campaignStatus: {
             assigned: draftCampaigns.length > 0,
@@ -78,6 +91,14 @@ export default function ContactListManager() {
             conflictMessage
           }
         };
+        
+        console.log(`🔍 DEBUG: Enriched list "${list.name}"`, {
+          conflictLevel,
+          conflictMessage,
+          campaignStatus: enrichedList.campaignStatus
+        });
+        
+        return enrichedList;
       });
       
       setLists(enrichedLists);
