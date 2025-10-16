@@ -7,6 +7,7 @@ export default function ProfileSetup() {
   const [formData, setFormData] = useState({
     firstName: localStorage.getItem("firstName") || "",
     lastName: localStorage.getItem("lastName") || "",
+    email: localStorage.getItem("email") || "",
     phone: ""
   });
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ export default function ProfileSetup() {
       console.log("📝 Updating OrgMember profile with phone...");
       
       // Update OrgMember with phone number
-      await api.patch(`/org-members/${orgMemberId}`, {
+      await api.patch(`/orgmembers/${orgMemberId}`, {
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone
@@ -94,7 +95,7 @@ export default function ProfileSetup() {
                 required
                 disabled
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50"
-                value={localStorage.getItem("email") || ""}
+                value={formData.email}
                 placeholder="From Google"
               />
               <p className="text-xs text-gray-500 mt-1">From your Google account</p>
