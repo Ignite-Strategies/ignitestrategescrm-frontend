@@ -237,18 +237,33 @@ export default function CampaignCreator() {
     }
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     if (!campaignId) {
       setError("Please create your campaign first (Step 1)");
       return;
     }
     
-    // Pass current content via localStorage (preview will save it)
-    localStorage.setItem('previewSubject', subject);
-    localStorage.setItem('previewMessage', message);
-    
-    console.log('🎯 Navigating to preview - preview will handle save and hydration');
-    navigate(`/campaign-preview?campaignId=${campaignId}`);
+    try {
+      setLoading(true);
+      console.log('💾 Saving campaign content...');
+      
+      // STEP 1: Save
+      await api.patch(`/campaigns/${campaignId}`, {
+        subject,
+        body: message
+      });
+      
+      console.log('✅ Content saved!');
+      
+      // STEP 2: Navigate (preview will rehydrate from backend)
+      console.log('🎯 Navigating to preview...');
+      navigate(`/campaign-preview?campaignId=${campaignId}`);
+      
+    } catch (err) {
+      console.error('❌ Save failed:', err);
+      setError(`Failed to save: ${err.response?.data?.error || err.message}`);
+      setLoading(false);
+    }
   };
 
   return (
