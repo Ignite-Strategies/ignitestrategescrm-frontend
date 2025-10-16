@@ -65,6 +65,7 @@ import ContactListDebug from "./pages/ContactListDebug.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
 import ContactListView from "./pages/ContactListView.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
+import CampaignCreatorV2 from "./pages/CampaignCreatorV2.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
 import PreviewPageTest from "./pages/PreviewPageTest.jsx";
@@ -237,6 +238,9 @@ export default function App() {
           <ProtectedRoute><CampaignChooserOrStarter /></ProtectedRoute>
         } />
         <Route path="/campaign-creator" element={
+          <ProtectedRoute><CampaignCreatorV2 /></ProtectedRoute>
+        } />
+        <Route path="/campaign-creator-old" element={
           <ProtectedRoute><CampaignCreator /></ProtectedRoute>
         } />
         <Route path="/campaign-preview" element={
