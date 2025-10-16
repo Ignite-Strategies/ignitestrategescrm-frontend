@@ -35,8 +35,28 @@ export default function ContactListCampaignSelector() {
         api.get(`/campaigns?orgId=${orgId}`)
       ]);
       
-      setLists(listsRes.data || []);
-      setCampaigns(campaignsRes.data || []);
+      const lists = listsRes.data || [];
+      const campaigns = campaignsRes.data || [];
+      
+      // Enrich lists with campaign status
+      const enrichedLists = lists.map(list => {
+        const linkedCampaigns = campaigns.filter(c => c.contactListId === list.id);
+        const draftCampaigns = linkedCampaigns.filter(c => c.status === 'draft');
+        const sentCampaigns = linkedCampaigns.filter(c => c.status === 'sent');
+        
+        return {
+          ...list,
+          campaignStatus: {
+            totalCampaigns: linkedCampaigns.length,
+            draftCampaigns,
+            sentCampaigns,
+            assigned: linkedCampaigns.length > 0
+          }
+        };
+      });
+      
+      setLists(enrichedLists);
+      setCampaigns(campaigns);
     } catch (err) {
       console.error("Error loading data:", err);
     } finally {
@@ -77,6 +97,25 @@ export default function ContactListCampaignSelector() {
       loadData(); // Reload lists
     } catch (err) {
       alert('Failed to duplicate list: ' + err.message);
+    }
+  };
+
+  const handleUnassignList = async (list) => {
+    if (!list.campaignStatus?.assigned) return;
+    
+    const campaignNames = list.campaignStatus.draftCampaigns.map(c => c.name).join(', ');
+    if (!confirm(`Unassign "${list.name}" from campaign(s): ${campaignNames}?`)) return;
+    
+    try {
+      // Unassign from all draft campaigns
+      for (const campaign of list.campaignStatus.draftCampaigns) {
+        await api.patch(`/campaigns/${campaign.id}`, {
+          contactListId: null
+        });
+      }
+      loadData(); // Reload lists
+    } catch (err) {
+      alert('Failed to unassign list: ' + err.message);
     }
   };
   
@@ -152,6 +191,24 @@ export default function ContactListCampaignSelector() {
                         {list.totalContacts || 0} contacts
                       </div>
                       
+                      {/* IN USE STATUS */}
+                      {list.campaignStatus?.assigned && (
+                        <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                            <span className="text-sm font-medium text-orange-800">In Use</span>
+                          </div>
+                          <div className="text-xs text-orange-700">
+                            {list.campaignStatus.draftCampaigns.length > 0 && (
+                              <div>Draft: {list.campaignStatus.draftCampaigns.map(c => c.name).join(', ')}</div>
+                            )}
+                            {list.campaignStatus.sentCampaigns.length > 0 && (
+                              <div>Sent: {list.campaignStatus.sentCampaigns.map(c => c.name).join(', ')}</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* SIMPLE COLORED BUTTONS */}
                       <div className="flex gap-2 flex-wrap">
                         <button
@@ -163,6 +220,17 @@ export default function ContactListCampaignSelector() {
                         >
                           Select
                         </button>
+                        {list.campaignStatus?.assigned && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUnassignList(list);
+                            }}
+                            className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
+                          >
+                            Unassign
+                          </button>
+                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
