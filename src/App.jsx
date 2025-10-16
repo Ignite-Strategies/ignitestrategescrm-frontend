@@ -32,7 +32,7 @@ import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
 import ComposeMessage from "./pages/ComposeMessage.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
-import ContactListCampaignSelector from "./pages/ContactListCampaignSelector.jsx";
+import ContactListManager from "./pages/ContactListManager.jsx";
 import ContactListBuilder from "./pages/ContactListBuilder.jsx";
 import ContactListDetail from "./pages/ContactListDetail.jsx";
 import ContactManageHome from "./pages/ContactManageHome.jsx";
@@ -207,7 +207,7 @@ export default function App() {
           <ProtectedRoute><Authenticate /></ProtectedRoute>
         } />
         <Route path="/contact-list-manager" element={
-          <ProtectedRoute><ContactListCampaignSelector /></ProtectedRoute>
+          <ProtectedRoute><ContactListManager /></ProtectedRoute>
         } />
         <Route path="/contact-list-builder" element={
           <ProtectedRoute><ContactListBuilder /></ProtectedRoute>
