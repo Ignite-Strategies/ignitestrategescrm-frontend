@@ -35,15 +35,15 @@ export default function EditableField({
         response = await api.patch(`/event-attendees/${eventAttendeeId}`, {
           [field]: valueToSave
         });
+      } else if (orgMemberId || supporterId) {
+        // Update OrgMember (PRIORITY: Check this first for event assignments)
+        const memberId = orgMemberId || supporterId;
+        response = await api.patch(`/orgmembers/${memberId}`, {
+          [field]: valueToSave
+        });
       } else if (contactId) {
         // Update Contact
         response = await api.patch(`/contacts/${contactId}`, {
-          [field]: valueToSave
-        });
-      } else if (orgMemberId || supporterId) {
-        // Update OrgMember
-        const memberId = orgMemberId || supporterId;
-        response = await api.patch(`/orgmembers/${memberId}`, {
           [field]: valueToSave
         });
       }
