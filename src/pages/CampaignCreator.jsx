@@ -1,78 +1,57 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, getGmailAccessToken, isGmailAuthenticated } from "../lib/googleAuth";
+import { signInWithGoogle, isGmailAuthenticated } from "../lib/googleAuth";
 
 /**
- * CampaignCreator - Clean 3-Step Flow with Preview
- * Accepts params from other pages BUT immediately cleans URL
- * 1. Name → 2. Pick List → 3. Write Message → Preview & Send
+ * CampaignCreator - Clean rebuild with NO params
+ * Pure state management, smooth UX flow
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const orgId = getOrgId();
 
-  // Pure state - grab from URL if exists, then clear URL
+  // Pure state - no URL pollution
   const [campaignId, setCampaignId] = useState(null);
-
-  // Campaign data
   const [campaignName, setCampaignName] = useState("");
   const [campaignDescription, setCampaignDescription] = useState("");
   const [contactList, setContactList] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [availableLists, setAvailableLists] = useState([]);
-
-  // Message data
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-
-  // UI states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
 
-  // On mount: grab param OR state, store in state, CLEAR URL
+  // On mount: check if we came from another page with state
   useEffect(() => {
-    const paramCampaignId = searchParams.get("campaignId");
-    if (paramCampaignId) {
-      console.log("🧹 Found param, grabbing and cleaning URL...");
-      setCampaignId(paramCampaignId);
-      setSearchParams({}); // CLEAR THE URL!
+    const stateCampaignId = location.state?.campaignId;
+    if (stateCampaignId) {
+      console.log("📦 Received campaignId from navigation state:", stateCampaignId);
+      setCampaignId(stateCampaignId);
     }
-    // TODO: Also check location.state for campaignId from preview
-    loadData();
+    loadInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadData = async () => {
+  // Load campaign data when campaignId changes
+  useEffect(() => {
+    if (campaignId) {
+      loadCampaignData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaignId]);
+
+  const loadInitialData = async () => {
     try {
       setLoading(true);
-
-      // Check Gmail auth
       checkGmailAuth();
-
-      // Load campaign data if we have a campaignId
-      if (campaignId) {
-        await loadCampaignData();
-      }
-
-      // Load contact list if campaign has one (hydrate from campaign.contactListId)
-      if (campaignId) {
-        const campaignRes = await api.get(`/campaigns/${campaignId}`);
-        if (campaignRes.data.contactListId) {
-          await loadContactList(campaignRes.data.contactListId);
-          await loadContacts(campaignRes.data.contactListId);
-        }
-      }
-
-      // Load available lists for selection
       await loadAvailableLists();
     } catch (err) {
-      console.error("Error loading data:", err);
-      setError("Failed to load campaign data");
+      console.error("Error loading initial data:", err);
     } finally {
       setLoading(false);
     }
@@ -80,74 +59,54 @@ export default function CampaignCreator() {
 
   const checkGmailAuth = () => {
     const authenticated = isGmailAuthenticated();
-    const email = localStorage.getItem("gmailEmail");
     setGmailAuthenticated(authenticated);
-    setUserEmail(email || "");
   };
 
   const loadCampaignData = async () => {
     try {
+      console.log("🔄 Loading campaign:", campaignId);
       const response = await api.get(`/campaigns/${campaignId}`);
       const campaign = response.data;
 
       setCampaignName(campaign.name);
-      if (campaign.description) setCampaignDescription(campaign.description);
-      if (campaign.subject) setSubject(campaign.subject);
-      if (campaign.body) setMessage(campaign.body);
+      setCampaignDescription(campaign.description || "");
+      setSubject(campaign.subject || "");
+      setMessage(campaign.body || "");
 
-      console.log("✅ Campaign data loaded:", campaign.name);
+      // Load contact list if attached
+      if (campaign.contactListId) {
+        await loadContactList(campaign.contactListId);
+        await loadContacts(campaign.contactListId);
+      }
+
+      console.log("✅ Campaign loaded:", campaign.name);
     } catch (err) {
       console.error("Error loading campaign:", err);
-      if (err.response?.status === 404) {
-        // Campaign deleted, start fresh
-        setCampaignId(null);
-        setError("");
-      }
+      setError("Failed to load campaign");
     }
   };
 
   const loadAvailableLists = async () => {
     try {
-      const [listsRes, campaignsRes] = await Promise.all([
-        api.get(`/contact-lists?orgId=${orgId}`),
-        api.get(`/campaigns?orgId=${orgId}`),
-      ]);
-
-      // Show which campaigns are using each list (but don't block reuse!)
-      const enrichedLists = listsRes.data.map((list) => {
-        const linkedCampaigns = campaignsRes.data.filter((c) => c.contactListId === list.id);
-        return {
-          ...list,
-          linkedCampaigns, // Show info, don't block
-          usageCount: linkedCampaigns.length,
-        };
-      });
-
-      setAvailableLists(enrichedLists);
+      const response = await api.get(`/contact-lists?orgId=${orgId}`);
+      setAvailableLists(response.data);
     } catch (err) {
       console.error("Error loading lists:", err);
     }
   };
 
-  const loadContactList = async (listIdToLoad) => {
-    if (!listIdToLoad) return;
-    
+  const loadContactList = async (listId) => {
     try {
-      const response = await api.get(`/contact-lists/${listIdToLoad}`);
+      const response = await api.get(`/contact-lists/${listId}`);
       setContactList(response.data);
     } catch (err) {
       console.error("Error loading contact list:", err);
-      if (err.response?.status === 404) {
-        setError("Contact list no longer exists. Please select a new list.");
-      }
     }
   };
 
-  const loadContacts = async (listIdToLoad) => {
-    if (!listIdToLoad) return;
-
+  const loadContacts = async (listId) => {
     try {
-      const response = await api.get(`/contact-lists/${listIdToLoad}/contacts`);
+      const response = await api.get(`/contact-lists/${listId}/contacts`);
       setContacts(response.data);
       console.log("✅ Loaded contacts:", response.data.length);
     } catch (err) {
@@ -175,11 +134,10 @@ export default function CampaignCreator() {
 
       const campaign = response.data;
       console.log("✅ Campaign created:", campaign.id);
-
-      // Just set in state - that's it!
       setCampaignId(campaign.id);
+      // No alert - just flow to next step!
     } catch (err) {
-      console.error("❌ Error creating campaign:", err);
+      console.error("Error creating campaign:", err);
       setError(err.response?.data?.error || "Failed to create campaign");
     } finally {
       setLoading(false);
@@ -194,14 +152,16 @@ export default function CampaignCreator() {
 
     setLoading(true);
     try {
-      // Link list to campaign
+      // Attach list to campaign
       await api.patch(`/campaigns/${campaignId}`, {
         contactListId: list.id,
       });
 
-      // Reload to hydrate the new list (no URL params needed!)
+      // Load the list and contacts
       await loadContactList(list.id);
       await loadContacts(list.id);
+      
+      // No alert - UI updates automatically!
     } catch (err) {
       console.error("Error assigning list:", err);
       setError(err.response?.data?.error || "Failed to assign list");
@@ -210,44 +170,22 @@ export default function CampaignCreator() {
     }
   };
 
-  const insertVariable = (variable) => {
-    const textarea = document.querySelector("textarea");
-    if (textarea) {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const newText = message.substring(0, start) + variable + message.substring(end);
-      setMessage(newText);
-
-      setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(start + variable.length, start + variable.length);
-      }, 0);
-    }
-  };
-
-  const saveCampaignContent = async () => {
-    try {
-      await api.patch(`/campaigns/${campaignId}`, {
-        subject,
-        body: message,
-      });
-      console.log("✅ Campaign content saved");
-    } catch (err) {
-      console.error("❌ Error saving campaign content:", err);
-      throw err;
-    }
-  };
-
   const handleGmailAuth = async () => {
     try {
-      const result = await signInWithGoogle();
-      setUserEmail(result.email);
-      setGmailAuthenticated(true);
-      alert(`✅ Authenticated with ${result.email}!`);
-    } catch (error) {
-      console.error("Gmail auth failed:", error);
-      alert("❌ Gmail authentication failed");
+      setLoading(true);
+      await signInWithGoogle();
+      checkGmailAuth();
+      // No alert - status shows in UI!
+    } catch (err) {
+      console.error("Gmail auth error:", err);
+      setError("Failed to authenticate with Gmail");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const insertToken = (token) => {
+    setMessage((prev) => prev + `{{${token}}}`);
   };
 
   const handlePreview = async () => {
@@ -255,305 +193,279 @@ export default function CampaignCreator() {
       setError("Please create your campaign first (Step 1)");
       return;
     }
-    
+
+    if (!subject.trim() || !message.trim()) {
+      setError("Please fill in subject and message");
+      return;
+    }
+
     try {
       setLoading(true);
-      console.log('💾 Saving campaign content...');
-      
-      // STEP 1: Save (no params, just save)
+      console.log("💾 Saving campaign content...");
+
+      // Save content
       await api.patch(`/campaigns/${campaignId}`, {
-        subject: subject,
-        body: message
+        subject,
+        body: message,
       });
-      
-      console.log('✅ Content saved!');
-      
-      // STEP 2: Navigate with campaignId in React Router state
-      console.log('🎯 Navigating to TEST page with state...');
-      navigate('/preview-test', { state: { campaignId } });
-      
+
+      console.log("✅ Content saved!");
+      console.log("🎯 Navigating to REAL preview with state...");
+
+      // Navigate to REAL preview with state (NO URL PARAMS!)
+      navigate("/campaign-preview", { state: { campaignId } });
     } catch (err) {
-      console.error('❌ Save failed:', err);
+      console.error("Save failed:", err);
       setError(`Failed to save: ${err.response?.data?.error || err.message}`);
       setLoading(false);
     }
   };
 
+  const handleStartNew = () => {
+    setCampaignId(null);
+    setCampaignName("");
+    setCampaignDescription("");
+    setContactList(null);
+    setContacts([]);
+    setSubject("");
+    setMessage("");
+    setError("");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">🚀 Campaign Builder</h1>
-              <p className="text-gray-600">Create and send your email campaign</p>
-            </div>
-            <button
-              onClick={() => navigate("/campaignhome")}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-            >
-              ← Back
-            </button>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              📧 Campaign Builder V2
+            </h1>
+            <p className="text-gray-600">Clean slate - no param pollution!</p>
           </div>
+          <button
+            onClick={() => navigate("/campaignhome")}
+            className="px-4 py-2 text-gray-600 hover:text-gray-800"
+          >
+            ← Back
+          </button>
+        </div>
 
-          {/* Error Display */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-800">{error}</p>
-            </div>
-          )}
+        {/* Error */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {error}
+          </div>
+        )}
 
-          {/* Vertical Flow */}
-          <div className="space-y-8">
-            {/* 1. Campaign Name */}
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">1. Campaign Name</h3>
-              {campaignId ? (
-                <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{campaignName}</h4>
-                    <p className="text-sm text-gray-600">ID: {campaignId}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setCampaignId(null);
-                      setCampaignName("");
-                      setCampaignDescription("");
-                      setContactList(null);
-                      setContacts([]);
-                      setSubject("");
-                      setMessage("");
-                    }}
-                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
-                  >
-                    Start New
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    value={campaignName}
-                    onChange={(e) => setCampaignName(e.target.value)}
-                    placeholder="Enter campaign name (e.g. 'Q4 Newsletter')"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && campaignName.trim()) {
-                        handleCreateCampaign();
-                      }
-                    }}
-                  />
-                  <input
-                    type="text"
-                    value={campaignDescription}
-                    onChange={(e) => setCampaignDescription(e.target.value)}
-                    placeholder="Description (optional) - e.g. 'Monthly update for Q4 donors'"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                  <button
-                    onClick={handleCreateCampaign}
-                    disabled={loading || !campaignName.trim()}
-                    className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? "Creating..." : "Create Campaign"}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* 2. Pick a List */}
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">2. Pick a Contact List</h3>
-
-              {!campaignId && (
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-yellow-800 text-sm">
-                    ⚠️ Please create your campaign first (Step 1) before selecting a list
-                  </p>
-                </div>
-              )}
-
-              {contactList ? (
-                <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
-                  <div>
-                    <h4 className="font-medium text-gray-900">{contactList.name}</h4>
-                    <p className="text-sm text-gray-600">{contacts.length} contacts</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setContactList(null);
-                      setContacts([]);
-                    }}
-                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
-                  >
-                    Change List
-                  </button>
-                </div>
-              ) : campaignId ? (
-                <div className="space-y-4">
-                  {/* Available Lists */}
-                  {availableLists.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">📋 Available Lists</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {availableLists.map((list) => (
-                          <button
-                            key={list.id}
-                            onClick={() => handleSelectList(list)}
-                            disabled={loading}
-                            className="p-4 border-2 border-gray-200 rounded-lg text-left transition hover:border-indigo-400 hover:bg-indigo-50"
-                          >
-                            <div className="font-semibold text-gray-900">{list.name}</div>
-                            <div className="text-sm text-gray-600">
-                              {list.contactCount || 0} contacts
-                              {list.usageCount > 0 && (
-                                <span className="ml-2 text-blue-600">
-                                  • Used by {list.usageCount} campaign(s)
-                                </span>
-                              )}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Create New List Button - Goes to Dashboard */}
-                  <div className="pt-4 border-t">
-                    <button
-                      onClick={() => navigate(`/contact-list-manager?campaignId=${campaignId}`)}
-                      className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-indigo-400 hover:bg-indigo-50 transition"
-                    >
-                      <div className="text-2xl mb-2">➕</div>
-                      <div className="font-semibold text-gray-900">Manage & Create Lists</div>
-                      <div className="text-sm text-gray-600">
-                        Create or select from all your lists
-                      </div>
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-
-            {/* 3. Write Message */}
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">3. Write Your Message</h3>
-
-              {/* Gmail Auth Status */}
-              {!gmailAuthenticated && (
-                <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between">
-                  <div>
-                    <p className="text-yellow-800 font-medium">
-                      Gmail authentication required to send
-                    </p>
-                    <p className="text-sm text-yellow-600">Authenticate with your Gmail account</p>
-                  </div>
-                  <button
-                    onClick={handleGmailAuth}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
-                  >
-                    Connect Gmail
-                  </button>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                {/* Subject Line */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Subject Line
-                  </label>
-                  <input
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Enter email subject"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-
-                {/* Message Body */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-gray-700">Message Body</label>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => insertVariable("{{firstName}}")}
-                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                      >
-                        + First Name
-                      </button>
-                      <button
-                        onClick={() => insertVariable("{{lastName}}")}
-                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                      >
-                        + Last Name
-                      </button>
-                      <button
-                        onClick={() => insertVariable("{{goesBy}}")}
-                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                      >
-                        + Goes By
-                      </button>
-                      <button
-                        onClick={() => insertVariable("{{email}}")}
-                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                      >
-                        + Email
-                      </button>
-                    </div>
-                  </div>
-                  <textarea
-                    rows={10}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Hi {{firstName}},&#10;&#10;This is your personalized message..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
-                  />
-
-                  {/* Live Preview */}
-                  {message &&
-                    (message.includes("{{firstName}}") ||
-                      message.includes("{{lastName}}") ||
-                      message.includes("{{email}}") ||
-                      message.includes("{{goesBy}}")) && (
-                      <div className="mt-3 p-4 bg-gray-50 rounded-lg border">
-                        <div className="text-sm text-gray-600 font-medium mb-2">
-                          👁️ Live Preview (with sample data):
-                        </div>
-                        <div className="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border">
-                          {message
-                            .replace(/\{\{firstName\}\}/g, contacts[0]?.firstName || "John")
-                            .replace(/\{\{lastName\}\}/g, contacts[0]?.lastName || "Smith")
-                            .replace(
-                              /\{\{email\}\}/g,
-                              contacts[0]?.email || "john.smith@example.com"
-                            )
-                            .replace(
-                              /\{\{goesBy\}\}/g,
-                              contacts[0]?.goesBy || contacts[0]?.firstName || "John"
-                            )}
-                        </div>
-                      </div>
-                    )}
-                </div>
-              </div>
-            </div>
-
-            {/* Preview Button */}
-            <div className="flex justify-end gap-4">
+        {/* Gmail Auth Warning */}
+        {!gmailAuthenticated && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-yellow-800">
+                ⚠️ Gmail not connected. Connect to send campaigns.
+              </span>
               <button
-                onClick={handlePreview}
-                disabled={!campaignName.trim() || !subject.trim() || !message.trim()}
-                className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleGmailAuth}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                👁️ Preview Campaign
+                Connect Gmail
               </button>
             </div>
           </div>
+        )}
+
+        {/* Step 1: Campaign Name */}
+        <div className="mb-8 bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            1. Campaign Name
+          </h2>
+
+          {campaignId ? (
+            <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+              <div>
+                <h4 className="font-medium text-gray-900">{campaignName}</h4>
+                <p className="text-sm text-gray-600">ID: {campaignId}</p>
+              </div>
+              <button
+                onClick={handleStartNew}
+                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
+              >
+                Start New
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <input
+                type="text"
+                placeholder="Enter campaign name"
+                value={campaignName}
+                onChange={(e) => setCampaignName(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Description (optional)"
+                value={campaignDescription}
+                onChange={(e) => setCampaignDescription(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg"
+              />
+              <button
+                onClick={handleCreateCampaign}
+                disabled={!campaignName.trim()}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
+              >
+                Create Campaign
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Step 2: Pick List */}
+        <div className="mb-8 bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            2. Pick a Contact List
+          </h2>
+
+          {contactList ? (
+            <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+              <div>
+                <h4 className="font-medium text-gray-900">{contactList.name}</h4>
+                <p className="text-sm text-gray-600">{contacts.length} contacts</p>
+              </div>
+              <button
+                onClick={() => {
+                  setContactList(null);
+                  setContacts([]);
+                }}
+                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
+              >
+                Change List
+              </button>
+            </div>
+          ) : campaignId ? (
+            <div className="space-y-4">
+              {availableLists.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {availableLists.map((list) => (
+                    <button
+                      key={list.id}
+                      onClick={() => handleSelectList(list)}
+                      className="p-4 border rounded-lg text-left hover:bg-gray-50"
+                    >
+                      <h4 className="font-medium text-gray-900">{list.name}</h4>
+                      <p className="text-sm text-gray-600">
+                        {list.type === "smart" ? "🔮 Smart List" : "📋 Custom List"}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500">No lists available. Create one first!</p>
+              )}
+              <button
+                onClick={() => navigate("/contact-list-builder")}
+                className="w-full px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+              >
+                + Create New List
+              </button>
+            </div>
+          ) : (
+            <p className="text-gray-500">Create a campaign first (Step 1)</p>
+          )}
+        </div>
+
+        {/* Step 3: Write Message */}
+        <div className="mb-8 bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            3. Write Your Message
+          </h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Subject Line
+              </label>
+              <input
+                type="text"
+                placeholder="Enter email subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg"
+                disabled={!campaignId}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Message Body
+              </label>
+              <div className="flex gap-2 mb-2">
+                <button
+                  onClick={() => insertToken("firstName")}
+                  className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                  disabled={!campaignId}
+                >
+                  + First Name
+                </button>
+                <button
+                  onClick={() => insertToken("lastName")}
+                  className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                  disabled={!campaignId}
+                >
+                  + Last Name
+                </button>
+                <button
+                  onClick={() => insertToken("goesBy")}
+                  className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                  disabled={!campaignId}
+                >
+                  + Goes By
+                </button>
+                <button
+                  onClick={() => insertToken("email")}
+                  className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                  disabled={!campaignId}
+                >
+                  + Email
+                </button>
+              </div>
+              <textarea
+                placeholder="Hi {{firstName}},&#10;&#10;This is your personalized message..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={10}
+                className="w-full px-4 py-2 border rounded-lg font-mono text-sm"
+                disabled={!campaignId}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Preview Button */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
+          <button
+            onClick={handlePreview}
+            disabled={!campaignId || !subject.trim() || !message.trim()}
+            className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-lg font-medium"
+          >
+            {!campaignId
+              ? "Create Campaign First"
+              : !subject.trim() || !message.trim()
+              ? "Fill in Subject & Message"
+              : "Preview Campaign →"}
+          </button>
         </div>
       </div>
     </div>
   );
 }
+
