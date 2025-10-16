@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 import { signInWithGoogle, isGmailAuthenticated } from "../lib/googleAuth";
 
 /**
- * CampaignCreator - Clean rebuild with NO params
- * Pure state management, smooth UX flow
+ * CampaignCreator - Clean rebuild
+ * Accepts campaignId from state OR params (backward compat), but cleans URL
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const orgId = getOrgId();
 
   // Pure state - no URL pollution
@@ -26,13 +27,25 @@ export default function CampaignCreator() {
   const [error, setError] = useState("");
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
 
-  // On mount: check if we came from another page with state
+  // On mount: grab campaignId from state OR params, clean URL
   useEffect(() => {
+    // Priority 1: location.state (clean approach)
     const stateCampaignId = location.state?.campaignId;
     if (stateCampaignId) {
-      console.log("📦 Received campaignId from navigation state:", stateCampaignId);
+      console.log("📦 Received campaignId from state:", stateCampaignId);
       setCampaignId(stateCampaignId);
+      loadInitialData();
+      return;
     }
+    
+    // Priority 2: URL param (backward compat), but CLEAN IT!
+    const paramCampaignId = searchParams.get("campaignId");
+    if (paramCampaignId) {
+      console.log("🧹 Found param, grabbing and cleaning URL...");
+      setCampaignId(paramCampaignId);
+      setSearchParams({}); // CLEAR THE URL!
+    }
+    
     loadInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
