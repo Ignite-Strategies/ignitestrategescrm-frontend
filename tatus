@@ -1,0 +1,39 @@
+[33m8666c3e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m BURN DOWN: Remove ALL contact list navigation - clean slate
+[33mc2737c8[m Add ProtectedRoute console logging for debugging
+[33md0702e5[m Delete cursed backup files that contained old routes
+[33m209a909[m Add detailed error logging for auth debugging
+[33mb6c4bc9[m Add NUCLEAR LOGOUT button for stuck authentication
+[33m25c8f4a[m Add authentication error handling and clear auth button
+[33mb22f942[m NUCLEAR OPTION: Change ALL contact-list-manager routes to contact-list-manager-new
+[33m5e356e1[m Remove ContactListManager route to debug routing issues
+[33mbd2ded0[m Debug ContactListManager - show success message to test loading
+[33m77a22ce[m Fix Navigation component to use contact-list-manager-new route
+[33mc64b9df[m Update See Lists button to navigate to contact-list-manager-new
+[33m52a71c3[m Add ContactListManagerNew for debugging navigation issue
+[33md859abe[m cleanup: replace ContactListManager with MVP1 version, delete ContactListManagerNew and DELETE files, update routes
+[33m7fb9c53[m add CAMPAIGN-STATUS-TRACKING-BUG.md - proper bug tracker for sent campaign status corruption
+[33m4f9d384[m document known issue: campaign status changes from sent to draft after unassign - backend data integrity bug
+[33m6c61b44[m add debugging for campaign statuses to trace the sent/draft issue
+[33m4cdf2e0[m fix campaign status refresh after unassign - ensure both lists and campaigns reload
+[33m10de102[m add MOONSHOT-TRACKER.md - document ContactListManager overbuilt recovery and lessons learned
+[33mb8492e7[m add simple assignment detection - show Assigned/Available status and disable Use button when assigned
+[33m88e11a8[m fix Create New Campaign flow - navigate to CampaignCreator without assignment, let user create fresh
+[33m8daafc9[m add unassign functionality - Free List button with campaign detection and force parameters
+[33mdc9ce77[m add Use List flow - campaign selector modal with assignment to existing or new campaigns
+[33mc57d9c8[m Fix Chapter Responsible For field mapping in CSV upload
+[33m4811a29[m add ContactListManagerNew - bare bones minimal version to test hydration
+[33m688bfd9[m debug: strip campaign loading and Use List flow, keep unassign handler - isolate hydration issue
+[33m2a4dc2e[m debug: strip campaign hydration from ContactListManager to isolate hydration issue
+[33mb344f73[m Fix state management - both flows use location.state
+[33m6a8ebb2[m Complete Use button flow - attach list and navigate to CampaignCreator
+[33m87bced1[m Debug Use button - simplified to just show modal
+[33m19bba0c[m Optimize Use button - use existing campaigns data
+[33m1c0c75e[m Fix Use button - remove unsupported status filter
+[33m45e725a[m Fix Use button - hydrate campaigns and show selector
+[33m028bd8e[m Add chapterresponsiblefor field to ContactDetail and debug Use button
+[33m9d59bd9[m Fix 400 error - use force=true for sent campaigns
+[33m92d3f98[m Fix conflict resolution flow - conflicts are temporary errors, not persistent states
+[33m6eca630[m Fix conflict resolution and add 'Free List' functionality
+[33m3bd8dbb[m Add PDF attachment display and improve conflict detection UX
+[33m1a6314f[m Fix ContactListManager 'Use' button with proper campaign selection
+[33mcef245a[m Redirect CampaignCreator to ContactListManager for safer list selection

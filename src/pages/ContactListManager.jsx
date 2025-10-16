@@ -6,6 +6,7 @@ import { getOrgId } from "../lib/org";
 /**
  * ContactListManager - Production Ready with Conflict Detection
  * Shows which lists are in use and prevents conflicts
+ * Updated: Trigger Vercel redeploy
  */
 export default function ContactListManager() {
   const navigate = useNavigate();
