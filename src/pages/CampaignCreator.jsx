@@ -13,9 +13,8 @@ export default function CampaignCreator() {
   const [searchParams, setSearchParams] = useSearchParams();
   const orgId = getOrgId();
 
-  // Get params from URL
+  // Get params from URL - ONLY campaignId, everything else hydrates!
   const campaignId = searchParams.get("campaignId");
-  const listId = searchParams.get("listId");
 
   // Campaign data
   const [campaignName, setCampaignName] = useState("");
@@ -36,9 +35,10 @@ export default function CampaignCreator() {
 
   // Load data on mount or when params change
   useEffect(() => {
-    console.log("🎯 CampaignCreator loaded with params:", { campaignId, listId });
+    console.log("🎯 CampaignCreator loaded with campaignId:", campaignId);
     loadData();
-  }, [campaignId, listId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaignId]);
 
   const loadData = async () => {
     try {
@@ -52,10 +52,13 @@ export default function CampaignCreator() {
         await loadCampaignData();
       }
 
-      // Load contact list if we have a listId
-      if (listId) {
-        await loadContactList();
-        await loadContacts();
+      // Load contact list if campaign has one (hydrate from campaign.contactListId)
+      if (campaignId) {
+        const campaignRes = await api.get(`/campaigns/${campaignId}`);
+        if (campaignRes.data.contactListId) {
+          await loadContactList(campaignRes.data.contactListId);
+          await loadContacts(campaignRes.data.contactListId);
+        }
       }
 
       // Load available lists for selection
@@ -119,9 +122,11 @@ export default function CampaignCreator() {
     }
   };
 
-  const loadContactList = async () => {
+  const loadContactList = async (listIdToLoad) => {
+    if (!listIdToLoad) return;
+    
     try {
-      const response = await api.get(`/contact-lists/${listId}`);
+      const response = await api.get(`/contact-lists/${listIdToLoad}`);
       setContactList(response.data);
     } catch (err) {
       console.error("Error loading contact list:", err);
@@ -131,11 +136,11 @@ export default function CampaignCreator() {
     }
   };
 
-  const loadContacts = async () => {
-    if (!listId) return;
+  const loadContacts = async (listIdToLoad) => {
+    if (!listIdToLoad) return;
 
     try {
-      const response = await api.get(`/contact-lists/${listId}/contacts`);
+      const response = await api.get(`/contact-lists/${listIdToLoad}/contacts`);
       setContacts(response.data);
       console.log("✅ Loaded contacts:", response.data.length);
     } catch (err) {
@@ -187,8 +192,9 @@ export default function CampaignCreator() {
         contactListId: list.id,
       });
 
-      // Update URL with listId
-      setSearchParams({ campaignId, listId: list.id });
+      // Reload to hydrate the new list (no URL params needed!)
+      await loadContactList(list.id);
+      await loadContacts(list.id);
     } catch (err) {
       console.error("Error assigning list:", err);
       setError(err.response?.data?.error || "Failed to assign list");
@@ -369,7 +375,6 @@ export default function CampaignCreator() {
                   </div>
                   <button
                     onClick={() => {
-                      setSearchParams({ campaignId });
                       setContactList(null);
                       setContacts([]);
                     }}
