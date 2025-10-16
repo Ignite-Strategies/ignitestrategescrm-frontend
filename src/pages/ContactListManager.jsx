@@ -307,8 +307,30 @@ export default function ContactListManager() {
                   }
                 }}
                 onUnassign={async () => {
-                  // Refresh the page to recalculate "assigned" status
-                  window.location.reload();
+                  // Find the draft campaign using this list
+                  const draftCampaign = list.campaignStatus?.draftCampaigns[0];
+                  if (!draftCampaign) {
+                    alert('No draft campaign found to unassign from');
+                    return;
+                  }
+                  
+                  const confirmMsg = `Unassign "${list.name}" from campaign "${draftCampaign.name}"?\n\nThis will free up the list for use in other campaigns.`;
+                  if (!window.confirm(confirmMsg)) return;
+                  
+                  try {
+                    // Unassign by setting contactListId to null
+                    await api.patch(`/campaigns/${draftCampaign.id}`, {
+                      contactListId: null
+                    });
+                    
+                    console.log(`✅ Unassigned list from campaign: ${draftCampaign.name}`);
+                    
+                    // Reload lists to update status
+                    await loadLists();
+                  } catch (err) {
+                    console.error('Error unassigning list:', err);
+                    alert(`Failed to unassign list: ${err.response?.data?.error || err.message}`);
+                  }
                 }}
                 onView={() => navigate(`/contact-list/${list.id}`)}
               />
@@ -560,12 +582,13 @@ function ListCard({ list, onDelete, onDuplicate, onUse, onView }) {
           >
             View
           </button>
-          {list.assigned ? (
+          {list.campaignStatus?.assigned ? (
             <button
-              onClick={() => window.confirm('Unassign this contact list? This will make it available for new campaigns.') && onUnassign?.()}
+              onClick={onUnassign}
               className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium"
+              title={`Unassign from "${list.campaignStatus.draftCampaigns[0]?.name}"`}
             >
-              🚫 Unassign
+              🔓 Unassign
             </button>
           ) : (
             <button
