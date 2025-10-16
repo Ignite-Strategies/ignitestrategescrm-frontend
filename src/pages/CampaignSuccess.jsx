@@ -32,6 +32,16 @@ export default function CampaignSuccess() {
       setLoading(false);
     }
   }, [campaignId]);
+
+  // Also check for campaignId in location.state (from navigation)
+  useEffect(() => {
+    const location = window.location;
+    const stateCampaignId = new URLSearchParams(location.search).get('campaignId');
+    if (stateCampaignId && !campaignId) {
+      // Navigate to this page with the campaignId
+      navigate(`/campaign-success?campaignId=${stateCampaignId}`, { replace: true });
+    }
+  }, []);
   
   const loadCampaignSuccessData = async () => {
     try {

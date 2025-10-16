@@ -111,8 +111,52 @@ export default function CampaignCreator() {
 
   const loadAvailableLists = async () => {
     try {
-      const response = await api.get(`/contact-lists?orgId=${orgId}`);
-      setAvailableLists(response.data);
+      const [listsRes, campaignsRes] = await Promise.all([
+        api.get(`/contact-lists?orgId=${orgId}`),
+        api.get(`/campaigns?orgId=${orgId}`)
+      ]);
+      
+      const lists = listsRes.data || [];
+      const campaigns = campaignsRes.data || [];
+      
+      // Add conflict detection to lists
+      const enrichedLists = lists.map(list => {
+        const linkedCampaigns = campaigns.filter(c => c.contactListId === list.id);
+        const draftCampaigns = linkedCampaigns.filter(c => c.status === 'draft');
+        const sentCampaigns = linkedCampaigns.filter(c => c.status === 'sent');
+        const activeCampaigns = linkedCampaigns.filter(c => c.status === 'active');
+        
+        // Determine conflict level
+        let conflictLevel = 'none';
+        let conflictMessage = '';
+        
+        if (draftCampaigns.length > 0) {
+          conflictLevel = 'draft';
+          conflictMessage = `⚠️ In draft campaign${draftCampaigns.length > 1 ? 's' : ''}: ${draftCampaigns.map(c => c.name).join(', ')}`;
+        } else if (sentCampaigns.length > 0) {
+          conflictLevel = 'sent';
+          conflictMessage = `🚨 Sent in campaign${sentCampaigns.length > 1 ? 's' : ''}: ${sentCampaigns.map(c => c.name).join(', ')}`;
+        } else if (activeCampaigns.length > 0) {
+          conflictLevel = 'active';
+          conflictMessage = `🔄 Active in campaign${activeCampaigns.length > 1 ? 's' : ''}: ${activeCampaigns.map(c => c.name).join(', ')}`;
+        }
+        
+        return {
+          ...list,
+          campaignStatus: {
+            assigned: draftCampaigns.length > 0,
+            used: sentCampaigns.length > 0 || activeCampaigns.length > 0,
+            totalCampaigns: linkedCampaigns.length,
+            draftCampaigns,
+            sentCampaigns,
+            activeCampaigns,
+            conflictLevel,
+            conflictMessage
+          }
+        };
+      });
+      
+      setAvailableLists(enrichedLists);
     } catch (err) {
       console.error("Error loading lists:", err);
     }
