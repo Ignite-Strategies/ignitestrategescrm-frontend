@@ -29,6 +29,10 @@ export default function CampaignCreator() {
   const [loading, setLoading] = useState(!!incomingCampaignId); // Start loading if campaignId present!
   const [error, setError] = useState("");
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
+  
+  // PDF Attachment state
+  const [attachments, setAttachments] = useState([]);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   // On mount: grab campaignId from state OR params, clean URL
   useEffect(() => {
@@ -280,12 +284,61 @@ export default function CampaignCreator() {
       console.log("🎯 Navigating to REAL preview with state...");
 
       // Navigate to REAL preview with state (NO URL PARAMS!)
-      navigate("/campaign-preview", { state: { campaignId } });
+      navigate("/campaign-preview", { state: { campaignId, attachments } });
     } catch (err) {
       console.error("Save failed:", err);
       setError(`Failed to save: ${err.response?.data?.error || err.message}`);
       setLoading(false);
     }
+  };
+
+  // Handle PDF file upload
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Only allow PDFs
+    if (file.type !== 'application/pdf') {
+      setError('Please select a PDF file');
+      return;
+    }
+    
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File size must be less than 10MB');
+      return;
+    }
+    
+    try {
+      setUploadingFile(true);
+      setError("");
+      
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64Content = e.target.result.split(',')[1]; // Remove data:application/pdf;base64, prefix
+        
+        const newAttachment = {
+          filename: file.name,
+          contentType: 'application/pdf',
+          content: base64Content
+        };
+        
+        setAttachments([...attachments, newAttachment]);
+        setUploadingFile(false);
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Error uploading file:', err);
+      setError('Failed to upload file');
+      setUploadingFile(false);
+    }
+  };
+  
+  // Remove attachment
+  const removeAttachment = (index) => {
+    setAttachments(attachments.filter((_, i) => i !== index));
   };
 
   const handleStartNew = () => {
@@ -513,9 +566,73 @@ export default function CampaignCreator() {
                 className="w-full px-4 py-2 border rounded-lg font-mono text-sm"
                 disabled={!campaignId}
               />
-                </div>
-              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Step 4: PDF Attachments */}
+        <div className="mb-8 bg-white rounded-lg shadow-sm border p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            4. Add PDF Attachments (Optional)
+          </h2>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Attach PDF Files (Flyers, Documents, etc.)
+              </label>
+              
+              {/* File Upload */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileUpload}
+                  disabled={uploadingFile}
+                  className="hidden"
+                  id="pdf-upload"
+                />
+                <label
+                  htmlFor="pdf-upload"
+                  className="cursor-pointer flex flex-col items-center"
+                >
+                  <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span className="text-sm text-gray-600">
+                    {uploadingFile ? "Uploading..." : "Click to upload PDF files"}
+                  </span>
+                  <span className="text-xs text-gray-500 mt-1">Max 10MB per file</span>
+                </label>
+              </div>
+              
+              {/* Attached Files List */}
+              {attachments.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Attached Files:</h3>
+                  <div className="space-y-2">
+                    {attachments.map((attachment, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-sm font-medium text-gray-700">{attachment.filename}</span>
+                        </div>
+                        <button
+                          onClick={() => removeAttachment(index)}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
             {/* Preview Button */}
         <div className="bg-white rounded-lg shadow-sm border p-6">

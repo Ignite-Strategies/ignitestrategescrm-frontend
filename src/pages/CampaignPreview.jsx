@@ -21,6 +21,7 @@ export default function CampaignPreview() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [gmailAuth, setGmailAuth] = useState(false);
+  const [attachments, setAttachments] = useState([]);
 
   useEffect(() => {
     if (!campaignId) {
@@ -28,6 +29,11 @@ export default function CampaignPreview() {
       navigate('/campaign-creator');
       return;
     }
+
+    // Get attachments from location.state
+    const stateAttachments = location.state?.attachments || [];
+    setAttachments(stateAttachments);
+    console.log('📎 Attachments loaded:', stateAttachments.length);
 
     loadEverything();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,7 +112,8 @@ export default function CampaignPreview() {
         campaignId,
         subject: campaign.subject,
         message: campaign.body,
-        contactListId: campaign.contactListId
+        contactListId: campaign.contactListId,
+        attachments: attachments
       });
 
       await api.patch(`/campaigns/${campaignId}`, {
