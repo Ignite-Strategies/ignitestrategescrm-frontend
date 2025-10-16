@@ -34,7 +34,7 @@ export default function CampaignCreator() {
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
 
-  // On mount: grab param, store in state, CLEAR URL
+  // On mount: grab param OR state, store in state, CLEAR URL
   useEffect(() => {
     const paramCampaignId = searchParams.get("campaignId");
     if (paramCampaignId) {
@@ -42,6 +42,7 @@ export default function CampaignCreator() {
       setCampaignId(paramCampaignId);
       setSearchParams({}); // CLEAR THE URL!
     }
+    // TODO: Also check location.state for campaignId from preview
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

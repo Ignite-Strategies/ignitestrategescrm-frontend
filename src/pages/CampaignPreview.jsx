@@ -5,6 +5,7 @@ import { isGmailAuthenticated } from "../lib/googleAuth";
 
 /**
  * CampaignPreview - SIMPLE VERSION
+ * Intercepts params, cleans URL, uses state
  * 1. Rehydrate from backend
  * 2. Show message preview
  * 3. Show contacts
@@ -12,10 +13,10 @@ import { isGmailAuthenticated } from "../lib/googleAuth";
  */
 export default function CampaignPreview() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const campaignId = searchParams.get('campaignId');
+  const [searchParams, setSearchParams] = useSearchParams();
   
-  // State
+  // State (campaignId in state, not URL!)
+  const [campaignId, setCampaignId] = useState(null);
   const [campaign, setCampaign] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,9 +24,20 @@ export default function CampaignPreview() {
   const [error, setError] = useState("");
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   
+  // On mount: intercept param, clean URL
+  useEffect(() => {
+    const paramCampaignId = searchParams.get('campaignId');
+    if (paramCampaignId) {
+      console.log("🧹 CampaignPreview: Found param, grabbing and cleaning URL...");
+      setCampaignId(paramCampaignId);
+      setSearchParams({}); // CLEAR THE URL!
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  // Load data when campaignId is set
   useEffect(() => {
     if (!campaignId) {
-      setError("Missing campaign ID");
       setLoading(false);
       return;
     }
@@ -177,7 +189,7 @@ export default function CampaignPreview() {
               <p className="text-gray-600">{campaign.name}</p>
             </div>
             <button
-              onClick={() => navigate(`/campaign-creator?campaignId=${campaignId}`)}
+              onClick={() => navigate('/campaign-creator', { state: { campaignId } })}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               ← Back to Edit
