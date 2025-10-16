@@ -18,12 +18,13 @@ export default function ContactListManager() {
   const isInCampaignFlow = !!campaignId;
   
   const [lists, setLists] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   
   // View states
-  const [view, setView] = useState("all"); // all | create | detail
+  const [view, setView] = useState("all"); // all | create | detail | select-campaign
   const [selectedList, setSelectedList] = useState(null);
   
   // Filter states
@@ -63,6 +64,7 @@ export default function ContactListManager() {
       });
       
       setLists(enrichedLists);
+      setCampaigns(campaignsRes.data); // Store campaigns for selector
     } catch (err) {
       console.error("Error loading lists:", err);
       setError("Failed to load contact lists");
@@ -291,13 +293,17 @@ export default function ContactListManager() {
                 list={list}
                 onDelete={handleDeleteList}
                 onDuplicate={handleDuplicateList}
-                onUse={() => {
+                onUse={async () => {
                   if (isInCampaignFlow) {
-                    // Campaign flow: Return to CampaignCreator with both params
+                    // Campaign flow: Attach to specific campaign and return
+                    await api.patch(`/campaigns/${campaignId}`, {
+                      contactListId: list.id
+                    });
                     navigate(`/campaign-creator?campaignId=${campaignId}&listId=${list.id}`);
                   } else {
-                    // Standalone: Need to create campaign first
-                    navigate('/campaign-creator');
+                    // Standalone: Show campaign selector modal
+                    setSelectedList(list);
+                    setView('select-campaign');
                   }
                 }}
                 onUnassign={async () => {
@@ -307,6 +313,106 @@ export default function ContactListManager() {
                 onView={() => navigate(`/contact-list/${list.id}`)}
               />
             ))}
+          </div>
+        )}
+        
+        {/* Campaign Selector Modal */}
+        {view === 'select-campaign' && selectedList && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Attach "{selectedList.name}" to Campaign
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      Select which campaign to use this list with
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setView('all');
+                      setSelectedList(null);
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                {campaigns.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600 mb-4">No campaigns yet</p>
+                    <button
+                      onClick={() => navigate('/campaign-creator')}
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                    >
+                      Create Your First Campaign
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {campaigns.map(campaign => (
+                      <button
+                        key={campaign.id}
+                        onClick={async () => {
+                          try {
+                            // Attach list to campaign
+                            await api.patch(`/campaigns/${campaign.id}`, {
+                              contactListId: selectedList.id
+                            });
+                            
+                            // Navigate to campaign creator with both IDs
+                            navigate(`/campaign-creator?campaignId=${campaign.id}&listId=${selectedList.id}`);
+                          } catch (err) {
+                            console.error('Error attaching list:', err);
+                            setError('Failed to attach list to campaign');
+                          }
+                        }}
+                        className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition text-left"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-gray-900">{campaign.name}</h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              {campaign.contactList 
+                                ? `Currently using: ${campaign.contactList.name}`
+                                : 'No list assigned yet'}
+                            </p>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            campaign.status === 'draft' ? 'bg-yellow-100 text-yellow-700' :
+                            campaign.status === 'sent' ? 'bg-green-100 text-green-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {campaign.status}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-2">
+                          Created {new Date(campaign.createdAt).toLocaleDateString()}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <button
+                    onClick={() => navigate('/campaign-creator')}
+                    className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 transition text-center"
+                  >
+                    <div className="text-2xl mb-2">➕</div>
+                    <div className="font-semibold text-gray-900">Create New Campaign</div>
+                    <div className="text-sm text-gray-600">Start a fresh campaign with this list</div>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

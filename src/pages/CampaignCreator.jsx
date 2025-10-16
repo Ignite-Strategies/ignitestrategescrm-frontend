@@ -174,6 +174,11 @@ export default function CampaignCreator() {
   };
   
   const handleSelectList = async (list) => {
+    if (!campaignId) {
+      setError("Please create your campaign first (Step 1)");
+      return;
+    }
+    
     setLoading(true);
     try {
       // Link list to campaign
@@ -234,6 +239,24 @@ export default function CampaignCreator() {
   
   const handlePreview = async () => {
     try {
+      // If no campaign yet, create it first
+      if (!campaignId) {
+        if (!campaignName.trim()) {
+          setError("Please enter a campaign name first");
+          return;
+        }
+        await handleCreateCampaign();
+        // Wait for campaign to be created, then save and navigate
+        setTimeout(async () => {
+          const newCampaignId = new URLSearchParams(window.location.search).get('campaignId');
+          if (newCampaignId) {
+            await api.patch(`/campaigns/${newCampaignId}`, { subject, body: message });
+            navigate(`/campaign-preview?campaignId=${newCampaignId}`);
+          }
+        }, 500);
+        return;
+      }
+      
       await saveCampaignContent();
       navigate(`/campaign-preview?campaignId=${campaignId}`);
     } catch (err) {
@@ -318,9 +341,16 @@ export default function CampaignCreator() {
             </div>
             
             {/* 2. Pick a List */}
-            {campaignId && (
-              <div className="bg-gray-50 p-6 rounded-lg">
+            <div className="bg-gray-50 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">2. Pick a Contact List</h3>
+                
+                {!campaignId && (
+                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-yellow-800 text-sm">
+                      ⚠️ Please create your campaign first (Step 1) before selecting a list
+                    </p>
+                  </div>
+                )}
                 
                 {contactList ? (
                   <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
@@ -339,7 +369,7 @@ export default function CampaignCreator() {
                       Change List
                     </button>
                   </div>
-                ) : (
+                ) : campaignId ? (
                   <div className="space-y-4">
                     {/* Available Lists */}
                     {availableLists.length > 0 && (
@@ -368,25 +398,24 @@ export default function CampaignCreator() {
                       </div>
                     )}
                     
-                    {/* Create New List Button */}
+                    {/* Create New List Button - Goes to Dashboard */}
                     <div className="pt-4 border-t">
                       <button
-                        onClick={() => navigate(`/contact-list-builder?campaignId=${campaignId}`)}
+                        onClick={() => navigate(`/contact-list-manager?campaignId=${campaignId}`)}
                         className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:border-indigo-400 hover:bg-indigo-50 transition"
                       >
                         <div className="text-2xl mb-2">➕</div>
-                        <div className="font-semibold text-gray-900">Build Custom List</div>
-                        <div className="text-sm text-gray-600">Create a new contact list</div>
+                        <div className="font-semibold text-gray-900">Manage & Create Lists</div>
+                        <div className="text-sm text-gray-600">Create or select from all your lists</div>
                       </button>
                     </div>
                   </div>
-                )}
+                ) : null}
               </div>
-            )}
+            </div>
             
             {/* 3. Write Message */}
-            {campaignId && listId && (
-              <div className="bg-gray-50 p-6 rounded-lg">
+            <div className="bg-gray-50 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">3. Write Your Message</h3>
                 
                 {/* Gmail Auth Status */}

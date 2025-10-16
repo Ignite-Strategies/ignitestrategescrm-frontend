@@ -15,7 +15,7 @@ export default function Navigation() {
   };
 
   const navItems = [
-    { path: '/campaign-home', label: '🏠 Campaigns', icon: '🏠' },
+    { path: '/campaignhome', label: '🏠 Campaigns', icon: '🏠' },
     { path: '/contact-list-manager', label: '📋 Contact Lists', icon: '📋' },
     { path: '/org-members', label: '👥 Org Members', icon: '👥' },
     { path: '/events', label: '📅 Events', icon: '📅' },
@@ -29,7 +29,7 @@ export default function Navigation() {
           {/* Logo/Brand */}
           <div className="flex items-center">
             <button
-              onClick={() => navigate('/campaign-home')}
+              onClick={() => navigate('/campaignhome')}
               className="flex items-center space-x-2 text-xl font-bold text-indigo-600 hover:text-indigo-700"
             >
               <span>🚀</span>
