@@ -14,7 +14,12 @@ export default function OrgMemberManual() {
   const orgId = getOrgId();
   const [loading, setLoading] = useState(false);
   
-  // Removed unused event assignment options
+  // Event assignment options - using localStorage from universal hydrator
+  const [addToEvent, setAddToEvent] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [availableEvents, setAvailableEvents] = useState([]);
+  const [selectedAudience, setSelectedAudience] = useState('org_members');
+  const [selectedStage, setSelectedStage] = useState('in_funnel');
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -32,7 +37,15 @@ export default function OrgMemberManual() {
     notes: ""
   });
 
-  // Removed unnecessary event loading - this is just a form!
+  // Load events from localStorage (universal hydrator cache)
+  useEffect(() => {
+    const cachedEvent = JSON.parse(localStorage.getItem('event') || 'null');
+    if (cachedEvent) {
+      setAvailableEvents([cachedEvent]);
+      setSelectedEvent(cachedEvent.id);
+    }
+    console.log('📦 Loaded event from localStorage:', cachedEvent);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
