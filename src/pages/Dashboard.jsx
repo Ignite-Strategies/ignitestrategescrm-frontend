@@ -26,10 +26,10 @@ export default function Dashboard() {
 
   const loadData = async () => {
     try {
-      console.log('🚀 Dashboard loadData starting with orgId:', orgId);
+      console.log('🚀 Dashboard loadData starting with orgId:', orgId, '- CACHE BUST VERSION');
       const [orgRes, eventsRes, orgMembersRes] = await Promise.all([
         api.get(`/orgs/${orgId}`),
-        api.get(`/events?orgId=${orgId}`),
+        api.get(`/events?orgId=${orgId}&v=${Date.now()}`),
         api.get(`/orgmembers?orgId=${orgId}`)
       ]);
       console.log('📊 Dashboard API responses:', {
