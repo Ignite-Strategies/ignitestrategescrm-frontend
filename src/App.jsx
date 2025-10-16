@@ -145,6 +145,9 @@ export default function App() {
         <Route path="/org-members/manual" element={
           <ProtectedRoute><OrgMemberManual /></ProtectedRoute>
         } />
+        <Route path="/orgmembermanual" element={
+          <ProtectedRoute><OrgMemberManual /></ProtectedRoute>
+        } />
         <Route path="/admin-maker" element={
           <ProtectedRoute><AdminMaker /></ProtectedRoute>
         } />
