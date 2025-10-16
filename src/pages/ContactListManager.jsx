@@ -467,29 +467,38 @@ function CampaignStatusBadge({ status }) {
     return <span className="text-gray-500 text-xs">Loading...</span>;
   }
   
-  // Priority order: used > assigned > available
-  if (status.used) {
+  // Use the new conflict detection system
+  if (status.conflictLevel === 'sent') {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
-        <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-        Used ({status.sentCampaigns.length + status.activeCampaigns.length})
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">
+        <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+        🚨 Sent in Campaign
       </span>
     );
   }
   
-  if (status.assigned) {
+  if (status.conflictLevel === 'draft') {
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-700">
-        <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></span>
-        Assigned ({status.draftCampaigns.length})
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">
+        <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+        ⚠️ In Draft Campaign
+      </span>
+    );
+  }
+  
+  if (status.conflictLevel === 'active') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+        🔄 Active Campaign
       </span>
     );
   }
   
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
-      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-      Available
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
+      <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+      ✅ Available
     </span>
   );
 }
@@ -572,6 +581,21 @@ function ListCard({ list, onDelete, onDuplicate, onUse, onUnassign, onView }) {
           {list.description || "No description provided"}
         </p>
         
+        {/* CONFLICT WARNING */}
+        {list.campaignStatus?.conflictLevel !== 'none' && (
+          <div className={`mb-4 p-3 rounded-lg ${list.campaignStatus.conflictLevel === 'sent' ? 'bg-red-50 border border-red-200' : 'bg-orange-50 border border-orange-200'}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`w-2 h-2 rounded-full ${list.campaignStatus.conflictLevel === 'sent' ? 'bg-red-500' : 'bg-orange-500'}`}></span>
+              <span className={`text-sm font-medium ${list.campaignStatus.conflictLevel === 'sent' ? 'text-red-800' : 'text-orange-800'}`}>
+                {list.campaignStatus.conflictLevel === 'sent' ? '🚨 Sent in Campaign' : '⚠️ In Draft Campaign'}
+              </span>
+            </div>
+            <div className={`text-xs ${list.campaignStatus.conflictLevel === 'sent' ? 'text-red-700' : 'text-orange-700'}`}>
+              {list.campaignStatus.conflictMessage}
+            </div>
+          </div>
+        )}
+        
         {/* Stats */}
         <div className="space-y-2 mb-4 text-sm">
           
@@ -618,19 +642,30 @@ function ListCard({ list, onDelete, onDuplicate, onUse, onUnassign, onView }) {
           >
             Delete
           </button>
-          {list.campaignStatus?.assigned ? (
-            <button
-              onClick={onUnassign}
-              className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
-            >
-              Unassign
-            </button>
-          ) : (
+          
+          {/* SMART BUTTON LOGIC */}
+          {list.campaignStatus?.conflictLevel === 'none' ? (
             <button
               onClick={onUse}
               className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
             >
               Use
+            </button>
+          ) : (
+            <button
+              onClick={() => alert(`Resolve conflicts for ${list.name}: ${list.campaignStatus.conflictMessage}`)}
+              className="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+            >
+              Resolve Conflicts
+            </button>
+          )}
+          
+          {list.campaignStatus?.assigned && (
+            <button
+              onClick={onUnassign}
+              className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
+            >
+              Unassign
             </button>
           )}
         </div>
