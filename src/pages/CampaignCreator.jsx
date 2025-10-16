@@ -16,7 +16,7 @@ export default function CampaignCreator() {
 
   // Check if we're loading an existing campaign (no ghost flash!)
   const incomingCampaignId = location.state?.campaignId || searchParams.get("campaignId");
-  
+
   // Pure state - no URL pollution
   const [campaignId, setCampaignId] = useState(null);
   const [campaignName, setCampaignName] = useState("");
@@ -266,24 +266,24 @@ export default function CampaignCreator() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
+          {/* Header */}
         <div className="mb-8 flex items-center justify-between">
-          <div>
+            <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              📧 Campaign Builder V2
+              📧 Create Campaign
             </h1>
-            <p className="text-gray-600">Clean slate - no param pollution!</p>
-          </div>
-          <button
-            onClick={() => navigate("/campaignhome")}
+            <p className="text-gray-600">Build and send your email campaign</p>
+            </div>
+            <button
+              onClick={() => navigate("/campaignhome")}
             className="px-4 py-2 text-gray-600 hover:text-gray-800"
-          >
-            ← Back
-          </button>
-        </div>
+            >
+              ← Back
+            </button>
+          </div>
 
         {/* Error */}
-        {error && (
+          {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
             {error}
           </div>
@@ -303,8 +303,8 @@ export default function CampaignCreator() {
                 Connect Gmail
               </button>
             </div>
-          </div>
-        )}
+            </div>
+          )}
 
         {/* Step 1: Campaign Name */}
         <div className="mb-8 bg-white rounded-lg shadow-sm border p-6">
@@ -312,26 +312,26 @@ export default function CampaignCreator() {
             1. Campaign Name
           </h2>
 
-          {campaignId ? (
-            <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
-              <div>
-                <h4 className="font-medium text-gray-900">{campaignName}</h4>
-                <p className="text-sm text-gray-600">ID: {campaignId}</p>
-              </div>
-              <button
+              {campaignId ? (
+                <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                  <div>
+                    <h4 className="font-medium text-gray-900">{campaignName}</h4>
+                    <p className="text-sm text-gray-600">ID: {campaignId}</p>
+                  </div>
+                  <button
                 onClick={handleStartNew}
-                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
-              >
-                Start New
-              </button>
-            </div>
-          ) : (
+                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
+                  >
+                    Start New
+                  </button>
+                </div>
+              ) : (
             <div className="space-y-3">
-              <input
-                type="text"
+                  <input
+                    type="text"
                 placeholder="Enter campaign name"
-                value={campaignName}
-                onChange={(e) => setCampaignName(e.target.value)}
+                    value={campaignName}
+                    onChange={(e) => setCampaignName(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg"
               />
               <input
@@ -340,17 +340,17 @@ export default function CampaignCreator() {
                 value={campaignDescription}
                 onChange={(e) => setCampaignDescription(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg"
-              />
-              <button
-                onClick={handleCreateCampaign}
+                  />
+                  <button
+                    onClick={handleCreateCampaign}
                 disabled={!campaignName.trim()}
                 className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
-              >
+                  >
                 Create Campaign
-              </button>
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
         {/* Step 2: Pick List */}
         <div className="mb-8 bg-white rounded-lg shadow-sm border p-6">
@@ -358,30 +358,30 @@ export default function CampaignCreator() {
             2. Pick a Contact List
           </h2>
 
-          {contactList ? (
-            <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
-              <div>
-                <h4 className="font-medium text-gray-900">{contactList.name}</h4>
-                <p className="text-sm text-gray-600">{contacts.length} contacts</p>
-              </div>
-              <button
-                onClick={() => {
-                  setContactList(null);
-                  setContacts([]);
-                }}
-                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
-              >
-                Change List
-              </button>
-            </div>
-          ) : campaignId ? (
-            <div className="space-y-4">
+              {contactList ? (
+                <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                  <div>
+                    <h4 className="font-medium text-gray-900">{contactList.name}</h4>
+                    <p className="text-sm text-gray-600">{contacts.length} contacts</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setContactList(null);
+                      setContacts([]);
+                    }}
+                    className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded"
+                  >
+                    Change List
+                  </button>
+                </div>
+              ) : campaignId ? (
+                <div className="space-y-4">
               {availableLists.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {availableLists.map((list) => (
-                    <button
-                      key={list.id}
-                      onClick={() => handleSelectList(list)}
+                        {availableLists.map((list) => (
+                          <button
+                            key={list.id}
+                            onClick={() => handleSelectList(list)}
                       className="p-4 border rounded-lg text-left hover:bg-gray-50"
                     >
                       <h4 className="font-medium text-gray-900">{list.name}</h4>
@@ -394,13 +394,13 @@ export default function CampaignCreator() {
               ) : (
                 <p className="text-gray-500">No lists available. Create one first!</p>
               )}
-              <button
+                  <button
                 onClick={() => navigate("/contact-list-builder")}
                 className="w-full px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
-              >
+                  >
                 + Create New List
-              </button>
-            </div>
+                  </button>
+                </div>
           ) : (
             <p className="text-gray-500">Create a campaign first (Step 1)</p>
           )}
@@ -412,71 +412,71 @@ export default function CampaignCreator() {
             3. Write Your Message
           </h2>
 
-          <div className="space-y-4">
-            <div>
+              <div className="space-y-4">
+                <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Subject Line
-              </label>
-              <input
-                type="text"
+                    Subject Line
+                  </label>
+                  <input
+                    type="text"
                 placeholder="Enter email subject"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
                 className="w-full px-4 py-2 border rounded-lg"
                 disabled={!campaignId}
-              />
-            </div>
+                  />
+                </div>
 
-            <div>
+                <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Message Body
               </label>
               <div className="flex gap-2 mb-2">
-                <button
+                      <button
                   onClick={() => insertToken("firstName")}
                   className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
                   disabled={!campaignId}
-                >
-                  + First Name
-                </button>
-                <button
+                      >
+                        + First Name
+                      </button>
+                      <button
                   onClick={() => insertToken("lastName")}
                   className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
                   disabled={!campaignId}
-                >
-                  + Last Name
-                </button>
-                <button
+                      >
+                        + Last Name
+                      </button>
+                      <button
                   onClick={() => insertToken("goesBy")}
                   className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
                   disabled={!campaignId}
-                >
-                  + Goes By
-                </button>
-                <button
+                      >
+                        + Goes By
+                      </button>
+                      <button
                   onClick={() => insertToken("email")}
                   className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
                   disabled={!campaignId}
-                >
-                  + Email
-                </button>
-              </div>
-              <textarea
+                      >
+                        + Email
+                      </button>
+                  </div>
+                  <textarea
                 placeholder="Hi {{firstName}},&#10;&#10;This is your personalized message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                 rows={10}
                 className="w-full px-4 py-2 border rounded-lg font-mono text-sm"
                 disabled={!campaignId}
               />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Preview Button */}
+            {/* Preview Button */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
-          <button
-            onClick={handlePreview}
+              <button
+                onClick={handlePreview}
             disabled={!campaignId || !subject.trim() || !message.trim()}
             className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-lg font-medium"
           >
@@ -485,7 +485,7 @@ export default function CampaignCreator() {
               : !subject.trim() || !message.trim()
               ? "Fill in Subject & Message"
               : "Preview Campaign →"}
-          </button>
+              </button>
         </div>
       </div>
     </div>
