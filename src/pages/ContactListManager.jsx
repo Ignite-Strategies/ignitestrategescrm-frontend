@@ -581,49 +581,41 @@ function ListCard({ list, onDelete, onDuplicate, onUse, onUnassign, onView }) {
           </div>
         </div>
         
-        {/* Actions - ALL BUTTONS VISIBLE */}
-        <div className="space-y-2">
-          {/* Primary Actions */}
-          <div className="flex gap-2">
+        {/* SIMPLE COLORED BUTTONS */}
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={onView}
+            className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+          >
+            View
+          </button>
+          <button
+            onClick={() => onDuplicate(list)}
+            className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+          >
+            Duplicate
+          </button>
+          <button
+            onClick={() => onDelete(list.id)}
+            className="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+          >
+            Delete
+          </button>
+          {list.campaignStatus?.assigned ? (
             <button
-              onClick={onView}
-              className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm font-medium"
+              onClick={onUnassign}
+              className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
             >
-              View
+              Unassign
             </button>
-            {list.campaignStatus?.assigned ? (
-              <button
-                onClick={onUnassign}
-                className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm font-medium"
-                title={`Unassign from "${list.campaignStatus.draftCampaigns[0]?.name}"`}
-              >
-                🔓 Unassign
-              </button>
-            ) : (
-              <button
-                onClick={onUse}
-                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
-              >
-                Use in Campaign
-              </button>
-            )}
-          </div>
-          
-          {/* Secondary Actions */}
-          <div className="flex gap-2">
+          ) : (
             <button
-              onClick={() => onDuplicate(list)}
-              className="flex-1 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition text-sm font-medium"
+              onClick={onUse}
+              className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
             >
-              📋 Duplicate
+              Use
             </button>
-            <button
-              onClick={() => onDelete(list.id)}
-              className="flex-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium"
-            >
-              🗑️ Delete
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </div>
