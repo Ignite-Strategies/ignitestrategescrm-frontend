@@ -315,6 +315,21 @@ export default function OrgMembers() {
                     >
                       Contacts
                     </button>
+                    <button
+                      onClick={() => {
+                        const champions = contacts.filter(c => c.engagementValue === 4);
+                        navigate("/create-list", { 
+                          state: { 
+                            selectedContacts: champions,
+                            listName: "Champions",
+                            listDescription: "High engagement contacts"
+                          } 
+                        });
+                      }}
+                      className="bg-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-purple-700 transition"
+                    >
+                      📧 Email Champions ({contacts.filter(c => c.engagementValue === 4).length})
+                    </button>
                   </div>
         </div>
 

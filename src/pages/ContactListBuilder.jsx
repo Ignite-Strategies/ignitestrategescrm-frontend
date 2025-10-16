@@ -60,7 +60,13 @@ export default function ContactListBuilder() {
       setError("");
       
       console.log('📅 Loading event attendees...');
-      const response = await api.get(`/orgs/${orgId}/attendees`);
+      // Get the current event ID from localStorage (set by universal hydrator)
+      const cachedEvent = JSON.parse(localStorage.getItem('event') || 'null');
+      if (!cachedEvent) {
+        throw new Error('No event found. Please go to Events page first.');
+      }
+      
+      const response = await api.get(`/events/${cachedEvent.id}/attendees`);
       
       const attendees = response.data || [];
       setAllAttendees(attendees);

@@ -176,13 +176,26 @@ export default function OrgMemberUploadSuccess() {
           {/* Errors Detail */}
           {errorCount > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-red-900 mb-2">Errors Encountered:</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-red-900">Errors Encountered:</h3>
+                <button
+                  onClick={() => navigate('/read-the-error', { state: { uploadResults } })}
+                  className="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+                >
+                  View Details
+                </button>
+              </div>
               <div className="max-h-40 overflow-y-auto space-y-1">
-                {uploadResults.errors.map((error, idx) => (
+                {uploadResults.errors.slice(0, 3).map((error, idx) => (
                   <div key={idx} className="text-sm text-red-800">
                     • {error.record?.email || 'Unknown'}: {error.errors?.join(', ') || error.error || 'Unknown error'}
                   </div>
                 ))}
+                {uploadResults.errors.length > 3 && (
+                  <div className="text-sm text-red-600 font-medium">
+                    ... and {uploadResults.errors.length - 3} more errors
+                  </div>
+                )}
               </div>
             </div>
           )}
