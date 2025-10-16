@@ -14,6 +14,9 @@ export default function CampaignCreator() {
   const [searchParams, setSearchParams] = useSearchParams();
   const orgId = getOrgId();
 
+  // Check if we're loading an existing campaign (no ghost flash!)
+  const incomingCampaignId = location.state?.campaignId || searchParams.get("campaignId");
+  
   // Pure state - no URL pollution
   const [campaignId, setCampaignId] = useState(null);
   const [campaignName, setCampaignName] = useState("");
@@ -23,7 +26,7 @@ export default function CampaignCreator() {
   const [availableLists, setAvailableLists] = useState([]);
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!incomingCampaignId); // Start loading if campaignId present!
   const [error, setError] = useState("");
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
 
