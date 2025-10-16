@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 
@@ -10,6 +10,18 @@ export default function ProfileSetup() {
     email: localStorage.getItem("email") || "",
     phone: ""
   });
+
+  // Get email from Firebase user if not in localStorage
+  React.useEffect(() => {
+    if (!formData.email) {
+      // Try to get from Firebase auth
+      import("../firebase").then(({ auth }) => {
+        if (auth.currentUser?.email) {
+          setFormData(prev => ({ ...prev, email: auth.currentUser.email }));
+        }
+      });
+    }
+  }, []);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
