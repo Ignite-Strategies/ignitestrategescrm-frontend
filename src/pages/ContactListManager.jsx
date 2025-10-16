@@ -148,6 +148,72 @@ export default function ContactListManager() {
       alert('Failed to unassign list: ' + err.message);
     }
   };
+
+  const handleUseList = async (list) => {
+    try {
+      // Load available campaigns (draft ones)
+      const campaignsRes = await api.get(`/campaigns?orgId=${orgId}&status=draft`);
+      const availableCampaigns = campaignsRes.data;
+      
+      if (availableCampaigns.length === 0) {
+        // No draft campaigns - create one
+        const campaignName = prompt(`Create a new campaign for "${list.name}":`);
+        if (!campaignName) return;
+        
+        const response = await api.post("/campaigns", {
+          orgId,
+          name: campaignName.trim(),
+          description: `Campaign for ${list.name}`,
+          status: "draft",
+        });
+        
+        const newCampaign = response.data;
+        
+        // Attach list to new campaign
+        await api.patch(`/campaigns/${newCampaign.id}`, {
+          contactListId: list.id
+        });
+        
+        // Navigate to CampaignCreator with the new campaign
+        navigate('/campaign-creator', { 
+          state: { campaignId: newCampaign.id } 
+        });
+        return;
+      }
+      
+      // Show campaign selector
+      const campaignOptions = availableCampaigns.map(c => `${c.name} (${c.id})`).join('\n');
+      const selectedCampaign = prompt(
+        `Select a campaign for "${list.name}":\n\n${campaignOptions}\n\nEnter campaign name:`
+      );
+      
+      if (!selectedCampaign) return;
+      
+      // Find the selected campaign
+      const campaign = availableCampaigns.find(c => 
+        c.name.toLowerCase() === selectedCampaign.toLowerCase()
+      );
+      
+      if (!campaign) {
+        alert('Campaign not found. Please try again.');
+        return;
+      }
+      
+      // Attach list to selected campaign
+      await api.patch(`/campaigns/${campaign.id}`, {
+        contactListId: list.id
+      });
+      
+      // Navigate to CampaignCreator with the campaign
+      navigate('/campaign-creator', { 
+        state: { campaignId: campaign.id } 
+      });
+      
+    } catch (err) {
+      console.error('Error using list:', err);
+      alert('Failed to use list: ' + err.message);
+    }
+  };
   
   // Filter lists
   const filteredLists = lists.filter(list => {
@@ -460,7 +526,7 @@ function ListCard({ list, onDelete, onDuplicate, onUnassign, onView }) {
           {/* SMART BUTTON LOGIC */}
           {list.campaignStatus?.conflictLevel === 'none' ? (
             <button
-              onClick={() => alert(`Use "${list.name}" in a campaign`)}
+              onClick={() => handleUseList(list)}
               className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
             >
               Use
