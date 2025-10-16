@@ -65,11 +65,21 @@ export default function CampaignPreview() {
     if (!campaign?.body || !contacts[0]) return "";
 
     const firstContact = contacts[0];
-    return campaign.body
+    
+    console.log('🔍 Preview Debug:', {
+      body: campaign.body,
+      goesBy: firstContact.goesBy,
+      firstName: firstContact.firstName
+    });
+    
+    const result = campaign.body
       .replace(/\{\{firstName\}\}/g, firstContact.firstName || '')
       .replace(/\{\{lastName\}\}/g, firstContact.lastName || '')
       .replace(/\{\{email\}\}/g, firstContact.email || '')
       .replace(/\{\{goesBy\}\}/g, firstContact.goesBy || firstContact.firstName || '');
+    
+    console.log('✅ Preview Result:', result);
+    return result;
   };
 
   const handleSend = async () => {
