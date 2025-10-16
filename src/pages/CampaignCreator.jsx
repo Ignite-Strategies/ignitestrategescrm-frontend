@@ -518,17 +518,15 @@ export default function CampaignCreator() {
             </div>
 
             {/* Preview Button */}
-            {campaignId && listId && subject && message && (
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={handlePreview}
-                  disabled={!subject.trim() || !message.trim()}
-                  className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  👁️‍🗨️ Preview & Send Campaign
-                </button>
-              </div>
-            )}
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={handlePreview}
+                disabled={!campaignName.trim() || !subject.trim() || !message.trim()}
+                className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                👁️‍🗨️ Preview & Send Campaign
+              </button>
+            </div>
           </div>
         </div>
       </div>
