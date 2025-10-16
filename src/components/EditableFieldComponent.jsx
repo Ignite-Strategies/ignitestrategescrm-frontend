@@ -29,20 +29,28 @@ export default function EditableField({
     try {
       let response;
       
-      // Route to the correct endpoint based on what ID is provided
+      // 🔥 HYDRATE X = X SCHEMA: Route based on FIELD, not just ID!
+      const contactFields = ['eventId', 'firstName', 'lastName', 'email', 'phone'];
+      const orgMemberFields = ['leadershipRole', 'yearsWithOrganization', 'engagementValue', 'upcomingEventId', 'chapterresponsiblefor'];
+      
       if (eventAttendeeId) {
         // Update EventAttendee
         response = await api.patch(`/event-attendees/${eventAttendeeId}`, {
           [field]: valueToSave
         });
-      } else if (orgMemberId || supporterId) {
-        // Update OrgMember (PRIORITY: Check this first for event assignments)
+      } else if (contactFields.includes(field) && contactId) {
+        // Update Contact (for universal Contact fields)
+        response = await api.patch(`/contacts/${contactId}`, {
+          [field]: valueToSave
+        });
+      } else if (orgMemberFields.includes(field) && (orgMemberId || supporterId)) {
+        // Update OrgMember (for org-specific fields)
         const memberId = orgMemberId || supporterId;
         response = await api.patch(`/orgmembers/${memberId}`, {
           [field]: valueToSave
         });
       } else if (contactId) {
-        // Update Contact
+        // Fallback: Update Contact
         response = await api.patch(`/contacts/${contactId}`, {
           [field]: valueToSave
         });
