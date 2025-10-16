@@ -51,7 +51,19 @@ export default function OrgMembers() {
 
   const loadContacts = async () => {
     try {
-      // Load org members with engagementValue
+      // Try localStorage first (from universal hydrator)
+      const cachedMembers = JSON.parse(localStorage.getItem('orgMembers') || 'null');
+      const cachedEvents = JSON.parse(localStorage.getItem('events') || 'null');
+      
+      if (cachedMembers && cachedEvents) {
+        console.log('📦 Using cached data from localStorage');
+        setContacts(cachedMembers);
+        setEvents(cachedEvents);
+        return;
+      }
+      
+      // Fallback to API if no cache
+      console.log('📡 Loading org members for org:', orgId);
       const response = await api.get(`/orgmembers?orgId=${orgId}`);
       const members = response.data.members || response.data || [];
       console.log('✅ Loaded org members:', members.length);
