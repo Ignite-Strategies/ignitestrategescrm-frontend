@@ -14,6 +14,7 @@ export default function ContactListDetail() {
   
   const [list, setList] = useState(null);
   const [contacts, setContacts] = useState([]);
+  const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -213,12 +214,27 @@ export default function ContactListDetail() {
               >
                 📥 Export CSV
               </button>
-              <button
-                onClick={() => navigate(`/compose?listId=${listId}`)}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
-              >
-                📧 Use in Campaign
-              </button>
+              {list.campaignStatus?.assigned ? (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+                    <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
+                    In Use ({list.campaignStatus.totalCampaigns} campaign{list.campaignStatus.totalCampaigns !== 1 ? 's' : ''})
+                  </span>
+                  <button
+                    onClick={() => navigate('/contact-list-manager')}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition text-sm font-medium"
+                  >
+                    Manage Lists
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate(`/compose?listId=${listId}`)}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
+                >
+                  📧 Use in Campaign
+                </button>
+              )}
             </div>
           </div>
           
@@ -372,7 +388,7 @@ export default function ContactListDetail() {
                             </div>
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {contact.goesBy || contact.firstName} {contact.lastName}
+                                {contact.firstName} {contact.lastName}
                               </div>
                               {contact.orgMember && (
                                 <div className="text-xs text-purple-600">Org Member</div>
