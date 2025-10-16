@@ -503,6 +503,7 @@ export default function CampaignCreator() {
                         </div>
                       </div>
                     )}
+                  </div>
                 </div>
               </div>
             </div>
