@@ -59,8 +59,10 @@ export default function OrgMembers() {
       setContacts(members);
       
       // Load events for dropdown
+      console.log('📡 Loading events for org:', orgId);
       const eventsResponse = await api.get(`/events/${orgId}/events`);
       const orgEvents = eventsResponse.data || [];
+      console.log('✅ Events loaded:', orgEvents);
       setEvents(orgEvents);
       
       // Calculate engagement stats (using new value system: 1-4)
@@ -508,6 +510,10 @@ export default function OrgMembers() {
                           }))
                         ]}
                       />
+                      {/* Debug: Show current event assignment */}
+                      <div className="text-xs text-gray-400 mt-1">
+                        Current: {contact.eventId || 'None'} | Events: {events.length}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <div className="flex items-center justify-end gap-2">
