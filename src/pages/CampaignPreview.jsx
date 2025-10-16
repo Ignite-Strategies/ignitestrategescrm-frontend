@@ -283,9 +283,18 @@ export default function CampaignPreview() {
                 <span className="font-medium">Ready to send</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-red-700">
-                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span className="font-medium">Connect Gmail to send</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-red-700">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="font-medium">Connect Gmail to send</span>
+                </div>
+                <button
+                  onClick={handleGmailAuth}
+                  disabled={loading}
+                  className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
+                >
+                  {loading ? "Connecting..." : "🔗 Connect Gmail"}
+                </button>
               </div>
             )}
           </div>
