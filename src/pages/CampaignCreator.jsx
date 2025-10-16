@@ -472,30 +472,23 @@ export default function CampaignCreator() {
                   </button>
                 </div>
               ) : campaignId ? (
-                <div className="space-y-4">
-              {availableLists.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {availableLists.map((list) => (
-                          <button
-                            key={list.id}
-                            onClick={() => handleSelectList(list)}
-                      className="p-4 border rounded-lg text-left hover:bg-gray-50"
-                    >
-                      <h4 className="font-medium text-gray-900">{list.name}</h4>
-                      <p className="text-sm text-gray-600">
-                        {list.type === "smart" ? "🔮 Smart List" : "📋 Custom List"}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No lists available. Create one first!</p>
-              )}
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Select a Contact List
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Choose from your existing lists or create a new one. We'll show you which lists are available and which are in use.
+                  </p>
                   <button
-                onClick={() => navigate("/contact-list-builder")}
-                className="w-full px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+                    onClick={() => navigate("/contact-list-manager")}
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
                   >
-                + Create New List
+                    📋 Manage Contact Lists
                   </button>
                 </div>
           ) : (
