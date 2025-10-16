@@ -54,6 +54,31 @@ export default function ContactListCampaignSelector() {
       alert('Failed to attach list: ' + err.message);
     }
   };
+
+  const handleDeleteList = async (listId) => {
+    if (!confirm('Delete this list? This cannot be undone.')) return;
+    try {
+      await api.delete(`/contact-lists/${listId}`);
+      loadData(); // Reload lists
+    } catch (err) {
+      alert('Failed to delete list: ' + err.message);
+    }
+  };
+
+  const handleDuplicateList = async (list) => {
+    try {
+      await api.post('/contact-lists', {
+        orgId,
+        name: `${list.name} (Copy)`,
+        description: list.description || `Copy of ${list.name}`,
+        type: list.type,
+        smartListType: list.smartListType
+      });
+      loadData(); // Reload lists
+    } catch (err) {
+      alert('Failed to duplicate list: ' + err.message);
+    }
+  };
   
   if (loading) {
     return (
@@ -118,14 +143,44 @@ export default function ContactListCampaignSelector() {
                   {lists.map(list => (
                     <div 
                       key={list.id} 
-                      className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-indigo-400 transition cursor-pointer"
-                      onClick={() => setSelectedList(list)}
+                      className="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-indigo-400 transition"
                     >
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">{list.name}</h3>
                       <p className="text-sm text-gray-600 mb-4">{list.description || 'No description'}</p>
                       
-                      <div className="text-2xl font-bold text-indigo-600">
+                      <div className="text-2xl font-bold text-indigo-600 mb-4">
                         {list.totalContacts || 0} contacts
+                      </div>
+                      
+                      {/* SIMPLE COLORED BUTTONS */}
+                      <div className="flex gap-2 flex-wrap">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedList(list);
+                          }}
+                          className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                        >
+                          Select
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteList(list.id);
+                          }}
+                          className="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDuplicateList(list);
+                          }}
+                          className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+                        >
+                          Duplicate
+                        </button>
                       </div>
                     </div>
                   ))}
