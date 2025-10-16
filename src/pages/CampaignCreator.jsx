@@ -420,7 +420,7 @@ export default function CampaignCreator() {
             {/* 3. Write Message */}
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">3. Write Your Message</h3>
-                
+              
               {/* Gmail Auth Status */}
               {!gmailAuthenticated && (
                 <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between">
@@ -438,72 +438,71 @@ export default function CampaignCreator() {
               )}
               
               <div className="space-y-4">
-                  {/* Subject Line */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
-                    <input
-                      type="text"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      placeholder="Enter email subject"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+                {/* Subject Line */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
+                  <input
+                    type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Enter email subject"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+                
+                {/* Message Body */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">Message Body</label>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => insertVariable('{{firstName}}')}
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
+                      >
+                        + First Name
+                      </button>
+                      <button
+                        onClick={() => insertVariable('{{lastName}}')}
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
+                      >
+                        + Last Name
+                      </button>
+                      <button
+                        onClick={() => insertVariable('{{goesBy}}')}
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
+                      >
+                        + Goes By
+                      </button>
+                      <button
+                        onClick={() => insertVariable('{{email}}')}
+                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
+                      >
+                        + Email
+                      </button>
+                    </div>
                   </div>
+                  <textarea
+                    rows={10}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Hi {{firstName}},&#10;&#10;This is your personalized message..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
+                  />
                   
-                  {/* Message Body */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="block text-sm font-medium text-gray-700">Message Body</label>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => insertVariable('{{firstName}}')}
-                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                        >
-                          + First Name
-                        </button>
-                        <button
-                          onClick={() => insertVariable('{{lastName}}')}
-                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                        >
-                          + Last Name
-                        </button>
-                        <button
-                          onClick={() => insertVariable('{{goesBy}}')}
-                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                        >
-                          + Goes By
-                        </button>
-                        <button
-                          onClick={() => insertVariable('{{email}}')}
-                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
-                        >
-                          + Email
-                        </button>
+                  {/* Live Preview */}
+                  {message && (message.includes('{{firstName}}') || message.includes('{{lastName}}') || message.includes('{{email}}') || message.includes('{{goesBy}}')) && (
+                    <div className="mt-3 p-4 bg-gray-50 rounded-lg border">
+                      <div className="text-sm text-gray-600 font-medium mb-2">👁️ Live Preview (with sample data):</div>
+                      <div className="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border">
+                        {message
+                          .replace(/\{\{firstName\}\}/g, contacts[0]?.firstName || 'John')
+                          .replace(/\{\{lastName\}\}/g, contacts[0]?.lastName || 'Smith')
+                          .replace(/\{\{email\}\}/g, contacts[0]?.email || 'john.smith@example.com')
+                          .replace(/\{\{goesBy\}\}/g, contacts[0]?.goesBy || contacts[0]?.firstName || 'John')
+                        }
                       </div>
                     </div>
-                    <textarea
-                      rows={10}
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Hi {{firstName}},&#10;&#10;This is your personalized message..."
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
-                    />
-                    
-                    {/* Live Preview */}
-                    {message && (message.includes('{{firstName}}') || message.includes('{{lastName}}') || message.includes('{{email}}') || message.includes('{{goesBy}}')) && (
-                      <div className="mt-3 p-4 bg-gray-50 rounded-lg border">
-                        <div className="text-sm text-gray-600 font-medium mb-2">👁️ Live Preview (with sample data):</div>
-                        <div className="text-sm text-gray-800 whitespace-pre-wrap bg-white p-3 rounded border">
-                          {message
-                            .replace(/\{\{firstName\}\}/g, contacts[0]?.firstName || 'John')
-                            .replace(/\{\{lastName\}\}/g, contacts[0]?.lastName || 'Smith')
-                            .replace(/\{\{email\}\}/g, contacts[0]?.email || 'john.smith@example.com')
-                            .replace(/\{\{goesBy\}\}/g, contacts[0]?.goesBy || contacts[0]?.firstName || 'John')
-                          }
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
