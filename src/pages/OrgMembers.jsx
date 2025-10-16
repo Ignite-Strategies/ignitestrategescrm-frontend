@@ -463,6 +463,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.email}
                         field="email"
+                        contactId={contact.contactId}
                         orgMemberId={contact.orgMemberId}
                         type="email"
                         onUpdate={handleFieldUpdate}
@@ -473,6 +474,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.phone}
                         field="phone"
+                        contactId={contact.contactId}
                         orgMemberId={contact.orgMemberId}
                         type="tel"
                         onUpdate={handleFieldUpdate}
