@@ -48,7 +48,6 @@ import CampaignSuccess from "./pages/CampaignSuccess.jsx";
 import Outreach from "./pages/Outreach.jsx";
 import Templates from "./pages/Templates.jsx";
 import SendEmail from "./pages/SendEmail.jsx";
-import CampaignList from "./pages/CampaignList.jsx";
 import EventDashboard from "./pages/EventDashboard.jsx";
 import EventAttendeeList from "./pages/EventAttendeeList.jsx";
 import FormSubmissionView from "./pages/FormSubmissionView.jsx";
@@ -68,7 +67,6 @@ import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
 import PreviewPageTest from "./pages/PreviewPageTest.jsx";
-import CampaignListHydratorHome from "./pages/CampaignListHydratorHome.jsx";
 import Sequence from "./pages/Sequence.jsx";
 
 // Protected Route - Check for firebaseId
@@ -245,16 +243,13 @@ export default function App() {
         <Route path="/preview-test" element={
           <ProtectedRoute><PreviewPageTest /></ProtectedRoute>
         } />
-        <Route path="/campaign-list-hydrator-home" element={
-          <ProtectedRoute><CampaignListHydratorHome /></ProtectedRoute>
-        } />
         <Route path="/sequence" element={
           <ProtectedRoute><Sequence /></ProtectedRoute>
         } />
         
         {/* Campaign System - Legacy routes */}
         <Route path="/campaigns" element={
-          <ProtectedRoute><CampaignList /></ProtectedRoute>
+          <ProtectedRoute><ActiveCampaignDashboard /></ProtectedRoute>
         } />
         <Route path="/campaignhome" element={
           <ProtectedRoute><CampaignHome /></ProtectedRoute>
@@ -264,9 +259,6 @@ export default function App() {
         } />
         <Route path="/campaign-success" element={
           <ProtectedRoute><CampaignSuccess /></ProtectedRoute>
-        } />
-        <Route path="/campaignlist" element={
-          <ProtectedRoute><CampaignList /></ProtectedRoute>
         } />
         <Route path="/outreach" element={
           <ProtectedRoute><Outreach /></ProtectedRoute>
