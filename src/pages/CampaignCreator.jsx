@@ -534,7 +534,7 @@ export default function CampaignCreator() {
                 disabled={!campaignName.trim() || !subject.trim() || !message.trim()}
                 className="px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                👁️‍🗨️ Preview & Send Campaign
+                👁️ Preview Campaign
               </button>
             </div>
           </div>

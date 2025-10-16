@@ -557,16 +557,23 @@ function ListCard({ list, onDelete, onDuplicate, onUse, onUnassign, onView }) {
         
         {/* Stats */}
         <div className="space-y-2 mb-4 text-sm">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600">Contacts:</span>
-            <span className="font-semibold text-gray-900">{list.totalContacts || 0}</span>
-          </div>
           
           {/* Campaign Status (4-state system) */}
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Status:</span>
             <CampaignStatusBadge status={list.campaignStatus} />
           </div>
+          
+          {/* In Use Badge */}
+          {list.campaignStatus?.totalCampaigns > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">In Use:</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                {list.campaignStatus.totalCampaigns} campaign(s)
+              </span>
+            </div>
+          )}
           
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Updated:</span>
