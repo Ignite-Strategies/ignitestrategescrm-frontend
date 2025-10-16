@@ -308,10 +308,11 @@ export default function CampaignCreator() {
       size: file.size
     });
     
-    // Only allow PDFs
-    if (file.type !== 'application/pdf') {
-      console.log('❌ Not a PDF file:', file.type);
-      setError('Please select a PDF file');
+    // Only allow PDFs and JPGs
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      console.log('❌ Not a supported file type:', file.type);
+      setError('Please select a PDF or JPG file');
       return;
     }
     
@@ -334,7 +335,7 @@ export default function CampaignCreator() {
         
         const newAttachment = {
           filename: file.name,
-          contentType: 'application/pdf',
+          contentType: file.type,
           content: base64Content
         };
         
@@ -591,14 +592,14 @@ export default function CampaignCreator() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Attach PDF Files (Flyers, Documents, etc.)
+                Attach Files (PDFs, JPGs, Flyers, Documents, etc.)
               </label>
               
               {/* File Upload */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <input
                   type="file"
-                  accept=".pdf"
+                  accept=".pdf,.jpg,.jpeg"
                   onChange={handleFileUpload}
                   disabled={uploadingFile}
                   className="hidden"
@@ -612,9 +613,9 @@ export default function CampaignCreator() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                   <span className="text-sm text-gray-600">
-                    {uploadingFile ? "Uploading..." : "Click to upload PDF files"}
+                    {uploadingFile ? "Uploading..." : "Click to upload PDF or JPG files"}
                   </span>
-                  <span className="text-xs text-gray-500 mt-1">Max 10MB per file</span>
+                  <span className="text-xs text-gray-500 mt-1">Max 5MB per file</span>
                 </label>
               </div>
               

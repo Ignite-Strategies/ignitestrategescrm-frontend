@@ -132,19 +132,42 @@ export default function ContactListManager() {
   };
   
   const handleUnassignList = async (list) => {
-    if (!list.campaignStatus?.assigned) return;
+    if (!list.campaignStatus) return;
     
-    const campaignNames = list.campaignStatus.draftCampaigns.map(c => c.name).join(', ');
-    if (!confirm(`Unassign "${list.name}" from campaign(s): ${campaignNames}?`)) return;
+    // Get all campaigns using this list (draft + sent + active)
+    const allCampaigns = [
+      ...(list.campaignStatus.draftCampaigns || []),
+      ...(list.campaignStatus.sentCampaigns || []),
+      ...(list.campaignStatus.activeCampaigns || [])
+    ];
+    
+    if (allCampaigns.length === 0) {
+      alert('This list is not assigned to any campaigns.');
+      return;
+    }
+    
+    const campaignNames = allCampaigns.map(c => `${c.name} (${c.status})`).join(', ');
+    const proceed = confirm(
+      `🔄 FREE LIST FROM ALL CAMPAIGNS\n\n` +
+      `"${list.name}" is currently used by:\n${campaignNames}\n\n` +
+      `This will remove the list from ALL campaigns and make it available for new use.\n\n` +
+      `Continue?`
+    );
+    
+    if (!proceed) return;
     
     try {
-      for (const campaign of list.campaignStatus.draftCampaigns) {
+      // Unassign from ALL campaigns (draft, sent, active)
+      for (const campaign of allCampaigns) {
         await api.patch(`/campaigns/${campaign.id}`, {
           contactListId: null
         });
       }
+      
+      alert(`✅ Successfully freed "${list.name}" from ${allCampaigns.length} campaign(s)!`);
       loadData(); // Reload lists
     } catch (err) {
+      console.error('Error unassigning list:', err);
       alert('Failed to unassign list: ' + err.message);
     }
   };
@@ -241,6 +264,30 @@ export default function ContactListManager() {
         }
       } else {
         alert('Failed to use list: ' + err.message);
+      }
+    }
+  };
+
+  const handleResolveConflicts = async (list) => {
+    const conflictNames = list.campaignStatus?.conflictMessage || 'Unknown conflicts';
+    
+    const action = confirm(
+      `⚠️ CONFLICT DETECTED!\n\n` +
+      `"${list.name}" has conflicts:\n${conflictNames}\n\n` +
+      `What would you like to do?\n\n` +
+      `Click OK to proceed anyway (may send duplicates)\n` +
+      `Click Cancel to unassign from draft campaigns`
+    );
+    
+    if (action) {
+      // Proceed anyway - this will trigger the conflict detection in handleUseList
+      await handleUseList(list);
+    } else {
+      // Unassign from draft campaigns only
+      if (list.campaignStatus?.draftCampaigns?.length > 0) {
+        await handleUnassignList(list);
+      } else {
+        alert('No draft campaigns to unassign from. This list is only used in sent campaigns.');
       }
     }
   };
@@ -563,19 +610,19 @@ function ListCard({ list, onDelete, onDuplicate, onUnassign, onView }) {
             </button>
           ) : (
             <button
-              onClick={() => alert(`Resolve conflicts for ${list.name}: ${list.campaignStatus.conflictMessage}`)}
+              onClick={() => handleResolveConflicts(list)}
               className="px-3 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600"
             >
               Resolve Conflicts
             </button>
           )}
           
-          {list.campaignStatus?.assigned && (
+          {list.campaignStatus?.conflictLevel !== 'none' && (
             <button
               onClick={() => onUnassign(list)}
               className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-600"
             >
-              Unassign
+              Free List
             </button>
           )}
         </div>

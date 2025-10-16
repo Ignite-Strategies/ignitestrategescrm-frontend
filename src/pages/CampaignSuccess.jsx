@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import api from "../lib/api";
 
 /**
- * CampaignSuccess - Simple success page
- * Just shows "Congrats bro - here's what sent and what now"
+ * CampaignSuccess - Professional success page
+ * Shows campaign completion details and next steps
  */
 export default function CampaignSuccess() {
   const navigate = useNavigate();
@@ -70,7 +70,7 @@ export default function CampaignSuccess() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 flex items-center justify-center">
       <div className="text-center p-8 bg-white rounded-lg shadow-xl max-w-2xl">
-        <h1 className="text-4xl font-bold text-green-700 mb-4">🎉 Congrats Bro! 🎉</h1>
+        <h1 className="text-4xl font-bold text-green-700 mb-4">🎉 Campaign Sent Successfully! 🎉</h1>
         
         <div className="mb-6">
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">
@@ -109,18 +109,18 @@ export default function CampaignSuccess() {
           >
             📧 View All Campaigns
           </button>
-          <button
+                        <button
             onClick={() => navigate('/contact-list-manager')}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
-          >
+                        >
             📋 Manage Lists
-          </button>
-          <button
+                        </button>
+                        <button
             onClick={() => navigate('/campaign-creator')}
             className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium"
-          >
+                        >
             ➕ Create New Campaign
-          </button>
+                        </button>
         </div>
         
         <p className="text-sm text-gray-500 mt-6">
