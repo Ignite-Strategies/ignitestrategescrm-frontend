@@ -170,8 +170,9 @@ export default function CampaignCreator() {
       const campaign = response.data;
       console.log("✅ Campaign created:", campaign.id);
 
-      // Update URL with campaignId
-      setSearchParams({ campaignId: campaign.id });
+      // Store in localStorage - NO URL PARAMS!
+      localStorage.setItem("currentCampaignId", campaign.id);
+      setCampaignId(campaign.id);
     } catch (err) {
       console.error("❌ Error creating campaign:", err);
       setError(err.response?.data?.error || "Failed to create campaign");
@@ -262,9 +263,9 @@ export default function CampaignCreator() {
       
       console.log('✅ Content saved!');
       
-      // STEP 2: Navigate to TEST PAGE first
-      console.log('🎯 Navigating to TEST page...');
-      navigate(`/preview-test?campaignId=${campaignId}`);
+      // STEP 2: Navigate to TEST PAGE - NO PARAMS!
+      console.log('🎯 Navigating to TEST page (pure URL)...');
+      navigate('/preview-test');
       
     } catch (err) {
       console.error('❌ Save failed:', err);
