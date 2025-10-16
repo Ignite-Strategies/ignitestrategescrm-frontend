@@ -210,10 +210,10 @@ export default function CampaignCreatorV2() {
       });
 
       console.log("✅ Content saved!");
-      console.log("🎯 Navigating to preview with state...");
+      console.log("🎯 Navigating to REAL preview with state...");
 
-      // Navigate with state (NO URL PARAMS!)
-      navigate("/preview-test", { state: { campaignId } });
+      // Navigate to REAL preview with state (NO URL PARAMS!)
+      navigate("/campaign-preview", { state: { campaignId } });
     } catch (err) {
       console.error("Save failed:", err);
       setError(`Failed to save: ${err.response?.data?.error || err.message}`);
