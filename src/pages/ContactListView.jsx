@@ -14,6 +14,7 @@ export default function ContactListView() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedContacts, setSelectedContacts] = useState(new Set());
   
   useEffect(() => {
     loadContacts();
@@ -61,19 +62,43 @@ export default function ContactListView() {
     }
   };
   
+  const handleSelectContact = (contactId) => {
+    const newSelected = new Set(selectedContacts);
+    if (newSelected.has(contactId)) {
+      newSelected.delete(contactId);
+    } else {
+      newSelected.add(contactId);
+    }
+    setSelectedContacts(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    const allIds = contacts.map(c => c.contactId || c.id);
+    setSelectedContacts(new Set(allIds));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedContacts(new Set());
+  };
+
   const handleUseList = async () => {
     try {
       setLoading(true);
+      
+      // Use selected contacts or all contacts if none selected
+      const contactIds = selectedContacts.size > 0 
+        ? Array.from(selectedContacts)
+        : contacts.map(c => c.contactId || c.id);
       
       // Create contact list
       const listData = {
         name: getListName(),
         description: getListDescription(),
         orgId,
-        contactIds: contacts.map(c => c.contactId || c.id)
+        contactIds
       };
       
-      console.log('📝 Creating contact list:', listData.name);
+      console.log('📝 Creating contact list:', listData.name, 'with', contactIds.length, 'contacts');
       const response = await api.post('/contact-lists', listData);
       const listId = response.data.id;
       
@@ -151,14 +176,44 @@ export default function ContactListView() {
               <p className="text-gray-600 mt-2">
                 {contacts.length} contacts • {getListDescription()}
               </p>
+              {selectedContacts.size > 0 && (
+                <p className="text-blue-600 font-medium mt-1">
+                  {selectedContacts.size} selected
+                </p>
+              )}
             </div>
-            <button
-              onClick={() => navigate('/contact-list-builder')}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
-            >
-              ← Back to Builder
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate('/contact-list-builder')}
+                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+              >
+                ← Back to Builder
+              </button>
+            </div>
           </div>
+          
+          {/* Selection Controls */}
+          {contacts.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSelectAll}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={handleDeselectAll}
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-sm"
+                >
+                  Deselect All
+                </button>
+                <span className="text-sm text-gray-600">
+                  {selectedContacts.size} of {contacts.length} selected
+                </span>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Contact List */}

@@ -64,7 +64,6 @@ import AdsDashboard from "./pages/AdsDashboard.jsx";
 import TestEnterpriseEmail from "./pages/TestEnterpriseEmail.jsx";
 import ContactListDebug from "./pages/ContactListDebug.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
-import ContactListView from "./pages/ContactListView.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
