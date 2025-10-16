@@ -13,18 +13,30 @@ export default function Dashboard() {
   const [upcomingEvent, setUpcomingEvent] = useState(null);
 
   useEffect(() => {
+    console.log('🔍 Dashboard useEffect - orgId:', orgId);
     if (orgId) {
+      console.log('✅ Dashboard: orgId found, loading data...');
       loadData();
+    } else {
+      console.log('❌ Dashboard: No orgId found, checking localStorage...');
+      console.log('localStorage orgId:', localStorage.getItem('orgId'));
+      console.log('localStorage org:', localStorage.getItem('org'));
     }
   }, [orgId]);
 
   const loadData = async () => {
     try {
+      console.log('🚀 Dashboard loadData starting with orgId:', orgId);
       const [orgRes, eventsRes, orgMembersRes] = await Promise.all([
         api.get(`/orgs/${orgId}`),
-        api.get(`/orgs/${orgId}/events`),
+        api.get(`/events?orgId=${orgId}`),
         api.get(`/orgmembers?orgId=${orgId}`)
       ]);
+      console.log('📊 Dashboard API responses:', {
+        org: orgRes.data,
+        events: eventsRes.data,
+        orgMembers: orgMembersRes.data
+      });
       setOrg(orgRes.data);
       setEvents(eventsRes.data);
       

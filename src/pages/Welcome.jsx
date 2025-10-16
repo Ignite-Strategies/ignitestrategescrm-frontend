@@ -8,11 +8,40 @@ export default function Welcome() {
   const [orgName, setOrgName] = useState("");
   const [memberName, setMemberName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showLogout, setShowLogout] = useState(false);
 
   useEffect(() => {
     // Don't clear localStorage - it's causing data loss issues
     hydrateOrg();
   }, []);
+
+  const safeLogout = async () => {
+    try {
+      console.log('🚨 NUCLEAR LOGOUT - Clearing everything...');
+      
+      // Clear all local storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear all cookies
+      document.cookie.split(";").forEach((c) => {
+        const eqPos = c.indexOf("=");
+        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      });
+      
+      // Sign out from Firebase
+      await auth.signOut();
+      
+      // Force reload to clear any cached state
+      window.location.href = '/signin';
+    } catch (err) {
+      console.error('Logout error:', err);
+      // Force reload anyway
+      window.location.href = '/signin';
+    }
+  };
 
   const hydrateOrg = async () => {
     try {
@@ -53,8 +82,11 @@ export default function Welcome() {
         console.error('❌ Hydration API failed:', error);
         console.error('❌ Error details:', error.response?.data || error.message);
         console.error('❌ Status:', error.response?.status);
-        alert(`Hydration failed: ${error.response?.data?.error || error.message}. Redirecting to signup...`);
-        setTimeout(() => navigate('/signup'), 3000);
+        
+        // Show error and logout option
+        setError(`Hydration failed: ${error.response?.data?.error || error.message}`);
+        setShowLogout(true);
+        setLoading(false);
         return;
       }
       
@@ -67,8 +99,9 @@ export default function Welcome() {
       if (!adminId) {
         console.log('⚠️ No adminId found in hydration data');
         console.log('⚠️ AdminId:', adminId);
-        alert(`No admin record found for firebaseId ${firebaseId}. Redirecting to signup...`);
-        navigate('/signup');
+        setError(`No admin record found for this account. You may need to sign up first.`);
+        setShowLogout(true);
+        setLoading(false);
         return;
       }
       
