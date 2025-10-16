@@ -107,7 +107,20 @@ export default function Welcome() {
       
       console.log('✅ Admin found! AdminId:', adminId);
       
-      // 2. 🔥 CACHE EVERYTHING TO LOCALSTORAGE (IDs + Full Objects)
+      // 2. Check if user has an org - if not, route to org chooser
+      if (!orgId) {
+        console.log('⚠️ No orgId found - user needs to choose/join org');
+        setError(`Welcome back! We don't see an organization for you. Let's get you set up.`);
+        setShowLogout(false); // Don't show logout, show org chooser
+        setLoading(false);
+        // Route to org chooser after a brief delay
+        setTimeout(() => navigate('/org/choose'), 2000);
+        return;
+      }
+      
+      console.log('✅ User has org! OrgId:', orgId);
+      
+      // 3. 🔥 CACHE EVERYTHING TO LOCALSTORAGE (IDs + Full Objects)
       // IDs (backwards compatibility)
       localStorage.setItem('adminId', adminId);
       if (orgId) {
@@ -169,6 +182,48 @@ export default function Welcome() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if there's an error
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-6">
+        <div className="text-center space-y-8">
+          <div className="flex justify-center mb-8">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-lg rounded-2xl flex items-center justify-center shadow-2xl">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h1 className="text-4xl font-black text-white drop-shadow-2xl">
+              {error.includes('Welcome back') ? 'Welcome Back!' : 'Setup Required'}
+            </h1>
+            <p className="text-xl text-white/90 font-medium drop-shadow-lg">
+              {error}
+            </p>
+            {error.includes('Welcome back') && (
+              <p className="text-lg text-white/80">
+                Redirecting to organization setup...
+              </p>
+            )}
+          </div>
+
+          {showLogout && (
+            <div className="pt-4">
+              <button
+                onClick={safeLogout}
+                className="bg-red-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-2xl hover:bg-red-700 transition transform hover:scale-105"
+              >
+                Clear Auth & Try Different Account
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
