@@ -31,13 +31,13 @@ export default function CampaignPreview() {
   const [selectedContactIndex, setSelectedContactIndex] = useState(0);
   
   useEffect(() => {
-    if (campaignId && listId) {
+    if (campaignId) {
       loadCampaignData();
     } else {
-      setError("Missing campaign or list information");
+      setError("Missing campaign ID");
       setLoading(false);
     }
-  }, [campaignId, listId]);
+  }, [campaignId]);
   
   const loadCampaignData = async () => {
     try {
@@ -196,7 +196,7 @@ export default function CampaignPreview() {
             </div>
             <div className="flex gap-4">
               <button
-                onClick={() => navigate(`/campaign-creator?campaignId=${campaignId}&listId=${listId}`)}
+                onClick={() => navigate(listId ? `/campaign-creator?campaignId=${campaignId}&listId=${listId}` : `/campaign-creator?campaignId=${campaignId}`)}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
               >
                 ← Back to Edit
