@@ -4,9 +4,8 @@ import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 
 /**
- * ContactListManager - SIMPLIFIED VERSION
- * Core actions: Use, Unassign, Delete, View
- * Simple Assigned/Available status
+ * ContactListManager - FINAL VERSION 🎯
+ * Beautiful modal campaign selector + all core actions
  */
 export default function ContactListManager() {
   const navigate = useNavigate();
@@ -24,6 +23,11 @@ export default function ContactListManager() {
   
   // Simple filter states
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Modal states
+  const [showCampaignModal, setShowCampaignModal] = useState(false);
+  const [selectedListForUse, setSelectedListForUse] = useState(null);
+  const [availableCampaigns, setAvailableCampaigns] = useState([]);
   
   useEffect(() => {
     loadData();
@@ -77,12 +81,18 @@ export default function ContactListManager() {
       return;
     }
 
-    try {
-      // Get available draft campaigns
-      const availableCampaigns = campaigns.filter(c => c.status === 'draft' && !c.contactListId);
+    // Get available draft campaigns
+    const available = campaigns.filter(c => c.status === 'draft' && !c.contactListId);
+    
+    if (available.length === 0) {
+      // No draft campaigns - create new one
+      const confirmNew = window.confirm(
+        `No draft campaigns available.\n\nCreate a new campaign for "${list.name}"?`
+      );
       
-      if (availableCampaigns.length === 0) {
-        // Create new campaign
+      if (!confirmNew) return;
+      
+      try {
         const newCampaign = await api.post("/campaigns", {
           orgId,
           name: `${list.name} Campaign`,
@@ -90,49 +100,71 @@ export default function ContactListManager() {
           status: "draft",
         });
         
-        // Assign list to new campaign
         await api.patch(`/campaigns/${newCampaign.data.id}`, {
           contactListId: list.id
         });
         
-        // Navigate to CampaignCreator
         navigate('/campaign-creator', { 
           state: { campaignId: newCampaign.data.id } 
         });
-        return;
+      } catch (err) {
+        console.error("Error creating campaign:", err);
+        alert("Failed to create campaign: " + err.message);
       }
+      return;
+    }
+    
+    // Show modal with available campaigns
+    setSelectedListForUse(list);
+    setAvailableCampaigns(available);
+    setShowCampaignModal(true);
+  };
+
+  const handleSelectCampaign = async (campaign) => {
+    if (!selectedListForUse) return;
+    
+    try {
+      console.log(`🔗 Assigning "${selectedListForUse.name}" to "${campaign.name}"`);
       
-      // Show campaign selector
-      const campaignOptions = availableCampaigns.map(c => `${c.name} (${c.id})`).join('\n');
-      const selectedCampaign = prompt(
-        `Select a campaign for "${list.name}":\n\n${campaignOptions}\n\nEnter campaign name:`
-      );
-      
-      if (!selectedCampaign) return;
-      
-      // Find the selected campaign
-      const campaign = availableCampaigns.find(c => 
-        c.name.toLowerCase() === selectedCampaign.toLowerCase()
-      );
-      
-      if (!campaign) {
-        alert("Campaign not found!");
-        return;
-      }
-      
-      // Assign list to campaign
       await api.patch(`/campaigns/${campaign.id}`, {
-        contactListId: list.id
+        contactListId: selectedListForUse.id
       });
       
-      // Navigate to CampaignCreator
+      setShowCampaignModal(false);
       navigate('/campaign-creator', { 
         state: { campaignId: campaign.id } 
       });
-      
     } catch (err) {
-      console.error("Error using list:", err);
-      alert("Failed to use list: " + err.message);
+      console.error("Error assigning list:", err);
+      alert("Failed to assign list: " + err.message);
+    }
+  };
+
+  const handleCreateNewCampaign = async () => {
+    if (!selectedListForUse) return;
+    
+    const campaignName = prompt(`Enter name for new campaign:`);
+    if (!campaignName) return;
+    
+    try {
+      const newCampaign = await api.post("/campaigns", {
+        orgId,
+        name: campaignName,
+        description: `Campaign for ${selectedListForUse.name}`,
+        status: "draft",
+      });
+      
+      await api.patch(`/campaigns/${newCampaign.data.id}`, {
+        contactListId: selectedListForUse.id
+      });
+      
+      setShowCampaignModal(false);
+      navigate('/campaign-creator', { 
+        state: { campaignId: newCampaign.data.id } 
+      });
+    } catch (err) {
+      console.error("Error creating campaign:", err);
+      alert("Failed to create campaign: " + err.message);
     }
   };
 
@@ -219,8 +251,8 @@ export default function ContactListManager() {
               </button>
             </div>
           )}
-          <h1 className="text-3xl font-bold text-gray-900">Contact Lists - SIMPLIFIED</h1>
-          <p className="text-gray-600 mt-1">Simple list management with core actions</p>
+          <h1 className="text-3xl font-bold text-gray-900">Contact Lists</h1>
+          <p className="text-gray-600 mt-1">Manage and organize your contact segments</p>
         </div>
 
         {error && (
@@ -327,6 +359,65 @@ export default function ContactListManager() {
           </div>
         )}
       </div>
+
+      {/* CAMPAIGN SELECTOR MODAL 🎯 */}
+      {showCampaignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6">
+              <h2 className="text-2xl font-bold">Select Campaign</h2>
+              <p className="text-indigo-100 text-sm mt-1">
+                Choose a campaign for "{selectedListForUse?.name}"
+              </p>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 max-h-96 overflow-y-auto">
+              <div className="space-y-3">
+                {availableCampaigns.map((campaign) => (
+                  <button
+                    key={campaign.id}
+                    onClick={() => handleSelectCampaign(campaign)}
+                    className="w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition group"
+                  >
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-700">
+                      {campaign.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {campaign.description || 'No description'}
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                        Draft
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        ID: {campaign.id.slice(0, 8)}...
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="border-t border-gray-200 p-4 bg-gray-50 flex gap-3">
+              <button
+                onClick={() => setShowCampaignModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateNewCampaign}
+                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              >
+                + Create New Campaign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
