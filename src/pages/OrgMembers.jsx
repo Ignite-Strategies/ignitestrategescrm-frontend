@@ -261,7 +261,7 @@ export default function OrgMembers() {
               Your organization's master contact list ({contacts.length} org members)
             </p>
           </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 flex-wrap">
                     {selectedContacts.size > 0 && (
                       <>
                         <button
@@ -315,7 +315,7 @@ export default function OrgMembers() {
                       onClick={() => navigate("/contacts")}
                       className="bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-200 transition"
                     >
-                      Contact Home
+                      Contacts
                     </button>
                   </div>
         </div>
