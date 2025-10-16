@@ -381,26 +381,20 @@ export default function CampaignHome() {
             </div>
           </div>
 
-          {/* Current Campaigns */}
+          {/* Draft Campaigns */}
           <div className="border-t pt-8 mt-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Current Campaigns</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">📝 Draft Campaigns</h3>
             
-            {campaigns.length === 0 ? (
+            {campaigns.filter(c => c.status === 'draft').length === 0 ? (
               <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <p className="text-gray-500">No active campaigns</p>
+                <p className="text-gray-500">No draft campaigns</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {campaigns.slice(0, 6).map((campaign) => (
+                {campaigns.filter(c => c.status === 'draft').map((campaign) => (
                   <div
                     key={campaign.id}
                     onClick={() => {
-                      // If campaign is sent, go to dashboard to view results
-                      if (campaign.status === 'sent') {
-                        navigate('/campaign-dashboard');
-                        return;
-                      }
-                      
                       // For draft campaigns, resume editing (NO PARAMS!)
                       navigate('/campaign-creator', { 
                         state: { campaignId: campaign.id } 
@@ -444,6 +438,58 @@ export default function CampaignHome() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       Created: {new Date(campaign.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sent Campaigns */}
+          <div className="border-t pt-8 mt-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">📤 Sent Campaigns</h3>
+            
+            {campaigns.filter(c => c.status === 'sent').length === 0 ? (
+              <div className="text-center py-8 bg-gray-50 rounded-lg">
+                <p className="text-gray-500">No sent campaigns yet</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {campaigns.filter(c => c.status === 'sent').map((campaign) => (
+                  <div
+                    key={campaign.id}
+                    onClick={() => {
+                      // For sent campaigns, show results/analytics
+                      navigate('/campaign-dashboard', { 
+                        state: { campaignId: campaign.id } 
+                      });
+                    }}
+                    className="bg-white border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-md transition cursor-pointer relative"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <h4 className="text-lg font-semibold text-gray-900 truncate">{campaign.name}</h4>
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                        {campaign.status}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        {campaign.contactList?.name || 'No list'} ({campaign.contactList?.contactCount || 0} contacts)
+                      </div>
+                      <div className="flex items-center">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Sent: {new Date(campaign.updatedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 text-xs text-gray-500">
+                      Click to view results & analytics
                     </div>
                   </div>
                 ))}
