@@ -47,21 +47,36 @@ export default function Welcome() {
     try {
       console.log('🚀 UNIVERSAL HYDRATOR STARTING...');
       
-      // Get Firebase user with retry mechanism
+      // Get Firebase user with retry mechanism AND TIMEOUT
       let firebaseUser = auth.currentUser;
       if (!firebaseUser) {
         console.log('⚠️ No Firebase user immediately, waiting for auth state...');
         
+        let authResolved = false;
+        
+        // TIMEOUT: If auth doesn't resolve in 5 seconds, bail out
+        const timeout = setTimeout(() => {
+          if (!authResolved) {
+            console.log('⏰ Auth timeout! Redirecting to signin...');
+            navigate('/signin');
+          }
+        }, 5000);
+        
         // Wait for auth state to initialize
         const unsubscribe = auth.onAuthStateChanged((user) => {
+          if (authResolved) return; // Already handled
+          
+          authResolved = true;
+          clearTimeout(timeout);
+          
           if (user) {
             console.log('✅ Firebase user found after wait:', user.uid);
             unsubscribe(); // Stop listening
             hydrateOrg(); // Retry hydration
           } else {
-            console.log('❌ Still no Firebase user after wait, go to signup');
+            console.log('❌ Still no Firebase user after wait, go to signin');
             unsubscribe(); // Stop listening
-            setTimeout(() => navigate('/signup'), 2000);
+            navigate('/signin');
           }
         });
         
