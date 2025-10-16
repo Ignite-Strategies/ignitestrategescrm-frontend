@@ -41,19 +41,12 @@ export default function Signin() {
         console.log("✅ Existing user with org → Welcome");
         navigate("/welcome");
       } else {
-        console.log("✅ New user without org → Auto-assign to F3 Capital");
-        // Auto-assign to F3 Capital org (you can change this)
-        try {
-          await api.patch(`/orgmembers/${orgMember.id}`, {
-            orgId: "cmgfvz9v10000nt284k875eoc" // F3 Capital org ID
-          });
-          console.log("✅ Auto-assigned to F3 Capital");
-          navigate("/welcome");
-        } catch (assignError) {
-          console.error("❌ Auto-assign failed:", assignError);
-          // Fallback to signup
-          navigate("/signup");
-        }
+        console.log("✅ New user without org → FLUSH OUT");
+        // Clear the incomplete user data
+        localStorage.clear();
+        alert("New user detected but incomplete setup. Please sign in again to start fresh.");
+        // Force reload to clear any cached state
+        window.location.reload();
       }
       
     } catch (error) {
