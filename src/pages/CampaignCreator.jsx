@@ -34,7 +34,7 @@ export default function CampaignCreator() {
     if (stateCampaignId) {
       console.log("📦 Received campaignId from state:", stateCampaignId);
       setCampaignId(stateCampaignId);
-      loadInitialData();
+      // Don't call loadInitialData here - let the campaignId useEffect handle it
       return;
     }
     
@@ -44,16 +44,21 @@ export default function CampaignCreator() {
       console.log("🧹 Found param, grabbing and cleaning URL...");
       setCampaignId(paramCampaignId);
       setSearchParams({}); // CLEAR THE URL!
+      // Don't call loadInitialData here - let the campaignId useEffect handle it
+      return;
     }
     
+    // Only load initial data if no campaignId (new campaign flow)
     loadInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load campaign data when campaignId changes
+  // Load campaign data when campaignId is set
   useEffect(() => {
     if (campaignId) {
-      loadCampaignData();
+      console.log("🔄 campaignId changed, loading data...");
+      loadInitialData(); // Load lists first
+      loadCampaignData(); // Then load campaign
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [campaignId]);
