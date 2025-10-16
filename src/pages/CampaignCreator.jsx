@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 import { signInWithGoogle, getGmailAccessToken, isGmailAuthenticated } from "../lib/googleAuth";
 
 /**
  * CampaignCreator - Clean 3-Step Flow with Preview
+ * NO URL PARAMS! Everything in localStorage and hydrated from backend
  * 1. Name → 2. Pick List → 3. Write Message → Preview & Send
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const orgId = getOrgId();
 
-  // Get params from URL - ONLY campaignId, everything else hydrates!
-  const campaignId = searchParams.get("campaignId");
+  // Get campaignId from localStorage - NO URL PARAMS!
+  const [campaignId, setCampaignId] = useState(localStorage.getItem("currentCampaignId"));
 
   // Campaign data
   const [campaignName, setCampaignName] = useState("");
@@ -33,12 +33,12 @@ export default function CampaignCreator() {
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
 
-  // Load data on mount or when params change
+  // Load data on mount - NO PARAMS!
   useEffect(() => {
-    console.log("🎯 CampaignCreator loaded with campaignId:", campaignId);
+    console.log("🎯 CampaignCreator loaded (no params!)");
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [campaignId]);
+  }, []);
 
   const loadData = async () => {
     try {
@@ -93,7 +93,8 @@ export default function CampaignCreator() {
       console.error("Error loading campaign:", err);
       if (err.response?.status === 404) {
         // Campaign deleted, start fresh
-        setSearchParams({});
+        localStorage.removeItem("currentCampaignId");
+        setCampaignId(null);
         setError("");
       }
     }
