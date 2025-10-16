@@ -6,6 +6,8 @@ import { getOrgId } from "../lib/org";
 export default function AdminMaker() {
   const navigate = useNavigate();
   const orgId = getOrgId();
+  
+  console.log('🔧 AdminMaker loaded - VERCEL TEST');
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
