@@ -238,29 +238,31 @@ export default function CampaignCreator() {
   };
 
   const handlePreview = async () => {
+    if (!campaignId) {
+      setError("Please create your campaign first (Step 1)");
+      return;
+    }
+    
     try {
-      // If no campaign yet, create it first
-      if (!campaignId) {
-        if (!campaignName.trim()) {
-          setError("Please enter a campaign name first");
-          return;
-        }
-        await handleCreateCampaign();
-        // Wait for campaign to be created, then save and navigate
-        setTimeout(async () => {
-          const newCampaignId = new URLSearchParams(window.location.search).get("campaignId");
-          if (newCampaignId) {
-            await api.patch(`/campaigns/${newCampaignId}`, { subject, body: message });
-            navigate(`/campaign-preview?campaignId=${newCampaignId}`);
-          }
-        }, 500);
-        return;
-      }
-
-      await saveCampaignContent();
+      setLoading(true);
+      console.log('💾 Saving campaign content...');
+      
+      // Save subject and message to campaign
+      await api.patch(`/campaigns/${campaignId}`, {
+        subject,
+        body: message
+      });
+      
+      console.log('✅ Campaign content saved successfully!');
+      console.log('🎯 Navigating to preview with campaignId:', campaignId);
+      
+      // Navigate ONLY after successful save
       navigate(`/campaign-preview?campaignId=${campaignId}`);
+      
     } catch (err) {
-      setError("Failed to save campaign content");
+      console.error('❌ Error saving campaign:', err);
+      setError(`Failed to save campaign: ${err.response?.data?.error || err.message}`);
+      setLoading(false);
     }
   };
 
