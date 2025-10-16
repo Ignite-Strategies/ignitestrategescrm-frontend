@@ -416,25 +416,25 @@ export default function CampaignCreator() {
             
             {/* 3. Write Message */}
             <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">3. Write Your Message</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">3. Write Your Message</h3>
                 
-                {/* Gmail Auth Status */}
-                {!gmailAuthenticated && (
-                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between">
-                    <div>
-                      <p className="text-yellow-800 font-medium">Gmail authentication required to send</p>
-                      <p className="text-sm text-yellow-600">Authenticate with your Gmail account</p>
-                    </div>
-                    <button
-                      onClick={handleGmailAuth}
-                      className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
-                    >
-                      Connect Gmail
-                    </button>
+              {/* Gmail Auth Status */}
+              {!gmailAuthenticated && (
+                <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center justify-between">
+                  <div>
+                    <p className="text-yellow-800 font-medium">Gmail authentication required to send</p>
+                    <p className="text-sm text-yellow-600">Authenticate with your Gmail account</p>
                   </div>
-                )}
-                
-                <div className="space-y-4">
+                  <button
+                    onClick={handleGmailAuth}
+                    className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
+                  >
+                    Connect Gmail
+                  </button>
+                </div>
+              )}
+              
+              <div className="space-y-4">
                   {/* Subject Line */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
@@ -500,10 +500,9 @@ export default function CampaignCreator() {
                         </div>
                       </div>
                     )}
-                  </div>
                 </div>
               </div>
-            )}
+            </div>
             
             {/* Preview Button */}
             {campaignId && listId && subject && message && (
