@@ -67,6 +67,7 @@ import ContactListView from "./pages/ContactListView.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
+import PreviewPageTest from "./pages/PreviewPageTest.jsx";
 import CampaignListHydratorHome from "./pages/CampaignListHydratorHome.jsx";
 import Sequence from "./pages/Sequence.jsx";
 
@@ -240,6 +241,9 @@ export default function App() {
         } />
         <Route path="/campaign-preview" element={
           <ProtectedRoute><CampaignPreview /></ProtectedRoute>
+        } />
+        <Route path="/preview-test" element={
+          <ProtectedRoute><PreviewPageTest /></ProtectedRoute>
         } />
         <Route path="/campaign-list-hydrator-home" element={
           <ProtectedRoute><CampaignListHydratorHome /></ProtectedRoute>

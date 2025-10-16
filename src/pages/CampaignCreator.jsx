@@ -247,17 +247,17 @@ export default function CampaignCreator() {
       setLoading(true);
       console.log('💾 Saving campaign content...');
       
-      // STEP 1: Save
+      // STEP 1: Save (no params, just save)
       await api.patch(`/campaigns/${campaignId}`, {
-        subject,
+        subject: subject,
         body: message
       });
       
       console.log('✅ Content saved!');
       
-      // STEP 2: Navigate (preview will rehydrate from backend)
-      console.log('🎯 Navigating to preview...');
-      navigate(`/campaign-preview?campaignId=${campaignId}`);
+      // STEP 2: Navigate to TEST PAGE first
+      console.log('🎯 Navigating to TEST page...');
+      navigate(`/preview-test?campaignId=${campaignId}`);
       
     } catch (err) {
       console.error('❌ Save failed:', err);
