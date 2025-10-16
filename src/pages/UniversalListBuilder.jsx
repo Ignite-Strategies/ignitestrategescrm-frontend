@@ -3,6 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { getOrgId } from '../lib/org';
 
+const AUDIENCE_OPTIONS = [
+  { value: 'org_members', label: 'Org Members' },
+  { value: 'prospects', label: 'Prospects' },
+  { value: 'donors', label: 'Donors' },
+  { value: 'vip', label: 'VIP' }
+];
+
+const STAGE_OPTIONS = [
+  { value: 'aware', label: 'Aware' },
+  { value: 'invited', label: 'Invited' },
+  { value: 'rsvped', label: 'RSVP\'d' },
+  { value: 'paid', label: 'Paid' },
+  { value: 'attended', label: 'Attended' }
+];
+
 export default function UniversalListBuilder() {
   const navigate = useNavigate();
   const orgId = getOrgId();
@@ -10,56 +25,44 @@ export default function UniversalListBuilder() {
   const [listName, setListName] = useState('');
   const [filters, setFilters] = useState({
     eventId: '',
-    pipelineId: '',
     audienceType: '',
     currentStage: '',
-    isOrgMember: '',
     engagementValue: '',
-    chapterResponsibleFor: '',
-    tags: []
+    chapterResponsibleFor: ''
   });
   
   const [preview, setPreview] = useState([]);
-  const [previewCount, setPreviewCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  
   const [events, setEvents] = useState([]);
-  const [pipelines, setPipelines] = useState([]);
 
   useEffect(() => {
-    loadOptions();
+    loadEvents();
   }, []);
 
-  const loadOptions = async () => {
+  const loadEvents = async () => {
     try {
-      const eventsRes = await api.get(`/events?orgId=${orgId}`);
-      setEvents(eventsRes.data.events || []);
-      
-      // TODO: Load pipelines when ready
-      // const pipelinesRes = await api.get(`/pipelines?orgId=${orgId}`);
-      // setPipelines(pipelinesRes.data.pipelines || []);
+      const response = await api.get('/events', { params: { orgId } });
+      setEvents(response.data.events || response.data || []);
     } catch (error) {
-      console.error('Error loading options:', error);
+      console.error('Error loading events:', error);
     }
   };
 
   const handlePreview = async () => {
     setLoading(true);
     try {
-      // Build query params
-      const params = { orgId: filters.orgId || orgId };
+      const params = { orgId };
       if (filters.eventId) params.eventId = filters.eventId;
-      if (filters.pipelineId) params.pipelineId = filters.pipelineId;
       if (filters.audienceType) params.audienceType = filters.audienceType;
       if (filters.currentStage) params.currentStage = filters.currentStage;
-      if (filters.isOrgMember) params.isOrgMember = filters.isOrgMember;
       if (filters.engagementValue) params.engagementValue = filters.engagementValue;
       if (filters.chapterResponsibleFor) params.chapterResponsibleFor = filters.chapterResponsibleFor;
 
-      const response = await api.get('/contacts', { params });
+      const response = await api.get('/lists/preview', { params });
       
-      setPreview(response.data.contacts.slice(0, 10)); // Preview first 10
-      setPreviewCount(response.data.count);
+      setPreview(response.data.contacts);
+      setTotalCount(response.data.totalCount);
     } catch (error) {
       alert('Error previewing: ' + error.message);
     } finally {
@@ -75,23 +78,20 @@ export default function UniversalListBuilder() {
 
     setLoading(true);
     try {
-      const response = await api.post('/lists/create-from-query', {
+      const response = await api.post('/lists/create', {
         name: listName,
-        description: `${previewCount} contacts`,
+        description: `${totalCount} contacts`,
         orgId,
-        queryFilters: {
-          orgId: filters.orgId || orgId,
+        filters: {
           eventId: filters.eventId || undefined,
-          pipelineId: filters.pipelineId || undefined,
           audienceType: filters.audienceType || undefined,
           currentStage: filters.currentStage || undefined,
-          isOrgMember: filters.isOrgMember ? filters.isOrgMember === 'true' : undefined,
           engagementValue: filters.engagementValue ? parseInt(filters.engagementValue) : undefined,
           chapterResponsibleFor: filters.chapterResponsibleFor || undefined
         }
       });
 
-      alert(`✅ Created list "${listName}" with ${previewCount} contacts!`);
+      alert(`✅ Created list "${listName}" with ${totalCount} contacts!`);
       navigate('/contact-list-manager');
     } catch (error) {
       alert('Error creating list: ' + error.message);
@@ -132,11 +132,10 @@ export default function UniversalListBuilder() {
                 onChange={(e) => setFilters({...filters, audienceType: e.target.value})}
                 className="w-full border rounded-lg px-3 py-2"
               >
-                <option value="">All</option>
-                <option value="org_members">Org Members</option>
-                <option value="prospects">Prospects</option>
-                <option value="donors">Donors</option>
-                <option value="vip">VIP</option>
+                <option value="">All Audiences</option>
+                {AUDIENCE_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
 
@@ -147,25 +146,10 @@ export default function UniversalListBuilder() {
                 onChange={(e) => setFilters({...filters, currentStage: e.target.value})}
                 className="w-full border rounded-lg px-3 py-2"
               >
-                <option value="">All</option>
-                <option value="aware">Aware</option>
-                <option value="invited">Invited</option>
-                <option value="rsvped">RSVP'd</option>
-                <option value="paid">Paid</option>
-                <option value="attended">Attended</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Org Member</label>
-              <select
-                value={filters.isOrgMember}
-                onChange={(e) => setFilters({...filters, isOrgMember: e.target.value})}
-                className="w-full border rounded-lg px-3 py-2"
-              >
-                <option value="">All</option>
-                <option value="true">Yes</option>
-                <option value="false">No</option>
+                <option value="">All Stages</option>
+                {STAGE_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
 
