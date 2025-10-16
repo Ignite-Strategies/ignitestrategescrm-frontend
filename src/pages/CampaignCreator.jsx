@@ -60,6 +60,8 @@ export default function CampaignCreator() {
   useEffect(() => {
     if (campaignId) {
       console.log("🔄 campaignId changed, loading data...");
+      setError(""); // CLEAR ANY PREVIOUS ERRORS!
+      setLoading(true); // Show loading state
       loadInitialData(); // Load lists first
       loadCampaignData(); // Then load campaign
     }
