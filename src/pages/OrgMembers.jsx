@@ -56,10 +56,11 @@ export default function OrgMembers() {
       const members = response.data.members || response.data || [];
       setContacts(members);
       
-      // Load events for dropdown
-      const eventsResponse = await api.get(`/events/${orgId}/events`);
-      const orgEvents = eventsResponse.data || [];
-      setEvents(orgEvents);
+      // 🔥 ONE HYDRATION RULE: Events come from localStorage (set on Welcome page)
+      const cachedEvent = JSON.parse(localStorage.getItem('event') || 'null');
+      if (cachedEvent) {
+        setEvents([cachedEvent]);
+      }
       
       // Calculate engagement stats (using new value system: 1-4)
       const stats = {
@@ -507,20 +508,12 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <EditableFieldComponent
-                        value={contact.eventId}
-                        field="eventId"
-                        contactId={contact.contactId}
-                        type="select"
-                        onUpdate={loadContacts}
-                        options={[
-                          { value: '', label: 'None' },
-                          ...events.map(event => ({
-                            value: event.id,
-                            label: event.name
-                          }))
-                        ]}
-                      />
+                      {/* 🔥 HARDCODED: Bros & Brews (from backend upcomingEventNames) */}
+                      <span className="text-gray-900 font-medium">
+                        {contact.upcomingEventNames && contact.upcomingEventNames.length > 0 
+                          ? contact.upcomingEventNames.join(', ')
+                          : 'Bros & Brews'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                       <div className="flex items-center justify-end gap-2">
