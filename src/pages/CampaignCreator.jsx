@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
 import { signInWithGoogle, getGmailAccessToken, isGmailAuthenticated } from "../lib/googleAuth";
 
 /**
  * CampaignCreator - Clean 3-Step Flow with Preview
- * NO URL PARAMS! NO LOCALSTORAGE! Just React state + navigation state
+ * Accepts params from other pages BUT immediately cleans URL
  * 1. Name → 2. Pick List → 3. Write Message → Preview & Send
  */
 export default function CampaignCreator() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const orgId = getOrgId();
 
-  // Pure state - user picks/creates campaign, we hold it here
+  // Pure state - grab from URL if exists, then clear URL
   const [campaignId, setCampaignId] = useState(null);
 
   // Campaign data
@@ -33,9 +34,14 @@ export default function CampaignCreator() {
   const [gmailAuthenticated, setGmailAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
 
-  // Load data on mount - NO PARAMS!
+  // On mount: grab param, store in state, CLEAR URL
   useEffect(() => {
-    console.log("🎯 CampaignCreator loaded (no params!)");
+    const paramCampaignId = searchParams.get("campaignId");
+    if (paramCampaignId) {
+      console.log("🧹 Found param, grabbing and cleaning URL...");
+      setCampaignId(paramCampaignId);
+      setSearchParams({}); // CLEAR THE URL!
+    }
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -310,7 +316,7 @@ export default function CampaignCreator() {
                   </div>
                   <button
                     onClick={() => {
-                      setSearchParams({});
+                      setCampaignId(null);
                       setCampaignName("");
                       setCampaignDescription("");
                       setContactList(null);
