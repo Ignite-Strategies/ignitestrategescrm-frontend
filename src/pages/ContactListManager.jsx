@@ -480,7 +480,7 @@ function CampaignStatusBadge({ status }) {
 /**
  * Individual List Card Component
  */
-function ListCard({ list, onDelete, onDuplicate, onUse, onView }) {
+function ListCard({ list, onDelete, onDuplicate, onUse, onUnassign, onView }) {
   const [showActions, setShowActions] = useState(false);
   
   const getTypeColor = (type) => {

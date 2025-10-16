@@ -20,6 +20,7 @@ export default function ContactListView() {
   const [contacts, setContacts] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState(new Set());
   const [listName, setListName] = useState("All Org Members");
+  const [listDescription, setListDescription] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   
   useEffect(() => {
@@ -125,7 +126,7 @@ export default function ContactListView() {
       const response = await api.post("/contact-lists/from-selection", {
         orgId,
         name: listName.trim(),
-        description: "Selected org members",
+        description: listDescription.trim() || `Custom list with ${selectedContactIds.length} contacts`,
         selectedContactIds
       });
       
@@ -187,18 +188,34 @@ export default function ContactListView() {
             </div>
           )}
           
-          {/* List Name Input */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              List Name *
-            </label>
-            <input
-              type="text"
-              value={listName}
-              onChange={(e) => setListName(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter list name..."
-            />
+          {/* List Name & Description Input */}
+          <div className="mb-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                List Name *
+              </label>
+              <input
+                type="text"
+                value={listName}
+                onChange={(e) => setListName(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="e.g. 'High Value Donors 2024' or 'VIP Members'"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Description (Optional)
+              </label>
+              <input
+                type="text"
+                value={listDescription}
+                onChange={(e) => setListDescription(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="e.g. 'Members who donated $500+ in 2024' - helps you remember what this list is for"
+              />
+              <p className="text-xs text-gray-500 mt-1">💡 No more "what is Test 1?" - describe it here!</p>
+            </div>
           </div>
           
           {/* Stats */}

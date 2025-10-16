@@ -102,6 +102,14 @@ export default function ContactListBuilder() {
   
   
   const handleUseList = async (listType, listData) => {
+    // Prompt for optional description
+    const description = prompt(
+      `📝 Add a description for "${listData.name}" (optional)\n\nExample: "Main subscriber list for monthly newsletters"\n\nThis helps you remember what this list is for later!`
+    );
+    
+    // User cancelled
+    if (description === null) return;
+    
     setLoading(true);
     setError("");
     
@@ -114,7 +122,7 @@ export default function ContactListBuilder() {
           response = await api.post("/contact-lists", {
             orgId,
             name: "All Org Members",
-            description: "All organization members",
+            description: description?.trim() || "All organization members",
             type: "smart",
             smartListType: "all_org_members",
             contactCount: orgMembers.length
@@ -125,7 +133,7 @@ export default function ContactListBuilder() {
           response = await api.post("/contact-lists", {
             orgId,
             name: "All Event Attendees",
-            description: "All contacts from all event pipelines",
+            description: description?.trim() || "All contacts from all event pipelines",
             type: "smart", 
             smartListType: "all_event_attendees",
             contactCount: allAttendees.length
@@ -136,7 +144,7 @@ export default function ContactListBuilder() {
           response = await api.post("/contact-lists", {
             orgId,
             name: "Paid Event Attendees", 
-            description: "All contacts who have paid across all events",
+            description: description?.trim() || "All contacts who have paid across all events",
             type: "smart",
             smartListType: "paid_event_attendees", 
             contactCount: paidAttendees.length

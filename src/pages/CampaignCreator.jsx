@@ -19,6 +19,7 @@ export default function CampaignCreator() {
 
   // Campaign data
   const [campaignName, setCampaignName] = useState("");
+  const [campaignDescription, setCampaignDescription] = useState("");
   const [contactList, setContactList] = useState(null);
   const [contacts, setContacts] = useState([]);
   const [availableLists, setAvailableLists] = useState([]);
@@ -80,6 +81,7 @@ export default function CampaignCreator() {
       const campaign = response.data;
 
       setCampaignName(campaign.name);
+      if (campaign.description) setCampaignDescription(campaign.description);
       if (campaign.subject) setSubject(campaign.subject);
       if (campaign.body) setMessage(campaign.body);
 
@@ -155,7 +157,7 @@ export default function CampaignCreator() {
       const response = await api.post("/campaigns", {
         orgId,
         name: campaignName.trim(),
-        description: `Campaign created ${new Date().toLocaleDateString()}`,
+        description: campaignDescription.trim() || `Campaign created ${new Date().toLocaleDateString()}`,
         status: "draft",
       });
 
@@ -302,6 +304,7 @@ export default function CampaignCreator() {
                     onClick={() => {
                       setSearchParams({});
                       setCampaignName("");
+                      setCampaignDescription("");
                       setContactList(null);
                       setContacts([]);
                       setSubject("");
@@ -313,23 +316,30 @@ export default function CampaignCreator() {
                   </button>
                 </div>
               ) : (
-                <div className="flex gap-3">
+                <div className="space-y-3">
                   <input
                     type="text"
                     value={campaignName}
                     onChange={(e) => setCampaignName(e.target.value)}
                     placeholder="Enter campaign name (e.g. 'Q4 Newsletter')"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && campaignName.trim()) {
                         handleCreateCampaign();
                       }
                     }}
                   />
+                  <input
+                    type="text"
+                    value={campaignDescription}
+                    onChange={(e) => setCampaignDescription(e.target.value)}
+                    placeholder="Description (optional) - e.g. 'Monthly update for Q4 donors'"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
                   <button
                     onClick={handleCreateCampaign}
                     disabled={loading || !campaignName.trim()}
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? "Creating..." : "Create Campaign"}
                   </button>
