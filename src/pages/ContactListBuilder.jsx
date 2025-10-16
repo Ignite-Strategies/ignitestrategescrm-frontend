@@ -23,6 +23,7 @@ export default function ContactListBuilder() {
   const orgId = getOrgId();
   
   const [listName, setListName] = useState('');
+  const [adventureChoice, setAdventureChoice] = useState(''); // 'all', 'event', 'org'
   const [filters, setFilters] = useState({
     eventId: '',
     audienceType: '',
@@ -35,17 +36,28 @@ export default function ContactListBuilder() {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState([]);
+  const [orgs, setOrgs] = useState([]);
 
   useEffect(() => {
     loadEvents();
+    loadOrgs();
   }, []);
 
   const loadEvents = async () => {
     try {
-      const response = await api.get('/events', { params: { orgId } });
-      setEvents(response.data.events || response.data || []);
+      const response = await api.get(`/events/${orgId}/events`);
+      setEvents(response.data || []);
     } catch (error) {
       console.error('Error loading events:', error);
+    }
+  };
+
+  const loadOrgs = async () => {
+    try {
+      const response = await api.get('/orgs/first');
+      setOrgs(response.data ? [response.data] : []);
+    } catch (error) {
+      console.error('Error loading orgs:', error);
     }
   };
 
@@ -53,11 +65,16 @@ export default function ContactListBuilder() {
     setLoading(true);
     try {
       const params = { orgId };
-      if (filters.eventId) params.eventId = filters.eventId;
-      if (filters.audienceType) params.audienceType = filters.audienceType;
-      if (filters.currentStage) params.currentStage = filters.currentStage;
-      if (filters.engagementValue) params.engagementValue = filters.engagementValue;
-      if (filters.chapterResponsibleFor) params.chapterResponsibleFor = filters.chapterResponsibleFor;
+      
+      // Add filters based on adventure choice
+      if (adventureChoice === 'event') {
+        if (filters.eventId) params.eventId = filters.eventId;
+        if (filters.audienceType) params.audienceType = filters.audienceType;
+        if (filters.currentStage) params.currentStage = filters.currentStage;
+      } else if (adventureChoice === 'org') {
+        if (filters.chapterResponsibleFor) params.chapterResponsibleFor = filters.chapterResponsibleFor;
+      }
+      // For 'all' - just use orgId (shows all contacts in org)
 
       const response = await api.get('/lists/preview', { params });
       
@@ -80,7 +97,7 @@ export default function ContactListBuilder() {
     try {
       const response = await api.post('/lists/create', {
         name: listName,
-        description: `${totalCount} contacts`,
+        description: `${totalCount} contacts (${adventureChoice})`,
         orgId,
         filters: {
           eventId: filters.eventId || undefined,
@@ -114,83 +131,129 @@ export default function ContactListBuilder() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Filters */}
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Filters</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">🎯 Choose Your Adventure</h2>
 
+            {/* Adventure Choice */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Event</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">What do you want to target?</label>
               <select
-                value={filters.eventId}
-                onChange={(e) => setFilters({...filters, eventId: e.target.value})}
+                value={adventureChoice}
+                onChange={(e) => {
+                  setAdventureChoice(e.target.value);
+                  // Reset filters when changing adventure
+                  setFilters({
+                    eventId: '',
+                    audienceType: '',
+                    currentStage: '',
+                    engagementValue: '',
+                    chapterResponsibleFor: ''
+                  });
+                  setPreview([]);
+                  setTotalCount(0);
+                }}
                 className="w-full border rounded-lg px-3 py-2"
               >
-                <option value="">All Events</option>
-                {events.map(e => (
-                  <option key={e.id} value={e.id}>{e.name}</option>
-                ))}
+                <option value="">Choose your adventure...</option>
+                <option value="all">🎯 All Contacts</option>
+                <option value="event">🎪 Event Attendees</option>
+                <option value="org">🏢 Org Members</option>
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Audience Type</label>
-              <select
-                value={filters.audienceType}
-                onChange={(e) => setFilters({...filters, audienceType: e.target.value})}
-                className="w-full border rounded-lg px-3 py-2"
+            {/* Event Filters - Show when event is chosen */}
+            {adventureChoice === 'event' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Event</label>
+                  <select
+                    value={filters.eventId}
+                    onChange={(e) => setFilters({...filters, eventId: e.target.value})}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="">All Events</option>
+                    {events.map(e => (
+                      <option key={e.id} value={e.id}>{e.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Audience Type</label>
+                  <select
+                    value={filters.audienceType}
+                    onChange={(e) => setFilters({...filters, audienceType: e.target.value})}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="">All Audiences</option>
+                    {AUDIENCE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Current Stage</label>
+                  <select
+                    value={filters.currentStage}
+                    onChange={(e) => setFilters({...filters, currentStage: e.target.value})}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="">All Stages</option>
+                    {STAGE_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+
+            {/* Org Filters - Show when org is chosen */}
+            {adventureChoice === 'org' && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                  <select
+                    value={filters.orgId || orgId}
+                    onChange={(e) => setFilters({...filters, orgId: e.target.value})}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    {orgs.map(org => (
+                      <option key={org.id} value={org.id}>{org.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Chapter</label>
+                  <input
+                    type="text"
+                    value={filters.chapterResponsibleFor}
+                    onChange={(e) => setFilters({...filters, chapterResponsibleFor: e.target.value})}
+                    placeholder="e.g., Manhattan, Brooklyn"
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* All Contacts - Future filters */}
+            {adventureChoice === 'all' && (
+              <div className="text-gray-500 text-center py-4">
+                🚧 Future: Advanced filters for all contacts<br/>
+                (Currently shows all contacts in your org)
+              </div>
+            )}
+
+
+            {adventureChoice && (
+              <button
+                onClick={handlePreview}
+                disabled={loading}
+                className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
               >
-                <option value="">All Audiences</option>
-                {AUDIENCE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Current Stage</label>
-              <select
-                value={filters.currentStage}
-                onChange={(e) => setFilters({...filters, currentStage: e.target.value})}
-                className="w-full border rounded-lg px-3 py-2"
-              >
-                <option value="">All Stages</option>
-                {STAGE_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Engagement</label>
-              <select
-                value={filters.engagementValue}
-                onChange={(e) => setFilters({...filters, engagementValue: e.target.value})}
-                className="w-full border rounded-lg px-3 py-2"
-              >
-                <option value="">All</option>
-                <option value="4">High (4)</option>
-                <option value="3">Medium (3)</option>
-                <option value="2">Low (2)</option>
-                <option value="1">Undetermined (1)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Chapter</label>
-              <input
-                type="text"
-                value={filters.chapterResponsibleFor}
-                onChange={(e) => setFilters({...filters, chapterResponsibleFor: e.target.value})}
-                placeholder="e.g., Manhattan, Brooklyn"
-                className="w-full border rounded-lg px-3 py-2"
-              />
-            </div>
-
-            <button
-              onClick={handlePreview}
-              disabled={loading}
-              className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
-            >
-              {loading ? 'Loading...' : '👁️ Preview'}
-            </button>
+                {loading ? 'Loading...' : '👁️ Preview'}
+              </button>
+            )}
           </div>
 
           {/* Preview */}
@@ -199,7 +262,11 @@ export default function ContactListBuilder() {
               Preview ({totalCount} contacts)
             </h2>
 
-            {preview.length > 0 ? (
+            {!adventureChoice ? (
+              <p className="text-gray-500 text-center py-8">
+                Choose your adventure to start building a list
+              </p>
+            ) : preview.length > 0 ? (
               <>
                 <div className="space-y-2 mb-4 max-h-96 overflow-y-auto">
                   {preview.map(contact => (
