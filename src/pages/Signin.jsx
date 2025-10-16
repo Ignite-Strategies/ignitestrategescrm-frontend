@@ -6,6 +6,8 @@ import api from "../lib/api";
 export default function Signin() {
   const navigate = useNavigate();
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [showApprovalCode, setShowApprovalCode] = useState(false);
+  const [approvalCode, setApprovalCode] = useState("");
 
   const handleSignIn = async () => {
     if (isSigningIn) return;
@@ -40,9 +42,29 @@ export default function Signin() {
       
     } catch (error) {
       console.error("❌ Sign-in failed:", error);
-      alert("Sign-in failed. Please try again.");
+      
+      // If it's a 404 or user not found, show approval code
+      if (error.response?.status === 404 || error.message.includes('not found')) {
+        setShowApprovalCode(true);
+        alert("New user detected! Enter approval code to continue.");
+      } else {
+        alert("Sign-in failed. Please try again.");
+      }
     } finally {
       setIsSigningIn(false);
+    }
+  };
+
+  const handleApprovalCode = () => {
+    // Simple approval code - you can change this
+    if (approvalCode === "LETMEIN" || approvalCode === "1234") {
+      alert("Approved! You can now sign in.");
+      setShowApprovalCode(false);
+      setApprovalCode("");
+      // Try sign in again
+      handleSignIn();
+    } else {
+      alert("Invalid approval code. Try: LETMEIN or 1234");
     }
   };
 
@@ -89,6 +111,34 @@ export default function Signin() {
             </>
           )}
         </button>
+
+        {/* Approval Code Section */}
+        {showApprovalCode && (
+          <div className="space-y-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h3 className="text-lg font-semibold text-yellow-800">Approval Required</h3>
+            <p className="text-sm text-yellow-700">
+              New user detected. Enter approval code to continue.
+            </p>
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={approvalCode}
+                onChange={(e) => setApprovalCode(e.target.value)}
+                placeholder="Enter approval code"
+                className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+              />
+              <button
+                onClick={handleApprovalCode}
+                className="w-full bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-yellow-700 transition"
+              >
+                Approve & Continue
+              </button>
+            </div>
+            <p className="text-xs text-yellow-600">
+              Try: LETMEIN or 1234
+            </p>
+          </div>
+        )}
 
         {/* New user link */}
         <p className="text-gray-600 text-sm">
