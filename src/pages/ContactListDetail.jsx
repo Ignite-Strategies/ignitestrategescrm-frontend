@@ -37,9 +37,12 @@ export default function ContactListDetail() {
   const loadListData = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Loading contact list detail for ID:', listId);
       
       // Load list details
+      console.log('📡 API call: GET /contact-lists/' + listId);
       const listResponse = await api.get(`/contact-lists/${listId}`);
+      console.log('✅ List data received:', listResponse.data);
       setList(listResponse.data);
       setEditData({
         name: listResponse.data.name,
@@ -47,6 +50,7 @@ export default function ContactListDetail() {
       });
       
       // Load contacts
+      console.log('📡 API call: GET /contact-lists/' + listId + '/contacts');
       const contactsResponse = await api.get(`/contact-lists/${listId}/contacts`);
       setContacts(contactsResponse.data);
     } catch (err) {
