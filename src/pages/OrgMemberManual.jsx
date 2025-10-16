@@ -14,12 +14,7 @@ export default function OrgMemberManual() {
   const orgId = getOrgId();
   const [loading, setLoading] = useState(false);
   
-  // Event assignment options
-  const [addToEvent, setAddToEvent] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [availableEvents, setAvailableEvents] = useState([]);
-  const [selectedAudience, setSelectedAudience] = useState('org_members');
-  const [selectedStage, setSelectedStage] = useState('in_funnel');
+  // Removed unused event assignment options
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -37,21 +32,7 @@ export default function OrgMemberManual() {
     notes: ""
   });
 
-  // Hydrate available events
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        const response = await api.get(`/events/${orgId}/events`);
-        setAvailableEvents(response.data || []);
-        if (response.data && response.data.length > 0) {
-          setSelectedEvent(response.data[0].id);
-        }
-      } catch (error) {
-        console.error('Failed to load events:', error);
-      }
-    };
-    loadEvents();
-  }, [orgId]);
+  // Removed unnecessary event loading - this is just a form!
 
   const handleChange = (e) => {
     const { name, value } = e.target;
