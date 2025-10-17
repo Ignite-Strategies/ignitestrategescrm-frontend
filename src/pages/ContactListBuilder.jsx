@@ -66,22 +66,13 @@ export default function ContactListBuilder() {
   const handleLoadContacts = async () => {
     setLoading(true);
     try {
-      const params = { orgId };
+      // SUPER SIMPLE - just get ALL contacts with orgId
+      console.log('🚀 LOADING ALL CONTACTS for orgId:', orgId);
+      const response = await api.get('/contacts', { 
+        params: { orgId } 
+      });
       
-      // Add filters based on adventure choice
-      if (adventureChoice === 'event') {
-        if (filters.eventId) params.eventId = filters.eventId;
-        if (filters.audienceType) params.audienceType = filters.audienceType;
-        if (filters.currentStage) params.currentStage = filters.currentStage;
-      } else if (adventureChoice === 'org') {
-        if (filters.chapterResponsibleFor) params.chapterResponsibleFor = filters.chapterResponsibleFor;
-      }
-      // For 'all' - just use orgId (shows all contacts in org)
-
-      console.log('🚀 FETCHING CONTACTS with params:', params);
-      const response = await api.get('/contacts', { params });
-      
-      console.log('✅ CONTACTS RESPONSE:', response.data);
+      console.log('✅ ALL CONTACTS RESPONSE:', response.data);
       setContacts(response.data.contacts || []);
       setSelectedContacts(new Set()); // Reset selections
     } catch (error) {
@@ -176,8 +167,8 @@ export default function ContactListBuilder() {
                     engagementValue: '',
                     chapterResponsibleFor: ''
                   });
-                  setPreview([]);
-                  setTotalCount(0);
+                  setContacts([]);
+                  setSelectedContacts(new Set());
                 }}
                 className="w-full border rounded-lg px-3 py-2"
               >
@@ -188,89 +179,11 @@ export default function ContactListBuilder() {
               </select>
             </div>
 
-            {/* Event Filters - Show when event is chosen */}
-            {adventureChoice === 'event' && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Event</label>
-                  <select
-                    value={filters.eventId}
-                    onChange={(e) => setFilters({...filters, eventId: e.target.value})}
-                    className="w-full border rounded-lg px-3 py-2"
-                  >
-                    <option value="">All Events</option>
-                    {events.map(e => (
-                      <option key={e.id} value={e.id}>{e.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Audience Type</label>
-                  <select
-                    value={filters.audienceType}
-                    onChange={(e) => setFilters({...filters, audienceType: e.target.value})}
-                    className="w-full border rounded-lg px-3 py-2"
-                  >
-                    <option value="">All Audiences</option>
-                    {AUDIENCE_OPTIONS.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Current Stage</label>
-                  <select
-                    value={filters.currentStage}
-                    onChange={(e) => setFilters({...filters, currentStage: e.target.value})}
-                    className="w-full border rounded-lg px-3 py-2"
-                  >
-                    <option value="">All Stages</option>
-                    {STAGE_OPTIONS.map(opt => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-              </>
-            )}
-
-            {/* Org Filters - Show when org is chosen */}
-            {adventureChoice === 'org' && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
-                  <select
-                    value={filters.orgId || orgId}
-                    onChange={(e) => setFilters({...filters, orgId: e.target.value})}
-                    className="w-full border rounded-lg px-3 py-2"
-                  >
-                    {orgs.map(org => (
-                      <option key={org.id} value={org.id}>{org.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Chapter</label>
-                  <input
-                    type="text"
-                    value={filters.chapterResponsibleFor}
-                    onChange={(e) => setFilters({...filters, chapterResponsibleFor: e.target.value})}
-                    placeholder="e.g., Manhattan, Brooklyn"
-                    className="w-full border rounded-lg px-3 py-2"
-                  />
-                </div>
-              </>
-            )}
-
-            {/* All Contacts - Simple org filter */}
-            {adventureChoice === 'all' && (
-              <div className="text-gray-600 text-center py-4 border rounded-lg bg-blue-50">
-                🎯 <strong>All Contacts</strong><br/>
-                Will show all contacts in your organization
-              </div>
-            )}
+            {/* Simple message */}
+            <div className="text-gray-600 text-center py-4 border rounded-lg bg-blue-50">
+              🎯 <strong>All Contacts</strong><br/>
+              Will show all contacts in your organization
+            </div>
 
 
             {adventureChoice && (
