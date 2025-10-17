@@ -80,6 +80,10 @@ export default function AllContactManagement() {
   // Contact detail modal
   const [selectedContactDetail, setSelectedContactDetail] = useState(null);
   const [showContactModal, setShowContactModal] = useState(false);
+  
+  // Save to list modal
+  const [showSaveToListModal, setShowSaveToListModal] = useState(false);
+  const [listName, setListName] = useState('');
 
   // Reload contacts when management mode changes
   useEffect(() => {
@@ -197,6 +201,44 @@ export default function AllContactManagement() {
     setShowContactModal(true);
   };
 
+  const handleSaveToList = () => {
+    if (selectedContacts.size === 0) {
+      alert('Please select contacts to save to a list');
+      return;
+    }
+    setShowSaveToListModal(true);
+  };
+
+  const handleCreateList = async () => {
+    if (!listName.trim()) {
+      alert('Please enter a list name');
+      return;
+    }
+
+    try {
+      console.log(`📝 Creating list "${listName}" with ${selectedContacts.size} contacts`);
+      
+      // TODO: Call API to create list with selected contacts
+      await api.post('/contact-lists', {
+        name: listName,
+        contactIds: Array.from(selectedContacts),
+        orgId: orgId
+      });
+
+      console.log(`✅ List "${listName}" created successfully`);
+      alert(`List "${listName}" created with ${selectedContacts.size} contacts!`);
+      
+      // Reset
+      setShowSaveToListModal(false);
+      setListName('');
+      setSelectedContacts(new Set());
+      
+    } catch (error) {
+      console.error('❌ Error creating list:', error);
+      alert('Error creating list: ' + error.message);
+    }
+  };
+
   const handleBulkUpdate = async () => {
     if (selectedContacts.size === 0) {
       alert('Please select contacts to update');
@@ -293,8 +335,18 @@ export default function AllContactManagement() {
                 {loading ? 'Loading...' : '🔄 Refresh Contacts'}
               </button>
               
+              {selectedContacts.size > 0 && (
+                <button
+                  onClick={handleSaveToList}
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition"
+                >
+                  📝 Save to List ({selectedContacts.size})
+                </button>
+              )}
+              
               <span className="text-sm text-gray-600">
                 {contacts.length} contacts loaded
+                {selectedContacts.size > 0 && ` • ${selectedContacts.size} selected`}
               </span>
             </div>
 
@@ -706,6 +758,49 @@ export default function AllContactManagement() {
                 className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
               >
                 🗑️ Delete Contact
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save to List Modal */}
+      {showSaveToListModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Save {selectedContacts.size} Contacts to List
+            </h3>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                List Name
+              </label>
+              <input
+                type="text"
+                value={listName}
+                onChange={(e) => setListName(e.target.value)}
+                placeholder="Enter list name..."
+                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                autoFocus
+              />
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={handleCreateList}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                Create List
+              </button>
+              <button
+                onClick={() => {
+                  setShowSaveToListModal(false);
+                  setListName('');
+                }}
+                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+              >
+                Cancel
               </button>
             </div>
           </div>
