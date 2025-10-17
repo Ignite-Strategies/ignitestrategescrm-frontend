@@ -471,7 +471,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.goesBy}
                         field="goesBy"
-                        orgMemberId={contact.orgMemberId}
+                        contactId={contact.id}
                         onUpdate={handleFieldUpdate}
                         placeholder="Nickname"
                       />
@@ -480,8 +480,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.email}
                         field="email"
-                        contactId={contact.contactId}
-                        orgMemberId={contact.orgMemberId}
+                        contactId={contact.id}
                         type="email"
                         onUpdate={handleFieldUpdate}
                         placeholder="email@example.com"
@@ -491,8 +490,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.phone}
                         field="phone"
-                        contactId={contact.contactId}
-                        orgMemberId={contact.orgMemberId}
+                        contactId={contact.id}
                         type="tel"
                         onUpdate={handleFieldUpdate}
                         placeholder="555-555-5555"
@@ -502,7 +500,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.yearsWithOrganization}
                         field="yearsWithOrganization"
-                        orgMemberId={contact.orgMemberId}
+                        contactId={contact.id}
                         type="number"
                         onUpdate={handleFieldUpdate}
                         placeholder="0"
@@ -512,7 +510,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.chapterResponsible || ''}
                         field="chapterResponsible"
-                        orgMemberId={contact.orgMemberId}
+                        contactId={contact.id}
                         type="text"
                         onUpdate={handleFieldUpdate}
                         placeholder="Chapter name"
@@ -522,7 +520,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.leadershipRole || 'None'}
                         field="leadershipRole"
-                        orgMemberId={contact.orgMemberId}
+                        contactId={contact.id}
                         options={leadershipRoleOptions}
                         onUpdate={handleFieldUpdate}
                         placeholder="None"
@@ -532,7 +530,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.engagementValue || 1}
                         field="engagementValue"
-                        orgMemberId={contact.orgMemberId}
+                        contactId={contact.id}
                         options={engagementOptions}
                         onUpdate={handleFieldUpdate}
                       />
@@ -542,8 +540,7 @@ export default function OrgMembers() {
                       <EditableFieldComponent
                         value={contact.eventId || EVENT_OPTIONS[0].value}
                         field="eventId"
-                        contactId={contact.contactId}
-                        orgMemberId={contact.orgMemberId}
+                        contactId={contact.id}
                         type="select"
                         onUpdate={loadContacts}
                         options={EVENT_OPTIONS}

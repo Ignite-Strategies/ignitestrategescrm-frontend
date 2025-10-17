@@ -29,44 +29,30 @@ export default function EditableField({
     try {
       let response;
       
-      // 🔥 HYDRATE X = X SCHEMA: Route based on FIELD, not just ID!
-      const contactFields = ['eventId', 'firstName', 'lastName', 'email', 'phone'];
-      const orgMemberFields = ['goesBy', 'leadershipRole', 'yearsWithOrganization', 'engagementValue', 'upcomingEventId', 'chapterresponsiblefor'];
+      // 🔥 CONTACT-FIRST ARCHITECTURE: All fields go to Contact model!
+      // Use contactId (preferred) or fall back to orgMemberId for backward compatibility
+      const targetContactId = contactId || orgMemberId;
       
-      if (eventAttendeeId) {
-        // Update EventAttendee
-        response = await api.patch(`/event-attendees/${eventAttendeeId}`, {
-          [field]: valueToSave
-        });
-      } else if (contactFields.includes(field) && contactId) {
-        // Update Contact (for universal Contact fields)
-        response = await api.patch(`/contacts/${contactId}`, {
-          [field]: valueToSave
-        });
-      } else if (orgMemberFields.includes(field) && (orgMemberId || supporterId)) {
-        // Update OrgMember (for org-specific fields)
-        const memberId = orgMemberId || supporterId;
-        response = await api.patch(`/orgmembers/${memberId}`, {
-          [field]: valueToSave
-        });
-      } else if (contactId) {
-        // Fallback: Update Contact
-        response = await api.patch(`/contacts/${contactId}`, {
-          [field]: valueToSave
-        });
+      if (!targetContactId) {
+        throw new Error('No contactId provided');
       }
+      
+      // Update Contact (ALL fields live in Contact model now!)
+      response = await api.patch(`/contacts/${targetContactId}`, {
+        [field]: valueToSave
+      });
       
       // Call the appropriate callback
       if (onSave) {
         onSave();
       } else if (onUpdate) {
-        onUpdate(response.data.member || response.data);
+        onUpdate(response.data.contact || response.data);
       }
       
       setIsEditing(false);
     } catch (error) {
       console.error('Error updating field:', error);
-      alert('Error updating field: ' + error.message);
+      alert('Error updating field: ' + (error.response?.data?.error || error.message));
       setEditValue(value || ''); // Reset to original value
     } finally {
       setLoading(false);
