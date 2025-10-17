@@ -35,17 +35,41 @@ export default function AllContactManagement() {
   const [bulkCurrentStage, setBulkCurrentStage] = useState('');
   const [bulkOrgId, setBulkOrgId] = useState('');
   const [bulkEventId, setBulkEventId] = useState('');
+  
+  // Management mode toggles
+  const [managementMode, setManagementMode] = useState('contacts'); // 'contacts', 'org', 'event'
+
+  // Reload contacts when management mode changes
+  useEffect(() => {
+    loadContacts();
+  }, [managementMode]);
 
   const loadContacts = async () => {
     setLoading(true);
     try {
-      console.log('🚀 LOADING ALL CONTACTS for orgId:', orgId);
+      const containerId = 'cmgu7w02h0000ceaqt7iz6bf9'; // From config
       
-      const response = await api.get('/contacts', { 
-        params: { orgId } 
-      });
+      let response;
+      if (managementMode === 'contacts') {
+        console.log('🚀 LOADING BASE CONTACTS by containerId:', containerId);
+        response = await api.get('/contacts', {
+          params: { containerId }
+        });
+      } else if (managementMode === 'org') {
+        console.log('🚀 LOADING ORG MEMBERS by containerId + orgId:', containerId, orgId);
+        response = await api.get('/contacts', {
+          params: { containerId, orgId }
+        });
+      } else if (managementMode === 'event') {
+        console.log('🚀 LOADING EVENT ATTENDEES by containerId + eventId:', containerId);
+        // TODO: Get eventId from somewhere
+        const eventId = 'event_123'; // Placeholder
+        response = await api.get('/contacts', {
+          params: { containerId, eventId }
+        });
+      }
       
-      console.log('✅ API RESPONSE:', response.data);
+      console.log('✅ LOADED CONTACTS:', response.data);
       setContacts(response.data.contacts || []);
     } catch (error) {
       console.error('❌ Error loading contacts:', error);
@@ -143,6 +167,42 @@ export default function AllContactManagement() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">👥 All Contact Management</h1>
         <p className="text-gray-600 mb-8">Manage contacts, orgs, and events</p>
+        
+        {/* Management Mode Toggle */}
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setManagementMode('contacts')}
+              className={`px-6 py-3 rounded-lg font-semibold transition ${
+                managementMode === 'contacts'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              📋 Base Contacts
+            </button>
+            <button
+              onClick={() => setManagementMode('org')}
+              className={`px-6 py-3 rounded-lg font-semibold transition ${
+                managementMode === 'org'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              🏢 Org Management
+            </button>
+            <button
+              onClick={() => setManagementMode('event')}
+              className={`px-6 py-3 rounded-lg font-semibold transition ${
+                managementMode === 'event'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              🎪 Event Management
+            </button>
+          </div>
+        </div>
         
         <div className="bg-white rounded-lg shadow p-6">
           {/* Header Controls */}
@@ -292,12 +352,31 @@ export default function AllContactManagement() {
                       className="rounded"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Audience</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Org</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">First Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Name</th>
+                  {managementMode === 'contacts' && (
+                    <>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Goes By</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Org</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
+                    </>
+                  )}
+                  {managementMode === 'org' && (
+                    <>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Engagement</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Chapter Responsible</th>
+                    </>
+                  )}
+                  {managementMode === 'event' && (
+                    <>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attended</th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -312,67 +391,115 @@ export default function AllContactManagement() {
                       />
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      {contact.firstName} {contact.lastName}
+                      {contact.firstName}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {contact.email}
-                    </td>
-                    
-                    {/* Audience Type - Inline Dropdown */}
-                    <td className="px-4 py-3">
-                      <select
-                        value={contact.audienceType || ''}
-                        onChange={(e) => handleInlineEdit(contact.id, 'audienceType', e.target.value)}
-                        className="text-xs border rounded px-2 py-1 w-full"
-                      >
-                        <option value="">Not set</option>
-                        {AUDIENCE_OPTIONS.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                      {contact.lastName}
                     </td>
                     
-                    {/* Stage - Inline Dropdown */}
-                    <td className="px-4 py-3">
-                      <select
-                        value={contact.currentStage || ''}
-                        onChange={(e) => handleInlineEdit(contact.id, 'currentStage', e.target.value)}
-                        className="text-xs border rounded px-2 py-1 w-full"
-                      >
-                        <option value="">Not set</option>
-                        {STAGE_OPTIONS.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
+                    {/* BASE CONTACT MANAGEMENT MODE */}
+                    {managementMode === 'contacts' && (
+                      <>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {contact.goesBy || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {contact.email}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {contact.phone || '-'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={contact.orgId || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'orgId', e.target.value || null)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                          >
+                            <option value="">None</option>
+                            <option value={orgId}>F3 CRM</option>
+                          </select>
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={contact.eventId || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'eventId', e.target.value || null)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                          >
+                            <option value="">None</option>
+                            <option value="event_123">Bros & Brews</option>
+                          </select>
+                        </td>
+                      </>
+                    )}
                     
-                    {/* Org - Inline Dropdown */}
-                    <td className="px-4 py-3">
-                      <select
-                        value={contact.orgId || ''}
-                        onChange={(e) => handleInlineEdit(contact.id, 'orgId', e.target.value || null)}
-                        className="text-xs border rounded px-2 py-1 w-full"
-                      >
-                        <option value="">None</option>
-                        <option value={orgId}>F3 CRM</option>
-                      </select>
-                    </td>
+                    {/* ORG MANAGEMENT MODE */}
+                    {managementMode === 'org' && (
+                      <>
+                        <td className="px-4 py-3">
+                          <select
+                            value={contact.engagement || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'engagement', e.target.value)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                          >
+                            <option value="">Not set</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="prospective">Prospective</option>
+                          </select>
+                        </td>
+                        <td className="px-4 py-3">
+                          <input
+                            type="text"
+                            value={contact.role || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'role', e.target.value)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                            placeholder="Role..."
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          <input
+                            type="text"
+                            value={contact.chapterResponsibleOf || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'chapterResponsibleOf', e.target.value)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                            placeholder="Chapter..."
+                          />
+                        </td>
+                      </>
+                    )}
                     
-                    {/* Event - Inline Dropdown */}
-                    <td className="px-4 py-3">
-                      <select
-                        value={contact.eventId || ''}
-                        onChange={(e) => handleInlineEdit(contact.id, 'eventId', e.target.value || null)}
-                        className="text-xs border rounded px-2 py-1 w-full"
-                      >
-                        <option value="">None</option>
-                        <option value="event_123">Bros & Brews</option>
-                      </select>
-                    </td>
+                    {/* EVENT MANAGEMENT MODE */}
+                    {managementMode === 'event' && (
+                      <>
+                        <td className="px-4 py-3 text-sm text-gray-500">
+                          {contact.email}
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={contact.currentStage || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'currentStage', e.target.value)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                          >
+                            <option value="">Not set</option>
+                            {STAGE_OPTIONS.map(option => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={contact.attended ? 'true' : 'false'}
+                            onChange={(e) => handleInlineEdit(contact.id, 'attended', e.target.value === 'true')}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                          >
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                          </select>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
