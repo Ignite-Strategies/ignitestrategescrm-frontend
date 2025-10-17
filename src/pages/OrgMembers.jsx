@@ -4,7 +4,7 @@
  * - Displays Contacts with orgId filter
  * - Uses /contacts API (Prisma) 
  * - Contact model has ALL data (no separate OrgMember)
- * - Shows: goesBy, yearsWithOrganization, chapterResponsible
+ * - Shows: goesBy, yearsWithOrganization, chapterResponsibleFor
  */
 
 import { useState, useEffect } from "react";
@@ -508,8 +508,8 @@ export default function OrgMembers() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <EditableFieldComponent
-                        value={contact.chapterResponsible || ''}
-                        field="chapterResponsible"
+                        value={contact.chapterResponsibleFor || ''}
+                        field="chapterResponsibleFor"
                         contactId={contact.id}
                         type="text"
                         onUpdate={handleFieldUpdate}

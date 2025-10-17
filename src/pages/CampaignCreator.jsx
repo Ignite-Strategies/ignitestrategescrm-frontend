@@ -564,6 +564,13 @@ export default function CampaignCreator() {
                         + Goes By
                       </button>
                       <button
+                  onClick={() => insertToken("chapterResponsibleFor")}
+                  className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                  disabled={!campaignId}
+                      >
+                        + Chapter
+                      </button>
+                      <button
                   onClick={() => insertToken("email")}
                   className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
                   disabled={!campaignId}
