@@ -620,8 +620,8 @@ export default function AllContactManagement() {
                         <td className="px-4 py-3">
                           <input
                             type="text"
-                            value={contact.chapterResponsibleOf || ''}
-                            onChange={(e) => handleInlineEdit(contact.id, 'chapterResponsibleOf', e.target.value)}
+                            value={contact.chapterResponsibleFor || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'chapterResponsibleFor', e.target.value)}
                             className="text-xs border rounded px-2 py-1 w-full"
                             placeholder="Chapter..."
                           />

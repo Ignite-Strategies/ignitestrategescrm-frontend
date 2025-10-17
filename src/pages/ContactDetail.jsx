@@ -428,6 +428,10 @@ export default function ContactDetail() {
                     <p className="text-sm text-gray-500">Years With Organization</p>
                     <p className="text-gray-900">{contact.yearsWithOrganization || 0}</p>
                   </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Chapter Responsible For</p>
+                    <p className="text-gray-900">{contact.chapterResponsibleFor || 'Not assigned'}</p>
+                  </div>
                 </div>
               </div>
 
