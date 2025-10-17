@@ -33,9 +33,8 @@ export default function AllContactManagement() {
   const [bulkEditMode, setBulkEditMode] = useState(false);
   const [bulkAudienceType, setBulkAudienceType] = useState('');
   const [bulkCurrentStage, setBulkCurrentStage] = useState('');
-  
-  // Management mode toggles
-  const [managementMode, setManagementMode] = useState('contacts'); // 'contacts', 'org', 'event'
+  const [bulkOrgId, setBulkOrgId] = useState('');
+  const [bulkEventId, setBulkEventId] = useState('');
 
   const loadContacts = async () => {
     setLoading(true);
@@ -75,29 +74,25 @@ export default function AllContactManagement() {
     setSelectedContacts(new Set());
   };
 
-  const handleInlineEdit = (contactId, field, value) => {
+  const handleInlineEdit = async (contactId, field, value) => {
+    // Optimistically update UI
     setContacts(prev => prev.map(contact => 
       contact.id === contactId 
         ? { ...contact, [field]: value }
         : contact
     ));
-  };
 
-  const handleSaveContact = async (contactId) => {
-    const contact = contacts.find(c => c.id === contactId);
-    if (!contact) return;
-
+    // Save to backend instantly
     try {
+      console.log(`💾 Saving ${field} = ${value} for contact ${contactId}`);
       await api.patch(`/contacts/${contactId}`, {
-        audienceType: contact.audienceType,
-        currentStage: contact.currentStage
+        [field]: value
       });
-      
-      setEditingContact(null);
-      console.log('✅ Contact updated:', contactId);
+      console.log(`✅ Saved ${field} successfully`);
     } catch (error) {
-      console.error('❌ Error updating contact:', error);
-      alert('Error updating contact: ' + error.message);
+      console.error(`❌ Error saving ${field}:`, error);
+      // Revert on error
+      loadContacts();
     }
   };
 
@@ -110,9 +105,11 @@ export default function AllContactManagement() {
     const updates = {};
     if (bulkAudienceType) updates.audienceType = bulkAudienceType;
     if (bulkCurrentStage) updates.currentStage = bulkCurrentStage;
+    if (bulkOrgId !== '') updates.orgId = bulkOrgId === 'none' ? null : bulkOrgId;
+    if (bulkEventId !== '') updates.eventId = bulkEventId === 'none' ? null : bulkEventId;
 
     if (Object.keys(updates).length === 0) {
-      alert('Please select audience type or stage to update');
+      alert('Please select at least one field to update');
       return;
     }
 
@@ -141,73 +138,11 @@ export default function AllContactManagement() {
     }
   };
 
-  const handleAddToOrg = async (contactId) => {
-    try {
-      await api.patch(`/contacts/${contactId}`, {
-        orgId: orgId // Add to current org
-      });
-      loadContacts();
-    } catch (error) {
-      console.error('Failed to add to org:', error);
-    }
-  };
-
-  const handleAddToEvent = async (contactId) => {
-    try {
-      // For now, we'll need to get an eventId - this could be a modal or dropdown
-      const eventId = prompt('Enter Event ID to add contact to:');
-      if (eventId) {
-        await api.patch(`/contacts/${contactId}`, {
-          eventId: eventId
-        });
-        loadContacts();
-      }
-    } catch (error) {
-      console.error('Failed to add to event:', error);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">👥 All Contact Management</h1>
-        <p className="text-gray-600 mb-8">Manage contacts, org members, and event attendees</p>
-        
-        {/* Management Mode Toggle */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex space-x-4">
-            <button
-              onClick={() => setManagementMode('contacts')}
-              className={`px-6 py-3 rounded-lg font-semibold transition ${
-                managementMode === 'contacts'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              📋 All Contacts
-            </button>
-            <button
-              onClick={() => setManagementMode('org')}
-              className={`px-6 py-3 rounded-lg font-semibold transition ${
-                managementMode === 'org'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              🏢 Org Management
-            </button>
-            <button
-              onClick={() => setManagementMode('event')}
-              className={`px-6 py-3 rounded-lg font-semibold transition ${
-                managementMode === 'event'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              🎪 Event Management
-            </button>
-          </div>
-        </div>
+        <p className="text-gray-600 mb-8">Manage contacts, orgs, and events</p>
         
         <div className="bg-white rounded-lg shadow p-6">
           {/* Header Controls */}
@@ -259,7 +194,7 @@ export default function AllContactManagement() {
                 Bulk Edit {selectedContacts.size} Selected Contacts
               </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Audience Type
@@ -293,6 +228,36 @@ export default function AllContactManagement() {
                         {option.label}
                       </option>
                     ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Organization
+                  </label>
+                  <select
+                    value={bulkOrgId}
+                    onChange={(e) => setBulkOrgId(e.target.value)}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="">Don't change...</option>
+                    <option value={orgId}>F3 CRM</option>
+                    <option value="none">Remove from Org</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event
+                  </label>
+                  <select
+                    value={bulkEventId}
+                    onChange={(e) => setBulkEventId(e.target.value)}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="">Don't change...</option>
+                    <option value="event_123">Bros & Brews</option>
+                    <option value="none">Remove from Event</option>
                   </select>
                 </div>
               </div>
@@ -329,27 +294,10 @@ export default function AllContactManagement() {
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                  {managementMode === 'contacts' && (
-                    <>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Audience</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
-                    </>
-                  )}
-                  {managementMode === 'org' && (
-                    <>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Is Active</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Years</th>
-                    </>
-                  )}
-                  {managementMode === 'event' && (
-                    <>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attended</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount Paid</th>
-                    </>
-                  )}
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Audience</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Org</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -369,125 +317,61 @@ export default function AllContactManagement() {
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {contact.email}
                     </td>
-                    {/* Contacts Mode - Universal Management */}
-                    {managementMode === 'contacts' && (
-                      <>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-col gap-1">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              contact.audienceType 
-                                ? 'bg-purple-100 text-purple-800' 
-                                : 'bg-gray-100 text-gray-600'
-                            }`}>
-                              {contact.audienceType || 'Not set'}
-                            </span>
-                            <div className="text-xs text-gray-500">
-                              {contact.orgId ? '🏢 In Org' : '❌ No Org'} | 
-                              {contact.eventId ? '🎪 In Event' : '❌ No Event'}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            contact.currentStage 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-gray-100 text-gray-600'
-                          }`}>
-                            {contact.currentStage || 'Not set'}
-                          </span>
-                        </td>
-                      </>
-                    )}
                     
-                    {/* Org Mode - Org Member Management */}
-                    {managementMode === 'org' && (
-                      <>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            contact.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {contact.isActive ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-gray-900">{contact.role || 'Member'}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-gray-900">{contact.yearsInOrg || '0'} years</span>
-                        </td>
-                      </>
-                    )}
-                    
-                    {/* Event Mode - Event Attendee Management */}
-                    {managementMode === 'event' && (
-                      <>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            contact.currentStage 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-gray-100 text-gray-600'
-                          }`}>
-                            {contact.currentStage || 'Not set'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            contact.attended ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {contact.attended ? '✅ Attended' : '❌ No Show'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-gray-900">${contact.amountPaid || '0'}</span>
-                        </td>
-                      </>
-                    )}
+                    {/* Audience Type - Inline Dropdown */}
                     <td className="px-4 py-3">
-                      {editingContact === contact.id ? (
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleSaveContact(contact.id)}
-                            className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700"
-                          >
-                            Save
-                          </button>
-                          <button
-                            onClick={() => setEditingContact(null)}
-                            className="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col gap-1">
-                          <button
-                            onClick={() => setEditingContact(contact.id)}
-                            className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
-                          >
-                            Edit
-                          </button>
-                          {managementMode === 'contacts' && (
-                            <div className="flex gap-1">
-                              {!contact.orgId && (
-                                <button
-                                  onClick={() => handleAddToOrg(contact.id)}
-                                  className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
-                                >
-                                  + Org
-                                </button>
-                              )}
-                              {!contact.eventId && (
-                                <button
-                                  onClick={() => handleAddToEvent(contact.id)}
-                                  className="bg-purple-600 text-white px-2 py-1 rounded text-xs hover:bg-purple-700"
-                                >
-                                  + Event
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <select
+                        value={contact.audienceType || ''}
+                        onChange={(e) => handleInlineEdit(contact.id, 'audienceType', e.target.value)}
+                        className="text-xs border rounded px-2 py-1 w-full"
+                      >
+                        <option value="">Not set</option>
+                        {AUDIENCE_OPTIONS.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    
+                    {/* Stage - Inline Dropdown */}
+                    <td className="px-4 py-3">
+                      <select
+                        value={contact.currentStage || ''}
+                        onChange={(e) => handleInlineEdit(contact.id, 'currentStage', e.target.value)}
+                        className="text-xs border rounded px-2 py-1 w-full"
+                      >
+                        <option value="">Not set</option>
+                        {STAGE_OPTIONS.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    
+                    {/* Org - Inline Dropdown */}
+                    <td className="px-4 py-3">
+                      <select
+                        value={contact.orgId || ''}
+                        onChange={(e) => handleInlineEdit(contact.id, 'orgId', e.target.value || null)}
+                        className="text-xs border rounded px-2 py-1 w-full"
+                      >
+                        <option value="">None</option>
+                        <option value={orgId}>F3 CRM</option>
+                      </select>
+                    </td>
+                    
+                    {/* Event - Inline Dropdown */}
+                    <td className="px-4 py-3">
+                      <select
+                        value={contact.eventId || ''}
+                        onChange={(e) => handleInlineEdit(contact.id, 'eventId', e.target.value || null)}
+                        className="text-xs border rounded px-2 py-1 w-full"
+                      >
+                        <option value="">None</option>
+                        <option value="event_123">Bros & Brews</option>
+                      </select>
                     </td>
                   </tr>
                 ))}
