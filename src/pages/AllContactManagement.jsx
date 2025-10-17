@@ -221,10 +221,10 @@ export default function AllContactManagement() {
     try {
       console.log(`📝 Creating list "${listName}" with ${selectedContacts.size} contacts`);
       
-      // TODO: Call API to create list with selected contacts
-      await api.post('/contact-lists', {
+      // Call API to create list with selected contacts
+      await api.post('/contact-lists/from-selection', {
         name: listName,
-        contactIds: Array.from(selectedContacts),
+        selectedContactIds: Array.from(selectedContacts),
         orgId: orgId
       });
 
