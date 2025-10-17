@@ -220,6 +220,32 @@ export default function ContactListManager() {
     navigate(`/contact-list-detail/${list.id}`);
   };
 
+  const handleRefreshCounts = async () => {
+    try {
+      console.log('🔄 Refreshing contact counts for all lists...');
+      
+      const response = await api.post('/contact-lists/refresh-all-counts', {
+        orgId: orgId
+      });
+      
+      console.log('✅ Count refresh results:', response.data);
+      
+      // Reload data to show updated counts
+      await loadData();
+      
+      const updatedCount = response.data.updated || 0;
+      if (updatedCount > 0) {
+        alert(`✅ Refreshed contact counts for ${updatedCount} lists!`);
+      } else {
+        alert('✅ All contact counts are already up to date!');
+      }
+      
+    } catch (error) {
+      console.error('❌ Error refreshing counts:', error);
+      alert('Error refreshing counts: ' + error.message);
+    }
+  };
+
   // Filter lists
   const filteredLists = lists.filter(list => 
     list.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -269,6 +295,14 @@ export default function ContactListManager() {
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
             >
               + Create New List
+            </button>
+            
+            <button
+              onClick={handleRefreshCounts}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+              title="Fix stale contact counts"
+            >
+              🔄 Refresh Counts
             </button>
             
             <div className="flex-1">

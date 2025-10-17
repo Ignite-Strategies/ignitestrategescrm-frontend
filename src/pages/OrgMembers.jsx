@@ -31,6 +31,8 @@ export default function OrgMembers() {
     inactive: 0
   });
   const [openDropdowns, setOpenDropdowns] = useState({});
+  const [showSaveToListModal, setShowSaveToListModal] = useState(false);
+  const [listName, setListName] = useState('');
 
   useEffect(() => {
     loadContacts();
@@ -232,6 +234,70 @@ export default function OrgMembers() {
     }
   };
 
+  const handleSaveToList = () => {
+    if (selectedContacts.size === 0) {
+      alert('Please select contacts to save to a list');
+      return;
+    }
+    setShowSaveToListModal(true);
+  };
+
+  const handleCreateList = async () => {
+    if (!listName.trim()) {
+      alert('Please enter a list name');
+      return;
+    }
+
+    try {
+      console.log(`📝 Creating list "${listName}" with ${selectedContacts.size} contacts`);
+      
+      // Call API to create list with selected contacts
+      await api.post('/contact-lists/from-selection', {
+        name: listName,
+        selectedContactIds: Array.from(selectedContacts),
+        orgId: orgId
+      });
+
+      console.log(`✅ List "${listName}" created successfully`);
+      alert(`List "${listName}" created with ${selectedContacts.size} contacts!`);
+      
+      // Reset
+      setShowSaveToListModal(false);
+      setListName('');
+      setSelectedContacts(new Set());
+      
+    } catch (error) {
+      console.error('❌ Error creating list:', error);
+      alert('Error creating list: ' + error.message);
+    }
+  };
+
+  const handleCreateChampionsList = async () => {
+    const champions = contacts.filter(c => c.engagementValue === 4);
+    if (champions.length === 0) {
+      alert('No champions found!');
+      return;
+    }
+
+    try {
+      console.log(`📝 Creating Champions list with ${champions.length} contacts`);
+      
+      await api.post('/contact-lists/from-selection', {
+        name: 'Champions',
+        description: 'High engagement contacts',
+        selectedContactIds: champions.map(c => c.id),
+        orgId: orgId
+      });
+
+      console.log(`✅ Champions list created successfully`);
+      alert(`Champions list created with ${champions.length} contacts!`);
+      
+    } catch (error) {
+      console.error('❌ Error creating champions list:', error);
+      alert('Error creating champions list: ' + error.message);
+    }
+  };
+
 
   const filteredContacts = contacts.filter(c =>
     `${c.firstName} ${c.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
@@ -271,7 +337,7 @@ export default function OrgMembers() {
                     {selectedContacts.size > 0 && (
                       <>
                         <button
-                          onClick={() => navigate("/create-list", { state: { selectedContacts: Array.from(selectedContacts) } })}
+                          onClick={handleSaveToList}
                           className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,19 +390,10 @@ export default function OrgMembers() {
                       Contacts
                     </button>
                     <button
-                      onClick={() => {
-                        const champions = contacts.filter(c => c.engagementValue === 4);
-                        navigate("/create-list", { 
-                          state: { 
-                            selectedContacts: champions,
-                            listName: "Champions",
-                            listDescription: "High engagement contacts"
-                          } 
-                        });
-                      }}
+                      onClick={handleCreateChampionsList}
                       className="bg-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-purple-700 transition"
                     >
-                      📧 Email Champions ({contacts.filter(c => c.engagementValue === 4).length})
+                      📧 Create Champions List ({contacts.filter(c => c.engagementValue === 4).length})
                     </button>
                   </div>
         </div>
@@ -366,16 +423,12 @@ export default function OrgMembers() {
                     <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
                       High
                     </span>
-                    {engager.contactId ? (
-                      <button
-                        onClick={() => navigate(`/contact/${engager.contactId}`)}
-                        className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        View →
-                      </button>
-                    ) : (
-                      <span className="text-xs text-gray-400" title="Legacy record"></span>
-                    )}
+                    <button
+                      onClick={() => navigate(`/contact/${engager.id}`)}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      View →
+                    </button>
                   </div>
                 </div>
               ))}
@@ -454,18 +507,12 @@ export default function OrgMembers() {
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {contact.contactId ? (
-                        <button
-                          onClick={() => navigate(`/contact/${contact.contactId}`)}
-                          className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
-                        >
-                          {contact.firstName} {contact.lastName}
-                        </button>
-                      ) : (
-                        <span className="text-gray-900" title="Legacy record - missing contact link">
-                          {contact.firstName} {contact.lastName}
-                        </span>
-                      )}
+                      <button
+                        onClick={() => navigate(`/contact/${contact.id}`)}
+                        className="text-indigo-600 hover:text-indigo-800 font-medium hover:underline"
+                      >
+                        {contact.firstName} {contact.lastName}
+                      </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <EditableFieldComponent
@@ -574,7 +621,7 @@ export default function OrgMembers() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteOrgMember(contact.orgMemberId, `${contact.firstName} ${contact.lastName}`);
+                                  handleDeleteOrgMember(contact.id, `${contact.firstName} ${contact.lastName}`);
                                   closeAllDropdowns();
                                 }}
                                 className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -584,7 +631,7 @@ export default function OrgMembers() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteContact(contact.contactId, `${contact.firstName} ${contact.lastName}`);
+                                  handleDeleteContact(contact.id, `${contact.firstName} ${contact.lastName}`);
                                   closeAllDropdowns();
                                 }}
                                 className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -609,6 +656,49 @@ export default function OrgMembers() {
           )}
         </div>
       </div>
+
+      {/* Save to List Modal */}
+      {showSaveToListModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Save {selectedContacts.size} Contacts to List
+            </h3>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                List Name
+              </label>
+              <input
+                type="text"
+                value={listName}
+                onChange={(e) => setListName(e.target.value)}
+                placeholder="Enter list name..."
+                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                autoFocus
+              />
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={handleCreateList}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              >
+                Create List
+              </button>
+              <button
+                onClick={() => {
+                  setShowSaveToListModal(false);
+                  setListName('');
+                }}
+                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

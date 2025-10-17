@@ -108,10 +108,17 @@ export default function CampaignPreview() {
     try {
       console.log('🚀 Sending...');
 
+      // Convert plain text to proper HTML formatting
+      const htmlMessage = campaign.body
+        .replace(/\n/g, '<br>')  // Convert line breaks to HTML
+        .replace(/—/g, '&mdash;')  // Fix em dashes
+        .replace(/"/g, '&quot;')   // Fix quotes
+        .replace(/'/g, '&apos;');  // Fix apostrophes
+
       await api.post('/enterprise-gmail/send-campaign', {
         campaignId,
         subject: campaign.subject,
-        message: campaign.body,
+        message: htmlMessage,  // ✅ Now properly formatted HTML
         contactListId: campaign.contactListId,
         attachments: attachments
       });

@@ -135,11 +135,19 @@ export default function Sequence() {
     try {
       // 1. Create the sequence
       console.log("📝 Creating sequence...");
+      
+      // Convert plain text to proper HTML formatting
+      const htmlMessage = message
+        .replace(/\n/g, '<br>')  // Convert line breaks to HTML
+        .replace(/—/g, '&mdash;')  // Fix em dashes
+        .replace(/"/g, '&quot;')   // Fix quotes
+        .replace(/'/g, '&apos;');  // Fix apostrophes
+      
       const sequenceResponse = await api.post("/sequences", {
         campaignId,
         name: sequenceName,
         subject,
-        html: message,
+        html: htmlMessage,  // ✅ Now properly formatted HTML
         delayDays: 0,
         order: 1
       });
