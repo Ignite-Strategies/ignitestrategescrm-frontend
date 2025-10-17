@@ -38,6 +38,7 @@ import Authenticate from "./pages/Authenticate.jsx";
 import ContactListManager from "./pages/ContactListManager.jsx";
 import ContactListBuilder from "./pages/ContactListBuilder.jsx";
 import ContactListAll from "./pages/ContactListAll.jsx";
+import AllContactManagement from "./pages/AllContactManagement.jsx";
 import ListCreatedSuccess from "./pages/ListCreatedSuccess.jsx";
 import ContactListDetail from "./pages/ContactListDetail.jsx";
 import ContactManageHome from "./pages/ContactManageHome.jsx";
@@ -226,6 +227,9 @@ export default function App() {
         } />
         <Route path="/contact-list-all" element={
           <ProtectedRoute><ContactListAll /></ProtectedRoute>
+        } />
+        <Route path="/all-contact-management" element={
+          <ProtectedRoute><AllContactManagement /></ProtectedRoute>
         } />
         <Route path="/list-created-success" element={
           <ProtectedRoute><ListCreatedSuccess /></ProtectedRoute>
