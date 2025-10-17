@@ -256,7 +256,24 @@ export default function CampaignCreator() {
   };
 
   const insertToken = (token) => {
-    setMessage((prev) => prev + `{{${token}}}`);
+    const textarea = document.querySelector('textarea[placeholder*="Hi {{firstName}}"]');
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const currentValue = textarea.value;
+      const newValue = currentValue.substring(0, start) + `{{${token}}}` + currentValue.substring(end);
+      
+      setMessage(newValue);
+      
+      // Set cursor position after the inserted token
+      setTimeout(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + token.length + 4, start + token.length + 4);
+      }, 0);
+    } else {
+      // Fallback to append if textarea not found
+      setMessage((prev) => prev + `{{${token}}}`);
+    }
   };
 
   const handlePreview = async () => {
