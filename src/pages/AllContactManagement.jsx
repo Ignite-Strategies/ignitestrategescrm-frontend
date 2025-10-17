@@ -51,21 +51,22 @@ export default function AllContactManagement() {
       
       let response;
       if (managementMode === 'contacts') {
-        console.log('🚀 LOADING BASE CONTACTS by containerId:', containerId);
+        console.log('🚀 LOADING BASE CONTACTS by orgId (fallback):', orgId);
+        // TODO: Use containerId when contacts have it populated
         response = await api.get('/contacts', {
-          params: { containerId }
+          params: { orgId }
         });
       } else if (managementMode === 'org') {
-        console.log('🚀 LOADING ORG MEMBERS by containerId + orgId:', containerId, orgId);
+        console.log('🚀 LOADING ORG MEMBERS by orgId:', orgId);
         response = await api.get('/contacts', {
-          params: { containerId, orgId }
+          params: { orgId }
         });
       } else if (managementMode === 'event') {
-        console.log('🚀 LOADING EVENT ATTENDEES by containerId + eventId:', containerId);
+        console.log('🚀 LOADING EVENT ATTENDEES by eventId');
         // TODO: Get eventId from somewhere
         const eventId = 'event_123'; // Placeholder
         response = await api.get('/contacts', {
-          params: { containerId, eventId }
+          params: { eventId }
         });
       }
       
