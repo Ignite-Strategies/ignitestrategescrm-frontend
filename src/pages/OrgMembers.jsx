@@ -1,12 +1,10 @@
 /**
- * ⚠️ DEPRECATED - Uses old Supporter model (MongoDB)
+ * ✅ UPDATED - Uses Contact-first architecture (Prisma)
  * 
- * TODO: Refactor to OrgMembersDisplay.jsx
- * - Should display Contacts with hasOrgMember = true
- * - Should use /contacts API (Prisma) not /supporters (MongoDB)
- * - Part of "Org Upload UX" refactor
- * 
- * See: DEPRECATION-STATUS.md in backend
+ * - Displays Contacts with orgId filter
+ * - Uses /contacts API (Prisma) 
+ * - Contact model has ALL data (no separate OrgMember)
+ * - Shows: goesBy, yearsWithOrganization, chapterResponsible
  */
 
 import { useState, useEffect } from "react";
@@ -437,6 +435,7 @@ export default function OrgMembers() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Years w/ Org</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Chapter Responsible</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Leadership Role</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Engagement</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase w-48">Upcoming Events</th>
@@ -507,6 +506,16 @@ export default function OrgMembers() {
                         type="number"
                         onUpdate={handleFieldUpdate}
                         placeholder="0"
+                      />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <EditableFieldComponent
+                        value={contact.chapterResponsible || ''}
+                        field="chapterResponsible"
+                        orgMemberId={contact.orgMemberId}
+                        type="text"
+                        onUpdate={handleFieldUpdate}
+                        placeholder="Chapter name"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

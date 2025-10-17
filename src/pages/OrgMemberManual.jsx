@@ -83,10 +83,29 @@ export default function OrgMemberManual() {
       
       console.log('✅ Contact created:', contactResponse.data.contact);
       
-      alert(`✅ Org member "${formData.firstName} ${formData.lastName}" added successfully!`);
+      // Show success with option to add another
+      const addAnother = confirm(`✅ Org member "${formData.firstName} ${formData.lastName}" added successfully!\n\nClick OK to add another contact, or Cancel to go back to the list.`);
       
-      // Navigate back to org members list
-      navigate("/org-members");
+      if (addAnother) {
+        // Reset form for another contact
+        setFormData({
+          firstName: '',
+          goesBy: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          street: '',
+          city: '',
+          state: '',
+          zip: '',
+          employer: '',
+          yearsWithOrganization: '',
+          notes: ''
+        });
+      } else {
+        // Navigate back to org members list
+        navigate("/org-members");
+      }
       
     } catch (error) {
       console.error("Error adding org member:", error);
