@@ -261,14 +261,15 @@ export default function CampaignCreator() {
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const currentValue = textarea.value;
-      const newValue = currentValue.substring(0, start) + `{{${token}}}` + currentValue.substring(end);
+      const tokenText = `{{${token}}}`;
+      const newValue = currentValue.substring(0, start) + tokenText + currentValue.substring(end);
       
       setMessage(newValue);
       
       // Set cursor position after the inserted token
       setTimeout(() => {
         textarea.focus();
-        textarea.setSelectionRange(start + token.length + 4, start + token.length + 4);
+        textarea.setSelectionRange(start + tokenText.length, start + tokenText.length);
       }, 0);
     } else {
       // Fallback to append if textarea not found
