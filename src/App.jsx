@@ -68,7 +68,6 @@ import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
 import PreviewPageTest from "./pages/PreviewPageTest.jsx";
-import Sequence from "./pages/Sequence.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -261,9 +260,6 @@ export default function App() {
         } />
         <Route path="/preview-test" element={
           <ProtectedRoute><PreviewPageTest /></ProtectedRoute>
-        } />
-        <Route path="/sequence" element={
-          <ProtectedRoute><Sequence /></ProtectedRoute>
         } />
         
         {/* Campaign System - Legacy routes */}
