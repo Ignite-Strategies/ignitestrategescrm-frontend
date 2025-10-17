@@ -397,9 +397,9 @@ export default function AllContactManagement() {
                   )}
                   {managementMode === 'event' && (
                     <>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Goes By</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Audience</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attended</th>
                     </>
                   )}
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -526,7 +526,21 @@ export default function AllContactManagement() {
                     {managementMode === 'event' && (
                       <>
                         <td className="px-4 py-3 text-sm text-gray-500">
-                          {contact.email}
+                          {contact.goesBy || '-'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={contact.audienceType || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'audienceType', e.target.value)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                          >
+                            <option value="">Not set</option>
+                            {AUDIENCE_OPTIONS.map(option => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
                         </td>
                         <td className="px-4 py-3">
                           <select
@@ -540,16 +554,6 @@ export default function AllContactManagement() {
                                 {option.label}
                               </option>
                             ))}
-                          </select>
-                        </td>
-                        <td className="px-4 py-3">
-                          <select
-                            value={contact.attended ? 'true' : 'false'}
-                            onChange={(e) => handleInlineEdit(contact.id, 'attended', e.target.value === 'true')}
-                            className="text-xs border rounded px-2 py-1 w-full"
-                          >
-                            <option value="false">No</option>
-                            <option value="true">Yes</option>
                           </select>
                         </td>
                       </>
