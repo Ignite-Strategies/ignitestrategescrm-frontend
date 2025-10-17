@@ -374,7 +374,7 @@ export default function OrgMembers() {
                         View →
                       </button>
                     ) : (
-                      <span className="text-xs text-gray-400" title="Legacy record">⚠️</span>
+                      <span className="text-xs text-gray-400" title="Legacy record"></span>
                     )}
                   </div>
                 </div>
@@ -463,7 +463,7 @@ export default function OrgMembers() {
                         </button>
                       ) : (
                         <span className="text-gray-900" title="Legacy record - missing contact link">
-                          {contact.firstName} {contact.lastName} ⚠️
+                          {contact.firstName} {contact.lastName}
                         </span>
                       )}
                     </td>
