@@ -53,8 +53,15 @@ export default function OrgMembers() {
   const loadContacts = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/orgmembers?orgId=${orgId}`);
-      const members = response.data.members || response.data || [];
+      console.log('🏢 LOADING ORG MEMBERS by orgId:', orgId);
+      
+      // Use unified Contact API with orgId filter
+      const response = await api.get('/contacts', {
+        params: { orgId }
+      });
+      
+      console.log('✅ ORG MEMBERS LOADED:', response.data);
+      const members = response.data.contacts || [];
       setContacts(members);
       
       // 🔥 ONE HYDRATION RULE: Events come from localStorage (set on Welcome page)
@@ -128,7 +135,8 @@ export default function OrgMembers() {
     }
 
     try {
-      await api.delete(`/orgmembers/${orgMemberId}`);
+      // Use Contact API instead of old orgmembers endpoint
+      await api.delete(`/contacts/${orgMemberId}`);
       alert(`${name} has been removed from the organization.`);
       loadContacts();
     } catch (error) {

@@ -60,9 +60,10 @@ export default function OrgMemberManual() {
     setLoading(true);
 
     try {
-      // Create Contact first (Contact-First Architecture)
+      // Create Contact with orgId and all data (Contact-First Architecture!)
       const contactData = {
         orgId: orgId,
+        containerId: 'cmgu7w02h0000ceaqt7iz6bf9', // F3 CRM container
         firstName: formData.firstName,
         goesBy: formData.goesBy || null,
         lastName: formData.lastName,
@@ -72,24 +73,15 @@ export default function OrgMemberManual() {
         city: formData.city || null,
         state: formData.state || null,
         zip: formData.zip || null,
-        employer: formData.employer || null
+        employer: formData.employer || null,
+        yearsWithOrganization: formData.yearsWithOrganization ? parseInt(formData.yearsWithOrganization) : null
       };
 
-      // Create the contact
+      // Create the contact - ONE STEP, everything in Contact model!
+      console.log('💾 Creating contact with orgId:', contactData);
       const contactResponse = await api.post('/contacts', contactData);
-      const contactId = contactResponse.data.id;
-
-      // Create OrgMember link
-      const orgMemberData = {
-        contactId: contactId,
-        orgId: orgId,
-        yearsWithOrganization: formData.yearsWithOrganization ? parseInt(formData.yearsWithOrganization) : null,
-        categoryOfEngagement: formData.categoryOfEngagement,
-        notes: formData.notes || null,
-        status: 'active'
-      };
-
-      const orgMemberResponse = await api.post('/orgmembers', orgMemberData);
+      
+      console.log('✅ Contact created:', contactResponse.data.contact);
       
       alert(`✅ Org member "${formData.firstName} ${formData.lastName}" added successfully!`);
       
