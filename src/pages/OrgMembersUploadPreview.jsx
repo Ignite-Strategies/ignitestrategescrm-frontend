@@ -129,7 +129,7 @@ export default function OrgMembersUploadPreview() {
         const formData = new FormData();
         const blob = new Blob([file.content], { type: 'text/csv' });
         formData.append('file', blob, file.name);
-        formData.append('uploadType', 'orgMember');
+        formData.append('uploadType', 'contact'); // 🔥 CONTACT-FIRST ARCHITECTURE!
         formData.append('orgId', orgId);
 
         const response = await api.post('/contacts/upload/preview', formData, {
@@ -165,7 +165,7 @@ export default function OrgMembersUploadPreview() {
     const uploadData = {
       file: file,
       orgId: orgId,
-      uploadType: 'orgMember'
+      uploadType: 'contact' // 🔥 CONTACT-FIRST ARCHITECTURE!
     };
     
     // Add event assignment if enabled

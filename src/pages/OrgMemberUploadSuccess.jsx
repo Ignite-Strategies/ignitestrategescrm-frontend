@@ -84,15 +84,12 @@ export default function OrgMemberUploadSuccess() {
     );
   }
 
-  // Backend returns: contacts, contactsCreated, contactsUpdated, orgMembers, orgMembersCreated, orgMembersUpdated
+  // 🔥 CONTACT-FIRST ARCHITECTURE: Only contacts are created/updated!
   const totalProcessed = uploadResults.totalProcessed || 0;
   const successCount = uploadResults.validCount || 0;
   const errorCount = uploadResults.errorCount || 0;
   const contactsCreated = uploadResults.contactsCreated || 0;
   const contactsUpdated = uploadResults.contactsUpdated || 0;
-  const orgMembersCreated = uploadResults.orgMembersCreated || 0;
-  const orgMembersUpdated = uploadResults.orgMembersUpdated || 0;
-  const eventAttendeesCreated = uploadResults.eventAttendees || 0;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -129,12 +126,6 @@ export default function OrgMemberUploadSuccess() {
                   {contactsCreated > 0 && contactsUpdated > 0 && ' · '}
                   {contactsUpdated > 0 && `${contactsUpdated} updated`}
                   {(contactsCreated > 0 || contactsUpdated > 0) && ' contacts'}
-                  {(orgMembersCreated > 0 || orgMembersUpdated > 0) && ' · '}
-                  {orgMembersCreated > 0 && `${orgMembersCreated} new`}
-                  {orgMembersCreated > 0 && orgMembersUpdated > 0 && ' · '}
-                  {orgMembersUpdated > 0 && `${orgMembersUpdated} updated`}
-                  {(orgMembersCreated > 0 || orgMembersUpdated > 0) && ' org members'}
-                  {eventAttendeesCreated > 0 && ` · ${eventAttendeesCreated} event attendees`}
                 </div>
               </div>
             </div>
