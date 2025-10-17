@@ -51,22 +51,21 @@ export default function AllContactManagement() {
       
       let response;
       if (managementMode === 'contacts') {
-        console.log('🚀 LOADING BASE CONTACTS by orgId (fallback):', orgId);
-        // TODO: Use containerId when contacts have it populated
+        console.log('🚀 LOADING BASE CONTACTS by containerId:', containerId);
         response = await api.get('/contacts', {
-          params: { orgId }
+          params: { containerId }
         });
       } else if (managementMode === 'org') {
-        console.log('🚀 LOADING ORG MEMBERS by orgId:', orgId);
+        console.log('🚀 LOADING ORG MEMBERS by containerId + orgId:', containerId, orgId);
         response = await api.get('/contacts', {
-          params: { orgId }
+          params: { containerId, orgId }
         });
       } else if (managementMode === 'event') {
-        console.log('🚀 LOADING EVENT ATTENDEES by eventId');
+        console.log('🚀 LOADING EVENT ATTENDEES by containerId + eventId:', containerId);
         // TODO: Get eventId from somewhere
-        const eventId = 'event_123'; // Placeholder
+        const eventId = 'cmggljv7z0002nt28gckp1jpe'; // Bros & Brews
         response = await api.get('/contacts', {
-          params: { eventId }
+          params: { containerId, eventId }
         });
       }
       
@@ -317,7 +316,7 @@ export default function AllContactManagement() {
                     className="w-full border rounded-lg px-3 py-2"
                   >
                     <option value="">Don't change...</option>
-                    <option value="event_123">Bros & Brews</option>
+                    <option value="cmggljv7z0002nt28gckp1jpe">Bros & Brews</option>
                     <option value="none">Remove from Event</option>
                   </select>
                 </div>
@@ -427,7 +426,7 @@ export default function AllContactManagement() {
                             className="text-xs border rounded px-2 py-1 w-full"
                           >
                             <option value="">None</option>
-                            <option value="event_123">Bros & Brews</option>
+                            <option value="cmggljv7z0002nt28gckp1jpe">Bros & Brews</option>
                           </select>
                         </td>
                       </>
