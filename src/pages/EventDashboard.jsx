@@ -143,17 +143,19 @@ export default function Events() {
     }
   };
 
-  const deleteContactFromEvent = async (contactId, attendeeId) => {
+  const deleteContactFromEvent = async (contactId) => {
     try {
-      // Delete the EventAttendee record (this removes the contact from the event)
-      await api.delete(`/events/${selectedEventContacts[0]?.eventId}/attendees/${attendeeId}`);
+      // 🔥 CONTACT-FIRST: Update Contact to remove eventId
+      await api.patch(`/contacts/${contactId}`, {
+        eventId: null
+      });
       
       // Remove from local state
-      setSelectedEventContacts(prev => prev.filter(contact => contact.attendeeId !== attendeeId));
+      setSelectedEventContacts(prev => prev.filter(contact => contact.id !== contactId));
       
       alert('Contact removed from event successfully');
     } catch (error) {
-      console.error('Error deleting contact:', error);
+      console.error('Error removing contact:', error);
       alert('Failed to remove contact from event');
     }
   };
@@ -609,7 +611,7 @@ export default function Events() {
                             <button
                               onClick={() => {
                                 if (confirm(`Remove ${contact.firstName} ${contact.lastName} from this event?`)) {
-                                  deleteContactFromEvent(contact.contactId, contact.attendeeId);
+                                  deleteContactFromEvent(contact.id);
                                 }
                               }}
                               className="text-red-600 hover:text-red-800 transition-colors p-2 hover:bg-red-50 rounded"

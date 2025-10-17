@@ -54,20 +54,20 @@ export default function EventAttendeeList() {
         }
       }
       
-      // Fallback: Load from API if not cached
-      console.log('📡 Loading attendees from API (slow)');
-      const attendeesRes = await api.get(`/event-attendees/${eventId}/attendees`);
-      console.log('🔍 RAW API RESPONSE:', attendeesRes.data);
-      console.log('🔍 FIRST ATTENDEE:', attendeesRes.data[0]);
-      console.log('🔍 FIRST ATTENDEE CONTACT:', attendeesRes.data[0]?.contact);
-      console.log('🔍 FIRST ATTENDEE FIRSTNAME:', attendeesRes.data[0]?.contact?.firstName);
-      setAttendees(attendeesRes.data);
+      // 🔥 CONTACT-FIRST: Load contacts by eventId
+      console.log('📡 Loading event contacts from Contact API');
+      const contactsRes = await api.get('/contacts', {
+        params: { eventId }
+      });
+      console.log('🔍 RAW API RESPONSE:', contactsRes.data);
+      console.log('🔍 FIRST CONTACT:', contactsRes.data[0]);
+      setAttendees(contactsRes.data);
       
       // Cache for next time (with timestamp)
-      localStorage.setItem(`event_${eventId}_attendees`, JSON.stringify(attendeesRes.data));
+      localStorage.setItem(`event_${eventId}_attendees`, JSON.stringify(contactsRes.data));
       localStorage.setItem(`event_${eventId}_attendees_timestamp`, Date.now().toString());
       
-      console.log('📋 Loaded', attendeesRes.data.length, 'attendees for event:', eventRes.data.name);
+      console.log('📋 Loaded', contactsRes.data.length, 'contacts for event:', eventRes.data.name);
       
     } catch (error) {
       console.error('❌ Error loading attendees:', error);
@@ -76,21 +76,24 @@ export default function EventAttendeeList() {
     }
   };
 
-  const handleRemoveFromEvent = async (attendeeId, contactName) => {
+  const handleRemoveFromEvent = async (contactId, contactName) => {
     if (!confirm(`Remove ${contactName} from this event?`)) {
       return;
     }
 
     try {
-      await api.delete(`/events/${eventId}/attendees/${attendeeId}`);
-      console.log('✅ Attendee removed from event');
+      // 🔥 CONTACT-FIRST: Update Contact to remove eventId
+      await api.patch(`/contacts/${contactId}`, {
+        eventId: null
+      });
+      console.log('✅ Contact removed from event');
       
       // Reload data
       await loadData();
       
     } catch (error) {
-      console.error('❌ Error removing attendee:', error);
-      alert('Failed to remove attendee from event');
+      console.error('❌ Error removing contact from event:', error);
+      alert('Failed to remove contact from event');
     }
   };
 
@@ -378,14 +381,14 @@ export default function EventAttendeeList() {
                         <div className="flex items-center">
                           <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
                             <span className="text-indigo-600 font-medium text-xs">
-                              {attendee.contact?.firstName?.[0]}{attendee.contact?.lastName?.[0]}
+                              {attendee.firstName?.[0]}{attendee.lastName?.[0]}
                             </span>
                           </div>
                           <button
-                            onClick={() => handleViewContactDetails(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
+                            onClick={() => handleViewContactDetails(attendee.id, `${attendee.firstName} ${attendee.lastName}`)}
                             className="font-medium text-indigo-600 hover:text-indigo-800 hover:underline text-left text-sm"
                           >
-                            {attendee.contact?.firstName} {attendee.contact?.lastName}
+                            {attendee.firstName} {attendee.lastName}
                           </button>
                         </div>
                       </td>
@@ -393,10 +396,10 @@ export default function EventAttendeeList() {
                       {/* Email */}
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                         <EditableFieldComponent
-                          value={attendee.contact?.email}
+                          value={attendee.email}
                           field="email"
                           type="email"
-                          contactId={attendee.contactId}
+                          contactId={attendee.id}
                           onSave={loadData}
                           placeholder="email@example.com"
                         />
@@ -405,10 +408,10 @@ export default function EventAttendeeList() {
                       {/* Phone */}
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                         <EditableFieldComponent
-                          value={formatPhone(attendee.contact?.phone)}
+                          value={formatPhone(attendee.phone)}
                           field="phone"
                           type="tel"
-                          contactId={attendee.contactId}
+                          contactId={attendee.id}
                           onSave={loadData}
                           placeholder="555-555-5555"
                         />
@@ -421,7 +424,6 @@ export default function EventAttendeeList() {
                           field="audienceType"
                           type="select"
                           contactId={attendee.id}
-                          orgMemberId={attendee.orgMemberId}
                           onSave={loadData}
                           options={[
                             { value: 'org_members', label: 'Org Members' },
@@ -440,7 +442,6 @@ export default function EventAttendeeList() {
                           field="currentStage"
                           type="select"
                           contactId={attendee.id}
-                          orgMemberId={attendee.orgMemberId}
                           onSave={loadData}
                           options={[
                             { value: 'aware', label: 'Aware' },
@@ -458,7 +459,7 @@ export default function EventAttendeeList() {
                           value={attendee.spouseOrOther}
                           field="spouseOrOther"
                           type="select"
-                          eventAttendeeId={attendee.id}
+                          contactId={attendee.id}
                           onSave={loadData}
                           options={[
                             { value: 'solo', label: 'Solo' },
@@ -474,7 +475,7 @@ export default function EventAttendeeList() {
                           value={attendee.howManyInParty}
                           field="howManyInParty"
                           type="number"
-                          eventAttendeeId={attendee.id}
+                          contactId={attendee.id}
                           onSave={loadData}
                           placeholder="1"
                         />
@@ -486,7 +487,7 @@ export default function EventAttendeeList() {
                           value={attendee.likelihoodToAttendId}
                           field="likelihoodToAttendId"
                           type="select"
-                          eventAttendeeId={attendee.id}
+                          contactId={attendee.id}
                           onSave={loadData}
                           options={[
                             { value: '1', label: 'High' },
@@ -513,7 +514,7 @@ export default function EventAttendeeList() {
                           {/* Elevate button - only show if NOT already an org member */}
                           {!attendee.orgMemberId && (
                             <button
-                              onClick={() => handleElevateToOrgMember(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`)}
+                                    onClick={() => handleElevateToOrgMember(attendee.id, `${attendee.firstName} ${attendee.lastName}`)}
                               className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded hover:bg-blue-200"
                               title="Elevate to Org Member"
                             >
@@ -541,7 +542,7 @@ export default function EventAttendeeList() {
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       closeAllDropdowns();
-                                      handleRemoveFromEvent(attendee.id, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
+                                      handleRemoveFromEvent(attendee.id, `${attendee.firstName} ${attendee.lastName}`);
                                     }}
                                     className="block w-full text-left px-3 py-1 text-xs text-gray-700 hover:bg-gray-100"
                                   >
@@ -551,7 +552,7 @@ export default function EventAttendeeList() {
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       closeAllDropdowns();
-                                      handleDeleteContact(attendee.contactId, `${attendee.contact?.firstName} ${attendee.contact?.lastName}`);
+                                      handleDeleteContact(attendee.id, `${attendee.firstName} ${attendee.lastName}`);
                                     }}
                                     className="block w-full text-left px-3 py-1 text-xs text-red-600 hover:bg-red-50"
                                   >
