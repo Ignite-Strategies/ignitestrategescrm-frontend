@@ -22,6 +22,8 @@ export default function ContactListBuilder() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   
+  console.log('🚀 ContactListBuilder - orgId:', orgId);
+  
   const [listName, setListName] = useState('');
   const [adventureChoice, setAdventureChoice] = useState(''); // 'all', 'event', 'org'
   const [filters, setFilters] = useState({
@@ -76,11 +78,14 @@ export default function ContactListBuilder() {
       }
       // For 'all' - just use orgId (shows all contacts in org)
 
-      const response = await api.get('/lists/preview', { params });
+      console.log('🚀 FETCHING CONTACTS with params:', params);
+      const response = await api.get('/contacts', { params });
       
-      setPreview(response.data.contacts);
-      setTotalCount(response.data.totalCount);
+      console.log('✅ CONTACTS RESPONSE:', response.data);
+      setPreview(response.data.contacts || []);
+      setTotalCount(response.data.count || 0);
     } catch (error) {
+      console.error('❌ Error previewing:', error);
       alert('Error previewing: ' + error.message);
     } finally {
       setLoading(false);
@@ -236,11 +241,11 @@ export default function ContactListBuilder() {
               </>
             )}
 
-            {/* All Contacts - Future filters */}
+            {/* All Contacts - Simple org filter */}
             {adventureChoice === 'all' && (
-              <div className="text-gray-500 text-center py-4">
-                🚧 Future: Advanced filters for all contacts<br/>
-                (Currently shows all contacts in your org)
+              <div className="text-gray-600 text-center py-4 border rounded-lg bg-blue-50">
+                🎯 <strong>All Contacts</strong><br/>
+                Will show all contacts in your organization
               </div>
             )}
 
