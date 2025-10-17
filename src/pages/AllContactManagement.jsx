@@ -2,27 +2,65 @@ import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { getOrgId } from '../lib/org';
 
-// Official pipeline config from schema
+// Updated pipeline config with audience-specific stages
 const AUDIENCE_OPTIONS = [
   { value: 'org_members', label: 'Org Members' },
   { value: 'friends_family', label: 'Friends & Family' },
-  { value: 'landing_page_public', label: 'Landing Page Public' },
   { value: 'community_partners', label: 'Community Partners' },
-  { value: 'cold_outreach', label: 'Cold Outreach' }
+  { value: 'business', label: 'Business' },
+  { value: 'champion', label: 'Champion' }
 ];
 
-const STAGE_OPTIONS = [
-  { value: 'in_funnel', label: 'In Funnel' },
-  { value: 'general_awareness', label: 'General Awareness' },
-  { value: 'personal_invite', label: 'Personal Invite' },
-  { value: 'expressed_interest', label: 'Expressed Interest' },
-  { value: 'rsvped', label: 'RSVP\'d' },
-  { value: 'thanked', label: 'Thanked' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'thanked_paid', label: 'Thanked Paid' },
-  { value: 'attended', label: 'Attended' },
-  { value: 'followed_up', label: 'Followed Up' }
-];
+// Get stages based on audience type
+const getStagesForAudience = (audienceType) => {
+  switch (audienceType) {
+    case 'org_members':
+      return [
+        { value: 'in_funnel', label: 'In Funnel' },
+        { value: 'general_awareness', label: 'General Awareness' },
+        { value: 'personal_invite', label: 'Personal Invite' },
+        { value: 'expressed_interest', label: 'Expressed Interest' },
+        { value: 'rsvped', label: 'RSVP\'d' },
+        { value: 'thanked', label: 'Thanked' },
+        { value: 'paid', label: 'Paid' },
+        { value: 'thanked_paid', label: 'Thanked Paid' },
+        { value: 'attended', label: 'Attended' },
+        { value: 'followed_up', label: 'Followed Up' }
+      ];
+    case 'friends_family':
+      return [
+        { value: 'in_funnel', label: 'In Funnel' },
+        { value: 'general_awareness', label: 'General Awareness' },
+        { value: 'personal_invite', label: 'Personal Invite' },
+        { value: 'expressed_interest', label: 'Expressed Interest' },
+        { value: 'rsvped', label: 'RSVP\'d' },
+        { value: 'thanked', label: 'Thanked' },
+        { value: 'paid', label: 'Paid' },
+        { value: 'thanked_paid', label: 'Thanked Paid' },
+        { value: 'attended', label: 'Attended' },
+        { value: 'followed_up', label: 'Followed Up' }
+      ];
+    case 'community_partners':
+      return [
+        { value: 'interested', label: 'Interested' },
+        { value: 'partnered', label: 'Partnered' },
+        { value: 'thanked', label: 'Thanked' }
+      ];
+    case 'business':
+      return [
+        { value: 'interested', label: 'Interested' },
+        { value: 'paid', label: 'Paid' },
+        { value: 'thanked', label: 'Thanked' }
+      ];
+    case 'champion':
+      return [
+        { value: 'aware', label: 'Aware' },
+        { value: 'executing', label: 'Executing' }
+      ];
+    default:
+      return [];
+  }
+};
 
 export default function AllContactManagement() {
   const orgId = getOrgId();
@@ -322,7 +360,7 @@ export default function AllContactManagement() {
                     className="w-full border rounded-lg px-3 py-2"
                   >
                     <option value="">Select stage...</option>
-                    {STAGE_OPTIONS.map(option => (
+                    {getStagesForAudience(bulkAudienceType).map(option => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
@@ -569,7 +607,7 @@ export default function AllContactManagement() {
                             <option value="">
                               {!contact.audienceType ? 'Set audience first' : 'Not set'}
                             </option>
-                            {STAGE_OPTIONS.map(option => (
+                            {getStagesForAudience(contact.audienceType).map(option => (
                               <option key={option.value} value={option.value}>
                                 {option.label}
                               </option>
