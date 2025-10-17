@@ -38,6 +38,10 @@ export default function AllContactManagement() {
   
   // Management mode toggles
   const [managementMode, setManagementMode] = useState('contacts'); // 'contacts', 'org', 'event'
+  
+  // Contact detail modal
+  const [selectedContactDetail, setSelectedContactDetail] = useState(null);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   // Reload contacts when management mode changes
   useEffect(() => {
@@ -117,6 +121,28 @@ export default function AllContactManagement() {
       // Revert on error
       loadContacts();
     }
+  };
+
+  const handleDeleteContact = async (contactId) => {
+    if (!confirm('Are you sure you want to delete this contact? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      console.log(`🗑️ Deleting contact: ${contactId}`);
+      await api.delete(`/contacts/${contactId}`);
+      console.log(`✅ Contact deleted successfully`);
+      loadContacts(); // Refresh the list
+    } catch (error) {
+      console.error('❌ Error deleting contact:', error);
+      alert('Error deleting contact: ' + error.message);
+    }
+  };
+
+  const handleViewContact = (contactId) => {
+    const contact = contacts.find(c => c.id === contactId);
+    setSelectedContactDetail(contact);
+    setShowContactModal(true);
   };
 
   const handleBulkUpdate = async () => {
@@ -300,7 +326,7 @@ export default function AllContactManagement() {
                     className="w-full border rounded-lg px-3 py-2"
                   >
                     <option value="">Don't change...</option>
-                    <option value={orgId}>F3 CRM</option>
+                    <option value={orgId}>F3</option>
                     <option value="none">Remove from Org</option>
                   </select>
                 </div>
@@ -376,6 +402,7 @@ export default function AllContactManagement() {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attended</th>
                     </>
                   )}
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -390,23 +417,51 @@ export default function AllContactManagement() {
                       />
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      {contact.firstName}
+                      <button
+                        onClick={() => handleViewContact(contact.id)}
+                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {contact.firstName}
+                      </button>
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      {contact.lastName}
+                      <button
+                        onClick={() => handleViewContact(contact.id)}
+                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {contact.lastName}
+                      </button>
                     </td>
                     
                     {/* BASE CONTACT MANAGEMENT MODE */}
                     {managementMode === 'contacts' && (
                       <>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {contact.goesBy || '-'}
+                        <td className="px-4 py-3">
+                          <input
+                            type="text"
+                            value={contact.goesBy || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'goesBy', e.target.value)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                            placeholder="Goes by..."
+                          />
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {contact.email}
+                        <td className="px-4 py-3">
+                          <input
+                            type="email"
+                            value={contact.email || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'email', e.target.value)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                            placeholder="Email..."
+                          />
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {contact.phone || '-'}
+                        <td className="px-4 py-3">
+                          <input
+                            type="tel"
+                            value={contact.phone || ''}
+                            onChange={(e) => handleInlineEdit(contact.id, 'phone', e.target.value)}
+                            className="text-xs border rounded px-2 py-1 w-full"
+                            placeholder="Phone..."
+                          />
                         </td>
                         <td className="px-4 py-3">
                           <select
@@ -415,7 +470,7 @@ export default function AllContactManagement() {
                             className="text-xs border rounded px-2 py-1 w-full"
                           >
                             <option value="">None</option>
-                            <option value={orgId}>F3 CRM</option>
+                            <option value={orgId}>F3</option>
                           </select>
                         </td>
                         <td className="px-4 py-3">
@@ -499,6 +554,16 @@ export default function AllContactManagement() {
                         </td>
                       </>
                     )}
+                    
+                    {/* Delete Button */}
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => handleDeleteContact(contact.id)}
+                        className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -512,6 +577,78 @@ export default function AllContactManagement() {
           )}
         </div>
       </div>
+
+      {/* Contact Detail Modal */}
+      {showContactModal && selectedContactDetail && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {selectedContactDetail.firstName} {selectedContactDetail.lastName}
+              </h2>
+              <button
+                onClick={() => setShowContactModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <p className="text-gray-900">{selectedContactDetail.email}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <p className="text-gray-900">{selectedContactDetail.phone || 'Not provided'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Goes By</label>
+                <p className="text-gray-900">{selectedContactDetail.goesBy || 'Not provided'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                <p className="text-gray-900">{selectedContactDetail.orgId ? 'F3' : 'Not assigned'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Event</label>
+                <p className="text-gray-900">{selectedContactDetail.eventId ? 'Bros & Brews' : 'Not assigned'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Audience Type</label>
+                <p className="text-gray-900">{selectedContactDetail.audienceType || 'Not set'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Current Stage</label>
+                <p className="text-gray-900">{selectedContactDetail.currentStage || 'Not set'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Contact ID</label>
+                <p className="text-gray-500 text-sm font-mono">{selectedContactDetail.id}</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowContactModal(false)}
+                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setShowContactModal(false);
+                  handleDeleteContact(selectedContactDetail.id);
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+              >
+                🗑️ Delete Contact
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
