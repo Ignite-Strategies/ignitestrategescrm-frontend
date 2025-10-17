@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { getOrgId } from '../lib/org';
 
+// Official pipeline config from schema
 const AUDIENCE_OPTIONS = [
   { value: 'org_members', label: 'Org Members' },
-  { value: 'prospects', label: 'Prospects' },
-  { value: 'donors', label: 'Donors' },
-  { value: 'vip', label: 'VIP' },
   { value: 'friends_family', label: 'Friends & Family' },
   { value: 'landing_page_public', label: 'Landing Page Public' },
   { value: 'community_partners', label: 'Community Partners' },
@@ -14,12 +12,15 @@ const AUDIENCE_OPTIONS = [
 ];
 
 const STAGE_OPTIONS = [
-  { value: 'aware', label: 'Aware' },
-  { value: 'invited', label: 'Invited' },
+  { value: 'in_funnel', label: 'In Funnel' },
+  { value: 'general_awareness', label: 'General Awareness' },
+  { value: 'personal_invite', label: 'Personal Invite' },
+  { value: 'expressed_interest', label: 'Expressed Interest' },
   { value: 'rsvped', label: 'RSVP\'d' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'attended', label: 'Attended' },
   { value: 'thanked', label: 'Thanked' },
+  { value: 'paid', label: 'Paid' },
+  { value: 'thanked_paid', label: 'Thanked Paid' },
+  { value: 'attended', label: 'Attended' },
   { value: 'followed_up', label: 'Followed Up' }
 ];
 
