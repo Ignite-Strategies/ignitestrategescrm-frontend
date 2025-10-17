@@ -34,11 +34,11 @@ export default function ContactListBuilder() {
     chapterResponsibleFor: ''
   });
   
-  const [preview, setPreview] = useState([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState([]);
   const [orgs, setOrgs] = useState([]);
+  const [selectedContacts, setSelectedContacts] = useState(new Set());
 
   useEffect(() => {
     loadEvents();
@@ -63,7 +63,7 @@ export default function ContactListBuilder() {
     }
   };
 
-  const handlePreview = async () => {
+  const handleLoadContacts = async () => {
     setLoading(true);
     try {
       const params = { orgId };
@@ -82,14 +82,33 @@ export default function ContactListBuilder() {
       const response = await api.get('/contacts', { params });
       
       console.log('✅ CONTACTS RESPONSE:', response.data);
-      setPreview(response.data.contacts || []);
-      setTotalCount(response.data.count || 0);
+      setContacts(response.data.contacts || []);
+      setSelectedContacts(new Set()); // Reset selections
     } catch (error) {
-      console.error('❌ Error previewing:', error);
-      alert('Error previewing: ' + error.message);
+      console.error('❌ Error loading contacts:', error);
+      alert('Error loading contacts: ' + error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectContact = (contactId) => {
+    const newSelected = new Set(selectedContacts);
+    if (newSelected.has(contactId)) {
+      newSelected.delete(contactId);
+    } else {
+      newSelected.add(contactId);
+    }
+    setSelectedContacts(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    const allIds = contacts.map(c => c.id);
+    setSelectedContacts(new Set(allIds));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedContacts(new Set());
   };
 
   const handleCreate = async () => {
@@ -98,26 +117,30 @@ export default function ContactListBuilder() {
       return;
     }
 
+    // Use selected contacts or all contacts if none selected
+    const contactIds = selectedContacts.size > 0 
+      ? Array.from(selectedContacts)
+      : contacts.map(c => c.id);
+
+    if (contactIds.length === 0) {
+      alert('Please select at least one contact');
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await api.post('/lists/create', {
+      const response = await api.post('/contact-lists', {
         name: listName,
-        description: `${totalCount} contacts (${adventureChoice})`,
+        description: `${contactIds.length} contacts (${adventureChoice})`,
         orgId,
-        filters: {
-          eventId: filters.eventId || undefined,
-          audienceType: filters.audienceType || undefined,
-          currentStage: filters.currentStage || undefined,
-          engagementValue: filters.engagementValue ? parseInt(filters.engagementValue) : undefined,
-          chapterResponsibleFor: filters.chapterResponsibleFor || undefined
-        }
+        contactIds
       });
 
       navigate('/list-created-success', {
         state: {
           listName,
-          contactCount: totalCount,
-          listId: response.data.list.id
+          contactCount: contactIds.length,
+          listId: response.data.id
         }
       });
     } catch (error) {
@@ -252,48 +275,98 @@ export default function ContactListBuilder() {
 
             {adventureChoice && (
               <button
-                onClick={handlePreview}
+                onClick={handleLoadContacts}
                 disabled={loading}
                 className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
               >
-                {loading ? 'Loading...' : '👁️ Preview'}
+                {loading ? 'Loading...' : '📋 Load Contacts'}
               </button>
             )}
           </div>
 
-          {/* Preview */}
+          {/* Contacts List */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Preview ({totalCount} contacts)
+              Contacts ({contacts.length})
             </h2>
 
             {!adventureChoice ? (
               <p className="text-gray-500 text-center py-8">
                 Choose your adventure to start building a list
               </p>
-            ) : preview.length > 0 ? (
+            ) : contacts.length > 0 ? (
               <>
-                <div className="space-y-2 mb-4 max-h-96 overflow-y-auto">
-                  {preview.map(contact => (
-                    <div key={contact.id} className="border rounded p-2">
-                      <p className="font-medium">{contact.firstName} {contact.lastName}</p>
-                      <p className="text-sm text-gray-600">{contact.email}</p>
-                      <div className="flex gap-2 mt-1">
-                        {contact.currentStage && (
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                            {contact.currentStage}
-                          </span>
-                        )}
-                        {contact.audienceType && (
-                          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                            {contact.audienceType}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                {/* Selection Controls */}
+                <div className="mb-4 pb-4 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSelectAll}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={handleDeselectAll}
+                      className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition text-sm"
+                    >
+                      Deselect All
+                    </button>
+                    <span className="text-sm text-gray-600">
+                      {selectedContacts.size} of {contacts.length} selected
+                    </span>
+                  </div>
                 </div>
 
+                {/* Contacts Table */}
+                <div className="overflow-x-auto mb-4 max-h-96 overflow-y-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Select</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Stage</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Audience</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {contacts.map(contact => (
+                        <tr key={contact.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedContacts.has(contact.id)}
+                              onChange={() => handleSelectContact(contact.id)}
+                              className="rounded"
+                            />
+                          </td>
+                          <td className="px-4 py-2 text-sm font-medium text-gray-900">
+                            {contact.firstName} {contact.lastName}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-500">
+                            {contact.email}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-500">
+                            {contact.currentStage && (
+                              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                {contact.currentStage}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-500">
+                            {contact.audienceType && (
+                              <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                                {contact.audienceType}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Create List Section */}
                 <div className="border-t pt-4">
                   <input
                     type="text"
@@ -304,18 +377,18 @@ export default function ContactListBuilder() {
                   />
                   <button
                     onClick={handleCreate}
-                    disabled={loading || !listName}
+                    disabled={loading || !listName || selectedContacts.size === 0}
                     className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50"
                   >
-                    Create List ({totalCount} contacts)
+                    {loading ? 'Creating...' : `Create List (${selectedContacts.size} contacts)`}
                   </button>
                 </div>
               </>
-            ) : (
+            ) : adventureChoice ? (
               <p className="text-gray-500 text-center py-8">
-                Select filters and click Preview to see results
+                No contacts found. Try adjusting your filters.
               </p>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
