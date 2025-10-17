@@ -85,11 +85,11 @@ export default function OrgMemberUploadSuccess() {
   }
 
   // 🔥 CONTACT-FIRST ARCHITECTURE: Only contacts are created/updated!
-  const totalProcessed = uploadResults.totalProcessed || 0;
-  const successCount = uploadResults.validCount || 0;
-  const errorCount = uploadResults.errorCount || 0;
-  const contactsCreated = uploadResults.contactsCreated || 0;
-  const contactsUpdated = uploadResults.contactsUpdated || 0;
+  const totalProcessed = uploadResults.results?.totalProcessed || uploadResults.totalProcessed || 0;
+  const successCount = uploadResults.results?.totalProcessed || uploadResults.validCount || 0;
+  const errorCount = uploadResults.results?.errorCount || uploadResults.errorCount || 0;
+  const contactsCreated = uploadResults.results?.contactsCreated || uploadResults.contactsCreated || 0;
+  const contactsUpdated = uploadResults.results?.contactsUpdated || uploadResults.contactsUpdated || 0;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
