@@ -180,7 +180,10 @@ export default function AllContactManagement() {
   };
 
   const handleDeleteContact = async (contactId) => {
-    if (!confirm('Are you sure you want to delete this contact? This action cannot be undone.')) {
+    const contact = contacts.find(c => c.id === contactId);
+    const contactName = contact ? `${contact.firstName} ${contact.lastName}` : 'this contact';
+    
+    if (!confirm(`Are you sure you want to delete ${contactName}? This action cannot be undone.`)) {
       return;
     }
 
