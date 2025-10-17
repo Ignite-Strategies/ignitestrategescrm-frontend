@@ -109,12 +109,26 @@ export default function AllContactManagement() {
         : contact
     ));
 
+    // If setting audience, clear the stage (dependency relationship)
+    if (field === 'audienceType') {
+      setContacts(prev => prev.map(contact => 
+        contact.id === contactId 
+          ? { ...contact, currentStage: '' } // Clear stage when audience changes
+          : contact
+      ));
+    }
+
     // Save to backend instantly
     try {
       console.log(`💾 Saving ${field} = ${value} for contact ${contactId}`);
-      await api.patch(`/contacts/${contactId}`, {
-        [field]: value
-      });
+      const updateData = { [field]: value };
+      
+      // If setting audience, also clear stage
+      if (field === 'audienceType') {
+        updateData.currentStage = '';
+      }
+      
+      await api.patch(`/contacts/${contactId}`, updateData);
       console.log(`✅ Saved ${field} successfully`);
     } catch (error) {
       console.error(`❌ Error saving ${field}:`, error);
@@ -546,9 +560,15 @@ export default function AllContactManagement() {
                           <select
                             value={contact.currentStage || ''}
                             onChange={(e) => handleInlineEdit(contact.id, 'currentStage', e.target.value)}
-                            className="text-xs border rounded px-2 py-1 w-full"
+                            disabled={!contact.audienceType}
+                            className={`text-xs border rounded px-2 py-1 w-full ${
+                              !contact.audienceType ? 'bg-gray-100 text-gray-400' : ''
+                            }`}
+                            title={!contact.audienceType ? 'Set audience first to enable stages' : ''}
                           >
-                            <option value="">Not set</option>
+                            <option value="">
+                              {!contact.audienceType ? 'Set audience first' : 'Not set'}
+                            </option>
                             {STAGE_OPTIONS.map(option => (
                               <option key={option.value} value={option.value}>
                                 {option.label}
