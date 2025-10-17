@@ -66,13 +66,13 @@ export default function ContactListBuilder() {
   const handleLoadContacts = async () => {
     setLoading(true);
     try {
-      // SUPER SIMPLE - just get ALL contacts with orgId
-      console.log('🚀 LOADING ALL CONTACTS for orgId:', orgId);
-      const response = await api.get('/contacts', { 
+      // USE THE UNIVERSAL ENDPOINT!
+      console.log('🚀 LOADING ALL CONTACTS via universal endpoint for orgId:', orgId);
+      const response = await api.get('/lists/preview', { 
         params: { orgId } 
       });
       
-      console.log('✅ ALL CONTACTS RESPONSE:', response.data);
+      console.log('✅ UNIVERSAL ENDPOINT RESPONSE:', response.data);
       setContacts(response.data.contacts || []);
       setSelectedContacts(new Set()); // Reset selections
     } catch (error) {
