@@ -3,8 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import api from "../lib/api";
 
 export default function OrgMemberUploadSuccess() {
-  console.log('🔴🔴🔴 SUCCESS PAGE COMPONENT RENDERING! 🔴🔴🔴');
-  
   const navigate = useNavigate();
   const location = useLocation();
   const [uploadResults, setUploadResults] = useState(null);
@@ -12,20 +10,11 @@ export default function OrgMemberUploadSuccess() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    console.log('═══════════════════════════════════════════');
-    console.log('🎉 SUCCESS PAGE LOADED!');
-    console.log('📍 Current URL:', window.location.href);
-    console.log('📍 Location.state:', location.state);
-    console.log('═══════════════════════════════════════════');
-    
     // Get upload data from Preview page
     const uploadData = location.state?.uploadData;
     
     if (uploadData) {
-      console.log('✅ Found uploadData, performing upload NOW');
       performUpload(uploadData);
-    } else {
-      console.log('❌ No uploadData found');
     }
   }, [location]);
   
@@ -34,8 +23,6 @@ export default function OrgMemberUploadSuccess() {
     setEventAssignment(uploadData.eventAssignment || null);
     
     try {
-      console.log('📤 Uploading to backend...');
-      
       const formData = new FormData();
       const blob = new Blob([uploadData.file.content], { type: 'text/csv' });
       formData.append('file', blob, uploadData.file.name);
@@ -51,16 +38,19 @@ export default function OrgMemberUploadSuccess() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      console.log('✅ Upload complete!', response.data);
       setUploadResults(response.data);
       
     } catch (error) {
-      console.error('❌ Upload error:', error);
+      console.error('Upload error:', error);
       setUploadResults({
         success: false,
-        error: error.message,
+        error: error.response?.data?.message || error.response?.data?.error || error.message,
+        errors: error.response?.data?.errors || [], // ✅ Always an array!
         errorCount: 1,
-        validCount: 0
+        validCount: 0,
+        totalProcessed: 0,
+        contactsCreated: 0,
+        contactsUpdated: 0
       });
     } finally {
       setUploading(false);
@@ -178,25 +168,30 @@ export default function OrgMemberUploadSuccess() {
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-red-900">Errors Encountered:</h3>
-                <button
-                  onClick={() => navigate('/read-the-error', { state: { uploadResults } })}
-                  className="text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
-                >
-                  View Details
-                </button>
               </div>
-              <div className="max-h-40 overflow-y-auto space-y-1">
-                {uploadResults.errors.slice(0, 3).map((error, idx) => (
-                  <div key={idx} className="text-sm text-red-800">
-                    • {error.record?.email || 'Unknown'}: {error.errors?.join(', ') || error.error || 'Unknown error'}
-                  </div>
-                ))}
-                {uploadResults.errors.length > 3 && (
-                  <div className="text-sm text-red-600 font-medium">
-                    ... and {uploadResults.errors.length - 3} more errors
-                  </div>
-                )}
-              </div>
+              
+              {/* Show general error message if no detailed errors array */}
+              {uploadResults.error && (
+                <div className="text-sm text-red-800 mb-2">
+                  <strong>Error:</strong> {uploadResults.error}
+                </div>
+              )}
+              
+              {/* Show detailed errors if available */}
+              {uploadResults.errors && uploadResults.errors.length > 0 && (
+                <div className="max-h-40 overflow-y-auto space-y-1">
+                  {uploadResults.errors.slice(0, 3).map((error, idx) => (
+                    <div key={idx} className="text-sm text-red-800">
+                      • {error.record?.email || 'Unknown'}: {error.errors?.join(', ') || error.error || 'Unknown error'}
+                    </div>
+                  ))}
+                  {uploadResults.errors.length > 3 && (
+                    <div className="text-sm text-red-600 font-medium">
+                      ... and {uploadResults.errors.length - 3} more errors
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
