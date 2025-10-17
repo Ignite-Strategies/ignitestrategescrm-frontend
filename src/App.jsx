@@ -234,7 +234,7 @@ export default function App() {
         <Route path="/list-created-success" element={
           <ProtectedRoute><ListCreatedSuccess /></ProtectedRoute>
         } />
-        <Route path="/contact-list/:listId" element={
+        <Route path="/contact-list-detail/:listId" element={
           <ProtectedRoute><ContactListDetail /></ProtectedRoute>
         } />
         <Route path="/contacts" element={
