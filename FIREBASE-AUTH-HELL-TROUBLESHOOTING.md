@@ -148,3 +148,4 @@ firebase.auth().signOut().then(() => {
 **Created:** Today (after Firebase Auth Hell session)
 **Status:** User locked in with adam.cole.novadude@gmail.com
 **Priority:** Fix Contact List Detail, then consider OAuth migration
+

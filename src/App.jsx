@@ -36,7 +36,6 @@ import ComposeMessage from "./pages/ComposeMessage.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactListManager from "./pages/ContactListManager.jsx";
-import ContactListBuilder from "./pages/ContactListBuilder.jsx";
 import ContactListAll from "./pages/ContactListAll.jsx";
 import AllContactManagement from "./pages/AllContactManagement.jsx";
 import ListCreatedSuccess from "./pages/ListCreatedSuccess.jsx";
@@ -223,7 +222,7 @@ export default function App() {
           <ProtectedRoute><ContactListManager /></ProtectedRoute>
         } />
         <Route path="/contact-list-builder" element={
-          <ProtectedRoute><ContactListBuilder /></ProtectedRoute>
+          <ProtectedRoute><AllContactManagement /></ProtectedRoute>
         } />
         <Route path="/contact-list-all" element={
           <ProtectedRoute><ContactListAll /></ProtectedRoute>

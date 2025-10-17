@@ -102,3 +102,4 @@ INSERT INTO "Admin" (
 ✅ **FIXED** - Backend now creates Admin records correctly
 ✅ **DEPLOYED** - Both frontend and backend updated
 ✅ **TESTED** - New users should get Admin records with proper `firebaseId` linking
+
