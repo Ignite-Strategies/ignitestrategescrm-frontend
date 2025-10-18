@@ -42,6 +42,33 @@ export default function GoogleAdCreator() {
       }
     } catch (error) {
       console.error("Error loading personas:", error);
+      // Add demo personas for demo mode
+      setPersonas([
+        {
+          id: "demo-persona-1",
+          personaName: "Disconnected Dad",
+          demographics: "Men 30-50, Arlington VA, married with kids",
+          painPoint: "Feels isolated, lacks accountability, losing touch with himself",
+          desire: "Wants community, purpose, structure, and to set an example for his kids",
+          motivators: "Challenge, brotherhood, shared purpose, being a leader",
+          barriers: "Time constraints, ego, not knowing where to start, fear of judgment",
+          tone: "Masculine, authentic, no-BS, encouraging but direct",
+          channels: "Google Search, Facebook, YouTube",
+          primaryStage: "curious"
+        },
+        {
+          id: "demo-persona-2", 
+          personaName: "Corporate Burnout",
+          demographics: "Women 25-40, DC area, working professionals",
+          painPoint: "Overwhelmed by work stress, lacks work-life balance",
+          desire: "Wants meaningful connections, stress relief, and personal growth",
+          motivators: "Community, wellness, professional development, authenticity",
+          barriers: "Limited time, social anxiety, perfectionism",
+          tone: "Supportive, professional, empathetic, empowering",
+          channels: "LinkedIn, Instagram, Google Search",
+          primaryStage: "unaware"
+        }
+      ]);
     }
   };
 
