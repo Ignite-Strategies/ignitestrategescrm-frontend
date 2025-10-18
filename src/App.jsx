@@ -79,6 +79,7 @@ import RecruitFacebook from "./pages/RecruitFacebook.jsx";
 import RecruitEventbrite from "./pages/RecruitEventbrite.jsx";
 import PersonaBuilder from "./pages/PersonaBuilder.jsx";
 import GoogleAdSignin from "./pages/GoogleAdSignin.jsx";
+import DemoGoogleAds from "./pages/DemoGoogleAds.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -100,6 +101,7 @@ export default function App() {
         
         {/* Google Ads OAuth */}
         <Route path="/googleadsignin" element={<GoogleAdSignin />} />
+        <Route path="/demo/googleads" element={<DemoGoogleAds />} />
         
         {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />

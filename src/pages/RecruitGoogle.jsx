@@ -5,6 +5,14 @@ export default function RecruitGoogle() {
 
   const tools = [
     {
+      title: "Demo Google Ads Flow",
+      icon: "🎬",
+      description: "See the complete OAuth and campaign creation flow",
+      route: "/demo/googleads",
+      badge: "Demo",
+      gradient: "from-orange-500 to-red-500"
+    },
+    {
       title: "AI Campaign Creator",
       icon: "🪄",
       description: "Use personas and AI to generate complete campaigns",
