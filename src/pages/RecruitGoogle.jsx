@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://eventscrm-backend.vercel.app";
 
 export default function RecruitGoogle() {
   const navigate = useNavigate();
+  const [isConnected, setIsConnected] = useState(false);
+  const [accountInfo, setAccountInfo] = useState(null);
   const [formData, setFormData] = useState({
     campaignName: "",
     keywords: "",
@@ -11,6 +15,54 @@ export default function RecruitGoogle() {
     adHeadline: "",
     adDescription: ""
   });
+
+  useEffect(() => {
+    // Listen for postMessage from OAuth popup
+    const handleMessage = (event) => {
+      console.log('📨 Received OAuth message:', event.data);
+      
+      if (event.data.type === 'GOOGLE_ADS_AUTH_SUCCESS') {
+        console.log('✅ Google Ads connected!', event.data.tokens);
+        setAccountInfo(event.data.tokens);
+        setIsConnected(true);
+        
+        // TODO: Save tokens to backend
+        saveGoogleAdsConnection(event.data.tokens);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleConnectGoogleAds = () => {
+    console.log('🔗 Opening Google Ads OAuth popup...');
+    
+    // Open popup (will use real OAuth URL in production)
+    const popup = window.open(
+      `${API_BASE_URL}/auth/popup`,  // Backend serves the popup
+      'googleAdsAuth',
+      'width=500,height=650,left=400,top=100'
+    );
+    
+    if (!popup) {
+      alert('Popup blocked! Please allow popups for this site.');
+    }
+  };
+
+  const saveGoogleAdsConnection = async (tokens) => {
+    try {
+      // TODO: POST to backend to save tokens
+      console.log('💾 Saving tokens to backend...', tokens);
+      // await fetch(`${API_BASE_URL}/api/googleads/save-connection`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ tokens, orgId })
+      // });
+    } catch (error) {
+      console.error('Error saving connection:', error);
+    }
+  };
 
   const templates = [
     {
@@ -62,25 +114,69 @@ export default function RecruitGoogle() {
       <div className="max-w-6xl mx-auto">
         {/* Back Button */}
         <button
-          onClick={() => navigate("/engage")}
+          onClick={() => navigate("/recruit")}
           className="mb-6 text-green-600 hover:text-green-800 flex items-center gap-2 font-medium"
         >
-          ← Back to Engagement Hub
+          ← Back to Recruit
         </button>
 
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="text-5xl">🔍</div>
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900">Google Ads Campaign</h1>
-              <p className="text-slate-600 mt-2">
-                Get discovered by new prospects searching for what you offer
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="text-5xl">🔍</div>
+              <div>
+                <h1 className="text-4xl font-bold text-slate-900">Google Ads Campaign</h1>
+                <p className="text-slate-600 mt-2">
+                  Get discovered by new prospects searching for what you offer
+                </p>
+              </div>
             </div>
+            
+            {/* Connection Status */}
+            {!isConnected ? (
+              <button
+                onClick={handleConnectGoogleAds}
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg"
+              >
+                🔗 Connect Google Ads
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 px-6 py-3 bg-green-100 text-green-700 rounded-lg">
+                <span className="text-xl">✓</span>
+                <div className="text-left">
+                  <div className="font-semibold text-sm">Connected</div>
+                  <div className="text-xs">{accountInfo?.email}</div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+        
+        {/* Show connection prompt if not connected */}
+        {!isConnected && (
+          <div className="bg-gradient-to-r from-blue-100 to-green-100 rounded-xl p-8 mb-8 text-center border-2 border-dashed border-green-300">
+            <div className="text-5xl mb-4">🔌</div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-3">
+              Connect Your Google Ads Account
+            </h2>
+            <p className="text-slate-700 mb-6 max-w-2xl mx-auto">
+              To create and manage campaigns, you'll need to connect your Google Ads account. This is a one-time setup.
+            </p>
+            <button
+              onClick={handleConnectGoogleAds}
+              className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-bold text-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg"
+            >
+              🔗 Connect Google Ads Account
+            </button>
+            <p className="text-xs text-slate-500 mt-4">
+              Demo mode: Use name@gmail.com / hardcodedpw
+            </p>
+          </div>
+        )}
 
+        {/* Campaign Builder (only show if connected) */}
+        {isConnected && (
         <div className="grid md:grid-cols-2 gap-8">
           {/* Templates Section */}
           <div className="space-y-6">
@@ -261,8 +357,10 @@ export default function RecruitGoogle() {
             </div>
           </div>
         </div>
+        )}
 
         {/* AI Placeholder */}
+        {isConnected && (
         <div className="mt-8 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-6 border-2 border-dashed border-purple-300">
           <div className="flex items-center gap-4">
             <div className="text-4xl">🪄</div>
@@ -276,6 +374,7 @@ export default function RecruitGoogle() {
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );
