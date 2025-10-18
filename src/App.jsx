@@ -78,22 +78,13 @@ import GoogleAdCreator from "./pages/GoogleAdCreator.jsx";
 import RecruitFacebook from "./pages/RecruitFacebook.jsx";
 import RecruitEventbrite from "./pages/RecruitEventbrite.jsx";
 import PersonaBuilder from "./pages/PersonaBuilder.jsx";
+import DemoSignup from "./pages/DemoSignup.jsx";
+import DemoOrgSelect from "./pages/DemoOrgSelect.jsx";
+import DemoOrgCreate from "./pages/DemoOrgCreate.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
   const firebaseId = localStorage.getItem("firebaseId");
-  
-  // FAKE AUTH FOR DEMO/VIDEO - Add ?demo=true to any URL
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('demo') === 'true') {
-    if (!firebaseId) {
-      localStorage.setItem('firebaseId', 'demo-user-123');
-      localStorage.setItem('containerId', 'demo-container-123');
-      localStorage.setItem('orgId', 'demo-org-123');
-      console.log('🎬 DEMO MODE: Fake auth enabled for video');
-    }
-    return children;
-  }
   
   if (!firebaseId) {
     return <Navigate to="/signup" replace />;
@@ -109,9 +100,17 @@ export default function App() {
         {/* Splash Screen (checks auth) */}
         <Route path="/" element={<Splash />} />
         
+        {/* Demo Entry Point */}
+        <Route path="/demo" element={<Navigate to="/demo/signup" replace />} />
+        
         {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
+        
+        {/* Demo Auth Flow */}
+        <Route path="/demo/signup" element={<DemoSignup />} />
+        <Route path="/demo/org-select" element={<DemoOrgSelect />} />
+        <Route path="/demo/org-create" element={<DemoOrgCreate />} />
         
         {/* Universal Hydrator */}
         <Route path="/welcome" element={<Welcome />} />
