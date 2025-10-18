@@ -9,6 +9,7 @@ export default function Dashboard() {
   const [org, setOrg] = useState(null);
   const [events, setEvents] = useState([]);
   const [supporterCount, setSupporterCount] = useState(0);
+  const [upcomingEvent, setUpcomingEvent] = useState(null);
 
   useEffect(() => {
     if (orgId) {
@@ -25,9 +26,26 @@ export default function Dashboard() {
       setOrg(cachedOrg);
       setEvents(cachedEvent ? [cachedEvent] : []);
       setSupporterCount(cachedMembers.length);
+      
+      // Set upcoming event
+      if (cachedEvent) {
+        const now = new Date();
+        const eventDate = new Date(cachedEvent.date);
+        if (eventDate >= now) {
+          setUpcomingEvent(cachedEvent);
+        }
+      }
     } catch (error) {
       console.error("Error loading dashboard:", error);
     }
+  };
+
+  const getDaysUntil = (date) => {
+    const now = new Date();
+    const eventDate = new Date(date);
+    const diffTime = eventDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   return (
@@ -56,6 +74,30 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12">
+        
+        {/* Next Event Countdown (if exists) */}
+        {upcomingEvent && (
+          <div className="mb-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-xl p-8 text-white text-center">
+            <div className="text-sm uppercase tracking-wide mb-2 text-white/80">Next Event</div>
+            <h2 className="text-4xl font-black mb-2">{upcomingEvent.name}</h2>
+            <div className="flex items-center justify-center gap-6">
+              <div>
+                <div className="text-6xl font-black mb-1">{getDaysUntil(upcomingEvent.date)}</div>
+                <div className="text-sm text-white/80">Days Away</div>
+              </div>
+              <div className="text-left">
+                <div className="text-sm text-white/80">Date</div>
+                <div className="text-lg font-semibold">{new Date(upcomingEvent.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate(`/event/${upcomingEvent.id}/pipelines`)}
+              className="mt-6 px-6 py-3 bg-white text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50 transition-all shadow-lg"
+            >
+              Manage Event Pipeline →
+            </button>
+          </div>
+        )}
         
         {/* Setup Section */}
         <div className="mb-8">
@@ -191,24 +233,21 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Bottom Right - See Contacts */}
-        <div className="flex justify-end">
+        {/* Contact Database Access */}
+        <div className="flex justify-center">
           <button
             onClick={() => navigate("/contacts")}
-            className="flex items-center gap-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all p-6 border-2 border-transparent hover:border-blue-300 group"
+            className="flex items-center gap-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all p-6 border-2 border-transparent hover:border-blue-300 group"
           >
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
             <div className="text-left">
-              <div className="font-bold text-slate-900">See Contacts</div>
-              <div className="text-sm text-slate-600">{supporterCount} total</div>
+              <div className="text-2xl font-bold text-slate-900">{supporterCount.toLocaleString()}</div>
+              <div className="text-sm text-slate-600">Total Contacts · <span className="text-blue-600 font-medium group-hover:underline">See All →</span></div>
             </div>
-            <svg className="w-5 h-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
           </button>
         </div>
       </div>
