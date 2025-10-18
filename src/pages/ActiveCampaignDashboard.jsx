@@ -415,7 +415,7 @@ export default function ActiveCampaignDashboard() {
                 </div>
               ))}
             </div>
-          )}
+          ))}
         </div>
       </div>
     </div>
