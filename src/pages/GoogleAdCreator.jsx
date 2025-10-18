@@ -165,17 +165,33 @@ Daily Budget: $${campaignData.dailyBudget}`;
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Step 1: Choose Your Persona</h2>
             <p className="text-slate-600 mb-6">Select who you're targeting with this campaign</p>
 
+            {/* Info box */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 mb-8 border border-purple-200">
+              <div className="flex items-start gap-3">
+                <div className="text-3xl">💡</div>
+                <div>
+                  <h3 className="font-semibold text-purple-900 mb-2">Why Personas First?</h3>
+                  <p className="text-sm text-purple-800">
+                    Personas define <strong>WHO</strong> you're talking to. Once you create a persona (demographics, pain points, desires, tone), 
+                    our AI uses that to write campaigns that actually speak to real people. One persona = unlimited campaigns.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {personas.length === 0 ? (
               <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-                <div className="text-5xl mb-4">🧩</div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">No Personas Yet</h3>
-                <p className="text-slate-600 mb-6">Create a persona first to power AI campaign generation</p>
+                <div className="text-6xl mb-4">🧩</div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">No Personas Yet</h3>
+                <p className="text-slate-600 mb-2">You need to create at least one persona before generating campaigns.</p>
+                <p className="text-sm text-slate-500 mb-8">A persona is who you're trying to reach - their demographics, pain points, desires, and tone.</p>
                 <button
                   onClick={() => navigate("/personas")}
-                  className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition"
+                  className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg"
                 >
-                  Create Your First Persona
+                  → Build Your First Persona
                 </button>
+                <p className="text-xs text-slate-400 mt-4">Takes ~2 minutes</p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 gap-6">
@@ -186,22 +202,30 @@ Daily Budget: $${campaignData.dailyBudget}`;
                       setSelectedPersona(persona);
                       setCurrentStep(2);
                     }}
-                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left border-2 border-transparent hover:border-green-300"
+                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left border-2 border-transparent hover:border-purple-300 group"
                   >
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">{persona.personaName}</h3>
-                    <p className="text-sm text-slate-600 mb-3">{persona.demographics}</p>
-                    <div className="text-xs text-green-600 font-semibold">Select & Generate →</div>
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-xl font-bold text-slate-900">{persona.personaName}</h3>
+                      <span className="text-2xl opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                    </div>
+                    <p className="text-sm text-slate-600 mb-2">{persona.demographics}</p>
+                    <p className="text-xs text-slate-500 mb-3">
+                      <strong>Pain:</strong> {persona.painPoint.substring(0, 60)}...
+                    </p>
+                    <div className="text-xs text-purple-600 font-semibold">Click to use this persona</div>
                   </button>
                 ))}
               </div>
             )}
 
-            <button
-              onClick={() => navigate("/personas")}
-              className="mt-6 px-6 py-3 bg-slate-200 text-slate-700 rounded-lg font-semibold hover:bg-slate-300 transition"
-            >
-              + Create New Persona
-            </button>
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={() => navigate("/personas")}
+                className="px-6 py-3 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 rounded-lg font-semibold hover:from-purple-200 hover:to-pink-200 transition border-2 border-purple-300"
+              >
+                + Create New Persona
+              </button>
+            </div>
           </div>
         )}
 
