@@ -8,7 +8,7 @@ export default function RecruitDashboard() {
       title: "Google Ads",
       icon: "🔍",
       description: "Create awareness campaigns with templates and AI generation",
-      route: "/recruit/google",
+      route: "/demo/googleads",
       gradient: "from-green-500 to-emerald-600"
     },
     {
