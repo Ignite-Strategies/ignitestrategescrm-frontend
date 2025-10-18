@@ -74,6 +74,7 @@ import EngageEmailCrew from "./pages/EngageEmailCrew.jsx";
 import EngageChallenges from "./pages/EngageChallenges.jsx";
 import EngageStory from "./pages/EngageStory.jsx";
 import RecruitGoogle from "./pages/RecruitGoogle.jsx";
+import GoogleAdCreator from "./pages/GoogleAdCreator.jsx";
 import RecruitFacebook from "./pages/RecruitFacebook.jsx";
 import RecruitEventbrite from "./pages/RecruitEventbrite.jsx";
 import PersonaBuilder from "./pages/PersonaBuilder.jsx";
@@ -334,6 +335,9 @@ export default function App() {
         {/* Recruit Public Routes */}
         <Route path="/recruit/google" element={
           <ProtectedRoute><RecruitGoogle /></ProtectedRoute>
+        } />
+        <Route path="/recruit/google/create" element={
+          <ProtectedRoute><GoogleAdCreator /></ProtectedRoute>
         } />
         <Route path="/recruit/facebook" element={
           <ProtectedRoute><RecruitFacebook /></ProtectedRoute>
