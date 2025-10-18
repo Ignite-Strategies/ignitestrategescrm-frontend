@@ -27,7 +27,6 @@ export default function Dashboard() {
       setEvents(cachedEvent ? [cachedEvent] : []);
       setSupporterCount(cachedMembers.length);
       
-      // Set upcoming event
       if (cachedEvent) {
         const now = new Date();
         const eventDate = new Date(cachedEvent.date);
@@ -75,7 +74,7 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         
-        {/* Next Event Countdown (if exists) */}
+        {/* Event Countdown */}
         {upcomingEvent && (
           <div className="mb-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-xl p-8 text-white text-center">
             <div className="text-sm uppercase tracking-wide mb-2 text-white/80">Next Event</div>
@@ -142,7 +141,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Org Member Journey Pipeline */}
+        {/* Journey Pipeline */}
         <div className="mb-10">
           <h2 className="text-2xl font-bold text-slate-900 mb-4 text-center">
             Org Member Journey
@@ -165,88 +164,172 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* The 2 Main Actions */}
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
+        {/* ENGAGE SECTION */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="text-5xl">🧠</div>
+            <div>
+              <h2 className="text-3xl font-black text-slate-900">Engage</h2>
+              <p className="text-slate-600">Strengthen your core · Deepen member connection</p>
+            </div>
+          </div>
           
-          {/* ENGAGE */}
-          <button
-            onClick={() => navigate("/engage")}
-            className="group relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300 p-12 text-left overflow-hidden hover:scale-[1.02]"
-          >
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32 group-hover:scale-150 transition-transform duration-700"></div>
-            
-            <div className="relative z-10">
-              <div className="text-7xl mb-6 group-hover:scale-110 transition-transform duration-300">🧠</div>
-              <h2 className="text-5xl font-black text-white mb-4 group-hover:translate-x-2 transition-transform">
-                Engage
-              </h2>
-              <p className="text-xl text-white/90 mb-8 leading-relaxed">
-                Strengthen your core. Email campaigns, challenges, and stories that deepen connection with existing members.
-              </p>
-              
-              <div className="flex items-center gap-3 text-white/80 group-hover:text-white transition-colors">
-                <span className="text-lg font-semibold">Explore Tools</span>
-                <svg className="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          <div className="grid md:grid-cols-3 gap-6">
+            <button
+              onClick={() => navigate("/engage/email")}
+              className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            >
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">✉️</div>
+              <h3 className="text-2xl font-bold mb-2">Email Your Crew</h3>
+              <p className="text-white/90 text-sm mb-4">Pre-built templates for weekly check-ins and member updates</p>
+              <div className="flex items-center gap-2 text-white/70 group-hover:text-white">
+                <span className="text-sm font-medium">View Templates</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-              
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm text-white backdrop-blur-sm">Email Your Crew</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm text-white backdrop-blur-sm">Challenges</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm text-white backdrop-blur-sm">Member Stories</span>
-              </div>
-            </div>
-          </button>
+            </button>
 
-          {/* RECRUIT */}
-          <button
-            onClick={() => navigate("/engage")}
-            className="group relative bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-300 p-12 text-left overflow-hidden hover:scale-[1.02]"
-          >
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32 group-hover:scale-150 transition-transform duration-700"></div>
-            
-            <div className="relative z-10">
-              <div className="text-7xl mb-6 group-hover:scale-110 transition-transform duration-300">🚀</div>
-              <h2 className="text-5xl font-black text-white mb-4 group-hover:translate-x-2 transition-transform">
-                Recruit
-              </h2>
-              <p className="text-xl text-white/90 mb-8 leading-relaxed">
-                Grow your reach. Google Ads, social campaigns, and event promotion that bring new people into the journey.
-              </p>
-              
-              <div className="flex items-center gap-3 text-white/80 group-hover:text-white transition-colors">
-                <span className="text-lg font-semibold">Explore Tools</span>
-                <svg className="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            <button
+              onClick={() => navigate("/engage/challenges")}
+              className="bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            >
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">💪</div>
+              <h3 className="text-2xl font-bold mb-2">Challenges</h3>
+              <p className="text-white/90 text-sm mb-4">Rally your members with ready-to-use challenge templates</p>
+              <div className="flex items-center gap-2 text-white/70 group-hover:text-white">
+                <span className="text-sm font-medium">Browse Challenges</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
-              
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm text-white backdrop-blur-sm">Google Ads</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm text-white backdrop-blur-sm">Facebook/Instagram</span>
-                <span className="px-3 py-1 bg-white/20 rounded-full text-sm text-white backdrop-blur-sm">Eventbrite</span>
+            </button>
+
+            <button
+              onClick={() => navigate("/engage/story")}
+              className="bg-gradient-to-br from-purple-500 to-pink-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            >
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">🎥</div>
+              <h3 className="text-2xl font-bold mb-2">Member Stories</h3>
+              <p className="text-white/90 text-sm mb-4">Showcase transformation stories that inspire your community</p>
+              <div className="flex items-center gap-2 text-white/70 group-hover:text-white">
+                <span className="text-sm font-medium">Upload Story</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
 
-        {/* Contact Database Access */}
-        <div className="flex justify-center">
+        {/* RECRUIT SECTION */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="text-5xl">🚀</div>
+            <div>
+              <h2 className="text-3xl font-black text-slate-900">Recruit</h2>
+              <p className="text-slate-600">Grow your reach · Bring new people into the journey</p>
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            <button
+              onClick={() => navigate("/recruit/google")}
+              className="bg-gradient-to-br from-green-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            >
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">🔍</div>
+              <h3 className="text-2xl font-bold mb-2">Google Ads</h3>
+              <p className="text-white/90 text-sm mb-4">Create awareness campaigns with templates and AI generation</p>
+              <div className="flex items-center gap-2 text-white/70 group-hover:text-white">
+                <span className="text-sm font-medium">Build Campaign</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate("/recruit/facebook")}
+              className="bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            >
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">📱</div>
+              <h3 className="text-2xl font-bold mb-2">Facebook / Instagram</h3>
+              <p className="text-white/90 text-sm mb-4">Social media campaigns with templates and targeting tips</p>
+              <div className="flex items-center gap-2 text-white/70 group-hover:text-white">
+                <span className="text-sm font-medium">Create Post</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+
+            <button
+              onClick={() => navigate("/recruit/eventbrite")}
+              className="bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
+            >
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">🎟️</div>
+              <h3 className="text-2xl font-bold mb-2">Eventbrite</h3>
+              <p className="text-white/90 text-sm mb-4">Sync public events and pull attendees into your CRM</p>
+              <div className="flex items-center gap-2 text-white/70 group-hover:text-white">
+                <span className="text-sm font-medium">Connect Account</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Setup + Contacts Row */}
+        <div className="grid md:grid-cols-3 gap-6">
+          <button
+            onClick={() => navigate("/org-dashboard")}
+            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all p-5 text-left border-2 border-transparent hover:border-orange-300"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-bold text-slate-900">Organization</div>
+                <div className="text-xs text-slate-600">Settings & team</div>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => navigate("/events")}
+            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all p-5 text-left border-2 border-transparent hover:border-indigo-300"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-bold text-slate-900">Events</div>
+                <div className="text-xs text-slate-600">Create & manage</div>
+              </div>
+            </div>
+          </button>
+
           <button
             onClick={() => navigate("/contacts")}
-            className="flex items-center gap-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all p-6 border-2 border-transparent hover:border-blue-300 group"
+            className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all p-5 text-left border-2 border-transparent hover:border-blue-300 group"
           >
-            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div className="text-left">
-              <div className="text-2xl font-bold text-slate-900">{supporterCount.toLocaleString()}</div>
-              <div className="text-sm text-slate-600">Total Contacts · <span className="text-blue-600 font-medium group-hover:underline">See All →</span></div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-bold text-slate-900 text-lg">{supporterCount.toLocaleString()}</div>
+                <div className="text-xs text-slate-600">Total Contacts · <span className="text-blue-600 group-hover:underline">See All</span></div>
+              </div>
             </div>
           </button>
         </div>
