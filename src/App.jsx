@@ -68,7 +68,8 @@ import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
 import PreviewPageTest from "./pages/PreviewPageTest.jsx";
-import EngageHub from "./pages/EngageHub.jsx";
+import EngageDashboard from "./pages/EngageDashboard.jsx";
+import RecruitDashboard from "./pages/RecruitDashboard.jsx";
 import EngageEmailCrew from "./pages/EngageEmailCrew.jsx";
 import EngageChallenges from "./pages/EngageChallenges.jsx";
 import EngageStory from "./pages/EngageStory.jsx";
@@ -311,9 +312,12 @@ export default function App() {
           <ProtectedRoute><ContactListView /></ProtectedRoute>
         } />
         
-        {/* Engagement Hub - NEW JOURNEY-BASED SYSTEM */}
+        {/* Engagement & Recruitment Dashboards */}
         <Route path="/engage" element={
-          <ProtectedRoute><EngageHub /></ProtectedRoute>
+          <ProtectedRoute><EngageDashboard /></ProtectedRoute>
+        } />
+        <Route path="/recruit" element={
+          <ProtectedRoute><RecruitDashboard /></ProtectedRoute>
         } />
         
         {/* Engage Core Routes */}
