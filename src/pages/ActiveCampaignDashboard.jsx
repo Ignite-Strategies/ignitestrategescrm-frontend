@@ -16,6 +16,8 @@ export default function ActiveCampaignDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all"); // "all", "draft", "sent"
+  const [selectedCampaigns, setSelectedCampaigns] = useState(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   
   useEffect(() => {
     loadCampaigns();
@@ -48,11 +50,69 @@ export default function ActiveCampaignDashboard() {
       alert(`❌ Failed to delete campaign: ${err.response?.data?.error || err.message}`);
     }
   };
+
+  const handleBulkDelete = async () => {
+    const selectedIds = Array.from(selectedCampaigns);
+    if (selectedIds.length === 0) {
+      alert("Please select campaigns to delete");
+      return;
+    }
+
+    const campaignNames = campaigns
+      .filter(c => selectedIds.includes(c.id))
+      .map(c => c.name)
+      .join(", ");
+
+    if (!window.confirm(`Are you sure you want to delete ${selectedIds.length} campaign(s)?\n\n${campaignNames}\n\nThis cannot be undone.`)) {
+      return;
+    }
+
+    setBulkDeleting(true);
+    try {
+      // Delete all selected campaigns
+      await Promise.all(selectedIds.map(id => api.delete(`/campaigns/${id}`)));
+      
+      alert(`✅ ${selectedIds.length} campaign(s) deleted successfully!`);
+      setSelectedCampaigns(new Set());
+      loadCampaigns(); // Refresh list
+    } catch (err) {
+      console.error("Error bulk deleting campaigns:", err);
+      alert(`❌ Failed to delete some campaigns: ${err.response?.data?.error || err.message}`);
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const handleSelectCampaign = (campaignId) => {
+    const newSelected = new Set(selectedCampaigns);
+    if (newSelected.has(campaignId)) {
+      newSelected.delete(campaignId);
+    } else {
+      newSelected.add(campaignId);
+    }
+    setSelectedCampaigns(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    const filteredIds = filteredCampaigns.map(c => c.id);
+    if (selectedCampaigns.size === filteredIds.length) {
+      // Deselect all
+      setSelectedCampaigns(new Set());
+    } else {
+      // Select all
+      setSelectedCampaigns(new Set(filteredIds));
+    }
+  };
   
   const filteredCampaigns = campaigns.filter(campaign => {
     if (filter === "all") return true;
     return campaign.status === filter;
   });
+
+  // Clear selections when filter changes
+  useEffect(() => {
+    setSelectedCampaigns(new Set());
+  }, [filter]);
   
   const draftCount = campaigns.filter(c => c.status === "draft").length;
   const sentCount = campaigns.filter(c => c.status === "sent").length;
@@ -196,6 +256,49 @@ export default function ActiveCampaignDashboard() {
             </button>
           </div>
         </div>
+
+        {/* Bulk Actions Bar */}
+        {filteredCampaigns.length > 0 && (
+          <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedCampaigns.size === filteredCampaigns.length && filteredCampaigns.length > 0}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Select All ({selectedCampaigns.size} selected)
+                  </span>
+                </label>
+              </div>
+              
+              {selectedCampaigns.size > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">
+                    {selectedCampaigns.size} campaign(s) selected
+                  </span>
+                  <button
+                    onClick={handleBulkDelete}
+                    disabled={bulkDeleting}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium text-sm"
+                  >
+                    {bulkDeleting ? (
+                      <span className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Deleting...
+                      </span>
+                    ) : (
+                      `🗑️ Delete Selected (${selectedCampaigns.size})`
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* Campaigns List */}
         <div className="bg-white rounded-b-xl shadow-md">
@@ -230,11 +333,20 @@ export default function ActiveCampaignDashboard() {
               {filteredCampaigns.map((campaign) => (
                 <div
                   key={campaign.id}
-                  className="p-6 hover:bg-gray-50 transition"
+                  className={`p-6 hover:bg-gray-50 transition ${
+                    selectedCampaigns.has(campaign.id) ? 'bg-indigo-50 border-l-4 border-indigo-500' : ''
+                  }`}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-start gap-4 flex-1">
+                      <input
+                        type="checkbox"
+                        checked={selectedCampaigns.has(campaign.id)}
+                        onChange={() => handleSelectCampaign(campaign.id)}
+                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 mt-1"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-semibold text-gray-900">
                           {campaign.name}
                         </h3>
