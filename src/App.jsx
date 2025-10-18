@@ -82,6 +82,19 @@ import PersonaBuilder from "./pages/PersonaBuilder.jsx";
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
   const firebaseId = localStorage.getItem("firebaseId");
+  
+  // FAKE AUTH FOR DEMO/VIDEO - Add ?demo=true to any URL
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('demo') === 'true') {
+    if (!firebaseId) {
+      localStorage.setItem('firebaseId', 'demo-user-123');
+      localStorage.setItem('containerId', 'demo-container-123');
+      localStorage.setItem('orgId', 'demo-org-123');
+      console.log('🎬 DEMO MODE: Fake auth enabled for video');
+    }
+    return children;
+  }
+  
   if (!firebaseId) {
     return <Navigate to="/signup" replace />;
   }
