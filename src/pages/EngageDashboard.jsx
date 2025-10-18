@@ -1,10 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getOrgId } from "../lib/org";
+import api from "../lib/api";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://eventscrm-backend.vercel.app";
 
 export default function EngageDashboard() {
   const navigate = useNavigate();
   const orgId = getOrgId();
+  const containerId = localStorage.getItem('containerId');
   const [pipelineData, setPipelineData] = useState({
     unaware: 0,
     curious: 0,
@@ -13,19 +17,38 @@ export default function EngageDashboard() {
     champion: 0,
     alumni: 0
   });
+  const [totalMembers, setTotalMembers] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Load actual pipeline data from API
-    // For now, mock data
-    setPipelineData({
-      unaware: 12,
-      curious: 34,
-      activated: 89,
-      engaged: 156,
-      champion: 23,
-      alumni: 45
-    });
-  }, [orgId]);
+    if (orgId && containerId) {
+      loadPipelineData();
+    }
+  }, [orgId, containerId]);
+
+  const loadPipelineData = async () => {
+    try {
+      setLoading(true);
+      console.log('📊 Loading org member pipeline...');
+      
+      const response = await fetch(
+        `${API_BASE_URL}/api/org-member-pipeline?containerId=${containerId}&orgId=${orgId}`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Pipeline data loaded:', data);
+        setPipelineData(data.pipeline);
+        setTotalMembers(data.totalMembers);
+      } else {
+        console.error('❌ Failed to load pipeline data');
+      }
+    } catch (error) {
+      console.error('❌ Error loading pipeline:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const stages = [
     { key: "unaware", emoji: "👀", label: "Unaware", desc: "Never heard of you", count: pipelineData.unaware },
@@ -60,8 +83,6 @@ export default function EngageDashboard() {
     }
   ];
 
-  const totalMembers = Object.values(pipelineData).reduce((sum, val) => sum + val, 0);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-8">
       <div className="max-w-7xl mx-auto">
@@ -88,10 +109,16 @@ export default function EngageDashboard() {
             Where Your Members Are Right Now
           </h2>
           <p className="text-center text-slate-600 mb-8 text-sm">
-            Total: {totalMembers} members across all stages
+            {loading ? 'Loading...' : `Total: ${totalMembers} members across all stages`}
           </p>
 
-          <div className="grid md:grid-cols-6 gap-4">
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="text-4xl mb-4">⏳</div>
+              <div className="text-slate-600">Loading your member pipeline...</div>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-6 gap-4">
             {stages.map((stage) => (
               <div
                 key={stage.key}
@@ -103,7 +130,8 @@ export default function EngageDashboard() {
                 <div className="text-xs text-slate-600 leading-tight">{stage.desc}</div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Tools to Engage */}
