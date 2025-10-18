@@ -74,6 +74,16 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         
+        {/* Hero Message */}
+        <div className="text-center mb-10">
+          <h1 className="text-5xl font-black text-slate-900 mb-3">
+            Activate Growth at {org?.name || "Your Organization"}
+          </h1>
+          <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            Use the tools below to <span className="font-semibold text-indigo-600">nurture your existing members</span> or <span className="font-semibold text-green-600">recruit new ones</span>.
+          </p>
+        </div>
+        
         {/* Event Countdown */}
         {upcomingEvent && (
           <div className="mb-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-xl p-8 text-white text-center">
@@ -166,12 +176,10 @@ export default function Dashboard() {
 
         {/* ENGAGE SECTION */}
         <div className="mb-10">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="text-5xl">🧠</div>
-            <div>
-              <h2 className="text-3xl font-black text-slate-900">Engage</h2>
-              <p className="text-slate-600">Strengthen your core · Deepen member connection</p>
-            </div>
+          <div className="text-center mb-6">
+            <div className="text-6xl mb-3">🧠</div>
+            <h2 className="text-4xl font-black text-slate-900 mb-2">Engage Your Members</h2>
+            <p className="text-lg text-slate-600">Strengthen your core and deepen connection with people who already know you</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6">
@@ -224,12 +232,10 @@ export default function Dashboard() {
 
         {/* RECRUIT SECTION */}
         <div className="mb-10">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="text-5xl">🚀</div>
-            <div>
-              <h2 className="text-3xl font-black text-slate-900">Recruit</h2>
-              <p className="text-slate-600">Grow your reach · Bring new people into the journey</p>
-            </div>
+          <div className="text-center mb-6">
+            <div className="text-6xl mb-3">🚀</div>
+            <h2 className="text-4xl font-black text-slate-900 mb-2">Recruit New Members</h2>
+            <p className="text-lg text-slate-600">Grow your reach and bring new people into the journey</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6">
