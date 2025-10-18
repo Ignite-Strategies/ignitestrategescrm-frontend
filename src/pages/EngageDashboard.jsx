@@ -103,35 +103,18 @@ export default function EngageDashboard() {
           </p>
         </div>
 
-        {/* Org Member Pipeline - WHERE THEY ARE */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-10">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2 text-center">
-            Where Your Members Are Right Now
+        {/* Org Member Pipeline - COMING SOON */}
+        <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl shadow-lg p-12 mb-10 text-center border-2 border-dashed border-purple-300">
+          <div className="text-6xl mb-4">🚧</div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-3">
+            Org Member Journey Pipeline
           </h2>
-          <p className="text-center text-slate-600 mb-8 text-sm">
-            {loading ? 'Loading...' : `Total: ${totalMembers} members across all stages`}
+          <p className="text-lg text-slate-700 mb-6 max-w-2xl mx-auto">
+            Coming soon: See exactly where your members are in their journey (Unaware → Curious → Activated → Engaged → Champion → Alumni) with real-time data from the OrgMemberJourney table.
           </p>
-
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-4">⏳</div>
-              <div className="text-slate-600">Loading your member pipeline...</div>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-6 gap-4">
-            {stages.map((stage) => (
-              <div
-                key={stage.key}
-                className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all border-2 border-slate-200 hover:border-indigo-300 cursor-pointer"
-              >
-                <div className="text-4xl mb-3">{stage.emoji}</div>
-                <div className="font-bold text-slate-900 text-sm mb-1">{stage.label}</div>
-                <div className="text-2xl font-black text-indigo-600 mb-2">{stage.count}</div>
-                <div className="text-xs text-slate-600 leading-tight">{stage.desc}</div>
-              </div>
-            ))}
-            </div>
-          )}
+          <div className="text-sm text-slate-600 italic">
+            💡 This will show REAL member distribution across the 6 journey stages with proper enum tracking
+          </div>
         </div>
 
         {/* Tools to Engage */}
