@@ -78,9 +78,7 @@ import GoogleAdCreator from "./pages/GoogleAdCreator.jsx";
 import RecruitFacebook from "./pages/RecruitFacebook.jsx";
 import RecruitEventbrite from "./pages/RecruitEventbrite.jsx";
 import PersonaBuilder from "./pages/PersonaBuilder.jsx";
-import DemoSignup from "./pages/DemoSignup.jsx";
-import DemoOrgSelect from "./pages/DemoOrgSelect.jsx";
-import DemoOrgCreate from "./pages/DemoOrgCreate.jsx";
+import GoogleAdSignin from "./pages/GoogleAdSignin.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -100,17 +98,13 @@ export default function App() {
         {/* Splash Screen (checks auth) */}
         <Route path="/" element={<Splash />} />
         
-        {/* Demo Entry Point */}
-        <Route path="/demo" element={<Navigate to="/demo/signup" replace />} />
+        {/* Google Ads OAuth */}
+        <Route path="/googleadsignin" element={<GoogleAdSignin />} />
         
         {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         
-        {/* Demo Auth Flow */}
-        <Route path="/demo/signup" element={<DemoSignup />} />
-        <Route path="/demo/org-select" element={<DemoOrgSelect />} />
-        <Route path="/demo/org-create" element={<DemoOrgCreate />} />
         
         {/* Universal Hydrator */}
         <Route path="/welcome" element={<Welcome />} />
