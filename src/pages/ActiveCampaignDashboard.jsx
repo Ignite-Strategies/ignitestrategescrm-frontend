@@ -16,10 +16,16 @@ export default function ActiveCampaignDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all"); // "all", "draft", "sent"
+  const [selectedCampaigns, setSelectedCampaigns] = useState(new Set());
   
   useEffect(() => {
     loadCampaigns();
   }, [orgId]);
+  
+  useEffect(() => {
+    // Clear selections when filter changes
+    setSelectedCampaigns(new Set());
+  }, [filter]);
   
   const loadCampaigns = async () => {
     try {
@@ -46,6 +52,46 @@ export default function ActiveCampaignDashboard() {
     } catch (err) {
       console.error("Error deleting campaign:", err);
       alert(`❌ Failed to delete campaign: ${err.response?.data?.error || err.message}`);
+    }
+  };
+  
+  const handleBulkDelete = async () => {
+    const count = selectedCampaigns.size;
+    if (count === 0) return;
+    
+    if (!window.confirm(`Are you sure you want to delete ${count} campaign${count > 1 ? 's' : ''}? This cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      const deletePromises = Array.from(selectedCampaigns).map(campaignId => 
+        api.delete(`/campaigns/${campaignId}`)
+      );
+      await Promise.all(deletePromises);
+      alert(`✅ Successfully deleted ${count} campaign${count > 1 ? 's' : ''}!`);
+      setSelectedCampaigns(new Set());
+      loadCampaigns(); // Refresh list
+    } catch (err) {
+      console.error("Error deleting campaigns:", err);
+      alert(`❌ Failed to delete campaigns: ${err.response?.data?.error || err.message}`);
+    }
+  };
+  
+  const toggleCampaignSelection = (campaignId) => {
+    const newSelected = new Set(selectedCampaigns);
+    if (newSelected.has(campaignId)) {
+      newSelected.delete(campaignId);
+    } else {
+      newSelected.add(campaignId);
+    }
+    setSelectedCampaigns(newSelected);
+  };
+  
+  const toggleSelectAll = () => {
+    if (selectedCampaigns.size === filteredCampaigns.length) {
+      setSelectedCampaigns(new Set());
+    } else {
+      setSelectedCampaigns(new Set(filteredCampaigns.map(c => c.id)));
     }
   };
   
@@ -119,13 +165,28 @@ export default function ActiveCampaignDashboard() {
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">📊 Campaign Dashboard</h1>
             <p className="text-gray-600">Manage your email campaigns</p>
+            {selectedCampaigns.size > 0 && (
+              <p className="text-sm text-indigo-600 font-medium mt-1">
+                {selectedCampaigns.size} campaign{selectedCampaigns.size > 1 ? 's' : ''} selected
+              </p>
+            )}
           </div>
-          <button
-            onClick={() => navigate('/campaign-creator')}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md"
-          >
-            + New Campaign
-          </button>
+          <div className="flex gap-3">
+            {selectedCampaigns.size > 0 && (
+              <button
+                onClick={handleBulkDelete}
+                className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition shadow-md"
+              >
+                🗑️ Delete {selectedCampaigns.size} Selected
+              </button>
+            )}
+            <button
+              onClick={() => navigate('/campaign-creator')}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md"
+            >
+              + New Campaign
+            </button>
+          </div>
         </div>
         
         {/* Stats Cards */}
@@ -163,37 +224,50 @@ export default function ActiveCampaignDashboard() {
         
         {/* Filter Tabs */}
         <div className="bg-white rounded-t-xl shadow-md p-4 border-b border-gray-200">
-          <div className="flex gap-4">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                filter === "all"
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              All ({campaigns.length})
-            </button>
-            <button
-              onClick={() => setFilter("draft")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                filter === "draft"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              Drafts ({draftCount})
-            </button>
-            <button
-              onClick={() => setFilter("sent")}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                filter === "sent"
-                  ? "bg-green-100 text-green-700"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              Sent ({sentCount})
-            </button>
+          <div className="flex justify-between items-center">
+            <div className="flex gap-4">
+              <button
+                onClick={() => setFilter("all")}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  filter === "all"
+                    ? "bg-indigo-100 text-indigo-700"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                All ({campaigns.length})
+              </button>
+              <button
+                onClick={() => setFilter("draft")}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  filter === "draft"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                Drafts ({draftCount})
+              </button>
+              <button
+                onClick={() => setFilter("sent")}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  filter === "sent"
+                    ? "bg-green-100 text-green-700"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                Sent ({sentCount})
+              </button>
+            </div>
+            {filteredCampaigns.length > 0 && (
+              <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-lg transition">
+                <input
+                  type="checkbox"
+                  checked={selectedCampaigns.size === filteredCampaigns.length && filteredCampaigns.length > 0}
+                  onChange={toggleSelectAll}
+                  className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
+                />
+                <span className="text-sm font-medium text-gray-700">Select All</span>
+              </label>
+            )}
           </div>
         </div>
         
@@ -232,7 +306,14 @@ export default function ActiveCampaignDashboard() {
                   key={campaign.id}
                   className="p-6 hover:bg-gray-50 transition"
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedCampaigns.has(campaign.id)}
+                      onChange={() => toggleCampaignSelection(campaign.id)}
+                      className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer mt-1"
+                      onClick={(e) => e.stopPropagation()}
+                    />
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-semibold text-gray-900">
