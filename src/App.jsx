@@ -68,6 +68,14 @@ import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
 import PreviewPageTest from "./pages/PreviewPageTest.jsx";
+import EngageHub from "./pages/EngageHub.jsx";
+import EngageEmailCrew from "./pages/EngageEmailCrew.jsx";
+import EngageChallenges from "./pages/EngageChallenges.jsx";
+import EngageStory from "./pages/EngageStory.jsx";
+import RecruitGoogle from "./pages/RecruitGoogle.jsx";
+import RecruitFacebook from "./pages/RecruitFacebook.jsx";
+import RecruitEventbrite from "./pages/RecruitEventbrite.jsx";
+import PersonaBuilder from "./pages/PersonaBuilder.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -301,6 +309,38 @@ export default function App() {
         } />
         <Route path="/contact-list-view" element={
           <ProtectedRoute><ContactListView /></ProtectedRoute>
+        } />
+        
+        {/* Engagement Hub - NEW JOURNEY-BASED SYSTEM */}
+        <Route path="/engage" element={
+          <ProtectedRoute><EngageHub /></ProtectedRoute>
+        } />
+        
+        {/* Engage Core Routes */}
+        <Route path="/engage/email" element={
+          <ProtectedRoute><EngageEmailCrew /></ProtectedRoute>
+        } />
+        <Route path="/engage/challenges" element={
+          <ProtectedRoute><EngageChallenges /></ProtectedRoute>
+        } />
+        <Route path="/engage/story" element={
+          <ProtectedRoute><EngageStory /></ProtectedRoute>
+        } />
+        
+        {/* Recruit Public Routes */}
+        <Route path="/recruit/google" element={
+          <ProtectedRoute><RecruitGoogle /></ProtectedRoute>
+        } />
+        <Route path="/recruit/facebook" element={
+          <ProtectedRoute><RecruitFacebook /></ProtectedRoute>
+        } />
+        <Route path="/recruit/eventbrite" element={
+          <ProtectedRoute><RecruitEventbrite /></ProtectedRoute>
+        } />
+        
+        {/* Persona Builder - THE HUMAN STACK */}
+        <Route path="/personas" element={
+          <ProtectedRoute><PersonaBuilder /></ProtectedRoute>
         } />
         
       </Routes>

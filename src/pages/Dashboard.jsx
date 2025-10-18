@@ -66,13 +66,13 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">{org?.name || "Dashboard - VERCEL TEST 2"}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{org?.name || "Dashboard"}</h1>
               <p className="text-gray-600 mt-1">{org?.mission}</p>
             </div>
             <button
@@ -96,49 +96,10 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Smart Onboarding Banners - Contact banner deprecated, now just event banner */}
-        {supporterCount > 0 && events.length === 0 && (
-          <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
-            <div className="flex items-start gap-6">
-              <div className="flex-shrink-0">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-2">🎉 Great! You have {supporterCount} contacts. Ready to create your first event?</h2>
-                <p className="text-white/90 mb-4">
-                  Events are the heart of your CRM. Your contacts will auto-populate into the event pipeline when you create one.
-                </p>
-                <button
-                  onClick={() => navigate("/event/create")}
-                  className="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-white/90 transition shadow-lg"
-                >
-                  🚀 Create Your First Event
-                </button>
-              </div>
-              <button
-                onClick={() => {
-                  localStorage.setItem('dismissedEventsBanner', 'true');
-                  window.location.reload();
-                }}
-                className="text-white/60 hover:text-white transition"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Org Members */}
-          <button
-            onClick={() => navigate("/org-dashboard")}
-            className="bg-white p-6 rounded-lg shadow hover:shadow-lg transition text-left border-2 border-transparent hover:border-blue-500"
-          >
+          <div className="bg-white p-6 rounded-lg shadow-md border-2 border-transparent hover:border-blue-300 transition-all">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-gray-600">Org Members</h3>
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -148,19 +109,11 @@ export default function Dashboard() {
               </div>
             </div>
             <p className="text-3xl font-bold text-gray-900">{supporterCount.toLocaleString()}</p>
-            <p className="text-sm text-gray-500 mt-1">Members (excl. admins)</p>
-          </button>
+            <p className="text-sm text-gray-500 mt-1">Total contacts</p>
+          </div>
 
           {/* Next Event */}
-          <button
-            onClick={() => upcomingEvent && navigate(`/event/${upcomingEvent.id}/pipelines`)}
-            disabled={!upcomingEvent}
-            className={`bg-white p-6 rounded-lg shadow transition text-left border-2 ${
-              upcomingEvent 
-                ? "hover:shadow-lg border-transparent hover:border-indigo-500 cursor-pointer" 
-                : "border-gray-200 cursor-default"
-            }`}
-          >
+          <div className="bg-white p-6 rounded-lg shadow-md border-2 border-transparent">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-medium text-gray-600">Next Event</h3>
               <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
@@ -180,14 +133,14 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-400 mt-1">No upcoming events</p>
               </>
             )}
-          </button>
+          </div>
 
-          {/* Total Invited */}
-          <div className="bg-white p-6 rounded-lg shadow text-left border-2 border-transparent">
+          {/* Active Campaigns */}
+          <div className="bg-white p-6 rounded-lg shadow-md border-2 border-transparent">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Invited</h3>
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h3 className="text-sm font-medium text-gray-600">Active Campaigns</h3>
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -196,244 +149,298 @@ export default function Dashboard() {
             <p className="text-sm text-gray-500 mt-1">Coming soon</p>
           </div>
 
-          {/* Progress to Goal */}
-          <div className="bg-white p-6 rounded-lg shadow text-left border-2 border-transparent">
+          {/* Engagement Rate */}
+          <div className="bg-white p-6 rounded-lg shadow-md border-2 border-transparent">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600">Progress to Goal</h3>
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-gray-900">—</p>
-            <p className="text-sm text-gray-500 mt-1">Coming soon</p>
-          </div>
-        </div>
-
-        {/* HubSpot-Style Main Navigation */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {/* Contact Management */}
-          <button
-            onClick={() => navigate("/contacts")}
-            className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Contact Management</h2>
-            <p className="text-blue-100 text-sm mb-4">Upload contacts, create lists, manage your database</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Upload</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">See List</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Create List</span>
-            </div>
-          </button>
-
-          {/* Event Management */}
-          <button
-            onClick={() => navigate("/events")}
-            className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Event Management</h2>
-            <p className="text-indigo-100 text-sm mb-4">Create events, set goals, manage venues, and access pipelines</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Create Event</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">View All</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Pipelines</span>
-            </div>
-          </button>
-
-          {/* Pipeline Management */}
-          <button
-            onClick={() => {
-              const eventId = upcomingEvent?.id || events[0]?.id;
-              if (eventId) navigate(`/event/${eventId}/pipelines`);
-            }}
-            disabled={!upcomingEvent && events.length === 0}
-            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group disabled:opacity-50"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <h3 className="text-sm font-medium text-gray-600">Engagement Rate</h3>
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Pipeline Management</h2>
-            <p className="text-purple-100 text-sm mb-4">Manage funnels, move contacts through stages, track progress</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">View Pipelines</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Move Stages</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Track Progress</span>
-            </div>
-          </button>
-
-          {/* Email Dashboard */}
-          <button
-            onClick={() => navigate("/campaignhome")}
-            className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Email Campaign Management</h2>
-            <p className="text-emerald-100 text-sm mb-4">Email campaigns and personal outreach</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Campaigns</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Personal Outreach</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Templates</span>
-            </div>
-          </button>
-
-          {/* Forms - NEW! 🔥 */}
-          <button
-            onClick={() => {
-              if (upcomingEvent) {
-                navigate(`/event/${upcomingEvent.id}/forms`);
-              } else {
-                alert('Please create an event first!');
-              }
-            }}
-            disabled={!upcomingEvent}
-            className={`bg-gradient-to-br from-cyan-500 to-cyan-600 text-white rounded-xl shadow-lg transition-all p-8 text-left group ${
-              !upcomingEvent ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-2xl'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Forms 🆕</h2>
-            <p className="text-cyan-100 text-sm mb-4">Create custom forms, collect submissions, drive pipeline intake</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Create Form</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Submissions</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Embed Code</span>
-            </div>
-          </button>
-
-          {/* Ad Management */}
-          <button
-            onClick={() => navigate("/ads")}
-            className="bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                </svg>
-              </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Ad Management</h2>
-            <p className="text-pink-100 text-sm mb-4">Create and manage advertising campaigns, track performance</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Campaigns</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Analytics</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Google Ads</span>
-            </div>
-          </button>
-
-          {/* Organization Management */}
-          <button
-            onClick={() => {
-              navigate("/org-dashboard");
-            }}
-            className="bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <svg className="w-6 h-6 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Organization</h2>
-            <p className="text-orange-100 text-sm mb-4">Manage team members, settings, and organization details</p>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Team</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Settings</span>
-              <span className="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs">Profile</span>
-            </div>
-          </button>
+            <p className="text-3xl font-bold text-gray-900">—</p>
+            <p className="text-sm text-gray-500 mt-1">Coming soon</p>
+          </div>
         </div>
 
-        {/* Recent Events List (simplified) */}
-        {events.length > 0 && (
-          <div className="bg-white rounded-lg shadow">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">Recent Events</h2>
+        {/* Journey-Based Navigation */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+            <span className="text-3xl">🗺️</span>
+            <span>Your Organization Journey</span>
+          </h2>
+
+          {/* Setup Phase */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="text-2xl">🏗️</div>
+              <h3 className="text-xl font-bold text-slate-800">Setup & Foundation</h3>
+              <span className="text-sm text-slate-500 ml-2">Build your infrastructure</span>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Org Settings */}
+              <button
+                onClick={() => navigate("/org-dashboard")}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group border-2 border-transparent hover:border-orange-300"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-orange-600 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Organization</h4>
+                <p className="text-sm text-slate-600">Manage team, settings, and org details</p>
+              </button>
+
+              {/* Events */}
               <button
                 onClick={() => navigate("/events")}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group border-2 border-transparent hover:border-indigo-300"
               >
-                View All →
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                    <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Events</h4>
+                <p className="text-sm text-slate-600">Create and manage events, track attendance</p>
+              </button>
+
+              {/* Contacts */}
+              <button
+                onClick={() => navigate("/contacts")}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group border-2 border-transparent hover:border-blue-300"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Contacts</h4>
+                <p className="text-sm text-slate-600">Upload and organize your contact database</p>
               </button>
             </div>
-            <div className="divide-y divide-gray-200">
-              {events.slice(0, 3).map((event) => (
-                <div key={event.id} className="p-6 hover:bg-gray-50 transition">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{event.name}</h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {event.date ? new Date(event.date).toLocaleDateString() : "Date TBD"}
-                      </p>
+          </div>
+
+          {/* Engage Phase - NEW! */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="text-2xl">🎯</div>
+              <h3 className="text-xl font-bold text-slate-800">Engage & Recruit</h3>
+              <span className="text-sm text-slate-500 ml-2">Activate and grow your community</span>
+              <span className="ml-2 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full animate-pulse">
+                NEW!
+              </span>
+            </div>
+            <div className="grid md:grid-cols-1 gap-6">
+              {/* Engagement Hub - HERO CARD */}
+              <button
+                onClick={() => navigate("/engage")}
+                className="bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white rounded-2xl shadow-xl hover:shadow-2xl transition-all p-8 text-left group relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32 group-hover:scale-150 transition-transform duration-500"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all">
+                        <span className="text-4xl">🎯</span>
+                      </div>
+                      <div>
+                        <h4 className="text-3xl font-bold mb-2">Engagement Hub</h4>
+                        <p className="text-white/90">The complete toolkit for engaging your core and recruiting new members</p>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => navigate(`/event/${event.id}/pipelines`)}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-medium"
-                    >
-                      Manage Pipeline
-                    </button>
+                    <svg className="w-8 h-8 text-white opacity-50 group-hover:opacity-100 group-hover:translate-x-2 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-2 gap-4 mt-6">
+                    <div className="bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm">
+                      <div className="text-2xl mb-2">🧠</div>
+                      <h5 className="font-bold mb-1">Engage Core</h5>
+                      <p className="text-sm text-white/80">Email campaigns, challenges, member stories</p>
+                    </div>
+                    <div className="bg-white bg-opacity-10 rounded-lg p-4 backdrop-blur-sm">
+                      <div className="text-2xl mb-2">🚀</div>
+                      <h5 className="font-bold mb-1">Recruit Public</h5>
+                      <p className="text-sm text-white/80">Google Ads, social campaigns, event promotion</p>
+                    </div>
                   </div>
                 </div>
-              ))}
+              </button>
             </div>
           </div>
-        )}
+
+          {/* Nurture Phase */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="text-2xl">🌱</div>
+              <h3 className="text-xl font-bold text-slate-800">Nurture & Convert</h3>
+              <span className="text-sm text-slate-500 ml-2">Move people through your funnels</span>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Pipelines */}
+              <button
+                onClick={() => {
+                  const eventId = upcomingEvent?.id || events[0]?.id;
+                  if (eventId) navigate(`/event/${eventId}/pipelines`);
+                  else alert("Please create an event first!");
+                }}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group border-2 border-transparent hover:border-purple-300"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Pipelines</h4>
+                <p className="text-sm text-slate-600">Manage event funnels and track progress</p>
+              </button>
+
+              {/* Campaigns */}
+              <button
+                onClick={() => navigate("/campaignhome")}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group border-2 border-transparent hover:border-green-300"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-green-600 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Email Campaigns</h4>
+                <p className="text-sm text-slate-600">Automated email sequences and outreach</p>
+              </button>
+
+              {/* Forms */}
+              <button
+                onClick={() => {
+                  if (upcomingEvent) {
+                    navigate(`/event/${upcomingEvent.id}/forms`);
+                  } else {
+                    alert('Please create an event first!');
+                  }
+                }}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group border-2 border-transparent hover:border-cyan-300"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                    <svg className="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-cyan-600 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Forms</h4>
+                <p className="text-sm text-slate-600">Collect submissions and drive intake</p>
+              </button>
+            </div>
+          </div>
+
+          {/* Analyze Phase */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="text-2xl">📊</div>
+              <h3 className="text-xl font-bold text-slate-800">Analyze & Optimize</h3>
+              <span className="text-sm text-slate-500 ml-2">Track performance and insights</span>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Analytics */}
+              <button
+                onClick={() => navigate("/analytics")}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group border-2 border-transparent hover:border-blue-300"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Analytics</h4>
+                <p className="text-sm text-slate-600">Track engagement and campaign performance</p>
+              </button>
+
+              {/* Ad Management */}
+              <button
+                onClick={() => navigate("/ads")}
+                className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group border-2 border-transparent hover:border-pink-300"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                    <svg className="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                    </svg>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 group-hover:text-pink-600 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-2">Ad Performance</h4>
+                <p className="text-sm text-slate-600">Monitor ad campaigns and ROI</p>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Org Member Journey Pipeline Visual */}
+        <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 border-2 border-purple-200">
+          <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <span>📈</span>
+            <span>Org Member Journey Pipeline</span>
+          </h3>
+          <p className="text-slate-700 mb-6">Every contact moves through these stages. Your job is to meet them where they are.</p>
+          
+          <div className="grid md:grid-cols-6 gap-4">
+            {[
+              { emoji: "👀", stage: "Unaware", desc: "Discovery" },
+              { emoji: "🤔", stage: "Curious", desc: "Interest" },
+              { emoji: "⚡", stage: "Activated", desc: "Action" },
+              { emoji: "🔥", stage: "Engaged", desc: "Connection" },
+              { emoji: "👑", stage: "Champion", desc: "Ownership" },
+              { emoji: "💤", stage: "Alumni", desc: "Legacy" }
+            ].map((item, idx) => (
+              <div key={idx} className="bg-white rounded-lg p-4 text-center shadow-md hover:shadow-lg transition-all">
+                <div className="text-3xl mb-2">{item.emoji}</div>
+                <div className="font-bold text-slate-900 text-sm mb-1">{item.stage}</div>
+                <div className="text-xs text-slate-600">{item.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
