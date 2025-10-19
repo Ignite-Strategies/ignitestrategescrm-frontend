@@ -8,9 +8,10 @@ export default function GoogleAdWordsWelcome() {
   const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
-    // Get user name from localStorage
-    const name = localStorage.getItem("userName") || localStorage.getItem("email") || "there";
-    setUserName(name.split("@")[0]); // Clean email if it's an email
+    // Get user name from localStorage (email is set during signin/signup)
+    const email = localStorage.getItem("email") || "there";
+    const name = email.includes("@") ? email.split("@")[0] : email;
+    setUserName(name);
 
     // Check if already connected to Google Ads
     const googleAdsTokens = localStorage.getItem("googleAdsTokens");
