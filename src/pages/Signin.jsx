@@ -56,25 +56,25 @@ export default function Signin() {
         photoURL: result.photoURL
       });
       
-      const orgMember = res.data;
-      console.log("✅ User found:", orgMember.id);
+      const admin = res.data;
+      console.log("✅ Admin found:", admin.id);
+      console.log("🔍 DEBUG: Firebase result:", result);
+      console.log("🔍 DEBUG: Backend admin:", admin);
+      console.log("🔍 DEBUG: Firebase email:", result.email);
+      console.log("🔍 DEBUG: Backend email:", admin.email);
       
-      // Store auth data
+      // Store auth data - use Firebase email as fallback!
       localStorage.setItem("firebaseId", result.uid);
-      localStorage.setItem("orgMemberId", orgMember.id);
-      localStorage.setItem("email", orgMember.email);
+      localStorage.setItem("adminId", admin.id);
+      localStorage.setItem("email", admin.email || result.email); // Firebase email fallback!
       
-      // Check if user has orgId (existing user) or needs setup (new user)
-      if (orgMember.orgId) {
-        console.log("✅ Existing user with org → Welcome");
+      // Check if user has containerId (existing user) or needs setup (new user)
+      if (admin.containerId) {
+        console.log("✅ Existing user with container → Welcome");
         navigate("/welcome");
       } else {
-        console.log("✅ New user without org → FLUSH OUT");
-        // Clear the incomplete user data
-        localStorage.clear();
-        alert("New user detected but incomplete setup. Please sign in again to start fresh.");
-        // Force reload to clear any cached state
-        window.location.reload();
+        console.log("✅ New user without container → Profile setup");
+        navigate("/profile-setup");
       }
       
     } catch (error) {
