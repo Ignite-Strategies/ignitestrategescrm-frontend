@@ -78,12 +78,15 @@ export default function ProfileSetup() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tell Us Who You Are</h1>
-          <p className="text-gray-600 mb-2">
-            We need your name and contact info so your team knows who you are when you invite them.
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome! Let's Get You Started</h1>
+          <p className="text-gray-700 leading-relaxed mb-4">
+            We're excited to get you started engaging your organization. EngageSmart exists to help you and your teams cultivate strong members.
           </p>
-          <p className="text-sm text-gray-500 mb-8">
-            Next step: Set up your organization or join an existing one
+          <p className="text-gray-600 mb-2">
+            It looks like you're the first user - all good! We'll get you set up, your org set up, and help you onboard anyone else you want to bring to the team.
+          </p>
+          <p className="text-sm font-semibold text-indigo-600 mb-8">
+            Let's get started! First, tell us who you are:
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
