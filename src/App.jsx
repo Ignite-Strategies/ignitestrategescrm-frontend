@@ -21,6 +21,7 @@ import OrgMemberManual from "./pages/OrgMemberManual.jsx";
 import ReadTheError from "./pages/ReadTheError.jsx";
 import ContactListView from "./pages/ContactListView.jsx";
 import AdminMaker from "./pages/AdminMaker.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 import ContactDetail from "./pages/ContactDetail.jsx";
 import EventCreate from "./pages/EventCreate.jsx";
 import EventSuccess from "./pages/EventSuccess.jsx";
@@ -189,6 +190,9 @@ export default function App() {
         } />
         <Route path="/admin-maker" element={
           <ProtectedRoute><AdminMaker /></ProtectedRoute>
+        } />
+        <Route path="/settings/admins" element={
+          <ProtectedRoute><AdminDashboard /></ProtectedRoute>
         } />
         <Route path="/contact/:contactId" element={
           <ProtectedRoute><ContactDetail /></ProtectedRoute>
