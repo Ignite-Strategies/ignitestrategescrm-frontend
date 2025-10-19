@@ -31,11 +31,15 @@ export default function Signup() {
       
       const orgMember = res.data;
       console.log("✅ OrgMember:", orgMember.id);
+      console.log("🔍 DEBUG: Firebase result:", result);
+      console.log("🔍 DEBUG: Backend orgMember:", orgMember);
+      console.log("🔍 DEBUG: Firebase email:", result.email);
+      console.log("🔍 DEBUG: Backend email:", orgMember.email);
       
-      // Store auth data
+      // Store auth data - use Firebase email as fallback!
       localStorage.setItem("firebaseId", result.uid);
       localStorage.setItem("orgMemberId", orgMember.id);
-      localStorage.setItem("email", orgMember.email);
+      localStorage.setItem("email", orgMember.email || result.email); // Firebase email fallback!
       
       // NEW USER → Profile setup FIRST!
       console.log("✅ New user → Profile setup");

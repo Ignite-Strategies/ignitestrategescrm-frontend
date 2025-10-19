@@ -13,39 +13,75 @@ export default function ProfileSetup() {
 
   // Get data from Firebase user FIRST (source of truth), then admin object
   React.useEffect(() => {
+    console.log("🔍 ProfileSetup: Starting data fetch...");
+    console.log("🔍 ProfileSetup: localStorage email:", localStorage.getItem("email"));
+    console.log("🔍 ProfileSetup: localStorage firebaseId:", localStorage.getItem("firebaseId"));
+    console.log("🔍 ProfileSetup: localStorage admin:", localStorage.getItem("admin"));
+    
     // FIREBASE USER FIRST - this is the source of truth!
     import("../firebase").then(({ auth }) => {
-      const firebaseUser = auth.currentUser;
-      if (firebaseUser) {
+      console.log("🔍 Firebase auth object:", auth);
+      console.log("🔍 Firebase currentUser:", auth.currentUser);
+      
+      // Wait for auth state if not immediately available
+      if (auth.currentUser) {
         console.log("🔥 FIREBASE USER: Getting data from Firebase user");
-        const name = firebaseUser.displayName || "";
+        console.log("🔥 Firebase user email:", auth.currentUser.email);
+        console.log("🔥 Firebase user displayName:", auth.currentUser.displayName);
+        
+        const name = auth.currentUser.displayName || "";
         const firstName = name.split(' ')[0] || "";
         const lastName = name.split(' ').slice(1).join(' ') || "";
         
         setFormData({
           firstName: firstName,
           lastName: lastName,
-          email: firebaseUser.email || "",
+          email: auth.currentUser.email || "",
           phone: ""
         });
         return; // Exit - Firebase user is the source of truth
       }
       
-      // Fallback: Try admin object if no Firebase user
-      const adminStr = localStorage.getItem("admin");
-      if (adminStr) {
-        try {
-          const admin = JSON.parse(adminStr);
+      // If no current user, wait for auth state change
+      console.log("⏳ No Firebase user immediately, waiting for auth state...");
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+        console.log("🔍 Auth state changed:", user);
+        if (user) {
+          console.log("🔥 FIREBASE USER (delayed): Getting data from Firebase user");
+          console.log("🔥 Firebase user email:", user.email);
+          console.log("🔥 Firebase user displayName:", user.displayName);
+          
+          const name = user.displayName || "";
+          const firstName = name.split(' ')[0] || "";
+          const lastName = name.split(' ').slice(1).join(' ') || "";
+          
           setFormData({
-            firstName: admin.firstName || "",
-            lastName: admin.lastName || "",
-            email: admin.email || "",
-            phone: admin.phone || ""
+            firstName: firstName,
+            lastName: lastName,
+            email: user.email || "",
+            phone: ""
           });
-        } catch (error) {
-          console.error("Error parsing admin object:", error);
+          unsubscribe(); // Stop listening
+        } else {
+          console.log("❌ No Firebase user after auth state change");
+          // Fallback: Try admin object if no Firebase user
+          const adminStr = localStorage.getItem("admin");
+          if (adminStr) {
+            try {
+              const admin = JSON.parse(adminStr);
+              setFormData({
+                firstName: admin.firstName || "",
+                lastName: admin.lastName || "",
+                email: admin.email || "",
+                phone: admin.phone || ""
+              });
+            } catch (error) {
+              console.error("Error parsing admin object:", error);
+            }
+          }
+          unsubscribe(); // Stop listening
         }
-      }
+      });
     });
   }, []);
   const [loading, setLoading] = useState(false);
