@@ -16,7 +16,7 @@ export default function ContactDetail() {
 
   const loadContactData = async () => {
     try {
-      // Load contact directly (includes OrgMember if exists)
+      // Load contact directly (Contact-first architecture)
       const contactRes = await api.get(`/contacts/${contactId}`);
       setContact(contactRes.data);
       
@@ -167,7 +167,7 @@ export default function ContactDetail() {
 
             {/* Actions */}
             <div className="flex gap-3">
-              {!contact.hasOrgMember && (
+              {!contact.orgId && (
                 <button 
                   onClick={handleElevate}
                   className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 font-medium flex items-center gap-2"
@@ -191,8 +191,8 @@ export default function ContactDetail() {
           </div>
         </div>
 
-        {/* Elevate Notice for Contacts without OrgMember */}
-        {!contact.hasOrgMember && (
+        {/* Elevate Notice for Contacts without Organization */}
+        {!contact.orgId && (
           <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
             <div className="flex">
               <div className="flex-shrink-0">
@@ -229,7 +229,7 @@ export default function ContactDetail() {
           >
             🎉 Events ({events.length})
           </button>
-          {contact.hasOrgMember && (
+          {contact.orgId && (
             <button
               onClick={() => setActiveTab('profile')}
               className={`px-6 py-3 rounded-lg font-medium transition ${

@@ -36,17 +36,11 @@ export default function AdminMaker() {
       const contact = contactRes.data;
       console.log("✅ Contact created:", contact.id);
       
-      // Create OrgMember record
-      const orgMemberRes = await api.post("/orgmembers", {
-        orgId: orgId,
-        contactId: contact.id,
-        role: "admin",
-        firebaseId: null, // They'll sign up with Firebase later
-        photoURL: null
+      // Link Contact to Organization (Contact-first architecture)
+      await api.patch(`/contacts/${contact.id}`, {
+        orgId: orgId
       });
-      
-      const orgMember = orgMemberRes.data;
-      console.log("✅ OrgMember created:", orgMember.id);
+      console.log("✅ Contact linked to Organization");
       
       // Create Admin record
       const adminRes = await api.post("/admins", {

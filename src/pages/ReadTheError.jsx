@@ -65,8 +65,8 @@ export default function ReadTheError() {
             <div className="text-sm text-gray-600">Contacts Updated</div>
           </div>
           <div className="bg-white rounded-lg shadow p-6 text-center">
-            <div className="text-3xl font-bold text-purple-600">{uploadResults.orgMembersCreated || 0}</div>
-            <div className="text-sm text-gray-600">Org Members Created</div>
+            <div className="text-3xl font-bold text-purple-600">{uploadResults.contactsCreated || 0}</div>
+            <div className="text-sm text-gray-600">Contacts Created</div>
           </div>
           <div className="bg-white rounded-lg shadow p-6 text-center">
             <div className="text-3xl font-bold text-red-600">{errorCount}</div>

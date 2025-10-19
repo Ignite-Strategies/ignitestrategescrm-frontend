@@ -1,7 +1,7 @@
 /**
- * OrgMemberManual - Manual Org Member Creation
- * Contact-First flow: Create Contact → Create OrgMember link
- * Uses Contact + OrgMember APIs (Prisma)
+ * ContactManual - Manual Contact Creation
+ * Contact-First flow: Create Contact → Link to Organization
+ * Uses Contact API (Contact-first architecture)
  */
 
 import { useState, useEffect } from "react";

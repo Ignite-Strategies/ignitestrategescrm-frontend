@@ -394,8 +394,8 @@ export default function ContactListDetail() {
                               <div className="text-sm font-medium text-gray-900">
                                 {contact.firstName} {contact.lastName}
                               </div>
-                              {contact.orgMember && (
-                                <div className="text-xs text-purple-600">Org Member</div>
+                              {contact.orgId && (
+                                <div className="text-xs text-purple-600">Organization Member</div>
                               )}
                             </div>
                           </div>
