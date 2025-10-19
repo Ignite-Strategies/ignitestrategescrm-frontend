@@ -36,12 +36,12 @@ export default function Splash() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 flex items-center justify-center p-6">
       <div className="relative text-center space-y-8">
-        {/* Party Logo */}
+        {/* Community Logo */}
         <div className="flex justify-center mb-8">
           <div className="relative">
-            <div className="absolute -top-8 -left-8 text-5xl animate-bounce">🎉</div>
-            <div className="absolute -top-6 -right-8 text-4xl animate-bounce" style={{ animationDelay: '0.3s' }}>✨</div>
-            <div className="absolute -bottom-4 -left-6 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>🎊</div>
+            <div className="absolute -top-8 -left-8 text-5xl animate-bounce">👥</div>
+            <div className="absolute -top-6 -right-8 text-4xl animate-bounce" style={{ animationDelay: '0.3s' }}>🚀</div>
+            <div className="absolute -bottom-4 -left-6 text-3xl animate-bounce" style={{ animationDelay: '0.5s' }}>💪</div>
             
             <div className="w-32 h-32 bg-white/20 backdrop-blur-lg rounded-3xl flex items-center justify-center shadow-2xl">
               <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +56,7 @@ export default function Splash() {
             EngageSmart
           </h1>
           <p className="text-2xl text-white/90 font-medium drop-shadow-lg">
-            Events that inspire communities
+            Build stronger communities with powerful engagement tools
           </p>
         </div>
 
