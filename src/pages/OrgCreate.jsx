@@ -45,14 +45,13 @@ export default function OrgCreate() {
       localStorage.setItem("orgName", response.data.name);
       localStorage.setItem("hasOrg", "true");
       
-      // Link OrgMember to Org
-      const orgMemberId = localStorage.getItem("orgMemberId");
-      if (orgMemberId) {
-        await api.patch(`/org-members/${orgMemberId}`, {
-          orgId: response.data.id,
-          role: "owner"
+      // Link Contact to Org (Contact-first architecture)
+      const contactId = localStorage.getItem("contactId");
+      if (contactId) {
+        await api.patch(`/contacts/${contactId}`, {
+          orgId: response.data.id
         });
-        console.log("✅ OrgMember linked to Org as owner");
+        console.log("✅ Contact linked to Org as owner");
       }
       
       navigate("/dashboard");

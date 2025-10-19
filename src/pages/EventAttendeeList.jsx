@@ -43,14 +43,14 @@ export default function EventAttendeeList() {
         console.log('🚀 Loading attendees from localStorage (fast!)');
         const parsedAttendees = JSON.parse(cachedAttendees);
         
-        // Check if cached data has orgMemberId (hydration check)
-        const hasOrgMemberId = parsedAttendees.length > 0 && parsedAttendees[0].hasOwnProperty('orgMemberId');
-        if (hasOrgMemberId) {
+        // Check if cached data has contactId (hydration check)
+        const hasContactId = parsedAttendees.length > 0 && parsedAttendees[0].hasOwnProperty('contactId');
+        if (hasContactId) {
           setAttendees(parsedAttendees);
         setLoading(false);
         return;
         } else {
-          console.log('⚠️ Cached data missing orgMemberId, reloading from API...');
+          console.log('⚠️ Cached data missing contactId, reloading from API...');
         }
       }
       
@@ -504,15 +504,15 @@ export default function EventAttendeeList() {
                           
                           {/* Member of Org: Yes/No */}
                           <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            attendee.orgMemberId 
+                            attendee.contactId 
                               ? 'bg-green-100 text-green-800' 
                               : 'bg-red-100 text-red-800'
                           }`}>
-                            {attendee.orgMemberId ? 'Yes' : 'No'}
+                            {attendee.contactId ? 'Yes' : 'No'}
                           </span>
                           
-                          {/* Elevate button - only show if NOT already an org member */}
-                          {!attendee.orgMemberId && (
+                          {/* Elevate button - only show if NOT already a contact */}
+                          {!attendee.contactId && (
                             <button
                                     onClick={() => handleElevateToOrgMember(attendee.id, `${attendee.firstName} ${attendee.lastName}`)}
                               className="text-xs bg-blue-100 text-blue-700 px-1 py-0.5 rounded hover:bg-blue-200"

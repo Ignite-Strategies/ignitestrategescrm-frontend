@@ -129,14 +129,14 @@ export default function OrgMembers() {
   };
 
   // Delete functions
-  const handleDeleteOrgMember = async (orgMemberId, name) => {
+  const handleDeleteContact = async (contactId, name) => {
     if (!confirm(`Remove ${name} from the organization? They will still exist as a contact.`)) {
       return;
     }
-
+    
     try {
-      // Use Contact API instead of old orgmembers endpoint
-      await api.delete(`/contacts/${orgMemberId}`);
+      // Use Contact API - Contact-first architecture
+      await api.delete(`/contacts/${contactId}`);
       alert(`${name} has been removed from the organization.`);
       loadContacts();
     } catch (error) {
@@ -144,7 +144,7 @@ export default function OrgMembers() {
     }
   };
 
-  const handleDeleteContact = async (contactId, name) => {
+  const handlePermanentlyDeleteContact = async (contactId, name) => {
     if (!confirm(`Permanently delete ${name}? This will remove them from ALL events and organizations. This cannot be undone.`)) {
       return;
     }
@@ -621,7 +621,7 @@ export default function OrgMembers() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteOrgMember(contact.id, `${contact.firstName} ${contact.lastName}`);
+                                  handlePermanentlyDeleteContact(contact.id, `${contact.firstName} ${contact.lastName}`);
                                   closeAllDropdowns();
                                 }}
                                 className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -631,7 +631,7 @@ export default function OrgMembers() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleDeleteContact(contact.id, `${contact.firstName} ${contact.lastName}`);
+                                  handlePermanentlyDeleteContact(contact.id, `${contact.firstName} ${contact.lastName}`);
                                   closeAllDropdowns();
                                 }}
                                 className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100"

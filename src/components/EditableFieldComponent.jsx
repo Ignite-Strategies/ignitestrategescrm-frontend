@@ -4,9 +4,7 @@ import api from '../lib/api';
 export default function EditableField({ 
   value, 
   field, 
-  orgMemberId,  // For OrgMember updates
-  supporterId,  // LEGACY: Keep for backward compatibility
-  contactId,    // For Contact updates
+  contactId,    // For Contact updates (Contact-first architecture)
   eventAttendeeId,  // For EventAttendee updates
   type = 'text',
   options = null,
@@ -30,8 +28,7 @@ export default function EditableField({
       let response;
       
       // 🔥 CONTACT-FIRST ARCHITECTURE: All fields go to Contact model!
-      // Use contactId (preferred) or fall back to orgMemberId for backward compatibility
-      const targetContactId = contactId || orgMemberId;
+      const targetContactId = contactId;
       
       if (!targetContactId) {
         throw new Error('No contactId provided');

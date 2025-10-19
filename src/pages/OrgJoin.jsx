@@ -45,11 +45,10 @@ export default function OrgJoin() {
       const orgId = res.data.orgId;
       const orgName = res.data.orgName;
       
-      // Link OrgMember to the org
-      const orgMemberId = localStorage.getItem("orgMemberId");
-      await api.patch(`/org-members/${orgMemberId}`, {
-        orgId: orgId,
-        role: "manager" // Invited users are managers
+      // Link Contact to the org (Contact-first architecture)
+      const contactId = localStorage.getItem("contactId");
+      await api.patch(`/contacts/${contactId}`, {
+        orgId: orgId
       });
 
       // Store org data
