@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 export default function YouTubeOAuth() {
   const navigate = useNavigate();
@@ -30,7 +31,11 @@ export default function YouTubeOAuth() {
 
       // Exchange code for tokens
       setStatus("Exchanging authorization code for tokens...");
-      const response = await api.post('/youtube/oauth', { code });
+      const orgId = getOrgId();
+      const response = await api.post('/youtube/oauth', { 
+        code, 
+        orgId: orgId || null 
+      });
       
       if (response.data.success) {
         // Store tokens
