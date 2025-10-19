@@ -5,16 +5,31 @@ import api from "../lib/api";
 export default function ProfileSetup() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    firstName: localStorage.getItem("firstName") || "",
-    lastName: localStorage.getItem("lastName") || "",
-    email: localStorage.getItem("email") || "",
+    firstName: "",
+    lastName: "",
+    email: "",
     phone: ""
   });
 
-  // Get email from Firebase user if not in localStorage
+  // Get data from admin object in localStorage
   React.useEffect(() => {
+    const adminStr = localStorage.getItem("admin");
+    if (adminStr) {
+      try {
+        const admin = JSON.parse(adminStr);
+        setFormData({
+          firstName: admin.firstName || "",
+          lastName: admin.lastName || "",
+          email: admin.email || "",
+          phone: admin.phone || ""
+        });
+      } catch (error) {
+        console.error("Error parsing admin object:", error);
+      }
+    }
+    
+    // Fallback: Try to get email from Firebase auth if still empty
     if (!formData.email) {
-      // Try to get from Firebase auth
       import("../firebase").then(({ auth }) => {
         if (auth.currentUser?.email) {
           setFormData(prev => ({ ...prev, email: auth.currentUser.email }));
