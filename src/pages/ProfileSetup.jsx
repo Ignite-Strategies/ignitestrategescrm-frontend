@@ -29,24 +29,26 @@ export default function ProfileSetup() {
     setLoading(true);
 
     try {
-      const orgMemberId = localStorage.getItem("orgMemberId");
+      // Get adminId from localStorage (set by Welcome hydration)
+      const adminId = localStorage.getItem("adminId");
       
-      if (!orgMemberId) {
+      if (!adminId) {
         alert("Session expired. Please sign in again.");
         navigate("/signup");
         return;
       }
 
-      console.log("📝 Updating OrgMember profile with phone...");
+      console.log("📝 Updating Admin profile...");
       
-      // Update OrgMember with phone number
-      await api.patch(`/orgmembers/${orgMemberId}`, {
+      // Update Admin with profile info
+      await api.patch(`/admin/${adminId}`, {
+        email: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone
       });
 
-      console.log("✅ Profile updated!");
+      console.log("✅ Admin profile updated!");
       
       // Set profile complete flag
       localStorage.setItem("hasProfile", "true");
