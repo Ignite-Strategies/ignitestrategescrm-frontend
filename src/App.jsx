@@ -89,6 +89,9 @@ import YouTubePublisherWelcome from "./pages/YouTubePublisherWelcome.jsx";
 import YouTubeOAuth from "./pages/YouTubeOAuth.jsx";
 import YouTubeAuthSuccess from "./pages/YouTubeAuthSuccess.jsx";
 import YouTubeUpload from "./pages/YouTubeUpload.jsx";
+import SocialMediaManager from "./pages/SocialMediaManager.jsx";
+import MetaWelcome from "./pages/MetaWelcome.jsx";
+import MetaOAuth from "./pages/MetaOAuth.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -382,6 +385,17 @@ export default function App() {
           <Route path="/youtube/upload" element={
             <ProtectedRoute><YouTubeUpload /></ProtectedRoute>
           } />
+          
+          {/* Social Media Routes */}
+          <Route path="/engage/social" element={
+            <ProtectedRoute><SocialMediaManager /></ProtectedRoute>
+          } />
+          
+          {/* Meta OAuth Routes */}
+          <Route path="/meta/welcome" element={
+            <ProtectedRoute><MetaWelcome /></ProtectedRoute>
+          } />
+          <Route path="/metaoauth" element={<MetaOAuth />} />
         <Route path="/recruit/facebook" element={
           <ProtectedRoute><RecruitFacebook /></ProtectedRoute>
         } />

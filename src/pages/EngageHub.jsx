@@ -26,6 +26,13 @@ export default function EngageHub() {
       icon: "🎥",
       route: "/engage/story",
       preview: "Showcase member journeys"
+    },
+    {
+      title: "Social Media Manager",
+      description: "Post to Instagram, Facebook, and other social platforms",
+      icon: "📱",
+      route: "/engage/social",
+      preview: "Cross-platform social posting"
     }
   ];
 
