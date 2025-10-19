@@ -62,19 +62,32 @@ export default function Signup() {
           </div>
           
           <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Join EngageSmart!
+            Welcome to EngageSmart!
           </h1>
           <p className="text-gray-600 text-lg">
-            Create events that bring communities together
+            How would you like to get started?
           </p>
         </div>
 
-        {/* Sign Up Button */}
-        <button
-          onClick={handleSignUp}
-          disabled={isSigningUp}
-          className="w-full bg-white border-2 border-gray-300 text-gray-700 py-4 px-6 rounded-xl font-semibold hover:bg-gray-50 transition shadow-lg disabled:opacity-50 flex items-center justify-center gap-3"
-        >
+        {/* Fork: Set Up Org vs Join Org */}
+        <div className="space-y-4">
+          <button
+            onClick={handleSignUp}
+            disabled={isSigningUp}
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold hover:from-indigo-700 hover:to-purple-700 transition shadow-lg disabled:opacity-50 flex items-center justify-center gap-3"
+          >
+            <span className="text-2xl">🚀</span>
+            <div className="text-left flex-1">
+              <div className="font-bold">Set Up Your Organization</div>
+              <div className="text-xs text-white/80">I'm starting fresh - create new org</div>
+            </div>
+          </button>
+
+          <button
+            onClick={handleSignUp}
+            disabled={isSigningUp}
+            className="w-full bg-white border-2 border-gray-300 text-gray-700 py-4 px-6 rounded-xl font-semibold hover:bg-gray-50 transition shadow-lg disabled:opacity-50 flex items-center justify-center gap-3"
+          >
           {isSigningUp ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700"></div>

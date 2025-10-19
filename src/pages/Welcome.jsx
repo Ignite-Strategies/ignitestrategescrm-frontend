@@ -122,7 +122,21 @@ export default function Welcome() {
       
       console.log('✅ Admin found! AdminId:', adminId);
       
-      // 2. Check if user has an org - if not, route to org chooser
+      // 2. 🛡️ GUARD: Check if admin has containerId (fully set up in a container)
+      const containerId = admin?.containerId;
+      if (!containerId) {
+        console.log('🛑 GUARD: No containerId - admin not linked to any container');
+        setError(`We found your account but you're not linked to an organization yet.`);
+        setShowLogout(false);
+        setLoading(false);
+        // Route to org chooser (they can create or join)
+        setTimeout(() => navigate('/org/choose'), 2000);
+        return;
+      }
+      
+      console.log('✅ Admin has containerId:', containerId);
+      
+      // 3. Check if user has an org - if not, route to org chooser
       if (!orgId) {
         console.log('⚠️ No orgId found - user needs to choose/join org');
         setError(`Welcome back! We don't see an organization for you. Let's get you set up.`);
