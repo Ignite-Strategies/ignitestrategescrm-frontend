@@ -178,7 +178,12 @@ export default function Welcome() {
       
       // Set org name and member name for display
       setOrgName(hydrationData.orgName || org?.name || 'Your Organization');
-      setMemberName(hydrationData.memberName || admin?.name || firebaseUser.displayName || 'Team Member');
+      
+      // Derive member name from admin object (firstName + lastName) or firebaseUser
+      const adminName = admin?.firstName ? 
+        `${admin.firstName} ${admin.lastName || ''}`.trim() : 
+        null;
+      setMemberName(hydrationData.memberName || adminName || firebaseUser.displayName || 'Team Member');
       setLoading(false);
       
     } catch (error) {
