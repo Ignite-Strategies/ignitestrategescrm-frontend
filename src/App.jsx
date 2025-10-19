@@ -88,6 +88,7 @@ import GooglePersonaDevelopment from "./pages/GooglePersonaDevelopment.jsx";
 import YouTubePublisherWelcome from "./pages/YouTubePublisherWelcome.jsx";
 import YouTubeOAuth from "./pages/YouTubeOAuth.jsx";
 import YouTubeAuthSuccess from "./pages/YouTubeAuthSuccess.jsx";
+import YouTubeUpload from "./pages/YouTubeUpload.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -377,6 +378,9 @@ export default function App() {
           <Route path="/youtubeoauth" element={<YouTubeOAuth />} />
           <Route path="/youtube/success" element={
             <ProtectedRoute><YouTubeAuthSuccess /></ProtectedRoute>
+          } />
+          <Route path="/youtube/upload" element={
+            <ProtectedRoute><YouTubeUpload /></ProtectedRoute>
           } />
         <Route path="/recruit/facebook" element={
           <ProtectedRoute><RecruitFacebook /></ProtectedRoute>

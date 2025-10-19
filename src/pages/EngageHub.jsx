@@ -14,18 +14,18 @@ export default function EngageHub() {
       preview: "Sample: Weekly update to engaged members"
     },
     {
-      title: "Challenge of the Week",
-      description: "Display pre-set challenge templates with copy/paste options",
-      icon: "💪",
-      route: "/engage/challenges",
-      preview: "Sample Challenge: 3x Workouts This Week"
+      title: "YouTube Publisher",
+      description: "Upload and publish videos to your YouTube channel",
+      icon: "🎬",
+      route: "/youtube/welcome",
+      preview: "Use video to tell your story"
     },
     {
-      title: "Member Story Video",
-      description: "Upload or embed YouTube video link",
+      title: "Video Stories",
+      description: "Create and share member transformation stories",
       icon: "🎥",
       route: "/engage/story",
-      preview: "Showcase transformation stories"
+      preview: "Showcase member journeys"
     }
   ];
 

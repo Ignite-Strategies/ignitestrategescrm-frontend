@@ -212,6 +212,7 @@ export default function Dashboard() {
             </div>
           </button>
 
+
           <div className="bg-slate-100 rounded-lg p-5 border-2 border-slate-200">
             <div className="text-center text-sm text-slate-500">Setup & Infrastructure</div>
           </div>
