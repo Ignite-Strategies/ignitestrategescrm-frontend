@@ -24,7 +24,10 @@ export default function YouTubePublisherWelcome() {
     setConnecting(true);
     try {
       // Redirect to backend OAuth flow
-      window.location.href = '/api/auth/youtube';
+      const backendUrl = import.meta.env.PROD 
+        ? 'https://eventscrm-backend.onrender.com' 
+        : 'http://localhost:5001';
+      window.location.href = `${backendUrl}/api/youtube/auth/youtube`;
     } catch (error) {
       console.error("YouTube connection failed:", error);
       alert("Failed to connect to YouTube. Please try again.");
