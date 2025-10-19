@@ -11,8 +11,9 @@ export default function ProfileSetup() {
     phone: ""
   });
 
-  // Get data from admin object in localStorage
+  // Get data from Firebase user (for new users) or admin object (for returning users)
   React.useEffect(() => {
+    // First try to get from admin object (returning users)
     const adminStr = localStorage.getItem("admin");
     if (adminStr) {
       try {
@@ -23,19 +24,29 @@ export default function ProfileSetup() {
           email: admin.email || "",
           phone: admin.phone || ""
         });
+        return; // Exit if we got data from admin object
       } catch (error) {
         console.error("Error parsing admin object:", error);
       }
     }
     
-    // Fallback: Try to get email from Firebase auth if still empty
-    if (!formData.email) {
-      import("../firebase").then(({ auth }) => {
-        if (auth.currentUser?.email) {
-          setFormData(prev => ({ ...prev, email: auth.currentUser.email }));
-        }
-      });
-    }
+    // For NEW USERS: Get data directly from Firebase user
+    import("../firebase").then(({ auth }) => {
+      const firebaseUser = auth.currentUser;
+      if (firebaseUser) {
+        console.log("🔥 NEW USER: Getting data from Firebase user");
+        const name = firebaseUser.displayName || "";
+        const firstName = name.split(' ')[0] || "";
+        const lastName = name.split(' ').slice(1).join(' ') || "";
+        
+        setFormData({
+          firstName: firstName,
+          lastName: lastName,
+          email: firebaseUser.email || "",
+          phone: ""
+        });
+      }
+    });
   }, []);
   const [loading, setLoading] = useState(false);
 
