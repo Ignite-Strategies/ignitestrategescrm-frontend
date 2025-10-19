@@ -30,7 +30,7 @@ export default function YouTubeOAuth() {
 
       // Exchange code for tokens
       setStatus("Exchanging authorization code for tokens...");
-      const response = await api.post('/api/youtube/oauth', { code });
+      const response = await api.post('/youtube/oauth', { code });
       
       if (response.data.success) {
         // Store tokens
