@@ -13,11 +13,11 @@ export default function RecruitGoogle() {
       gradient: "from-orange-500 to-red-500"
     },
     {
-      title: "AI Campaign Creator",
-      icon: "🪄",
-      description: "Use personas and AI to generate complete campaigns",
-      route: "/recruit/google/create",
-      badge: "Recommended",
+      title: "Google Ads Setup",
+      icon: "🚀",
+      description: "Connect your Google Ads account and create campaigns",
+      route: "/googleads/welcome",
+      badge: "Start Here",
       gradient: "from-purple-500 to-pink-500"
     },
     {

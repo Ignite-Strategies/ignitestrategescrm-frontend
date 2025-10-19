@@ -75,11 +75,15 @@ import EngageChallenges from "./pages/EngageChallenges.jsx";
 import EngageStory from "./pages/EngageStory.jsx";
 import RecruitGoogle from "./pages/RecruitGoogle.jsx";
 import GoogleAdCreator from "./pages/GoogleAdCreator.jsx";
+import GoogleCampaignBuilder from "./pages/GoogleCampaignBuilder.jsx";
 import RecruitFacebook from "./pages/RecruitFacebook.jsx";
 import RecruitEventbrite from "./pages/RecruitEventbrite.jsx";
 import PersonaBuilder from "./pages/PersonaBuilder.jsx";
 import GoogleAdSignin from "./pages/GoogleAdSignin.jsx";
 import DemoGoogleAds from "./pages/DemoGoogleAds.jsx";
+import GoogleAdWordsWelcome from "./pages/GoogleAdWordsWelcome.jsx";
+import GoogleAdWordsHome from "./pages/GoogleAdWordsHome.jsx";
+import GooglePersonaDevelopment from "./pages/GooglePersonaDevelopment.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -102,6 +106,17 @@ export default function App() {
         {/* Google Ads OAuth */}
         <Route path="/googleadsignin" element={<GoogleAdSignin />} />
         <Route path="/demo/googleads" element={<DemoGoogleAds />} />
+        
+        {/* Google Ads - NEW COMPREHENSIVE FLOW */}
+        <Route path="/googleads/welcome" element={
+          <ProtectedRoute><GoogleAdWordsWelcome /></ProtectedRoute>
+        } />
+        <Route path="/googleads/home" element={
+          <ProtectedRoute><GoogleAdWordsHome /></ProtectedRoute>
+        } />
+        <Route path="/googleads/persona-development" element={
+          <ProtectedRoute><GooglePersonaDevelopment /></ProtectedRoute>
+        } />
         
         {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />
@@ -345,7 +360,7 @@ export default function App() {
           <ProtectedRoute><RecruitGoogle /></ProtectedRoute>
         } />
         <Route path="/recruit/google/create" element={
-          <ProtectedRoute><GoogleAdCreator /></ProtectedRoute>
+          <ProtectedRoute><GoogleCampaignBuilder /></ProtectedRoute>
         } />
         <Route path="/recruit/facebook" element={
           <ProtectedRoute><RecruitFacebook /></ProtectedRoute>
