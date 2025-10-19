@@ -8,9 +8,16 @@ export default function YouTubePublisherWelcome() {
   const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
-    // Get user name from localStorage
-    const email = localStorage.getItem("email") || "there";
-    const name = email.includes("@") ? email.split("@")[0] : email;
+    // Get user name from admin object in localStorage
+    const admin = JSON.parse(localStorage.getItem("admin") || "{}");
+    const firebaseUser = JSON.parse(localStorage.getItem("firebaseUser") || "{}");
+    
+    // Priority: firebaseUser.displayName > admin.firstName > email
+    const name = firebaseUser.displayName || 
+                 (admin.firstName ? `${admin.firstName} ${admin.lastName || ''}`.trim() : '') ||
+                 (admin.email ? admin.email.split("@")[0] : '') ||
+                 "there";
+    
     setUserName(name);
 
     // Check if already connected to YouTube
