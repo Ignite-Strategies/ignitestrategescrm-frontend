@@ -1,24 +1,30 @@
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { getOrgId } from "../lib/org";
 import api from "../lib/api";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://eventscrm-backend.vercel.app";
 
-export default function EngageDashboard() {
+export default function EngagePipeline() {
   const navigate = useNavigate();
   const orgId = getOrgId();
   const containerId = localStorage.getItem('containerId');
-  const [pipelineData, setPipelineData] = useState({
-    unaware: 0,
-    curious: 0,
-    activated: 0,
-    engaged: 0,
-    champion: 0,
-    alumni: 0
-  });
-  const [totalMembers, setTotalMembers] = useState(0);
+  
+  // Pipeline stages (member journey stages)
+  const stages = [
+    { key: "unaware", label: "Unaware", emoji: "👀", desc: "Never heard of you" },
+    { key: "curious", label: "Curious", emoji: "🤔", desc: "Considering participation" },
+    { key: "activated", label: "Activated", emoji: "⚡", desc: "Took first action" },
+    { key: "engaged", label: "Engaged", emoji: "🔥", desc: "Participating repeatedly" },
+    { key: "champion", label: "Champion", emoji: "👑", desc: "Leading & multiplying" },
+    { key: "alumni", label: "Alumni", emoji: "💤", desc: "Dormant but connected" }
+  ];
+
+  const [contacts, setContacts] = useState([]);
+  const [pipelineData, setPipelineData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAddContacts, setShowAddContacts] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState(new Set());
 
   useEffect(() => {
     if (orgId && containerId) {
@@ -31,151 +37,291 @@ export default function EngageDashboard() {
       setLoading(true);
       console.log('📊 Loading member journey pipeline...');
       
-      const response = await fetch(
-        `${API_BASE_URL}/api/member-journey/pipeline?containerId=${containerId}&orgId=${orgId}`
-      );
+      // For now, use hardcoded data to avoid API issues
+      const hardcodedData = [
+        {
+          stage: "unaware",
+          contacts: [
+            { contactId: "1", firstName: "John", lastName: "Doe", email: "john@example.com", phone: "555-0101" },
+            { contactId: "2", firstName: "Jane", lastName: "Smith", email: "jane@example.com", phone: "555-0102" },
+            { contactId: "3", firstName: "Bob", lastName: "Johnson", email: "bob@example.com", phone: "555-0103" }
+          ]
+        },
+        {
+          stage: "curious",
+          contacts: [
+            { contactId: "4", firstName: "Alice", lastName: "Brown", email: "alice@example.com", phone: "555-0104" },
+            { contactId: "5", firstName: "Charlie", lastName: "Wilson", email: "charlie@example.com", phone: "555-0105" }
+          ]
+        },
+        {
+          stage: "activated",
+          contacts: [
+            { contactId: "6", firstName: "David", lastName: "Lee", email: "david@example.com", phone: "555-0106" },
+            { contactId: "7", firstName: "Emma", lastName: "Davis", email: "emma@example.com", phone: "555-0107" },
+            { contactId: "8", firstName: "Frank", lastName: "Miller", email: "frank@example.com", phone: "555-0108" }
+          ]
+        },
+        {
+          stage: "engaged",
+          contacts: [
+            { contactId: "9", firstName: "Grace", lastName: "Taylor", email: "grace@example.com", phone: "555-0109" },
+            { contactId: "10", firstName: "Henry", lastName: "Anderson", email: "henry@example.com", phone: "555-0110" },
+            { contactId: "11", firstName: "Ivy", lastName: "Thomas", email: "ivy@example.com", phone: "555-0111" },
+            { contactId: "12", firstName: "Jack", lastName: "Jackson", email: "jack@example.com", phone: "555-0112" }
+          ]
+        },
+        {
+          stage: "champion",
+          contacts: [
+            { contactId: "13", firstName: "Kate", lastName: "White", email: "kate@example.com", phone: "555-0113" },
+            { contactId: "14", firstName: "Liam", lastName: "Harris", email: "liam@example.com", phone: "555-0114" }
+          ]
+        },
+        {
+          stage: "alumni",
+          contacts: [
+            { contactId: "15", firstName: "Maya", lastName: "Martin", email: "maya@example.com", phone: "555-0115" }
+          ]
+        }
+      ];
+
+      setPipelineData(hardcodedData);
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Pipeline data loaded:', data);
-        // Map enum names to lowercase for display
-        setPipelineData({
-          unaware: data.pipeline.UNAWARE || 0,
-          curious: data.pipeline.CURIOUS || 0,
-          activated: data.pipeline.ACTIVATED || 0,
-          engaged: data.pipeline.ENGAGED || 0,
-          champion: data.pipeline.CHAMPION || 0,
-          alumni: data.pipeline.ALUMNI || 0
-        });
-        setTotalMembers(data.totalMembers);
-      } else {
-        console.error('❌ Failed to load pipeline data');
-      }
+      // Flatten all contacts for the "Add Contacts" modal
+      const allContacts = hardcodedData.flatMap(stage => stage.contacts);
+      setContacts(allContacts);
+      
     } catch (error) {
-      console.error('❌ Error loading pipeline:', error);
+      console.error('❌ Error loading pipeline data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const stages = [
-    { key: "unaware", emoji: "👀", label: "Unaware", desc: "Never heard of you", count: pipelineData.unaware },
-    { key: "curious", emoji: "🤔", label: "Curious", desc: "Considering participation", count: pipelineData.curious },
-    { key: "activated", emoji: "⚡", label: "Activated", desc: "Took first action", count: pipelineData.activated },
-    { key: "engaged", emoji: "🔥", label: "Engaged", desc: "Participating repeatedly", count: pipelineData.engaged },
-    { key: "champion", emoji: "👑", label: "Champion", desc: "Leading & multiplying", count: pipelineData.champion },
-    { key: "alumni", emoji: "💤", label: "Alumni", desc: "Dormant but connected", count: pipelineData.alumni }
-  ];
+  const getContactsForStage = (stage) => {
+    const stageData = pipelineData.find(item => item.stage === stage);
+    return stageData ? stageData.contacts : [];
+  };
 
-  const engageTools = [
-    {
-      title: "Email Your Crew",
-      icon: "✉️",
-      description: "Pre-built email templates for weekly check-ins and member updates",
-      route: "/engage/email",
-      gradient: "from-blue-500 to-indigo-600"
-    },
-    {
-      title: "Challenge of the Week",
-      icon: "💪",
-      description: "Rally your members with ready-to-use challenge templates",
-      route: "/engage/challenges",
-      gradient: "from-orange-500 to-red-600"
-    },
-    {
-      title: "Member Story Videos",
-      icon: "🎥",
-      description: "Showcase transformation stories that inspire your community",
-      route: "/engage/story",
-      gradient: "from-purple-500 to-pink-600"
+  const getLogicalNextStages = (currentStage) => {
+    const currentIndex = stages.findIndex(stage => stage.key === currentStage);
+    if (currentIndex === -1) return [];
+    
+    // Return all stages that come after the current stage
+    return stages.slice(currentIndex + 1);
+  };
+
+  const handleStageChange = async (contactId, newStage) => {
+    try {
+      console.log(`Moving contact ${contactId} to stage ${newStage}`);
+      
+      // Update the local state immediately for better UX
+      setPipelineData(prevData => {
+        const newData = [...prevData];
+        
+        // Remove contact from current stage
+        newData.forEach(stage => {
+          stage.contacts = stage.contacts.filter(contact => contact.contactId !== contactId);
+        });
+        
+        // Add contact to new stage
+        const targetStage = newData.find(stage => stage.stage === newStage);
+        if (targetStage) {
+          // Find the contact to move
+          const contactToMove = contacts.find(c => c.contactId === contactId);
+          if (contactToMove) {
+            targetStage.contacts.push(contactToMove);
+          }
+        }
+        
+        return newData;
+      });
+      
+      // TODO: Make API call to update backend
+      // await api.put(`/contacts/${contactId}/stage`, { stage: newStage, orgId, containerId });
+      
+    } catch (error) {
+      console.error('Error updating contact stage:', error);
     }
-  ];
+  };
+
+  const handleAddContacts = () => {
+    if (selectedContacts.size === 0) {
+      alert("Please select contacts to add to the pipeline!");
+      return;
+    }
+    
+    console.log('Adding contacts to pipeline:', Array.from(selectedContacts));
+    
+    // Reset selection and close modal
+    setSelectedContacts(new Set());
+    setShowAddContacts(false);
+    
+    // TODO: Implement adding contacts to pipeline
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading member pipeline...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="mb-6 text-blue-600 hover:text-blue-800 flex items-center gap-2 font-medium"
-        >
-          ← Back to Dashboard
-        </button>
-
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="text-7xl mb-4">🧠</div>
-          <h1 className="text-5xl font-black text-slate-900 mb-3">Engage Your Members</h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            See where your members are in the journey, then use the tools below to move them forward.
-          </p>
-        </div>
-
-        {/* Member Journey Pipeline - REAL DATA */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-10">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2 text-center">
-            Where Your Members Are Right Now
-          </h2>
-          <p className="text-center text-slate-600 mb-8 text-sm">
-            {loading ? 'Loading...' : `Total: ${totalMembers} members across all stages`}
-          </p>
-
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="text-4xl mb-4">⏳</div>
-              <div className="text-slate-600">Loading your member pipeline...</div>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-6 gap-4">
-              {stages.map((stage) => (
-                <div
-                  key={stage.key}
-                  className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-all border-2 border-slate-200 hover:border-indigo-300 cursor-pointer"
-                >
-                  <div className="text-4xl mb-3">{stage.emoji}</div>
-                  <div className="font-bold text-slate-900 text-sm mb-1">{stage.label}</div>
-                  <div className="text-2xl font-black text-indigo-600 mb-2">{stage.count}</div>
-                  <div className="text-xs text-slate-600 leading-tight">{stage.desc}</div>
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {!loading && totalMembers === 0 && (
-            <div className="text-center py-8 text-slate-500">
-              <p>No member journeys tracked yet. Journeys are created automatically when contacts join your org or attend events.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Tools to Engage */}
-        <div className="mb-10">
-          <h2 className="text-3xl font-bold text-slate-900 mb-6 text-center">
-            Tools to Engage
-          </h2>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {engageTools.map((tool, idx) => (
+        <div className="mb-8">
+          <div className="flex justify-between items-start">
+            <div>
               <button
-                key={idx}
-                onClick={() => navigate(tool.route)}
-                className={`bg-gradient-to-br ${tool.gradient} text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group`}
+                onClick={() => navigate('/engage')}
+                className="text-indigo-600 hover:text-indigo-800 mb-4 flex items-center gap-2"
               >
-                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{tool.icon}</div>
-                <h3 className="text-2xl font-bold mb-2">{tool.title}</h3>
-                <p className="text-white/90 text-sm mb-4">{tool.description}</p>
-                <div className="flex items-center gap-2 text-white/70 group-hover:text-white">
-                  <span className="text-sm font-medium">Open Tool</span>
-                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Engage Dashboard
               </button>
-            ))}
+              <h1 className="text-3xl font-bold text-gray-900">Member Journey Pipeline</h1>
+              <p className="text-gray-600 mt-2">Track and move your members through their engagement journey</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowAddContacts(true)}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Add Members
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Pipeline Stages - HubSpot Style */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          {stages.map((stage) => {
+            const stageContacts = getContactsForStage(stage.key);
+            return (
+              <div key={stage.key} className="bg-white rounded-lg shadow-sm border">
+                {/* Stage Header */}
+                <div className="p-4 border-b bg-gradient-to-r from-indigo-50 to-purple-50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">{stage.emoji}</span>
+                    <h3 className="font-semibold text-gray-900">
+                      {stage.label}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gray-500 mb-1">
+                    {stageContacts.length} members
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {stage.desc}
+                  </p>
+                </div>
+
+                {/* Contacts */}
+                <div className="p-4 min-h-[300px] max-h-[500px] overflow-y-auto">
+                  {stageContacts.length > 0 ? (
+                    <div className="space-y-3">
+                      {stageContacts.map((contact) => (
+                        <div key={contact.contactId} className="bg-gray-50 p-3 rounded border hover:shadow-sm transition-shadow">
+                          <div className="font-medium text-gray-900">
+                            {contact.firstName} {contact.lastName}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {contact.email}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {contact.phone}
+                          </div>
+                          
+                          {/* Forward Arrow - Move to Next Stage */}
+                          {getLogicalNextStages(stage.key).length > 0 && (
+                            <div className="mt-2">
+                              <button
+                                onClick={() => {
+                                  const nextStage = getLogicalNextStages(stage.key)[0];
+                                  handleStageChange(contact.contactId, nextStage);
+                                }}
+                                className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded font-medium hover:bg-indigo-200 transition-colors flex items-center gap-1"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                                Next Stage
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-400">
+                      <div className="text-4xl mb-2">{stage.emoji}</div>
+                      <p className="text-sm">No members in this stage</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Add Contacts Modal */}
+        {showAddContacts && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+              <h3 className="text-lg font-semibold mb-4">Add Members to Pipeline</h3>
+              
+              {/* Contact Selection */}
+              <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
+                {contacts.map((contact) => (
+                  <label key={contact.contactId} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                    <input
+                      type="checkbox"
+                      checked={selectedContacts.has(contact.contactId)}
+                      onChange={(e) => {
+                        const newSelected = new Set(selectedContacts);
+                        if (e.target.checked) {
+                          newSelected.add(contact.contactId);
+                        } else {
+                          newSelected.delete(contact.contactId);
+                        }
+                        setSelectedContacts(newSelected);
+                      }}
+                      className="rounded"
+                    />
+                    <div>
+                      <div className="font-medium">{contact.firstName} {contact.lastName}</div>
+                      <div className="text-sm text-gray-500">{contact.email}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowAddContacts(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddContacts}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+                >
+                  Add Selected ({selectedContacts.size})
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
