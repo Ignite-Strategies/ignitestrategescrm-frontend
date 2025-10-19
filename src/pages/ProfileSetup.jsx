@@ -67,8 +67,24 @@ export default function ProfileSetup() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 py-12 px-4">
       <div className="max-w-md mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to EngageSmart!</h1>
-          <p className="text-gray-600 mb-8">Please finish setting up your profile so you can create your org and start creating magical events.</p>
+          {/* Progress Indicator */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-semibold text-indigo-600">Step 1 of 2</span>
+              <span className="text-sm text-gray-500">Almost there!</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-indigo-600 h-2 rounded-full" style={{ width: '50%' }}></div>
+            </div>
+          </div>
+
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tell Us Who You Are</h1>
+          <p className="text-gray-600 mb-2">
+            We need your name and contact info so your team knows who you are when you invite them.
+          </p>
+          <p className="text-sm text-gray-500 mb-8">
+            Next step: Set up your organization or join an existing one
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
