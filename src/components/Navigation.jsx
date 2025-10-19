@@ -29,7 +29,7 @@ export default function Navigation() {
               className="flex items-center space-x-2 text-lg font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
             >
               <span className="text-2xl">🚀</span>
-              <span>High Impact Events</span>
+              <span>EngageSmart</span>
             </button>
           </div>
 

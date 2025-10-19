@@ -54,7 +54,7 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{org?.name || "High Impact Events"}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{org?.name || "EngageSmart"}</h1>
               <p className="text-sm text-gray-600">{org?.mission || "Event-driven member cultivation"}</p>
             </div>
             

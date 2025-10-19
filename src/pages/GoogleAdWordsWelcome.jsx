@@ -67,7 +67,7 @@ export default function GoogleAdWordsWelcome() {
         <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-8 text-white text-center">
           <div className="text-6xl mb-4">🚀</div>
           <h1 className="text-4xl font-bold mb-2">
-            Hey {userName}, welcome to High Impact Events
+            Hey {userName}, welcome to EngageSmart
           </h1>
           <p className="text-xl font-light">Google Ad Creator</p>
         </div>

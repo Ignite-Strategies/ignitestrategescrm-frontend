@@ -53,7 +53,7 @@ export default function Splash() {
 
         <div className="space-y-4">
           <h1 className="text-6xl font-black text-white drop-shadow-2xl">
-            High Impact Events
+            EngageSmart
           </h1>
           <p className="text-2xl text-white/90 font-medium drop-shadow-lg">
             Events that inspire communities

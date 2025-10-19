@@ -67,7 +67,7 @@ export default function ProfileSetup() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 py-12 px-4">
       <div className="max-w-md mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to High Impact Events!</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to EngageSmart!</h1>
           <p className="text-gray-600 mb-8">Please finish setting up your profile so you can create your org and start creating magical events.</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">

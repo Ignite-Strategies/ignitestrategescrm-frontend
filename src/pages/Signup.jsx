@@ -62,7 +62,7 @@ export default function Signup() {
           </div>
           
           <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Join High Impact Events!
+            Join EngageSmart!
           </h1>
           <p className="text-gray-600 text-lg">
             Create events that bring communities together
