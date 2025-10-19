@@ -14,7 +14,7 @@ export default function YouTubePublisherWelcome() {
     
     // Priority: firebaseUser.displayName > admin.firstName > email
     const name = firebaseUser.displayName || 
-                 (admin.firstName ? `${admin.firstName} ${admin.lastName || ''}`.trim() : '') ||
+                 admin.firstName ||
                  (admin.email ? admin.email.split("@")[0] : '') ||
                  "there";
     

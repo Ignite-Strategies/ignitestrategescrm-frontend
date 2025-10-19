@@ -179,10 +179,8 @@ export default function Welcome() {
       // Set org name and member name for display
       setOrgName(hydrationData.orgName || org?.name || 'Your Organization');
       
-      // Derive member name from admin object (firstName + lastName) or firebaseUser
-      const adminName = admin?.firstName ? 
-        `${admin.firstName} ${admin.lastName || ''}`.trim() : 
-        null;
+      // Derive member name from admin object (firstName only) or firebaseUser
+      const adminName = admin?.firstName || null;
       setMemberName(hydrationData.memberName || adminName || firebaseUser.displayName || 'Team Member');
       setLoading(false);
       
