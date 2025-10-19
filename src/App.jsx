@@ -85,6 +85,9 @@ import DemoGoogleAds from "./pages/DemoGoogleAds.jsx";
 import GoogleAdWordsWelcome from "./pages/GoogleAdWordsWelcome.jsx";
 import GoogleAdWordsHome from "./pages/GoogleAdWordsHome.jsx";
 import GooglePersonaDevelopment from "./pages/GooglePersonaDevelopment.jsx";
+import YouTubePublisherWelcome from "./pages/YouTubePublisherWelcome.jsx";
+import YouTubeOAuth from "./pages/YouTubeOAuth.jsx";
+import YouTubeAuthSuccess from "./pages/YouTubeAuthSuccess.jsx";
 
 // Protected Route - Check for firebaseId
 function ProtectedRoute({ children }) {
@@ -363,9 +366,18 @@ export default function App() {
         <Route path="/recruit/google" element={
           <ProtectedRoute><RecruitGoogle /></ProtectedRoute>
         } />
-        <Route path="/recruit/google/create" element={
-          <ProtectedRoute><GoogleCampaignBuilder /></ProtectedRoute>
-        } />
+          <Route path="/recruit/google/create" element={
+            <ProtectedRoute><GoogleCampaignBuilder /></ProtectedRoute>
+          } />
+          
+          {/* YouTube Publisher Routes */}
+          <Route path="/youtube/welcome" element={
+            <ProtectedRoute><YouTubePublisherWelcome /></ProtectedRoute>
+          } />
+          <Route path="/youtubeoauth" element={<YouTubeOAuth />} />
+          <Route path="/youtube/success" element={
+            <ProtectedRoute><YouTubeAuthSuccess /></ProtectedRoute>
+          } />
         <Route path="/recruit/facebook" element={
           <ProtectedRoute><RecruitFacebook /></ProtectedRoute>
         } />
