@@ -29,17 +29,17 @@ export default function Signup() {
         photoURL: result.photoURL
       });
       
-      const orgMember = res.data;
-      console.log("✅ OrgMember:", orgMember.id);
+      const admin = res.data;
+      console.log("✅ Admin:", admin.id);
       console.log("🔍 DEBUG: Firebase result:", result);
-      console.log("🔍 DEBUG: Backend orgMember:", orgMember);
+      console.log("🔍 DEBUG: Backend admin:", admin);
       console.log("🔍 DEBUG: Firebase email:", result.email);
-      console.log("🔍 DEBUG: Backend email:", orgMember.email);
+      console.log("🔍 DEBUG: Backend email:", admin.email);
       
       // Store auth data - use Firebase email as fallback!
       localStorage.setItem("firebaseId", result.uid);
-      localStorage.setItem("orgMemberId", orgMember.id);
-      localStorage.setItem("email", orgMember.email || result.email); // Firebase email fallback!
+      localStorage.setItem("adminId", admin.id);
+      localStorage.setItem("email", admin.email || result.email); // Firebase email fallback!
       
       // NEW USER → Profile setup FIRST!
       console.log("✅ New user → Profile setup");
