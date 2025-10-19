@@ -69,6 +69,7 @@ import CampaignCreator from "./pages/CampaignCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
 import PreviewPageTest from "./pages/PreviewPageTest.jsx";
+import EngageDashboard from "./pages/EngageDashboard.jsx";
 import EngagePipeline from "./pages/EngagePipeline.jsx";
 import RecruitDashboard from "./pages/RecruitDashboard.jsx";
 import EngageEmailCrew from "./pages/EngageEmailCrew.jsx";
@@ -349,7 +350,7 @@ export default function App() {
         
         {/* Engagement & Recruitment Dashboards */}
         <Route path="/engage" element={
-          <ProtectedRoute><EngagePipeline /></ProtectedRoute>
+          <ProtectedRoute><EngageDashboard /></ProtectedRoute>
         } />
         <Route path="/engage/pipeline" element={
           <ProtectedRoute><EngagePipeline /></ProtectedRoute>
