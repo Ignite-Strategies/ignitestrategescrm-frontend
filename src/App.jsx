@@ -351,6 +351,9 @@ export default function App() {
         <Route path="/engage" element={
           <ProtectedRoute><EngagePipeline /></ProtectedRoute>
         } />
+        <Route path="/engage/pipeline" element={
+          <ProtectedRoute><EngagePipeline /></ProtectedRoute>
+        } />
         <Route path="/recruit" element={
           <ProtectedRoute><RecruitDashboard /></ProtectedRoute>
         } />
