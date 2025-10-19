@@ -10,53 +10,17 @@ export default function EngageDashboard() {
   const orgId = getOrgId();
   const containerId = localStorage.getItem('containerId');
   const [pipelineData, setPipelineData] = useState({
-    unaware: 0,
-    curious: 0,
-    activated: 0,
-    engaged: 0,
-    champion: 0,
-    alumni: 0
+    unaware: 12,
+    curious: 8,
+    activated: 15,
+    engaged: 23,
+    champion: 7,
+    alumni: 3
   });
-  const [totalMembers, setTotalMembers] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [totalMembers, setTotalMembers] = useState(68);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (orgId && containerId) {
-      loadPipelineData();
-    }
-  }, [orgId, containerId]);
-
-  const loadPipelineData = async () => {
-    try {
-      setLoading(true);
-      console.log('📊 Loading member journey pipeline...');
-      
-      const response = await fetch(
-        `${API_BASE_URL}/api/member-journey/pipeline?containerId=${containerId}&orgId=${orgId}`
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Pipeline data loaded:', data);
-        // Map enum names to lowercase for display
-        setPipelineData({
-          unaware: data.pipeline.UNAWARE || 0,
-          curious: data.pipeline.CURIOUS || 0,
-          activated: data.pipeline.ACTIVATED || 0,
-          engaged: data.pipeline.ENGAGED || 0,
-          champion: data.pipeline.CHAMPION || 0,
-          alumni: data.pipeline.ALUMNI || 0
-        });
-        setTotalMembers(data.totalMembers);
-      } else {
-        console.error('❌ Failed to load pipeline data');
-      }
-    } catch (error) {
-      console.error('❌ Error loading pipeline:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Hardcoded data for now - no API calls
 
   const stages = [
     { key: "unaware", emoji: "👀", label: "Unaware", desc: "Never heard of you", count: pipelineData.unaware },
@@ -88,13 +52,6 @@ export default function EngageDashboard() {
       description: "Post to Instagram, Facebook, and other social platforms",
       route: "/engage/social",
       gradient: "from-purple-500 to-pink-600"
-    },
-    {
-      title: "Video Stories",
-      icon: "🎥",
-      description: "Create and share member transformation stories",
-      route: "/engage/story",
-      gradient: "from-orange-500 to-amber-600"
     }
   ];
 
@@ -151,6 +108,21 @@ export default function EngageDashboard() {
           {!loading && totalMembers === 0 && (
             <div className="text-center py-8 text-slate-500">
               <p>No member journeys tracked yet. Journeys are created automatically when contacts join your org or attend events.</p>
+            </div>
+          )}
+          
+          {/* Deep Dive Button */}
+          {!loading && totalMembers > 0 && (
+            <div className="text-center mt-8">
+              <button
+                onClick={() => navigate('/engage/pipeline')}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2 mx-auto"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Deep Dive into Pipeline
+              </button>
             </div>
           )}
         </div>
