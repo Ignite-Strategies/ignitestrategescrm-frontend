@@ -19,8 +19,93 @@ export default function EngageDashboard() {
   });
   const [totalMembers, setTotalMembers] = useState(68);
   const [loading, setLoading] = useState(false);
+  const [connections, setConnections] = useState({
+    youtube: false,
+    instagram: false,
+    facebook: false
+  });
 
-  // Hardcoded data for now - no API calls
+  useEffect(() => {
+    hydrateEngageConnections();
+  }, []);
+
+  const hydrateEngageConnections = async () => {
+    try {
+      setLoading(true);
+      console.log('🔄 Hydrating engage connections...');
+      
+      // Call backend to get all connection states
+      const response = await api.post('/engage/hydrate', {
+        orgId,
+        containerId
+      });
+
+      if (response.data.success) {
+        const { youtube, instagram, facebook } = response.data.connections;
+        
+        // Store all connection IDs in localStorage
+        if (youtube?.channelId) {
+          localStorage.setItem('youtubeChannelId', youtube.channelId);
+          localStorage.setItem('youtubeChannelInfo', JSON.stringify(youtube));
+        }
+        
+        if (instagram?.accountId) {
+          localStorage.setItem('instagramAccountId', instagram.accountId);
+          localStorage.setItem('instagramAccountInfo', JSON.stringify(instagram));
+        }
+        
+        if (facebook?.pageId) {
+          localStorage.setItem('facebookPageId', facebook.pageId);
+          localStorage.setItem('facebookPageInfo', JSON.stringify(facebook));
+        }
+
+        // Update state
+        setConnections({
+          youtube: !!youtube?.channelId,
+          instagram: !!instagram?.accountId,
+          facebook: !!facebook?.pageId
+        });
+
+        console.log('✅ Engage connections hydrated:', {
+          youtube: !!youtube?.channelId,
+          instagram: !!instagram?.accountId,
+          facebook: !!facebook?.pageId
+        });
+      }
+    } catch (error) {
+      console.error('❌ Failed to hydrate engage connections:', error);
+      // Fall back to checking localStorage
+      setConnections({
+        youtube: !!localStorage.getItem('youtubeChannelId'),
+        instagram: !!localStorage.getItem('instagramAccountId'),
+        facebook: !!localStorage.getItem('facebookPageId')
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToolClick = (tool) => {
+    // Check localStorage for connection state and route accordingly
+    if (tool.id === 'youtube') {
+      const youtubeChannelId = localStorage.getItem('youtubeChannelId');
+      if (youtubeChannelId) {
+        navigate('/youtube/hub');
+      } else {
+        navigate('/youtube/welcome');
+      }
+    } else if (tool.id === 'instagram') {
+      const instagramAccountId = localStorage.getItem('instagramAccountId');
+      if (instagramAccountId) {
+        navigate('/engage/social'); // or wherever instagram hub is
+      } else {
+        navigate('/engage/social/connect'); // connect flow
+      }
+    } else {
+      // Default routing
+      navigate(tool.route);
+    }
+  };
 
   const stages = [
     { key: "unaware", emoji: "👀", label: "Unaware", desc: "Never heard of you", count: pipelineData.unaware },
@@ -33,6 +118,7 @@ export default function EngageDashboard() {
 
   const engageTools = [
     {
+      id: "email",
       title: "Email Your Crew",
       icon: "✉️",
       description: "Pre-built email templates for weekly check-ins and member updates",
@@ -40,13 +126,16 @@ export default function EngageDashboard() {
       gradient: "from-blue-500 to-indigo-600"
     },
     {
+      id: "youtube",
       title: "YouTube Publisher",
       icon: "🎬",
       description: "Upload and publish videos to your YouTube channel",
       route: "/youtube",
-      gradient: "from-red-500 to-red-700"
+      gradient: "from-red-500 to-red-700",
+      connected: connections.youtube
     },
     {
+      id: "social",
       title: "Social Media Manager",
       icon: "📱",
       description: "Post to Instagram, Facebook, and other social platforms",
@@ -137,7 +226,7 @@ export default function EngageDashboard() {
             {engageTools.map((tool, idx) => (
               <button
                 key={idx}
-                onClick={() => navigate(tool.route)}
+                onClick={() => handleToolClick(tool)}
                 className={`bg-gradient-to-br ${tool.gradient} text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group relative`}
               >
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{tool.icon}</div>
