@@ -40,8 +40,18 @@ export default function YouTubeOAuth() {
       });
       
       if (response.data.success) {
-        // Store tokens
+        // Store tokens and channel info
         localStorage.setItem("youtubeTokens", JSON.stringify(response.data.tokens));
+        
+        // Store channel ID and basic info for hydration
+        if (response.data.channel) {
+          localStorage.setItem("youtubeChannelId", response.data.channel.channelId);
+          localStorage.setItem("youtubeChannelInfo", JSON.stringify({
+            id: response.data.channel.channelId,
+            title: response.data.channel.title,
+            thumbnail: response.data.channel.thumbnail
+          }));
+        }
         
         setStatus("YouTube connected successfully!");
         setTimeout(() => {

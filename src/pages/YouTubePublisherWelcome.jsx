@@ -44,7 +44,7 @@ export default function YouTubePublisherWelcome() {
   };
 
   const handleContinue = () => {
-    navigate("/youtube/upload");
+    navigate("/youtube/hub");
   };
 
   return (
