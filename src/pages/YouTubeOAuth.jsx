@@ -32,9 +32,11 @@ export default function YouTubeOAuth() {
       // Exchange code for tokens
       setStatus("Exchanging authorization code for tokens...");
       const orgId = getOrgId();
+      const containerId = localStorage.getItem('containerId') || 'cmgu7w02h0000ceaqt7iz6bf9';
       const response = await api.post('/youtube/oauth', { 
         code, 
-        orgId: orgId || null 
+        orgId: orgId || null,
+        containerId: containerId
       });
       
       if (response.data.success) {
