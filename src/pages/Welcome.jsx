@@ -152,6 +152,7 @@ export default function Welcome() {
       // 3. 🔥 CACHE EVERYTHING TO LOCALSTORAGE (IDs + Full Objects)
       // IDs (backwards compatibility)
       localStorage.setItem('adminId', adminId);
+      localStorage.setItem('containerId', containerId);
       if (orgId) {
         localStorage.setItem('orgId', orgId);
       }
