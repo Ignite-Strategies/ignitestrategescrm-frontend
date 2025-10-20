@@ -14,24 +14,45 @@ export default function YouTubeHub() {
     try {
       setLoading(true);
       
-      // Get hydrated channel info from localStorage
+      // Check multiple sources for channel info
       const youtubeChannelInfo = localStorage.getItem("youtubeChannelInfo");
       const youtubeChannelId = localStorage.getItem("youtubeChannelId");
+      const youtubeTokens = localStorage.getItem("youtubeTokens");
+      
+      console.log("🔍 Checking localStorage:", {
+        youtubeChannelInfo: !!youtubeChannelInfo,
+        youtubeChannelId: !!youtubeChannelId,
+        youtubeTokens: !!youtubeTokens
+      });
       
       if (youtubeChannelInfo && youtubeChannelId) {
         const channel = JSON.parse(youtubeChannelInfo);
+        console.log("📺 Parsed channel data:", channel);
+        
         setChannelInfo({
-          id: channel.id,
-          title: channel.title,
+          id: channel.id || channel.channelId,
+          title: channel.title || "YouTube Channel",
           description: channel.description || "No description available",
-          thumbnail: channel.thumbnail,
+          thumbnail: channel.thumbnail || "https://via.placeholder.com/64x64",
           subscriberCount: channel.subscriberCount || 0,
           viewCount: channel.viewCount || 0,
           videoCount: channel.videoCount || 0
         });
         console.log("✅ Channel info hydrated:", channel);
+      } else if (youtubeTokens) {
+        // Fallback: we have tokens but no channel info
+        console.log("⚠️ Have tokens but no channel info, using fallback");
+        setChannelInfo({
+          id: "Connected",
+          title: "YouTube Channel",
+          description: "Channel connected but info not available",
+          thumbnail: "https://via.placeholder.com/64x64",
+          subscriberCount: 0,
+          viewCount: 0,
+          videoCount: 0
+        });
       } else {
-        throw new Error("No YouTube channel info found");
+        throw new Error("No YouTube connection found");
       }
     } catch (error) {
       console.error("Failed to load channel info:", error);
@@ -182,15 +203,29 @@ export default function YouTubeHub() {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => window.open(`https://youtube.com/channel/${channelInfo.id}`, '_blank')}
-                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Channel Home
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    console.log("🔍 Debug localStorage:");
+                    console.log("youtubeChannelId:", localStorage.getItem("youtubeChannelId"));
+                    console.log("youtubeChannelInfo:", localStorage.getItem("youtubeChannelInfo"));
+                    console.log("youtubeTokens:", localStorage.getItem("youtubeTokens"));
+                    alert("Check console for localStorage debug info");
+                  }}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded-lg transition text-sm"
+                >
+                  Debug
+                </button>
+                <button
+                  onClick={() => window.open(`https://youtube.com/channel/${channelInfo.id}`, '_blank')}
+                  className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  Channel Home
+                </button>
+              </div>
             </div>
           </div>
         )}
