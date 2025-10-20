@@ -89,6 +89,7 @@ import GooglePersonaDevelopment from "./pages/GooglePersonaDevelopment.jsx";
 import YouTubePublisherWelcome from "./pages/YouTubePublisherWelcome.jsx";
 import YouTubeOAuth from "./pages/YouTubeOAuth.jsx";
 import YouTubeAuthSuccess from "./pages/YouTubeAuthSuccess.jsx";
+import YouTubeHub from "./pages/YouTubeHub.jsx";
 import YouTubeUpload from "./pages/YouTubeUpload.jsx";
 import SocialMediaManager from "./pages/SocialMediaManager.jsx";
 import MetaWelcome from "./pages/MetaWelcome.jsx";
@@ -385,6 +386,9 @@ export default function App() {
           <Route path="/youtubeoauth" element={<YouTubeOAuth />} />
           <Route path="/youtube/success" element={
             <ProtectedRoute><YouTubeAuthSuccess /></ProtectedRoute>
+          } />
+          <Route path="/youtube/hub" element={
+            <ProtectedRoute><YouTubeHub /></ProtectedRoute>
           } />
           <Route path="/youtube/upload" element={
             <ProtectedRoute><YouTubeUpload /></ProtectedRoute>
