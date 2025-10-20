@@ -31,10 +31,6 @@ export default function EngageDashboard() {
     { key: "alumni", emoji: "💤", label: "Alumni", desc: "Dormant but connected", count: pipelineData.alumni }
   ];
 
-  // Check if YouTube is connected (hydration-aware routing)
-  const youtubeChannelId = localStorage.getItem("youtubeChannelId");
-  const isYouTubeConnected = !!youtubeChannelId;
-
   const engageTools = [
     {
       title: "Email Your Crew",
@@ -46,12 +42,9 @@ export default function EngageDashboard() {
     {
       title: "YouTube Publisher",
       icon: "🎬",
-      description: isYouTubeConnected 
-        ? "Upload and publish videos to your YouTube channel" 
-        : "Connect your YouTube channel to start publishing",
-      route: isYouTubeConnected ? "/youtube/hub" : "/youtube/welcome",
-      gradient: "from-red-500 to-red-700",
-      badge: isYouTubeConnected ? "Connected" : null
+      description: "Upload and publish videos to your YouTube channel",
+      route: "/youtube",
+      gradient: "from-red-500 to-red-700"
     },
     {
       title: "Social Media Manager",
@@ -147,13 +140,6 @@ export default function EngageDashboard() {
                 onClick={() => navigate(tool.route)}
                 className={`bg-gradient-to-br ${tool.gradient} text-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left group relative`}
               >
-                {tool.badge && (
-                  <div className="absolute top-4 right-4">
-                    <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      {tool.badge}
-                    </span>
-                  </div>
-                )}
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{tool.icon}</div>
                 <h3 className="text-2xl font-bold mb-2">{tool.title}</h3>
                 <p className="text-white/90 text-sm mb-4">{tool.description}</p>

@@ -87,6 +87,7 @@ import GoogleAdWordsWelcome from "./pages/GoogleAdWordsWelcome.jsx";
 import GoogleAdWordsHome from "./pages/GoogleAdWordsHome.jsx";
 import GooglePersonaDevelopment from "./pages/GooglePersonaDevelopment.jsx";
 import YouTubePublisherWelcome from "./pages/YouTubePublisherWelcome.jsx";
+import YouTubeRouter from "./pages/YouTubeRouter.jsx";
 import YouTubeOAuth from "./pages/YouTubeOAuth.jsx";
 import YouTubeAuthSuccess from "./pages/YouTubeAuthSuccess.jsx";
 import YouTubeHub from "./pages/YouTubeHub.jsx";
@@ -381,6 +382,9 @@ export default function App() {
           } />
           
           {/* YouTube Publisher Routes */}
+          <Route path="/youtube" element={
+            <ProtectedRoute><YouTubeRouter /></ProtectedRoute>
+          } />
           <Route path="/youtube/welcome" element={
             <ProtectedRoute><YouTubePublisherWelcome /></ProtectedRoute>
           } />
