@@ -93,6 +93,7 @@ import YouTubeAuthSuccess from "./pages/YouTubeAuthSuccess.jsx";
 import YouTubeHub from "./pages/YouTubeHub.jsx";
 import YouTubeUpload from "./pages/YouTubeUpload.jsx";
 import YouTubePreview from "./pages/YouTubePreview.jsx";
+import YouTubePlaylistCreate from "./pages/YouTubePlaylistCreate.jsx";
 import SocialMediaManager from "./pages/SocialMediaManager.jsx";
 import MetaWelcome from "./pages/MetaWelcome.jsx";
 import MetaOAuth from "./pages/MetaOAuth.jsx";
@@ -400,6 +401,9 @@ export default function App() {
           } />
           <Route path="/youtube/preview" element={
             <ProtectedRoute><YouTubePreview /></ProtectedRoute>
+          } />
+          <Route path="/youtube/playlist/create" element={
+            <ProtectedRoute><YouTubePlaylistCreate /></ProtectedRoute>
           } />
           
           {/* Social Media Routes */}

@@ -14,41 +14,43 @@ export default function YouTubeHub() {
     try {
       setLoading(true);
       
-      // Get channel info from localStorage
-      const youtubeTokens = localStorage.getItem("youtubeTokens");
-      if (youtubeTokens) {
+      // Get hydrated channel info from localStorage
+      const youtubeChannelInfo = localStorage.getItem("youtubeChannelInfo");
+      const youtubeChannelId = localStorage.getItem("youtubeChannelId");
+      
+      if (youtubeChannelInfo && youtubeChannelId) {
+        const channel = JSON.parse(youtubeChannelInfo);
         setChannelInfo({
-          id: "UCi5-H40E_XjBixir-dFMUzA",
-          title: "F3 Capital",
-          description: "Welcome to F3 Capital — a brotherhood of men building stronger...",
-          thumbnail: "https://yt3.ggpht.com/CfoIzdzErJSOi4GEnQKHmzX6eSCaAhkHHcL1-USTw3...",
-          subscriberCount: 0,
-          viewCount: 0,
-          videoCount: 0
+          id: channel.id,
+          title: channel.title,
+          description: channel.description || "No description available",
+          thumbnail: channel.thumbnail,
+          subscriberCount: channel.subscriberCount || 0,
+          viewCount: channel.viewCount || 0,
+          videoCount: channel.videoCount || 0
         });
+        console.log("✅ Channel info hydrated:", channel);
       } else {
-        throw new Error("No YouTube tokens found");
+        throw new Error("No YouTube channel info found");
       }
     } catch (error) {
       console.error("Failed to load channel info:", error);
+      // Fallback to basic info
+      setChannelInfo({
+        id: "Unknown",
+        title: "YouTube Channel",
+        description: "Channel information not available",
+        thumbnail: "https://via.placeholder.com/64x64",
+        subscriberCount: 0,
+        viewCount: 0,
+        videoCount: 0
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const actionCards = [
-    {
-      id: "upload",
-      title: "Upload Video",
-      description: "Share your story with a new video upload",
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-        </svg>
-      ),
-      color: "red",
-      action: () => navigate("/youtube/upload")
-    },
     {
       id: "playlist",
       title: "Build a Playlist",
@@ -60,6 +62,18 @@ export default function YouTubeHub() {
       ),
       color: "blue",
       action: () => navigate("/youtube/playlist/create")
+    },
+    {
+      id: "upload",
+      title: "Upload Video",
+      description: "Share your story with a new video upload",
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      ),
+      color: "red",
+      action: () => navigate("/youtube/upload")
     },
     {
       id: "ideas",
@@ -152,16 +166,31 @@ export default function YouTubeHub() {
         {/* Channel Connected */}
         {channelInfo && (
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-12">
-            <div className="flex items-center justify-center gap-4">
-              <img 
-                src={channelInfo.thumbnail} 
-                alt="Channel thumbnail" 
-                className="w-16 h-16 rounded-full"
-              />
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-white">{channelInfo.title}</h3>
-                <p className="text-red-100">Connected and ready for action</p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <img 
+                  src={channelInfo.thumbnail} 
+                  alt="Channel thumbnail" 
+                  className="w-16 h-16 rounded-full"
+                />
+                <div>
+                  <h3 className="text-xl font-semibold text-white">{channelInfo.title}</h3>
+                  <div className="flex items-center gap-4 text-red-100 text-sm">
+                    <span>{channelInfo.subscriberCount?.toLocaleString()} subscribers</span>
+                    <span>{channelInfo.videoCount} videos</span>
+                    <span>{channelInfo.viewCount?.toLocaleString()} views</span>
+                  </div>
+                </div>
               </div>
+              <button
+                onClick={() => window.open(`https://youtube.com/channel/${channelInfo.id}`, '_blank')}
+                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Channel Home
+              </button>
             </div>
           </div>
         )}
