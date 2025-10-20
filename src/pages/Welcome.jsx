@@ -105,10 +105,10 @@ export default function Welcome() {
         return;
       }
       
-      const { adminId, orgId, eventId, admin, org, event } = hydrationData;
+      const { adminId, orgId, eventId, containerId, admin, org, event } = hydrationData;
       
       // ROUTING LOGIC - Check what's missing
-      console.log('🔍 Hydration data check:', { adminId, orgId, eventId });
+      console.log('🔍 Hydration data check:', { adminId, orgId, eventId, containerId });
       
       // 1. Check if admin exists (just need adminId)
       if (!adminId) {
@@ -123,7 +123,6 @@ export default function Welcome() {
       console.log('✅ Admin found! AdminId:', adminId);
       
       // 2. 🛡️ GUARD: Check if admin has containerId (fully set up in a container)
-      const containerId = admin?.containerId;
       if (!containerId) {
         console.log('🛑 GUARD: No containerId - admin not linked to any container');
         setError(`We found your account but you're not linked to an organization yet.`);
