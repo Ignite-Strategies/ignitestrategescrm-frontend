@@ -1,96 +1,68 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import api from "../lib/api";
+import { getOrgId } from "../lib/org";
 
 export default function GoogleAdWordsHome() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [accountData, setAccountData] = useState(null);
   const [error, setError] = useState("");
+  const [needsVerification, setNeedsVerification] = useState(false);
 
   useEffect(() => {
-    // First check if we have an account ID, if not try to hydrate it
-    const existingAccountId = localStorage.getItem('googleAdsAccountId');
-    if (existingAccountId) {
-      console.log('✅ Google Ads account ID already exists:', existingAccountId);
-      hydrateGoogleAdsAccount();
-    } else {
-      console.log('⚠️ No Google Ads account ID found, checking for connection...');
-      hydrateGoogleAdsAccount();
-    }
+    hydrateGoogleAdsAccount();
   }, []);
   
   const hydrateGoogleAdsAccount = async () => {
     try {
       setLoading(true);
-      setError(""); // Clear any previous errors
+      setError("");
+      setNeedsVerification(false);
       
-      // Get the Google Ads account ID from localStorage
-      let accountId = localStorage.getItem('googleAdsAccountId');
+      const orgId = getOrgId();
       
-      if (!accountId) {
-        console.warn('⚠️ No Google Ads account ID found in localStorage');
-        
-        // Try to get account ID from connection
-        const connectionId = localStorage.getItem('googleOAuthConnection_ads');
-        if (connectionId) {
-          console.log('🔍 Found Google Ads connection, trying to get account ID...');
-          try {
-            const response = await api.get(`/google-ads-account-selection/list?connectionId=${connectionId}`);
-            console.log('🔍 API Response:', response.data);
-            console.log('🔍 Accounts array:', response.data?.accounts);
-            console.log('🔍 Accounts length:', response.data?.accounts?.length);
-            
-            if (response.data && response.data.accounts && response.data.accounts.length > 0) {
-              // Use the first account as default
-              accountId = response.data.accounts[0].id;
-              localStorage.setItem('googleAdsAccountId', accountId);
-              console.log('✅ Set default Google Ads account ID:', accountId);
-            } else {
-              console.log('❌ No accounts found in response');
-            }
-          } catch (error) {
-            console.error('❌ Error getting account list:', error);
-            console.log('🔄 Falling back to manual account selection...');
-            setError("Please select your Google Ads account. Click 'Go to Settings' to choose your account.");
-            setLoading(false);
-            return;
-          }
-        }
-        
-        if (!accountId) {
-          setError("No Google Ads account selected. Please select your account to continue.");
-          setLoading(false);
-          return;
-        }
+      if (!orgId) {
+        setError("No organization found. Please log in again.");
+        setLoading(false);
+        return;
       }
       
-      console.log('📊 Setting up Google Ads home for account:', accountId);
+      console.log('📊 PURE HYDRATION - Reading Google Ads account from database (NO API CALLS!)');
+      console.log('   orgId:', orgId);
       
-      // Just set basic account data - NO API CALLS on home page!
-      setAccountData({
-        account: {
-          id: accountId,
-          name: 'Google Ads Account', // Will be updated when user goes to campaigns
-          currency: 'USD',
-          timezone: 'UTC'
-        },
-        campaigns: [],
-        totals: {
-          impressions: 0,
-          clicks: 0,
-          spend: 0,
-          conversions: 0,
-          campaignCount: 0
+      // Get cached account ID if available
+      const cachedAccountId = localStorage.getItem('googleAdsAccountId');
+      
+      // Call PURE hydration endpoint - database only, NO Google API calls!
+      const response = await api.get('/google-ads-hydrate/account', {
+        params: {
+          orgId: orgId,
+          accountId: cachedAccountId || undefined
         }
       });
       
-      console.log('✅ Google Ads home setup complete');
-      setError(""); // Clear error on success
+      console.log('✅ Account hydrated from database:', response.data);
+      
+      // Cache the account ID for faster future loads
+      if (response.data.account?.id) {
+        localStorage.setItem('googleAdsAccountId', response.data.account.id);
+      }
+      
+      setAccountData(response.data);
       setLoading(false);
+      
     } catch (error) {
-      console.error('❌ Error loading Google Ads:', error);
-      setError(error.response?.data?.details || error.message || 'Failed to load account data');
+      console.error('❌ Error hydrating Google Ads account:', error);
+      
+      if (error.response?.status === 404 || error.response?.data?.needsSetup) {
+        // No account found - need to verify/connect
+        setError("No Google Ads account connected yet.");
+        setNeedsVerification(true);
+      } else {
+        setError(error.response?.data?.details || error.message || 'Failed to load account data');
+      }
+      
       setLoading(false);
     }
   };
@@ -236,25 +208,46 @@ export default function GoogleAdWordsHome() {
 
         {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+          <div className={`${needsVerification ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'} border rounded-xl p-6 mb-8`}>
             <div className="flex items-center gap-3">
-              <span className="text-2xl">⚠️</span>
+              <span className="text-2xl">{needsVerification ? '🔗' : '⚠️'}</span>
               <div className="flex-1">
-                <h3 className="font-bold text-red-900">Account Selection Required</h3>
-                <p className="text-red-700 text-sm">{error}</p>
+                <h3 className={`font-bold ${needsVerification ? 'text-blue-900' : 'text-red-900'}`}>
+                  {needsVerification ? 'Connect Your Google Ads Account' : 'Error Loading Account'}
+                </h3>
+                <p className={`text-sm ${needsVerification ? 'text-blue-700' : 'text-red-700'}`}>{error}</p>
                 <div className="mt-3 flex gap-3">
-                  <button
-                    onClick={() => navigate('/googleads/account-picker')}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
-                  >
-                    Select Account
-                  </button>
-                  <button
-                    onClick={() => navigate('/settings/integrations')}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700"
-                  >
-                    Go to Settings
-                  </button>
+                  {needsVerification ? (
+                    <>
+                      <button
+                        onClick={() => navigate('/settings/integrations')}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                      >
+                        Connect Google Ads
+                      </button>
+                      <button
+                        onClick={hydrateGoogleAdsAccount}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition"
+                      >
+                        Retry
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={hydrateGoogleAdsAccount}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                      >
+                        Retry
+                      </button>
+                      <button
+                        onClick={() => navigate('/settings/integrations')}
+                        className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700"
+                      >
+                        Go to Settings
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
