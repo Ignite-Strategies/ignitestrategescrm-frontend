@@ -94,6 +94,7 @@ import YouTubeUpload from "./pages/YouTubeUpload.jsx";
 import YouTubePreview from "./pages/YouTubePreview.jsx";
 import YouTubePlaylistCreate from "./pages/YouTubePlaylistCreate.jsx";
 import UnifiedGoogleOAuthCallback from "./pages/UnifiedGoogleOAuthCallback.jsx"; // 🧭 Unified OAuth Callback
+import GoogleOAuthSuccess from "./pages/GoogleOAuthSuccess.jsx"; // 🎉 Success page with options
 import SettingsIntegrations from "./pages/SettingsIntegrations.jsx";
 import SocialMediaManager from "./pages/SocialMediaManager.jsx";
 import MetaWelcome from "./pages/MetaWelcome.jsx";
@@ -391,6 +392,9 @@ export default function App() {
             <ProtectedRoute><YouTubeAuthSuccess /></ProtectedRoute>
           } />
         <Route path="/oauth/callback" element={<UnifiedGoogleOAuthCallback />} /> {/* 🧭 Unified OAuth Callback */}
+          <Route path="/google-oauth-success" element={
+            <ProtectedRoute><GoogleOAuthSuccess /></ProtectedRoute>
+          } /> {/* 🎉 Success page with options */}
           <Route path="/settings/integrations" element={
             <ProtectedRoute><SettingsIntegrations /></ProtectedRoute>
           } />
