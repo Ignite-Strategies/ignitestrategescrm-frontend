@@ -144,15 +144,17 @@ export default function SettingsIntegrations() {
   };
 
   const handleConnectYouTube = async () => {
-    if (!orgId || !adminId) {
-      alert('⚠️ Missing organization or admin information. Please refresh and try again.');
+    const containerId = localStorage.getItem('containerId');
+    
+    if (!orgId || !adminId || !containerId) {
+      alert('⚠️ Missing organization, admin, or container information. Please refresh and try again.');
       return;
     }
     
     try {
-      console.log('🧭 Getting YouTube OAuth URL...', { orgId, adminId });
+      console.log('🧭 Getting YouTube OAuth URL...', { orgId, adminId, containerId });
       
-      const response = await api.get(`/google-oauth/auth?service=youtube&orgId=${orgId}&adminId=${adminId}`);
+      const response = await api.get(`/google-oauth/auth?service=youtube&orgId=${orgId}&adminId=${adminId}&containerId=${containerId}`);
       
       if (response.data.authUrl) {
         window.location.href = response.data.authUrl;
@@ -166,15 +168,17 @@ export default function SettingsIntegrations() {
   };
 
   const handleConnectGoogleAds = async () => {
-    if (!orgId || !adminId) {
-      alert('⚠️ Missing organization or admin information. Please refresh and try again.');
+    const containerId = localStorage.getItem('containerId');
+    
+    if (!orgId || !adminId || !containerId) {
+      alert('⚠️ Missing organization, admin, or container information. Please refresh and try again.');
       return;
     }
     
     try {
-      console.log('🧭 Getting Google Ads OAuth URL...', { orgId, adminId });
+      console.log('🧭 Getting Google Ads OAuth URL...', { orgId, adminId, containerId });
       
-      const response = await api.get(`/google-oauth/auth?service=ads&orgId=${orgId}&adminId=${adminId}`);
+      const response = await api.get(`/google-oauth/auth?service=ads&orgId=${orgId}&adminId=${adminId}&containerId=${containerId}`);
       
       if (response.data.authUrl) {
         window.location.href = response.data.authUrl;
