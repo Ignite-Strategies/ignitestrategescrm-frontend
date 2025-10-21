@@ -97,6 +97,7 @@ import UnifiedGoogleOAuthCallback from "./pages/UnifiedGoogleOAuthCallback.jsx";
 import GoogleOAuthSuccess from "./pages/GoogleOAuthSuccess.jsx"; // 🎉 Success page with options
 import GoogleAdsAccountPicker from "./pages/GoogleAdsAccountPicker.jsx"; // 📊 Google Ads Account Selection
 import GoogleAdsCampaignsList from "./pages/GoogleAdsCampaignsList.jsx"; // 📊 Google Ads Campaigns List
+import GoogleAdsTools from "./pages/GoogleAdsTools.jsx"; // 🛠️ Google Ads Strategy Tools
 import SettingsIntegrations from "./pages/SettingsIntegrations.jsx";
 import SocialMediaManager from "./pages/SocialMediaManager.jsx";
 import MetaWelcome from "./pages/MetaWelcome.jsx";
@@ -133,6 +134,9 @@ export default function App() {
         } />
         <Route path="/googleads/campaigns" element={
           <ProtectedRoute><GoogleAdsCampaignsList /></ProtectedRoute>
+        } />
+        <Route path="/googleads/tools" element={
+          <ProtectedRoute><GoogleAdsTools /></ProtectedRoute>
         } />
         <Route path="/googleads/persona-development" element={
           <ProtectedRoute><GooglePersonaDevelopment /></ProtectedRoute>

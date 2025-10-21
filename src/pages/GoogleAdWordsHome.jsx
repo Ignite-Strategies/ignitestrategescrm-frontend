@@ -125,15 +125,58 @@ export default function GoogleAdWordsHome() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate("/recruit")}
-          className="mb-6 text-blue-600 hover:text-blue-800 flex items-center gap-2 font-medium transition"
-        >
-          ← Back to Recruit Dashboard
-        </button>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <div className="w-64 bg-white border-r border-gray-200 p-6">
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">Google Ads</h2>
+          <p className="text-xs text-gray-600">{accountData?.account?.name}</p>
+        </div>
+        
+        <nav className="space-y-2">
+          <button
+            onClick={() => navigate("/googleads/home")}
+            className="w-full flex items-center gap-3 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium"
+          >
+            <span>🏠</span>
+            <span>Overview</span>
+          </button>
+          
+          <button
+            onClick={() => navigate("/googleads/campaigns")}
+            className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition"
+          >
+            <span>📊</span>
+            <span>Campaigns</span>
+          </button>
+          
+          <div className="pt-4 pb-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-4 mb-2">Tools</p>
+          </div>
+          
+          <button
+            onClick={() => navigate("/googleads/tools")}
+            className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition"
+          >
+            <span>🛠️</span>
+            <span>Strategy Tools</span>
+          </button>
+          
+          <div className="pt-4 border-t border-gray-200 mt-4">
+            <button
+              onClick={() => navigate("/settings/integrations")}
+              className="w-full flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg text-sm transition"
+            >
+              <span>⚙️</span>
+              <span>Settings</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
 
         {/* Header */}
         <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-slate-200">
@@ -174,122 +217,52 @@ export default function GoogleAdWordsHome() {
           </div>
         </div>
 
-        {/* Strategy Section */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-8 border border-violet-200 mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-3 flex items-center gap-3">
-              <span>💡</span>
-              <span>Strategy First, Tactics Second</span>
-            </h2>
-            <p className="text-slate-700 text-lg leading-relaxed">
-              To ensure you get the most out of your ad spend, we recommend using our campaign strategy tools below. 
-              These help you reverse engineer campaigns based on real human behavior instead of guessing at keywords.
+
+        {/* Quick Actions */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Create Campaign */}
+          <button
+            onClick={() => navigate("/googleads/create")}
+            className="group bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl transition-all text-left hover:scale-[1.02]"
+          >
+            <div className="text-6xl mb-4">🚀</div>
+            <h3 className="text-3xl font-bold mb-3">Create Campaign</h3>
+            <p className="text-white/90 text-lg mb-4">
+              Build a new campaign with AI-powered targeting and persona-based strategy
             </p>
-          </div>
+            <div className="flex items-center gap-2 text-white font-semibold">
+              <span>Get Started</span>
+              <span className="group-hover:translate-x-2 transition-transform">→</span>
+            </div>
+          </button>
 
-          {/* Strategy Tool Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {strategyTools.map((tool) => (
-              <button
-                key={tool.id}
-                onClick={() => !tool.comingSoon && navigate(tool.route)}
-                disabled={tool.comingSoon}
-                className={`group relative bg-gradient-to-br ${tool.gradient} rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl transition-all text-left ${tool.comingSoon ? 'opacity-60 cursor-not-allowed' : 'hover:scale-[1.02] cursor-pointer'}`}
-              >
-                {tool.comingSoon && (
-                  <div className="absolute top-4 right-4 bg-white/30 backdrop-blur-sm px-3 py-1 rounded-full">
-                    <p className="text-xs font-bold">Coming Soon</p>
-                  </div>
-                )}
-
-                <div className="text-6xl mb-4">{tool.icon}</div>
-                
-                <h3 className="text-2xl font-bold mb-3">{tool.title}</h3>
-                
-                <p className="text-white/90 mb-4 leading-relaxed">
-                  {tool.description}
-                </p>
-
-                <div className="space-y-2 mb-6">
-                  {tool.benefits.map((benefit, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-sm">
-                      <span className="mt-0.5">→</span>
-                      <span className="text-white/80">{benefit}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {!tool.comingSoon && (
-                  <div className="flex items-center gap-2 text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span>Get Started</span>
-                    <span>→</span>
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
+          {/* View Campaigns */}
+          <button
+            onClick={() => navigate("/googleads/campaigns")}
+            className="group bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl p-8 text-white shadow-xl hover:shadow-2xl transition-all text-left hover:scale-[1.02]"
+          >
+            <div className="text-6xl mb-4">📊</div>
+            <h3 className="text-3xl font-bold mb-3">View Campaigns</h3>
+            <p className="text-white/90 text-lg mb-4">
+              See your active campaigns, performance metrics, and manage existing ads
+            </p>
+            <div className="flex items-center gap-2 text-white font-semibold">
+              <span>View All</span>
+              <span className="group-hover:translate-x-2 transition-transform">→</span>
+            </div>
+          </button>
         </div>
-
-        {/* Choose Your Path */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-3">
-              What Would You Like To Do?
-            </h2>
-            <p className="text-slate-600 mb-6 max-w-2xl mx-auto">
-              Build new campaigns or manage existing ones
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Campaign Builder */}
-            <button
-              onClick={() => navigate("/googleads/create")}
-              className="group bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 border-2 border-purple-200 hover:border-purple-400 transition-all text-left hover:shadow-lg"
-            >
-              <div className="text-5xl mb-4">🛠️</div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Campaign Builder</h3>
-              <p className="text-slate-600 mb-4">
-                Create a new campaign from scratch with AI-powered persona targeting
-              </p>
-              <div className="text-purple-600 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                <span>Start Building</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </button>
-
-            {/* View Campaigns */}
-            <button
-              onClick={() => navigate("/googleads/campaigns")}
-              className="group bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-8 border-2 border-green-200 hover:border-green-400 transition-all text-left hover:shadow-lg"
-            >
-              <div className="text-5xl mb-4">📊</div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">View Campaigns</h3>
-              <p className="text-slate-600 mb-4">
-                See your active campaigns, performance metrics, and manage existing ads
-              </p>
-              <div className="text-green-600 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                <span>View Campaigns</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </button>
-            
-            {/* Demo Campaigns */}
-            <button
-              onClick={() => navigate("/googleads/demo")}
-              className="group bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-8 border-2 border-yellow-200 hover:border-yellow-400 transition-all text-left hover:shadow-lg"
-            >
-              <div className="text-5xl mb-4">🎬</div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Demo Campaigns</h3>
-              <p className="text-slate-600 mb-4">
-                Explore example campaigns to see what's possible with our platform
-              </p>
-              <div className="text-yellow-600 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                <span>View Demos</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
-              </div>
-            </button>
-          </div>
+        
+        {/* Strategy Tip */}
+        <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-6 border border-violet-200">
+          <h3 className="font-bold text-violet-900 mb-2 flex items-center gap-2">
+            <span>💡</span>
+            <span>Pro Tip: Use Strategy Tools First</span>
+          </h3>
+          <p className="text-violet-800 leading-relaxed">
+            Before creating campaigns, check out our <button onClick={() => navigate("/googleads/tools")} className="underline font-semibold hover:text-violet-900">Strategy Tools</button> to define personas, 
+            analyze search behavior, and optimize your budget. This ensures you're targeting the right people with the right message.
+          </p>
         </div>
 
         {/* Info Footer */}
