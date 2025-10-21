@@ -28,12 +28,19 @@ export default function GoogleAdsCampaignsList() {
       }
       
       console.log('📊 Loading campaigns for account:', accountId);
+      console.log('🔍 Available localStorage keys:', Object.keys(localStorage));
+      console.log('🔍 Google OAuth connection:', localStorage.getItem('googleOAuthConnection_ads'));
       
       // Call hydration endpoint to get real Google Ads data
       const response = await api.get(`/google-ads-hydrate/${accountId}`);
       
       setAccountData(response.data);
       console.log('✅ Campaigns loaded:', response.data);
+      console.log('📊 Account data structure:', {
+        account: response.data?.account,
+        campaigns: response.data?.campaigns?.length || 0,
+        totals: response.data?.totals
+      });
       setError(""); // Clear error on success
       setLoading(false);
     } catch (error) {
@@ -111,6 +118,18 @@ export default function GoogleAdsCampaignsList() {
             </div>
           </div>
         )}
+
+        {/* Debug Info */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-8">
+          <h3 className="font-bold text-yellow-900 mb-2">🔍 Debug Info</h3>
+          <div className="text-sm text-yellow-800 space-y-1">
+            <div><strong>Account ID:</strong> {localStorage.getItem('googleAdsAccountId') || 'Not found'}</div>
+            <div><strong>OAuth Connection:</strong> {localStorage.getItem('googleOAuthConnection_ads') ? 'Found' : 'Not found'}</div>
+            <div><strong>Data Loaded:</strong> {accountData ? 'Yes' : 'No'}</div>
+            <div><strong>Campaigns Count:</strong> {accountData?.campaigns?.length || 0}</div>
+            <div><strong>Account Name:</strong> {accountData?.account?.name || 'Not loaded'}</div>
+          </div>
+        </div>
 
         {/* Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
