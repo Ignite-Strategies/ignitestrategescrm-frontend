@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, getGmailAccessToken, isSignedIn, signOutUser } from "../lib/googleAuth";
+import { isGmailConnected, connectGmail } from "../lib/googleAuth";
 
 export default function ComposeMessage() {
   const navigate = useNavigate();

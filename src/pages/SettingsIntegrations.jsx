@@ -25,7 +25,7 @@ export default function SettingsIntegrations() {
     
     // Load Gmail status
     try {
-      const gmailResponse = await api.get(`/gmail-oauth/status?orgId=${orgId}&adminId=${adminId}`);
+      const gmailResponse = await api.get(`/google-oauth/status?service=gmail&orgId=${orgId}&adminId=${adminId}`);
       setIntegrations(prev => ({
         ...prev,
         gmail: {
@@ -43,30 +43,79 @@ export default function SettingsIntegrations() {
       }));
     }
     
-    // TODO: Load YouTube, Google Ads, Meta statuses
-    // For now, just mark as not loading
+    // Load YouTube status
+    try {
+      const youtubeResponse = await api.get(`/google-oauth/status?service=youtube&orgId=${orgId}&adminId=${adminId}`);
+      setIntegrations(prev => ({
+        ...prev,
+        youtube: {
+          connected: youtubeResponse.data.connected,
+          channel: youtubeResponse.data.channelName,
+          channelId: youtubeResponse.data.channelId,
+          connectedAt: youtubeResponse.data.connectedAt,
+          loading: false
+        }
+      }));
+    } catch (error) {
+      console.error('Error loading YouTube status:', error);
+      setIntegrations(prev => ({
+        ...prev,
+        youtube: { connected: false, channel: null, loading: false }
+      }));
+    }
+    
+    // Load Google Ads status
+    try {
+      const adsResponse = await api.get(`/google-oauth/status?service=ads&orgId=${orgId}&adminId=${adminId}`);
+      setIntegrations(prev => ({
+        ...prev,
+        googleAds: {
+          connected: adsResponse.data.connected,
+          account: adsResponse.data.accountName,
+          customerId: adsResponse.data.customerId,
+          connectedAt: adsResponse.data.connectedAt,
+          loading: false
+        }
+      }));
+    } catch (error) {
+      console.error('Error loading Google Ads status:', error);
+      setIntegrations(prev => ({
+        ...prev,
+        googleAds: { connected: false, account: null, loading: false }
+      }));
+    }
+    
+    // Meta status (placeholder)
     setIntegrations(prev => ({
       ...prev,
-      youtube: { ...prev.youtube, loading: false },
-      googleAds: { ...prev.googleAds, loading: false },
       meta: { ...prev.meta, loading: false }
     }));
     
     setLoading(false);
   };
 
-  const handleConnectGmail = () => {
+  const handleConnectGmail = async () => {
     if (!orgId || !adminId) {
       alert('⚠️ Missing organization or admin information. Please refresh and try again.');
       return;
     }
     
-    const API_URL = import.meta.env.PROD 
-      ? 'https://eventscrm-backend.onrender.com'
-      : 'http://localhost:5001';
-    
-    console.log('🧭 Redirecting to Unified Gmail OAuth...', { orgId, adminId });
-    window.location.href = `${API_URL}/api/google-oauth/auth?service=gmail&orgId=${orgId}&adminId=${adminId}`;
+    try {
+      console.log('🧭 Getting Gmail OAuth URL...', { orgId, adminId });
+      
+      // Get the auth URL from the backend
+      const response = await api.get(`/google-oauth/auth?service=gmail&orgId=${orgId}&adminId=${adminId}`);
+      
+      if (response.data.authUrl) {
+        // Redirect to Google OAuth
+        window.location.href = response.data.authUrl;
+      } else {
+        throw new Error('No auth URL received from server');
+      }
+    } catch (error) {
+      console.error('Error getting Gmail OAuth URL:', error);
+      alert('❌ Failed to initiate Gmail connection. Please try again.');
+    }
   };
 
   const handleDisconnectGmail = async () => {
@@ -90,6 +139,50 @@ export default function SettingsIntegrations() {
 
   const handleTestGmail = () => {
     alert('🚧 Test email feature coming soon!\n\nFor now, test by sending a campaign.');
+  };
+
+  const handleConnectYouTube = async () => {
+    if (!orgId || !adminId) {
+      alert('⚠️ Missing organization or admin information. Please refresh and try again.');
+      return;
+    }
+    
+    try {
+      console.log('🧭 Getting YouTube OAuth URL...', { orgId, adminId });
+      
+      const response = await api.get(`/google-oauth/auth?service=youtube&orgId=${orgId}&adminId=${adminId}`);
+      
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        throw new Error('No auth URL received from server');
+      }
+    } catch (error) {
+      console.error('Error getting YouTube OAuth URL:', error);
+      alert('❌ Failed to initiate YouTube connection. Please try again.');
+    }
+  };
+
+  const handleConnectGoogleAds = async () => {
+    if (!orgId || !adminId) {
+      alert('⚠️ Missing organization or admin information. Please refresh and try again.');
+      return;
+    }
+    
+    try {
+      console.log('🧭 Getting Google Ads OAuth URL...', { orgId, adminId });
+      
+      const response = await api.get(`/google-oauth/auth?service=ads&orgId=${orgId}&adminId=${adminId}`);
+      
+      if (response.data.authUrl) {
+        window.location.href = response.data.authUrl;
+      } else {
+        throw new Error('No auth URL received from server');
+      }
+    } catch (error) {
+      console.error('Error getting Google Ads OAuth URL:', error);
+      alert('❌ Failed to initiate Google Ads connection. Please try again.');
+    }
   };
 
   return (
@@ -213,8 +306,8 @@ export default function SettingsIntegrations() {
                 </div>
               </div>
 
-              {/* YouTube Integration (Placeholder) */}
-              <div className="border-2 border-gray-200 rounded-xl p-6 hover:border-red-300 transition opacity-75">
+              {/* YouTube Integration */}
+              <div className="border-2 border-gray-200 rounded-xl p-6 hover:border-red-300 transition">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4 flex-1">
                     <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -222,29 +315,160 @@ export default function SettingsIntegrations() {
                         <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                       </svg>
                     </div>
+                    
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-bold text-gray-900">YouTube</h3>
-                        <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-semibold">
-                          Not Connected
-                        </span>
+                        {integrations.youtube.connected ? (
+                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Connected
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-semibold">
+                            Not Connected
+                          </span>
+                        )}
                       </div>
+                      
                       <p className="text-gray-600 mb-3">
                         Upload and manage videos on your YouTube channel
                       </p>
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                        <p className="text-sm text-gray-600">
-                          Connect via YouTube Hub → YouTube Publisher
-                        </p>
-                      </div>
+                      
+                      {integrations.youtube.connected ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm">
+                            <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2" />
+                            </svg>
+                            <span className="text-gray-700 font-medium">{integrations.youtube.channel}</span>
+                          </div>
+                          {integrations.youtube.connectedAt && (
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Connected {new Date(integrations.youtube.connectedAt).toLocaleDateString()}
+                            </div>
+                          )}
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                            <p className="text-xs text-green-700">
+                              🔒 <strong>Persistent tokens:</strong> Your connection will never expire. You can upload videos anytime!
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                          <p className="text-sm text-red-700">
+                            Connect your YouTube channel to upload videos. You'll only need to do this once!
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <button
-                    onClick={() => navigate("/youtube/welcome")}
-                    className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold"
-                  >
-                    Go to YouTube
-                  </button>
+                  
+                  <div className="flex flex-col gap-2">
+                    {integrations.youtube.connected ? (
+                      <button
+                        onClick={() => navigate("/youtube/welcome")}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium text-sm"
+                      >
+                        Go to YouTube Hub
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleConnectYouTube}
+                        className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition font-semibold shadow-lg"
+                      >
+                        Connect YouTube
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Google Ads Integration */}
+              <div className="border-2 border-gray-200 rounded-xl p-6 hover:border-green-300 transition">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-green-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-xl font-bold text-gray-900">Google Ads</h3>
+                        {integrations.googleAds.connected ? (
+                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Connected
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-semibold">
+                            Not Connected
+                          </span>
+                        )}
+                      </div>
+                      
+                      <p className="text-gray-600 mb-3">
+                        Create and manage Google Ads campaigns
+                      </p>
+                      
+                      {integrations.googleAds.connected ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            <span className="text-gray-700 font-medium">{integrations.googleAds.account}</span>
+                          </div>
+                          {integrations.googleAds.connectedAt && (
+                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Connected {new Date(integrations.googleAds.connectedAt).toLocaleDateString()}
+                            </div>
+                          )}
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                            <p className="text-xs text-green-700">
+                              🔒 <strong>Persistent tokens:</strong> Your connection will never expire. You can manage campaigns anytime!
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                          <p className="text-sm text-yellow-700">
+                            ⚠️ <strong>Note:</strong> Google Ads requires developer token verification for production use. Connect for development/testing only.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    {integrations.googleAds.connected ? (
+                      <button
+                        onClick={() => navigate("/ads")}
+                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm"
+                      >
+                        Go to Ads Hub
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleConnectGoogleAds}
+                        className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition font-semibold shadow-lg"
+                      >
+                        Connect Google Ads
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -252,18 +476,18 @@ export default function SettingsIntegrations() {
               <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
                 <div className="flex items-center justify-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">📊</span>
-                  </div>
-                  <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
                     <span className="text-2xl">📘</span>
                   </div>
                   <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
                     <span className="text-2xl">🎫</span>
                   </div>
+                  <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">📧</span>
+                  </div>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">More Integrations Coming Soon</h3>
                 <p className="text-gray-600">
-                  Google Ads, Facebook/Meta, Eventbrite, and more...
+                  Facebook/Meta, Eventbrite, LinkedIn, and more...
                 </p>
               </div>
 

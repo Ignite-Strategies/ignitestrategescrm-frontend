@@ -88,7 +88,7 @@ import GoogleAdWordsHome from "./pages/GoogleAdWordsHome.jsx";
 import GooglePersonaDevelopment from "./pages/GooglePersonaDevelopment.jsx";
 import YouTubePublisherWelcome from "./pages/YouTubePublisherWelcome.jsx";
 import YouTubeRouter from "./pages/YouTubeRouter.jsx";
-import YouTubeOAuth from "./pages/YouTubeOAuth.jsx";
+// import YouTubeOAuth from "./pages/YouTubeOAuth.jsx"; // REMOVED - using unified OAuth
 import YouTubeAuthSuccess from "./pages/YouTubeAuthSuccess.jsx";
 import YouTubeHub from "./pages/YouTubeHub.jsx";
 import YouTubeUpload from "./pages/YouTubeUpload.jsx";

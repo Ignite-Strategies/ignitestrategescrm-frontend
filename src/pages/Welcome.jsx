@@ -48,7 +48,6 @@ export default function Welcome() {
       
       // Note: Firebase auth already handled by Splash.jsx
       // Welcome page assumes user is already authenticated
-      }
       
       // Get Firebase ID from localStorage (set by Splash.jsx)
       const firebaseId = localStorage.getItem('firebaseId');
