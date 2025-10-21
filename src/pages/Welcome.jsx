@@ -9,6 +9,7 @@ export default function Welcome() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showLogout, setShowLogout] = useState(false);
+  const [canNavigate, setCanNavigate] = useState(false);
 
   useEffect(() => {
     // Don't clear localStorage - it's causing data loss issues
@@ -44,13 +45,16 @@ export default function Welcome() {
 
   const hydrateOrg = async () => {
     try {
+      const startTime = Date.now(); // Track start time for minimum 800ms delay
+      
       console.log('🚀 UNIVERSAL HYDRATOR STARTING...');
       
       // Note: Firebase auth already handled by Splash.jsx
       // Welcome page assumes user is already authenticated
       
-      // Get Firebase ID from localStorage (set by Splash.jsx)
+      // Get Firebase ID and user from localStorage (set by Splash.jsx)
       const firebaseId = localStorage.getItem('firebaseId');
+      const firebaseUser = JSON.parse(localStorage.getItem('firebaseUser') || '{}');
       if (!firebaseId) {
         console.error('❌ No Firebase ID found - should have been set by Splash.jsx');
         navigate('/signin');
@@ -154,7 +158,16 @@ export default function Welcome() {
       // Derive member name from admin object (firstName only) or firebaseUser
       const adminName = admin?.firstName || null;
       setMemberName(hydrationData.memberName || adminName || firebaseUser.displayName || 'Team Member');
-      setLoading(false);
+      
+      // Ensure loading screen shows for at least 800ms to prevent jarring flash
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(800 - elapsedTime, 0);
+      
+      setTimeout(() => {
+        setLoading(false);
+        // Allow navigation after another brief moment
+        setTimeout(() => setCanNavigate(true), 300);
+      }, remainingTime);
       
     } catch (error) {
       console.error('❌ Hydration error:', error);
@@ -261,8 +274,13 @@ export default function Welcome() {
 
         <div className="pt-4">
           <button
-            onClick={() => navigate('/dashboard')}
-            className="bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold text-lg shadow-2xl hover:bg-indigo-50 transition transform hover:scale-105"
+            onClick={() => canNavigate && navigate('/dashboard')}
+            disabled={!canNavigate}
+            className={`px-8 py-4 rounded-xl font-bold text-lg shadow-2xl transition transform ${
+              canNavigate 
+                ? 'bg-white text-indigo-600 hover:bg-indigo-50 hover:scale-105 cursor-pointer' 
+                : 'bg-white/50 text-indigo-400 cursor-not-allowed'
+            }`}
           >
             Go to Dashboard →
           </button>

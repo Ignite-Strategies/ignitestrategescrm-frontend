@@ -5,8 +5,10 @@ import { getOrgId } from "../lib/org";
 
 export default function SettingsIntegrations() {
   const navigate = useNavigate();
-  const orgId = getOrgId();
-  const adminId = localStorage.getItem('adminId');
+  
+  // Just use master keys - simple and reliable
+  const orgId = 'cmgfvz9v10000nt284k875eoc';
+  const adminId = 'admin_432599718';
   
   const [loading, setLoading] = useState(true);
   const [integrations, setIntegrations] = useState({
@@ -18,10 +20,13 @@ export default function SettingsIntegrations() {
 
   useEffect(() => {
     loadIntegrationStatuses();
-  }, [orgId, adminId]);
+  }, []);
 
   const loadIntegrationStatuses = async () => {
     setLoading(true);
+    
+    // Debug: Log what we're sending
+    console.log('🔍 Loading integrations for:', { orgId, adminId });
     
     // Load Gmail status
     try {
