@@ -4,9 +4,9 @@ import api from "../lib/api";
 
 export default function Welcome() {
   const navigate = useNavigate();
-  const [orgName, setOrgName] = useState("");
-  const [memberName, setMemberName] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [orgName, setOrgName] = useState("Your Organization");
+  const [memberName, setMemberName] = useState("Team Member");
+  const [loading, setLoading] = useState(false); // Don't show loading screen
   const [error, setError] = useState("");
   const [showLogout, setShowLogout] = useState(false);
   const [canNavigate, setCanNavigate] = useState(false);
@@ -45,8 +45,6 @@ export default function Welcome() {
 
   const hydrateOrg = async () => {
     try {
-      const startTime = Date.now(); // Track start time for minimum 800ms delay
-      
       console.log('🚀 UNIVERSAL HYDRATOR STARTING...');
       
       // Note: Firebase auth already handled by Splash.jsx
@@ -77,7 +75,6 @@ export default function Welcome() {
         // Show error and logout option
         setError(`Hydration failed: ${error.response?.data?.error || error.message}`);
         setShowLogout(true);
-        setLoading(false);
         return;
       }
       
@@ -92,7 +89,6 @@ export default function Welcome() {
         console.log('⚠️ AdminId:', adminId);
         setError(`No admin record found for this account. You may need to sign up first.`);
         setShowLogout(true);
-        setLoading(false);
         return;
       }
       
@@ -159,15 +155,8 @@ export default function Welcome() {
       const adminName = admin?.firstName || null;
       setMemberName(hydrationData.memberName || adminName || firebaseUser.displayName || 'Team Member');
       
-      // Ensure loading screen shows for at least 800ms to prevent jarring flash
-      const elapsedTime = Date.now() - startTime;
-      const remainingTime = Math.max(800 - elapsedTime, 0);
-      
-      setTimeout(() => {
-        setLoading(false);
-        // Allow navigation after another brief moment
-        setTimeout(() => setCanNavigate(true), 300);
-      }, remainingTime);
+      // Allow navigation once hydration is complete
+      setCanNavigate(true);
       
     } catch (error) {
       console.error('❌ Hydration error:', error);
