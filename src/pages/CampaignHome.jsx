@@ -244,7 +244,7 @@ export default function CampaignHome() {
             </div>
           </div>
 
-          {/* Gmail Authentication */}
+          {/* Gmail Authentication - Link to Settings */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -272,15 +272,15 @@ export default function CampaignHome() {
                     <span className="font-semibold">Connected</span>
                   </div>
                   <button
-                    onClick={handleGmailAuth}
-                    className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition font-medium text-sm"
+                    onClick={() => navigate('/settings/integrations')}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm"
                   >
-                    🔄 Reconnect
+                    ⚙️ Manage
                   </button>
                 </div>
               ) : (
                 <button
-                  onClick={handleGmailAuth}
+                  onClick={() => navigate('/settings/integrations')}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
                 >
                   Connect Gmail

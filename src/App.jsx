@@ -96,6 +96,7 @@ import YouTubePreview from "./pages/YouTubePreview.jsx";
 import YouTubePlaylistCreate from "./pages/YouTubePlaylistCreate.jsx";
 import GmailOAuth from "./pages/GmailOAuth.jsx";
 import GmailAuthSuccess from "./pages/GmailAuthSuccess.jsx";
+import SettingsIntegrations from "./pages/SettingsIntegrations.jsx";
 import SocialMediaManager from "./pages/SocialMediaManager.jsx";
 import MetaWelcome from "./pages/MetaWelcome.jsx";
 import MetaOAuth from "./pages/MetaOAuth.jsx";
@@ -398,6 +399,9 @@ export default function App() {
           <Route path="/gmailoauth" element={<GmailOAuth />} />
           <Route path="/gmail/success" element={
             <ProtectedRoute><GmailAuthSuccess /></ProtectedRoute>
+          } />
+          <Route path="/settings/integrations" element={
+            <ProtectedRoute><SettingsIntegrations /></ProtectedRoute>
           } />
           <Route path="/youtube/hub" element={
             <ProtectedRoute><YouTubeHub /></ProtectedRoute>
