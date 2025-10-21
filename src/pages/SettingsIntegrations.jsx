@@ -25,76 +25,64 @@ export default function SettingsIntegrations() {
   const loadIntegrationStatuses = async () => {
     setLoading(true);
     
-    // Debug: Log what we're sending
-    console.log('🔍 Loading integrations for:', { orgId, adminId });
+    // Get adminId from localStorage (the personhood key!)
+    const adminId = localStorage.getItem('adminId');
     
-    // Load Gmail status
+    if (!adminId) {
+      console.error('❌ No adminId in localStorage - cannot load integrations');
+      setLoading(false);
+      return;
+    }
+    
+    console.log('🔍 Loading Google integrations for adminId:', adminId);
+    
     try {
-      const gmailResponse = await api.get(`/google-oauth/status?service=gmail&orgId=${orgId}&adminId=${adminId}`);
+      // ONE API CALL to get ALL Google OAuth connections for this admin
+      const response = await api.get(`/google-auth-hydrator/${adminId}`);
+      const { connections } = response.data;
+      
+      console.log('✅ Google Auth Hydrator response:', connections);
+      
+      // Update state with all connections at once
       setIntegrations(prev => ({
         ...prev,
         gmail: {
-          connected: gmailResponse.data.connected,
-          email: gmailResponse.data.email,
-          connectedAt: gmailResponse.data.connectedAt,
+          connected: connections.gmail.connected,
+          email: connections.gmail.email || null,
+          connectionId: connections.gmail.connectionId || null,
+          connectedAt: connections.gmail.connectedAt || null,
           loading: false
-        }
-      }));
-    } catch (error) {
-      console.error('Error loading Gmail status:', error);
-      setIntegrations(prev => ({
-        ...prev,
-        gmail: { connected: false, email: null, loading: false }
-      }));
-    }
-    
-    // Load YouTube status
-    try {
-      const youtubeResponse = await api.get(`/google-oauth/status?service=youtube&orgId=${orgId}&adminId=${adminId}`);
-      setIntegrations(prev => ({
-        ...prev,
+        },
         youtube: {
-          connected: youtubeResponse.data.connected,
-          channel: youtubeResponse.data.channelName,
-          channelId: youtubeResponse.data.channelId,
-          connectedAt: youtubeResponse.data.connectedAt,
+          connected: connections.youtube.connected,
+          channel: connections.youtube.channelName || null,
+          channelId: connections.youtube.channelId || null,
+          connectionId: connections.youtube.connectionId || null,
+          connectedAt: connections.youtube.connectedAt || null,
           loading: false
-        }
-      }));
-    } catch (error) {
-      console.error('Error loading YouTube status:', error);
-      setIntegrations(prev => ({
-        ...prev,
-        youtube: { connected: false, channel: null, loading: false }
-      }));
-    }
-    
-    // Load Google Ads status
-    try {
-      const adsResponse = await api.get(`/google-oauth/status?service=ads&orgId=${orgId}&adminId=${adminId}`);
-      setIntegrations(prev => ({
-        ...prev,
+        },
         googleAds: {
-          connected: adsResponse.data.connected,
-          account: adsResponse.data.accountName,
-          customerId: adsResponse.data.customerId,
-          connectedAt: adsResponse.data.connectedAt,
+          connected: connections.ads.connected,
+          account: connections.ads.accountName || null,
+          customerId: connections.ads.customerId || null,
+          connectionId: connections.ads.connectionId || null,
+          connectedAt: connections.ads.connectedAt || null,
           loading: false
-        }
+        },
+        meta: { ...prev.meta, loading: false }
       }));
+      
     } catch (error) {
-      console.error('Error loading Google Ads status:', error);
+      console.error('❌ Error loading Google integrations:', error);
+      // Set all to disconnected on error
       setIntegrations(prev => ({
         ...prev,
-        googleAds: { connected: false, account: null, loading: false }
+        gmail: { connected: false, email: null, loading: false },
+        youtube: { connected: false, channel: null, loading: false },
+        googleAds: { connected: false, account: null, loading: false },
+        meta: { ...prev.meta, loading: false }
       }));
     }
-    
-    // Meta status (placeholder)
-    setIntegrations(prev => ({
-      ...prev,
-      meta: { ...prev.meta, loading: false }
-    }));
     
     setLoading(false);
   };
