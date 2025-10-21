@@ -195,19 +195,18 @@ export default function Dashboard() {
           </button>
 
           <button
-            onClick={() => navigate("/settings/admins")}
-            className="bg-gradient-to-br from-purple-500 to-indigo-500 text-white rounded-lg shadow-md hover:shadow-xl transition-all p-5 text-left border-2 border-transparent hover:scale-105"
+            onClick={() => navigate("/settings/integrations")}
+            className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-lg shadow-md hover:shadow-xl transition-all p-5 text-left border-2 border-transparent hover:scale-105"
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
               </div>
               <div>
-                <div className="font-bold">Settings</div>
-                <div className="text-xs text-white/80">Manage team & admins</div>
+                <div className="font-bold">Integrations</div>
+                <div className="text-xs text-white/80">Gmail, YouTube, Ads & more</div>
               </div>
             </div>
           </button>
