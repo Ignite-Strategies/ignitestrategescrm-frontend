@@ -462,12 +462,28 @@ export default function SettingsIntegrations() {
                   
                   <div className="flex flex-col gap-2">
                     {integrations.googleAds.connected ? (
-                      <button
-                        onClick={() => navigate("/ads")}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm"
-                      >
-                        Go to Ads Hub
-                      </button>
+                      <>
+                        {integrations.googleAds.customerId ? (
+                          // Has account selected - show Ads Hub
+                          <button
+                            onClick={() => navigate("/googleads/home")}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm"
+                          >
+                            Go to Ads Hub
+                          </button>
+                        ) : (
+                          // Connected but no account selected - show Select Account
+                          <button
+                            onClick={() => {
+                              const connectionId = localStorage.getItem('googleOAuthConnection_ads');
+                              navigate(`/google-ads/select-account?connectionId=${connectionId}`);
+                            }}
+                            className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition font-semibold shadow-lg"
+                          >
+                            📊 Select Google Ads Account
+                          </button>
+                        )}
+                      </>
                     ) : (
                       <button
                         onClick={handleConnectGoogleAds}
