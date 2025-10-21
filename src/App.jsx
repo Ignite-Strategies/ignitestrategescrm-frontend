@@ -94,8 +94,6 @@ import YouTubeHub from "./pages/YouTubeHub.jsx";
 import YouTubeUpload from "./pages/YouTubeUpload.jsx";
 import YouTubePreview from "./pages/YouTubePreview.jsx";
 import YouTubePlaylistCreate from "./pages/YouTubePlaylistCreate.jsx";
-import GmailOAuth from "./pages/GmailOAuth.jsx"; // DEPRECATED
-import GmailAuthSuccess from "./pages/GmailAuthSuccess.jsx"; // DEPRECATED
 import UnifiedGoogleOAuthCallback from "./pages/UnifiedGoogleOAuthCallback.jsx"; // 🧭 Unified OAuth Callback
 import SettingsIntegrations from "./pages/SettingsIntegrations.jsx";
 import SocialMediaManager from "./pages/SocialMediaManager.jsx";
@@ -393,14 +391,9 @@ export default function App() {
           <Route path="/youtube/welcome" element={
             <ProtectedRoute><YouTubePublisherWelcome /></ProtectedRoute>
           } />
-          <Route path="/youtubeoauth" element={<YouTubeOAuth />} />
           <Route path="/youtube/success" element={
             <ProtectedRoute><YouTubeAuthSuccess /></ProtectedRoute>
           } />
-        <Route path="/gmailoauth" element={<GmailOAuth />} /> {/* DEPRECATED */}
-        <Route path="/gmail/success" element={
-          <ProtectedRoute><GmailAuthSuccess /></ProtectedRoute>
-        } /> {/* DEPRECATED */}
         <Route path="/oauth/callback" element={<UnifiedGoogleOAuthCallback />} /> {/* 🧭 Unified OAuth Callback */}
           <Route path="/settings/integrations" element={
             <ProtectedRoute><SettingsIntegrations /></ProtectedRoute>
