@@ -84,6 +84,7 @@ import GoogleAdSignin from "./pages/GoogleAdSignin.jsx";
 import DemoGoogleAds from "./pages/DemoGoogleAds.jsx";
 import GoogleAdWordsWelcome from "./pages/GoogleAdWordsWelcome.jsx";
 import GoogleAdWordsHome from "./pages/GoogleAdWordsHome.jsx";
+import GoogleAdsHub from "./pages/GoogleAdsHub.jsx";
 import GooglePersonaDevelopment from "./pages/GooglePersonaDevelopment.jsx";
 import YouTubePublisherWelcome from "./pages/YouTubePublisherWelcome.jsx";
 import YouTubeRouter from "./pages/YouTubeRouter.jsx";
@@ -131,6 +132,9 @@ export default function App() {
         } />
         <Route path="/googleads/home" element={
           <ProtectedRoute><GoogleAdWordsHome /></ProtectedRoute>
+        } />
+        <Route path="/googleads/hub" element={
+          <ProtectedRoute><GoogleAdsHub /></ProtectedRoute>
         } />
         <Route path="/googleads/campaigns" element={
           <ProtectedRoute><GoogleAdsCampaignsList /></ProtectedRoute>
