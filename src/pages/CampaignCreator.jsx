@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, isGmailAuthenticated } from "../lib/googleAuth";
+import { signInWithGoogle } from "../firebase";
 
 /**
  * CampaignCreator - Clean rebuild

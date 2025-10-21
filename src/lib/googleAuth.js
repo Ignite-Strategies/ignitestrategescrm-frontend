@@ -1,130 +1,150 @@
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { auth } from "../firebase";
-
 /**
- * Google OAuth for Gmail API - EMAIL SENDING ONLY
- * This is ONLY for getting Gmail access tokens to send emails
- * NOT for user login/signup!
- * 
- * For user authentication, import from '../firebase.js' instead
+ * 🧭 Unified Google OAuth (Frontend)
+ * Handles Gmail, YouTube, Google Ads API access via unified backend
+ * NOT for user login/signup - that's firebase.js!
  */
 
-// Google OAuth provider with Gmail scope
-const googleProvider = new GoogleAuthProvider();
-googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
-
 /**
- * Sign in with Google (includes Gmail scope)
+ * 🚀 Initiate OAuth for any Google service
+ * @param {string} service - 'gmail', 'youtube', 'ads'
+ * @param {string} orgId - Organization ID
+ * @param {string} adminId - Admin ID
  */
-export async function signInWithGoogle() {
-  try {
-    console.log("🔐 Signing in with Google (Gmail scope)...");
-    
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-    const credential = GoogleAuthProvider.credentialFromResult(result);
-    
-    console.log("✅ Google sign-in successful");
-    console.log("📧 Email:", user.email);
-    console.log("🆔 UID:", user.uid);
-    
-    const accessToken = credential?.accessToken;
-    
-    // Store Gmail access token for API calls
-    if (accessToken) {
-      localStorage.setItem('gmailAccessToken', accessToken);
-      localStorage.setItem('gmailEmail', user.email);
-      localStorage.setItem('gmailTokenTimestamp', Date.now()); // Store when token was created
-      console.log("🔑 Gmail access token stored with timestamp");
-    }
-    
-    return {
-      uid: user.uid,
-      email: user.email,
-      name: user.displayName,
-      photoURL: user.photoURL,
-      accessToken: accessToken
-    };
-  } catch (error) {
-    console.error("❌ Google sign-in error:", error);
-    throw error;
+export function initiateGoogleOAuth(service, orgId, adminId) {
+  if (!service || !orgId || !adminId) {
+    throw new Error('service, orgId, and adminId are required');
   }
-}
-
-/**
- * Sign out user
- */
-export async function signOutUser() {
-  try {
-    await signOut(auth);
-    localStorage.removeItem('gmailAccessToken');
-    localStorage.removeItem('gmailEmail');
-    console.log("✅ User signed out");
-  } catch (error) {
-    console.error("❌ Sign out error:", error);
-    throw error;
+  
+  const validServices = ['gmail', 'youtube', 'ads'];
+  if (!validServices.includes(service)) {
+    throw new Error(`Invalid service: ${service}. Valid services: ${validServices.join(', ')}`);
   }
-}
-
-/**
- * Get current user
- */
-export function getCurrentUser() {
-  return auth.currentUser;
-}
-
-/**
- * Check if user is signed in
- */
-export function isSignedIn() {
-  return auth.currentUser !== null;
-}
-
-/**
- * Get Gmail access token from localStorage
- */
-export function getGmailAccessToken() {
-  return localStorage.getItem('gmailAccessToken');
-}
-
-/**
- * Check if Gmail token is expired (older than 50 minutes for safety)
- */
-export function isGmailTokenExpired() {
-  const timestamp = localStorage.getItem('gmailTokenTimestamp');
-  if (!timestamp) return true; // No timestamp = expired
   
-  const tokenAge = Date.now() - parseInt(timestamp);
-  const fiftyMinutes = 50 * 60 * 1000; // 50 minutes in milliseconds (10 min safety buffer)
+  const API_URL = import.meta.env.PROD 
+    ? 'https://eventscrm-backend.onrender.com'
+    : 'http://localhost:5001';
   
-  return tokenAge > fiftyMinutes;
+  console.log(`🧭 Initiating ${service.toUpperCase()} OAuth...`, { orgId, adminId });
+  
+  // Redirect to unified OAuth endpoint
+  window.location.href = `${API_URL}/api/google-oauth/auth?service=${service}&orgId=${orgId}&adminId=${adminId}`;
 }
 
 /**
- * Check if user has valid Gmail authentication (not just token exists)
+ * 📧 Gmail OAuth (convenience function)
  */
-export function isGmailAuthenticated() {
-  const token = getGmailAccessToken();
-  const email = localStorage.getItem('gmailEmail');
-  
-  if (!token || !email) return false;
-  
-  // Check if token is expired
-  if (isGmailTokenExpired()) {
-    console.log('🔑 Gmail token expired, clearing auth data');
-    clearGmailAuth();
+export function connectGmail(orgId, adminId) {
+  return initiateGoogleOAuth('gmail', orgId, adminId);
+}
+
+/**
+ * 📺 YouTube OAuth (convenience function)
+ */
+export function connectYouTube(orgId, adminId) {
+  return initiateGoogleOAuth('youtube', orgId, adminId);
+}
+
+/**
+ * 📊 Google Ads OAuth (convenience function)
+ */
+export function connectGoogleAds(orgId, adminId) {
+  return initiateGoogleOAuth('ads', orgId, adminId);
+}
+
+/**
+ * 🔍 Check if service is connected
+ * @param {string} service - 'gmail', 'youtube', 'ads'
+ * @param {string} orgId - Organization ID
+ * @param {string} adminId - Admin ID
+ */
+export async function isServiceConnected(service, orgId, adminId) {
+  try {
+    const API_URL = import.meta.env.PROD 
+      ? 'https://eventscrm-backend.onrender.com'
+      : 'http://localhost:5001';
+    
+    const response = await fetch(`${API_URL}/api/google-oauth/status?service=${service}&orgId=${orgId}&adminId=${adminId}`);
+    const data = await response.json();
+    
+    return data.connected || false;
+  } catch (error) {
+    console.error(`❌ Error checking ${service} connection:`, error);
     return false;
   }
-  
-  return true;
 }
 
 /**
- * Clear Gmail authentication data
+ * 📧 Check if Gmail is connected (convenience function)
  */
-export function clearGmailAuth() {
-  localStorage.removeItem('gmailAccessToken');
-  localStorage.removeItem('gmailEmail');
-  localStorage.removeItem('gmailTokenTimestamp');
-  console.log('🧹 Gmail auth data cleared');
+export async function isGmailConnected(orgId, adminId) {
+  return isServiceConnected('gmail', orgId, adminId);
+}
+
+/**
+ * 📺 Check if YouTube is connected (convenience function)
+ */
+export async function isYouTubeConnected(orgId, adminId) {
+  return isServiceConnected('youtube', orgId, adminId);
+}
+
+/**
+ * 📊 Check if Google Ads is connected (convenience function)
+ */
+export async function isGoogleAdsConnected(orgId, adminId) {
+  return isServiceConnected('ads', orgId, adminId);
+}
+
+/**
+ * 🔌 Disconnect a service
+ * @param {string} service - 'gmail', 'youtube', 'ads'
+ * @param {string} orgId - Organization ID
+ * @param {string} adminId - Admin ID
+ */
+export async function disconnectService(service, orgId, adminId) {
+  try {
+    const API_URL = import.meta.env.PROD 
+      ? 'https://eventscrm-backend.onrender.com'
+      : 'http://localhost:5001';
+    
+    const response = await fetch(`${API_URL}/api/google-oauth/disconnect`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ service, orgId, adminId })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      console.log(`✅ ${service.toUpperCase()} disconnected successfully`);
+      return true;
+    } else {
+      throw new Error(data.error || `Failed to disconnect ${service}`);
+    }
+  } catch (error) {
+    console.error(`❌ Error disconnecting ${service}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * 📧 Disconnect Gmail (convenience function)
+ */
+export async function disconnectGmail(orgId, adminId) {
+  return disconnectService('gmail', orgId, adminId);
+}
+
+/**
+ * 📺 Disconnect YouTube (convenience function)
+ */
+export async function disconnectYouTube(orgId, adminId) {
+  return disconnectService('youtube', orgId, adminId);
+}
+
+/**
+ * 📊 Disconnect Google Ads (convenience function)
+ */
+export async function disconnectGoogleAds(orgId, adminId) {
+  return disconnectService('ads', orgId, adminId);
 }

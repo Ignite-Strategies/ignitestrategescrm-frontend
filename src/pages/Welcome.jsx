@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
 import api from "../lib/api";
 
 export default function Welcome() {
@@ -31,8 +30,8 @@ export default function Welcome() {
         document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
       });
       
-      // Sign out from Firebase
-      await auth.signOut();
+      // Clear localStorage
+      localStorage.clear();
       
       // Force reload to clear any cached state
       window.location.href = '/signin';
@@ -47,44 +46,18 @@ export default function Welcome() {
     try {
       console.log('🚀 UNIVERSAL HYDRATOR STARTING...');
       
-      // Get Firebase user with retry mechanism AND TIMEOUT
-      let firebaseUser = auth.currentUser;
-      if (!firebaseUser) {
-        console.log('⚠️ No Firebase user immediately, waiting for auth state...');
-        
-        let authResolved = false;
-        
-        // TIMEOUT: If auth doesn't resolve in 5 seconds, bail out
-        const timeout = setTimeout(() => {
-          if (!authResolved) {
-            console.log('⏰ Auth timeout! Redirecting to signin...');
-            navigate('/signin');
-          }
-        }, 5000);
-        
-        // Wait for auth state to initialize
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-          if (authResolved) return; // Already handled
-          
-          authResolved = true;
-          clearTimeout(timeout);
-          
-          if (user) {
-            console.log('✅ Firebase user found after wait:', user.uid);
-            unsubscribe(); // Stop listening
-            hydrateOrg(); // Retry hydration
-          } else {
-            console.log('❌ Still no Firebase user after wait, go to signin');
-            unsubscribe(); // Stop listening
-            navigate('/signin');
-          }
-        });
-        
-        return; // Exit this attempt
+      // Note: Firebase auth already handled by Splash.jsx
+      // Welcome page assumes user is already authenticated
       }
       
-      const firebaseId = firebaseUser.uid;
-      console.log('✅ Firebase ID:', firebaseId);
+      // Get Firebase ID from localStorage (set by Splash.jsx)
+      const firebaseId = localStorage.getItem('firebaseId');
+      if (!firebaseId) {
+        console.error('❌ No Firebase ID found - should have been set by Splash.jsx');
+        navigate('/signin');
+        return;
+      }
+      console.log('✅ Firebase ID from localStorage:', firebaseId);
       
       // UNIVERSAL HYDRATION - Get ALL data in one call using firebaseId!
       console.log('🚀 UNIVERSAL HYDRATION for firebaseId:', firebaseId);

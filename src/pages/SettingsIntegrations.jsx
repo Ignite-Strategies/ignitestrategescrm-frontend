@@ -65,8 +65,8 @@ export default function SettingsIntegrations() {
       ? 'https://eventscrm-backend.onrender.com'
       : 'http://localhost:5001';
     
-    console.log('🔐 Redirecting to Gmail OAuth...', { orgId, adminId });
-    window.location.href = `${API_URL}/api/gmail-oauth/auth?orgId=${orgId}&adminId=${adminId}`;
+    console.log('🧭 Redirecting to Unified Gmail OAuth...', { orgId, adminId });
+    window.location.href = `${API_URL}/api/google-oauth/auth?service=gmail&orgId=${orgId}&adminId=${adminId}`;
   };
 
   const handleDisconnectGmail = async () => {
@@ -75,8 +75,8 @@ export default function SettingsIntegrations() {
     }
     
     try {
-      await api.delete('/gmail-oauth/disconnect', {
-        data: { orgId, adminId }
+      await api.delete('/google-oauth/disconnect', {
+        data: { service: 'gmail', orgId, adminId }
       });
       
       // Refresh status

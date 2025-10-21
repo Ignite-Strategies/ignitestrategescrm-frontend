@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../lib/api";
-import { isGmailAuthenticated } from "../lib/googleAuth";
+// Gmail authentication now handled by unified OAuth system
 
 /**
  * CampaignPreview - NUCLEAR REBUILD
