@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
-import { signInWithGoogle } from "../lib/googleAuth";
+import { connectGmail } from "../lib/googleAuth";
 
 export default function Outreach() {
   const navigate = useNavigate();
