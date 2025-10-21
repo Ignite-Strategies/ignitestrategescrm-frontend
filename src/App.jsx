@@ -145,6 +145,12 @@ export default function App() {
         <Route path="/googleads/persona-development" element={
           <ProtectedRoute><GooglePersonaDevelopment /></ProtectedRoute>
         } />
+        <Route path="/googleads/create" element={
+          <ProtectedRoute><CampaignCreator /></ProtectedRoute>
+        } />
+        <Route path="/googleads/helper" element={
+          <ProtectedRoute><GoogleCampaignBuilder /></ProtectedRoute>
+        } />
         
         {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />
