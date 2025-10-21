@@ -15,6 +15,7 @@ export default function Navigation() {
     { path: '/engage', label: 'Engage', icon: '🧠' },
     { path: '/contacts', label: 'Contacts', icon: '👥' },
     { path: '/events', label: 'Events', icon: '📅' },
+    { path: '/settings/integrations', label: 'Settings', icon: '⚙️' },
   ];
 
   return (
