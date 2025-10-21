@@ -1,14 +1,92 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import api from "../lib/api";
 
 export default function GoogleAdWordsHome() {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [accountData, setAccountData] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const name = localStorage.getItem("userName") || localStorage.getItem("email") || "there";
-    setUserName(name.split("@")[0]);
+    hydrateGoogleAdsAccount();
   }, []);
+  
+  const hydrateGoogleAdsAccount = async () => {
+    try {
+      setLoading(true);
+      
+      // Get the Google Ads account ID from localStorage
+      const connectionId = localStorage.getItem('googleOAuthConnection_ads');
+      
+      if (!connectionId) {
+        setError("No Google Ads connection found. Please reconnect.");
+        setLoading(false);
+        return;
+      }
+      
+      console.log('📊 Hydrating Google Ads data for connection:', connectionId);
+      
+      // For now, we need to get the accountId from the GoogleAdAccount table
+      // TODO: Store accountId in localStorage after account selection
+      const adminId = localStorage.getItem('adminId');
+      
+      // Call hydration endpoint (we'll need to pass accountId)
+      // For now, let's show a placeholder with account info from integrations
+      setAccountData({
+        account: {
+          name: "Ignite Strategies",
+          customerId: "8140750417",
+          currency: "USD",
+          isTestAccount: true
+        },
+        totals: {
+          campaignCount: 0,
+          impressions: 0,
+          clicks: 0,
+          spend: 0,
+          conversions: 0
+        },
+        campaigns: []
+      });
+      
+      setLoading(false);
+    } catch (error) {
+      console.error('❌ Error hydrating Google Ads:', error);
+      setError(error.response?.data?.details || error.message || 'Failed to load account data');
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading Your Account...</h2>
+          <p className="text-gray-600">Fetching campaigns and performance data</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
+          <div className="text-5xl mb-4">❌</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Account</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => navigate('/settings/integrations')}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+          >
+            Back to Settings
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const strategyTools = [
     {
@@ -72,20 +150,33 @@ export default function GoogleAdWordsHome() {
               <div className="text-6xl">🚀</div>
               <div>
                 <h1 className="text-4xl font-bold text-slate-900">
-                  Google Ads Campaign Builder
+                  {accountData?.account?.name || "Google Ads"}
                 </h1>
                 <p className="text-slate-600 mt-2 text-lg">
-                  Welcome back, {userName}! Let's build campaigns that convert.
+                  Campaign Builder & Analytics
+                </p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Customer ID: {accountData?.account?.customerId}
+                  {accountData?.account?.isTestAccount && (
+                    <span className="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
+                      Test Account
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
             
-            {/* Connection Status */}
-            <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-              <span className="text-2xl">✅</span>
-              <div>
-                <p className="text-xs text-green-700 font-semibold">Google Ads</p>
-                <p className="text-xs text-green-600">Connected</p>
+            {/* Account Stats */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-center">
+                <p className="text-2xl font-bold text-blue-900">{accountData?.totals?.campaignCount || 0}</p>
+                <p className="text-xs text-blue-600">Campaigns</p>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 text-center">
+                <p className="text-2xl font-bold text-green-900">
+                  ${(accountData?.totals?.spend || 0).toFixed(2)}
+                </p>
+                <p className="text-xs text-green-600">Total Spend</p>
               </div>
             </div>
           </div>
