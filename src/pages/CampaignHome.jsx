@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, isSignedIn } from "../firebase";
+import { signInWithGoogle } from "../firebase";
 
 export default function CampaignHome() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../lib/api";
 import { getOrgId } from "../lib/org";
-import { signInWithGoogle, getGmailAccessToken, isGmailAuthenticated } from "../lib/googleAuth";
+import { connectGmail, isGmailConnected } from "../lib/googleAuth";
 
 /**
  * CampaignCreator - Clean 3-Step Flow with Preview
