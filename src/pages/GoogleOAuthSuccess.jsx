@@ -34,6 +34,7 @@ export default function GoogleOAuthSuccess() {
         ];
       case 'ads':
         return [
+          { label: 'Select Google Ads Account', path: '/googleads/account-picker', icon: '📊' },
           { label: 'Go to Google Ads Hub', path: '/googleads/home', icon: '🚀' },
           { label: 'Back to Settings', path: '/settings/integrations', icon: '⚙️' }
         ];

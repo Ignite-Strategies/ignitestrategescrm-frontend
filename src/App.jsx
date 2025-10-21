@@ -155,6 +155,9 @@ export default function App() {
         <Route path="/googleads/budget-analysis" element={
           <ProtectedRoute><GoogleAdsBudgetAnalysis /></ProtectedRoute>
         } />
+        <Route path="/googleads/account-picker" element={
+          <ProtectedRoute><GoogleAdsAccountPicker /></ProtectedRoute>
+        } />
         
         {/* Auth Pages */}
         <Route path="/signup" element={<Signup />} />
