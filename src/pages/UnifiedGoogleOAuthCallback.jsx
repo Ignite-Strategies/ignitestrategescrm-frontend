@@ -54,9 +54,9 @@ export default function UnifiedGoogleOAuthCallback() {
         // Store success message
         localStorage.setItem('redirectMessage', `✅ ${serviceName} connected successfully!`);
         
-        // Redirect to appropriate success page
+        // Redirect to root - Splash will handle auth and redirect to proper page
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate("/");
         }, 2000);
       } else {
         throw new Error(response.data.error || "Failed to connect service");
@@ -114,10 +114,10 @@ export default function UnifiedGoogleOAuthCallback() {
             {error && (
               <div className="mt-6">
                 <button
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/")}
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Back to Dashboard
+                  Back to App
                 </button>
               </div>
             )}
