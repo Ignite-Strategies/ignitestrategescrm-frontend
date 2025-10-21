@@ -59,13 +59,27 @@ export default function GoogleAdWordsHome() {
         }
       }
       
-      console.log('📊 Loading Google Ads data for account:', accountId);
+      console.log('📊 Setting up Google Ads home for account:', accountId);
       
-      // Call hydration endpoint with real Google Ads API
-      const response = await api.get(`/google-ads-hydrate/${accountId}`);
+      // Just set basic account data - NO API CALLS on home page!
+      setAccountData({
+        account: {
+          id: accountId,
+          name: 'Google Ads Account', // Will be updated when user goes to campaigns
+          currency: 'USD',
+          timezone: 'UTC'
+        },
+        campaigns: [],
+        totals: {
+          impressions: 0,
+          clicks: 0,
+          spend: 0,
+          conversions: 0,
+          campaignCount: 0
+        }
+      });
       
-      setAccountData(response.data);
-      console.log('✅ Google Ads data loaded:', response.data);
+      console.log('✅ Google Ads home setup complete');
       setError(""); // Clear error on success
       setLoading(false);
     } catch (error) {
