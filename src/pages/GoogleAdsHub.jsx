@@ -194,44 +194,36 @@ export default function GoogleAdsHub() {
           </button>
         </div>
         
-        {/* Strategy Tip */}
-        <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-2xl p-6 border border-violet-200">
-          <h3 className="font-bold text-violet-900 mb-2 flex items-center gap-2">
-            <span>💡</span>
-            <span>Pro Tip: Use Strategy Tools First</span>
-          </h3>
-          <p className="text-violet-800 leading-relaxed">
-            Before creating campaigns, check out our <button onClick={() => navigate("/googleads/tools")} className="underline font-semibold hover:text-violet-900">Strategy Tools</button> to define personas, 
-            analyze search behavior, and optimize your budget. This ensures you're targeting the right people with the right message.
-          </p>
-        </div>
+        {/* Strategy Tools */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Strategy Tools</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <button
+              onClick={() => navigate("/googleads/tools")}
+              className="bg-white rounded-xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all text-left group"
+            >
+              <div className="text-3xl mb-3">🎯</div>
+              <h3 className="font-bold text-gray-900 mb-2">Persona Development</h3>
+              <p className="text-sm text-gray-600">Define your target audience and reverse engineer their search behavior</p>
+            </button>
 
-        {/* Info Footer */}
-        <div className="mt-8 grid md:grid-cols-2 gap-6">
-          <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-            <h3 className="font-bold text-blue-900 mb-3 flex items-center gap-2">
-              <span>🎓</span>
-              <span>Why Reverse Engineering Works</span>
-            </h3>
-            <p className="text-sm text-blue-800 leading-relaxed">
-              Most people throw random keywords at Google Ads and hope something sticks. 
-              We start with WHO you're trying to reach, identify their pain points, and reverse engineer 
-              what they're actually typing into Google when they have that pain. This creates campaigns 
-              that speak directly to your ideal audience.
-            </p>
-          </div>
+            <button
+              onClick={() => navigate("/googleads/tools")}
+              className="bg-white rounded-xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all text-left group"
+            >
+              <div className="text-3xl mb-3">🔍</div>
+              <h3 className="font-bold text-gray-900 mb-2">Search Analysis</h3>
+              <p className="text-sm text-gray-600">Analyze search trends and competition in your target market</p>
+            </button>
 
-          <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-            <h3 className="font-bold text-green-900 mb-3 flex items-center gap-2">
-              <span>📊</span>
-              <span>The Process</span>
-            </h3>
-            <ol className="text-sm text-green-800 space-y-2 list-decimal list-inside">
-              <li>Define your target persona (demographics, pain, desire)</li>
-              <li>Reverse engineer their search behavior</li>
-              <li>AI generates campaign with targeted keywords & copy</li>
-              <li>Review, optimize, and launch</li>
-            </ol>
+            <button
+              onClick={() => navigate("/googleads/tools")}
+              className="bg-white rounded-xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all text-left group"
+            >
+              <div className="text-3xl mb-3">💰</div>
+              <h3 className="font-bold text-gray-900 mb-2">Budget Analysis</h3>
+              <p className="text-sm text-gray-600">Optimize your ad spend for maximum ROI and lead generation</p>
+            </button>
           </div>
         </div>
         </div>
