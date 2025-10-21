@@ -28,41 +28,51 @@ export default function CampaignHome() {
     }
   }, [orgId]);
 
-  const checkGmailAuth = () => {
-    // Use the new function that checks token expiration too
-    const isAuthenticated = isGmailAuthenticated();
-    const gmailEmail = localStorage.getItem('gmailEmail');
+  const checkGmailAuth = async () => {
+    // Check if Gmail is connected via backend (persistent tokens)
+    const adminId = localStorage.getItem('adminId');
     
-    console.log('🔍 Checking Gmail auth:', { 
-      isAuthenticated, 
-      email: gmailEmail
-    });
-    
-    if (isAuthenticated && gmailEmail) {
-      setGmailAuthenticated(true);
-      setGmailEmail(gmailEmail);
-      console.log('✅ Gmail authenticated:', gmailEmail);
-    } else {
+    if (!orgId || !adminId) {
       setGmailAuthenticated(false);
-      setGmailEmail('');
-      console.log('❌ Gmail not authenticated (token expired or missing)');
+      return;
+    }
+    
+    try {
+      const response = await api.get(`/gmail-oauth/status?orgId=${orgId}&adminId=${adminId}`);
+      
+      if (response.data.connected) {
+        setGmailAuthenticated(true);
+        setGmailEmail(response.data.email);
+        localStorage.setItem('gmailEmail', response.data.email);
+        console.log('✅ Gmail connected:', response.data.email);
+      } else {
+        setGmailAuthenticated(false);
+        setGmailEmail('');
+        console.log('❌ Gmail not connected');
+      }
+    } catch (error) {
+      console.error('Error checking Gmail status:', error);
+      setGmailAuthenticated(false);
     }
   };
 
-  const handleGmailAuth = async () => {
-    try {
-      const result = await signInWithGoogle();
-      if (result.accessToken) {
-        setGmailAuthenticated(true);
-        setGmailEmail(result.email);
-        localStorage.setItem('gmailEmail', result.email);
-        console.log('✅ Gmail authentication successful');
-        alert(`✅ Gmail authenticated! You can now send emails via ${result.email}`);
-      }
-    } catch (error) {
-      console.error('❌ Gmail authentication failed:', error);
-      alert('❌ Gmail authentication failed. Please try again.');
+  const handleGmailAuth = () => {
+    // Redirect to backend OAuth (like YouTube - persistent tokens!)
+    const adminId = localStorage.getItem('adminId');
+    
+    if (!orgId || !adminId) {
+      alert('⚠️ Missing organization or admin information. Please refresh and try again.');
+      return;
     }
+    
+    const API_URL = import.meta.env.PROD 
+      ? 'https://eventscrm-backend.onrender.com'
+      : 'http://localhost:5001';
+    
+    console.log('🔐 Redirecting to Gmail OAuth...', { orgId, adminId });
+    
+    // Redirect to backend OAuth route
+    window.location.href = `${API_URL}/api/gmail-oauth/auth?orgId=${orgId}&adminId=${adminId}`;
   };
 
   const loadCampaigns = async () => {

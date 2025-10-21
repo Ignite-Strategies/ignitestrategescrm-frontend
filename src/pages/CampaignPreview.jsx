@@ -115,12 +115,18 @@ export default function CampaignPreview() {
         .replace(/"/g, '&quot;')   // Fix quotes
         .replace(/'/g, '&apos;');  // Fix apostrophes
 
+      // Get orgId and adminId for backend token lookup
+      const orgId = localStorage.getItem('orgId');
+      const adminId = localStorage.getItem('adminId');
+      
       await api.post('/enterprise-gmail/send-campaign', {
         campaignId,
         subject: campaign.subject,
         message: htmlMessage,  // ✅ Now properly formatted HTML
         contactListId: campaign.contactListId,
-        attachments: attachments
+        attachments: attachments,
+        orgId,    // ← Backend will use this to fetch Gmail token from DB
+        adminId   // ← Backend will use this to fetch Gmail token from DB
       });
 
       await api.patch(`/campaigns/${campaignId}`, {
