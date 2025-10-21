@@ -293,6 +293,7 @@ export default function GoogleAdWordsHome() {
             </ol>
           </div>
         </div>
+        </div>
       </div>
     </div>
   );
