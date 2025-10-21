@@ -65,6 +65,7 @@ import PostOrgCreate from "./pages/PostOrgCreate.jsx";
 import AdsDashboard from "./pages/AdsDashboard.jsx";
 import SmartLists from "./pages/SmartLists.jsx";
 import CampaignCreator from "./pages/CampaignCreator.jsx";
+import GoogleAdCreator from "./pages/GoogleAdCreator.jsx";
 import CampaignChooserOrStarter from "./pages/CampaignChooserOrStarter.jsx";
 import CampaignPreview from "./pages/CampaignPreview.jsx";
 import PreviewPageTest from "./pages/PreviewPageTest.jsx";
@@ -147,7 +148,7 @@ export default function App() {
           <ProtectedRoute><GooglePersonaDevelopment /></ProtectedRoute>
         } />
         <Route path="/googleads/create" element={
-          <ProtectedRoute><CampaignCreator /></ProtectedRoute>
+          <ProtectedRoute><GoogleAdCreator /></ProtectedRoute>
         } />
         <Route path="/googleads/helper" element={
           <ProtectedRoute><GoogleCampaignBuilder /></ProtectedRoute>
