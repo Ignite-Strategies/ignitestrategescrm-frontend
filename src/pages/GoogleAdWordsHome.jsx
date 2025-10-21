@@ -37,11 +37,17 @@ export default function GoogleAdWordsHome() {
           console.log('🔍 Found Google Ads connection, trying to get account ID...');
           try {
             const response = await api.get(`/google-ads-account-selection/list?connectionId=${connectionId}`);
+            console.log('🔍 API Response:', response.data);
+            console.log('🔍 Accounts array:', response.data?.accounts);
+            console.log('🔍 Accounts length:', response.data?.accounts?.length);
+            
             if (response.data && response.data.accounts && response.data.accounts.length > 0) {
               // Use the first account as default
               accountId = response.data.accounts[0].id;
               localStorage.setItem('googleAdsAccountId', accountId);
               console.log('✅ Set default Google Ads account ID:', accountId);
+            } else {
+              console.log('❌ No accounts found in response');
             }
           } catch (error) {
             console.error('❌ Error getting account list:', error);
