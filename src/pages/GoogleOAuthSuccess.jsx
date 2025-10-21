@@ -34,8 +34,7 @@ export default function GoogleOAuthSuccess() {
         ];
       case 'ads':
         return [
-          { label: 'Create Campaign', path: '/googleads/create', icon: '🚀' },
-          { label: 'View Campaigns', path: '/googleads/campaigns', icon: '📊' },
+          { label: 'Go to Google Ads Hub', path: '/googleads/home', icon: '🚀' },
           { label: 'Back to Settings', path: '/settings/integrations', icon: '⚙️' }
         ];
       default:

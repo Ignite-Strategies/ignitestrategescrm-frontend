@@ -234,23 +234,23 @@ export default function GoogleAdWordsHome() {
         <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-3">
-              Ready to Build Your Campaign?
+              What Would You Like To Do?
             </h2>
             <p className="text-slate-600 mb-6 max-w-2xl mx-auto">
-              Choose how you want to create your Google Ads campaign
+              Build new campaigns or manage existing ones
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Builder Path */}
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Campaign Builder */}
             <button
-              onClick={() => navigate("/recruit/google/create")}
+              onClick={() => navigate("/googleads/create")}
               className="group bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-8 border-2 border-purple-200 hover:border-purple-400 transition-all text-left hover:shadow-lg"
             >
               <div className="text-5xl mb-4">🛠️</div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Use the Builder</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Campaign Builder</h3>
               <p className="text-slate-600 mb-4">
-                Step-by-step guided process with helpful tips and AI suggestions along the way
+                Create a new campaign from scratch with AI-powered persona targeting
               </p>
               <div className="text-purple-600 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
                 <span>Start Building</span>
@@ -258,18 +258,34 @@ export default function GoogleAdWordsHome() {
               </div>
             </button>
 
-            {/* Quick Path */}
+            {/* View Campaigns */}
             <button
-              onClick={() => navigate("/recruit/google/create")}
-              className="group bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-8 border-2 border-slate-200 hover:border-slate-400 transition-all text-left hover:shadow-lg"
+              onClick={() => navigate("/googleads/campaigns")}
+              className="group bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-8 border-2 border-green-200 hover:border-green-400 transition-all text-left hover:shadow-lg"
             >
-              <div className="text-5xl mb-4">⚡</div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Just Let Me Launch</h3>
+              <div className="text-5xl mb-4">📊</div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">View Campaigns</h3>
               <p className="text-slate-600 mb-4">
-                I know what I want. Take me straight to the campaign builder without the guidance
+                See your active campaigns, performance metrics, and manage existing ads
               </p>
-              <div className="text-slate-600 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
-                <span>Quick Launch</span>
+              <div className="text-green-600 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
+                <span>View Campaigns</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+            </button>
+            
+            {/* Demo Campaigns */}
+            <button
+              onClick={() => navigate("/googleads/demo")}
+              className="group bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-8 border-2 border-yellow-200 hover:border-yellow-400 transition-all text-left hover:shadow-lg"
+            >
+              <div className="text-5xl mb-4">🎬</div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">Demo Campaigns</h3>
+              <p className="text-slate-600 mb-4">
+                Explore example campaigns to see what's possible with our platform
+              </p>
+              <div className="text-yellow-600 font-semibold group-hover:gap-2 flex items-center gap-1 transition-all">
+                <span>View Demos</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
             </button>
