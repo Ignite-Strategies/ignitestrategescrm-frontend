@@ -45,11 +45,15 @@ export default function GoogleAdWordsHome() {
             }
           } catch (error) {
             console.error('❌ Error getting account list:', error);
+            console.log('🔄 Falling back to manual account selection...');
+            setError("Please select your Google Ads account. Click 'Go to Settings' to choose your account.");
+            setLoading(false);
+            return;
           }
         }
         
         if (!accountId) {
-          setError("No Google Ads account selected. Please go to Settings to connect your account.");
+          setError("No Google Ads account selected. Please select your account to continue.");
           setLoading(false);
           return;
         }
@@ -210,6 +214,42 @@ export default function GoogleAdWordsHome() {
           </div>
         </div>
 
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div className="flex-1">
+                <h3 className="font-bold text-red-900">Account Selection Required</h3>
+                <p className="text-red-700 text-sm">{error}</p>
+                <div className="mt-3 flex gap-3">
+                  <button
+                    onClick={() => navigate('/googleads/account-picker')}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                  >
+                    Select Account
+                  </button>
+                  <button
+                    onClick={() => navigate('/settings/integrations')}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700"
+                  >
+                    Go to Settings
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+              <span className="text-blue-700 font-medium">Loading Google Ads data...</span>
+            </div>
+          </div>
+        )}
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
