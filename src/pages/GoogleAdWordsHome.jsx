@@ -9,7 +9,15 @@ export default function GoogleAdWordsHome() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    hydrateGoogleAdsAccount();
+    // First check if we have an account ID, if not try to hydrate it
+    const existingAccountId = localStorage.getItem('googleAdsAccountId');
+    if (existingAccountId) {
+      console.log('✅ Google Ads account ID already exists:', existingAccountId);
+      hydrateGoogleAdsAccount();
+    } else {
+      console.log('⚠️ No Google Ads account ID found, checking for connection...');
+      hydrateGoogleAdsAccount();
+    }
   }, []);
   
   const hydrateGoogleAdsAccount = async () => {
@@ -18,13 +26,33 @@ export default function GoogleAdWordsHome() {
       setError(""); // Clear any previous errors
       
       // Get the Google Ads account ID from localStorage
-      const accountId = localStorage.getItem('googleAdsAccountId');
+      let accountId = localStorage.getItem('googleAdsAccountId');
       
       if (!accountId) {
         console.warn('⚠️ No Google Ads account ID found in localStorage');
-        setError("No Google Ads account selected.");
-        setLoading(false);
-        return;
+        
+        // Try to get account ID from connection
+        const connectionId = localStorage.getItem('googleOAuthConnection_ads');
+        if (connectionId) {
+          console.log('🔍 Found Google Ads connection, trying to get account ID...');
+          try {
+            const response = await api.get(`/google-ads-account-selection/list?connectionId=${connectionId}`);
+            if (response.data && response.data.length > 0) {
+              // Use the first account as default
+              accountId = response.data[0].id;
+              localStorage.setItem('googleAdsAccountId', accountId);
+              console.log('✅ Set default Google Ads account ID:', accountId);
+            }
+          } catch (error) {
+            console.error('❌ Error getting account list:', error);
+          }
+        }
+        
+        if (!accountId) {
+          setError("No Google Ads account selected. Please go to Settings to connect your account.");
+          setLoading(false);
+          return;
+        }
       }
       
       console.log('📊 Loading Google Ads data for account:', accountId);
