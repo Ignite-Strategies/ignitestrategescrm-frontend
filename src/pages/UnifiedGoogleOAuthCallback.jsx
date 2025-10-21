@@ -41,8 +41,15 @@ export default function UnifiedGoogleOAuthCallback() {
 
       if (response.data.success) {
         const serviceName = response.data.service.toUpperCase();
+        const connectionId = response.data.connectionId;
+        
         setService(serviceName);
         setStatus(`${serviceName} connected successfully!`);
+        
+        // Store connection ID in localStorage for future use
+        const storageKey = `googleOAuthConnection_${response.data.service}`;
+        localStorage.setItem(storageKey, connectionId);
+        console.log(`✅ Stored ${storageKey}: ${connectionId}`);
         
         // Store success message
         localStorage.setItem('redirectMessage', `✅ ${serviceName} connected successfully!`);
