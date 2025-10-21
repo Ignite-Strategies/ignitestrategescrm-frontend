@@ -60,9 +60,15 @@ export default function UnifiedGoogleOAuthCallback() {
           // Store service for success page
           localStorage.setItem('lastConnectedService', response.data.service);
           
-          // User is authenticated - redirect to success page with options
+          // User is authenticated - redirect based on service
           setTimeout(() => {
-            navigate(`/google-oauth-success?service=${response.data.service}&email=${response.data.email}`);
+            if (response.data.service === 'ads') {
+              // Google Ads needs account selection first
+              navigate(`/google-ads/select-account?connectionId=${connectionId}`);
+            } else {
+              // Other services go straight to success page
+              navigate(`/google-oauth-success?service=${response.data.service}&email=${response.data.email}`);
+            }
           }, 2000);
         } else {
           // User not authenticated - redirect to signup
