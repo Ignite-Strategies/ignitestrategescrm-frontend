@@ -15,12 +15,14 @@ export default function GoogleAdsCampaignsList() {
   const loadCampaigns = async () => {
     try {
       setLoading(true);
+      setError(""); // Clear any previous errors
       
       // Get the Google Ads account ID from localStorage
       const accountId = localStorage.getItem('googleAdsAccountId');
       
       if (!accountId) {
-        setError("No Google Ads account found. Please connect your account first.");
+        console.warn('⚠️ No Google Ads account ID found in localStorage');
+        setError("No Google Ads account selected.");
         setLoading(false);
         return;
       }
@@ -32,7 +34,7 @@ export default function GoogleAdsCampaignsList() {
       
       setAccountData(response.data);
       console.log('✅ Campaigns loaded:', response.data);
-      
+      setError(""); // Clear error on success
       setLoading(false);
     } catch (error) {
       console.error('❌ Error loading campaigns:', error);
@@ -41,35 +43,7 @@ export default function GoogleAdsCampaignsList() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading Campaigns...</h2>
-          <p className="text-gray-600">Fetching your Google Ads data</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-          <div className="text-5xl mb-4">❌</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Campaigns</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => navigate('/googleads/home')}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
-          >
-            Back to Google Ads Hub
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Always show the UI - handle loading/error states inline
 
   const { account, campaigns, totals } = accountData || {};
 
@@ -89,10 +63,10 @@ export default function GoogleAdsCampaignsList() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-black text-gray-900 mb-2">
-                {account?.name || "Your Campaigns"}
+                {loading ? 'Loading...' : account?.name || "Your Campaigns"}
               </h1>
               <p className="text-gray-600">
-                Customer ID: {account?.customerId}
+                {loading ? 'Fetching account data...' : `Customer ID: ${account?.customerId}`}
                 {account?.isTestAccount && (
                   <span className="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">
                     Test Account
@@ -108,6 +82,35 @@ export default function GoogleAdsCampaignsList() {
             </button>
           </div>
         </div>
+
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <h3 className="font-bold text-red-900">Connection Issue</h3>
+                <p className="text-red-700 text-sm">{error}</p>
+                <button
+                  onClick={() => navigate('/settings/integrations')}
+                  className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                >
+                  Go to Settings
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+              <span className="text-blue-700 font-medium">Loading campaigns...</span>
+            </div>
+          </div>
+        )}
 
         {/* Performance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
