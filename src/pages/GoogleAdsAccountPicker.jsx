@@ -12,6 +12,9 @@ export default function GoogleAdsAccountPicker() {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [manualEntry, setManualEntry] = useState(false);
+  const [customerId, setCustomerId] = useState("");
+  const [accountName, setAccountName] = useState("");
 
   useEffect(() => {
     if (connectionId) {
@@ -27,21 +30,35 @@ export default function GoogleAdsAccountPicker() {
       setLoading(true);
       console.log('📊 Fetching Google Ads accounts for connection:', connectionId);
       
-      const response = await api.get(`/google-ads-account-selection/list?connectionId=${connectionId}`);
-      
-      if (response.data.accounts && response.data.accounts.length > 0) {
-        setAccounts(response.data.accounts);
-        console.log(`✅ Found ${response.data.accounts.length} accounts`);
-      } else {
-        setError("No Google Ads accounts found. Make sure you have at least one Google Ads account.");
-      }
-      
+      // Skip automatic fetching for now - Google Ads REST API doesn't support this
+      // Just show manual entry
+      setManualEntry(true);
       setLoading(false);
+      
+      // const response = await api.get(`/google-ads-account-selection/list?connectionId=${connectionId}`);
+      // if (response.data.accounts && response.data.accounts.length > 0) {
+      //   setAccounts(response.data.accounts);
+      // }
     } catch (error) {
       console.error('❌ Error fetching accounts:', error);
-      setError(error.response?.data?.details || error.message || 'Failed to load accounts');
+      setManualEntry(true);
       setLoading(false);
     }
+  };
+  
+  const handleManualSubmit = async (e) => {
+    e.preventDefault();
+    if (!customerId.trim()) {
+      setError("Please enter your Customer ID");
+      return;
+    }
+    
+    await handleSelectAccount({
+      customerId: customerId.trim().replace(/-/g, ''), // Remove dashes
+      accountName: accountName.trim() || `Account ${customerId}`,
+      currency: 'USD',
+      timezone: 'UTC'
+    });
   };
 
   const handleSelectAccount = async (account) => {
@@ -123,9 +140,56 @@ export default function GoogleAdsAccountPicker() {
           </p>
         </div>
 
-        {/* Account List */}
-        <div className="space-y-3 mb-6">
-          {accounts.map((account, index) => (
+        {/* Manual Entry Form */}
+        {manualEntry ? (
+          <form onSubmit={handleManualSubmit} className="mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-blue-800">
+                Enter your Google Ads Customer ID. You can find this in your Google Ads dashboard (it looks like 123-456-7890).
+              </p>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Customer ID *
+                </label>
+                <input
+                  type="text"
+                  value={customerId}
+                  onChange={(e) => setCustomerId(e.target.value)}
+                  placeholder="123-456-7890"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Account Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={accountName}
+                  onChange={(e) => setAccountName(e.target.value)}
+                  placeholder="My Google Ads Account"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition shadow-lg disabled:opacity-50"
+              >
+                {saving ? 'Connecting...' : 'Connect Account'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          /* Account List */
+          <div className="space-y-3 mb-6">
+            {accounts.map((account, index) => (
             <button
               key={account.customerId}
               onClick={() => handleSelectAccount(account)}
