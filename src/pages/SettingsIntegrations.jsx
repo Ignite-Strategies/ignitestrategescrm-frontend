@@ -95,16 +95,18 @@ export default function SettingsIntegrations() {
   };
 
   const handleConnectGmail = async () => {
-    if (!orgId || !adminId) {
-      alert('⚠️ Missing organization or admin information. Please refresh and try again.');
+    const containerId = localStorage.getItem('containerId');
+    
+    if (!orgId || !adminId || !containerId) {
+      alert('⚠️ Missing organization, admin, or container information. Please refresh and try again.');
       return;
     }
     
     try {
-      console.log('🧭 Getting Gmail OAuth URL...', { orgId, adminId });
+      console.log('🧭 Getting Gmail OAuth URL...', { orgId, adminId, containerId });
       
-      // Get the auth URL from the backend
-      const response = await api.get(`/google-oauth/auth?service=gmail&orgId=${orgId}&adminId=${adminId}`);
+      // Get the auth URL from the backend with all required IDs
+      const response = await api.get(`/google-oauth/auth?service=gmail&orgId=${orgId}&adminId=${adminId}&containerId=${containerId}`);
       
       if (response.data.authUrl) {
         // Redirect to Google OAuth
