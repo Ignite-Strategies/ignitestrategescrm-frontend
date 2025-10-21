@@ -4,9 +4,9 @@ import api from "../lib/api";
 
 export default function Welcome() {
   const navigate = useNavigate();
-  const [orgName, setOrgName] = useState("Your Organization");
-  const [memberName, setMemberName] = useState("Team Member");
-  const [loading, setLoading] = useState(false); // Don't show loading screen
+  const [orgName, setOrgName] = useState("");
+  const [memberName, setMemberName] = useState("");
+  const [loading, setLoading] = useState(true); // Need to wait for hydration to get firstName
   const [error, setError] = useState("");
   const [showLogout, setShowLogout] = useState(false);
   const [canNavigate, setCanNavigate] = useState(false);
@@ -169,7 +169,8 @@ export default function Welcome() {
       const adminName = admin?.firstName || null;
       setMemberName(hydrationData.memberName || adminName || firebaseUser.displayName || 'Team Member');
       
-      // Allow navigation once hydration is complete
+      // Show welcome screen and allow navigation
+      setLoading(false);
       setCanNavigate(true);
       
     } catch (error) {
