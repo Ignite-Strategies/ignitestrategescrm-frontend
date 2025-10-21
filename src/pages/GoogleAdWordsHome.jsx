@@ -37,9 +37,9 @@ export default function GoogleAdWordsHome() {
           console.log('🔍 Found Google Ads connection, trying to get account ID...');
           try {
             const response = await api.get(`/google-ads-account-selection/list?connectionId=${connectionId}`);
-            if (response.data && response.data.length > 0) {
+            if (response.data && response.data.accounts && response.data.accounts.length > 0) {
               // Use the first account as default
-              accountId = response.data[0].id;
+              accountId = response.data.accounts[0].id;
               localStorage.setItem('googleAdsAccountId', accountId);
               console.log('✅ Set default Google Ads account ID:', accountId);
             }
