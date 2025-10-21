@@ -131,6 +131,20 @@ export default function Welcome() {
         localStorage.setItem('eventId', eventId);
       }
       
+      // Google OAuth Connection IDs
+      if (hydrationData.gmailConnectionId) {
+        localStorage.setItem('googleOAuthConnection_gmail', hydrationData.gmailConnectionId);
+        console.log('✅ Cached Gmail connection ID:', hydrationData.gmailConnectionId);
+      }
+      if (hydrationData.youtubeConnectionId) {
+        localStorage.setItem('googleOAuthConnection_youtube', hydrationData.youtubeConnectionId);
+        console.log('✅ Cached YouTube connection ID:', hydrationData.youtubeConnectionId);
+      }
+      if (hydrationData.googleAdsConnectionId) {
+        localStorage.setItem('googleOAuthConnection_ads', hydrationData.googleAdsConnectionId);
+        console.log('✅ Cached Google Ads connection ID:', hydrationData.googleAdsConnectionId);
+      }
+      
       // FULL OBJECTS (new hydration pattern)
       if (admin) {
         localStorage.setItem('admin', JSON.stringify(admin));
