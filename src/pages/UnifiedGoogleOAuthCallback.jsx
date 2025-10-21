@@ -54,10 +54,19 @@ export default function UnifiedGoogleOAuthCallback() {
         // Store success message
         localStorage.setItem('redirectMessage', `✅ ${serviceName} connected successfully!`);
         
-        // Redirect to root - Splash will handle auth and redirect to proper page
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        // Check if user is authenticated before redirecting
+        const firebaseId = localStorage.getItem("firebaseId");
+        if (firebaseId) {
+          // User is authenticated - redirect to integrations
+          setTimeout(() => {
+            navigate("/settings/integrations");
+          }, 2000);
+        } else {
+          // User not authenticated - redirect to signup
+          setTimeout(() => {
+            navigate("/signup");
+          }, 2000);
+        }
       } else {
         throw new Error(response.data.error || "Failed to connect service");
       }
@@ -114,7 +123,10 @@ export default function UnifiedGoogleOAuthCallback() {
             {error && (
               <div className="mt-6">
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => {
+                    const firebaseId = localStorage.getItem("firebaseId");
+                    navigate(firebaseId ? "/settings/integrations" : "/signup");
+                  }}
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   Back to App
