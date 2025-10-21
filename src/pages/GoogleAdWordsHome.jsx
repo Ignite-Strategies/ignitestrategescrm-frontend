@@ -27,28 +27,20 @@ export default function GoogleAdWordsHome() {
       
       console.log('📊 Hydrating Google Ads data for connection:', connectionId);
       
-      // For now, we need to get the accountId from the GoogleAdAccount table
-      // TODO: Store accountId in localStorage after account selection
-      const adminId = localStorage.getItem('adminId');
+      // Get the Google Ads account ID from localStorage
+      const accountId = localStorage.getItem('googleAdsAccountId');
       
-      // Call hydration endpoint (we'll need to pass accountId)
-      // For now, let's show a placeholder with account info from integrations
-      setAccountData({
-        account: {
-          name: "Ignite Strategies",
-          customerId: "8140750417",
-          currency: "USD",
-          isTestAccount: true
-        },
-        totals: {
-          campaignCount: 0,
-          impressions: 0,
-          clicks: 0,
-          spend: 0,
-          conversions: 0
-        },
-        campaigns: []
-      });
+      if (!accountId) {
+        setError("No Google Ads account found. Please select your account in Settings.");
+        setLoading(false);
+        return;
+      }
+      
+      // Call hydration endpoint with real Google Ads API
+      const response = await api.get(`/google-ads-hydrate/${accountId}`);
+      
+      setAccountData(response.data);
+      console.log('✅ Google Ads data loaded:', response.data);
       
       setLoading(false);
     } catch (error) {

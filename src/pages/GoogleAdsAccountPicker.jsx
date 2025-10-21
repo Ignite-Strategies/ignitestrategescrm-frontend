@@ -76,6 +76,10 @@ export default function GoogleAdsAccountPicker() {
       
       console.log('✅ Account selected:', response.data);
       
+      // Store accountId in localStorage for easy access
+      localStorage.setItem('googleAdsAccountId', response.data.accountId);
+      console.log('✅ Stored googleAdsAccountId:', response.data.accountId);
+      
       // Redirect to success page
       navigate(`/google-oauth-success?service=ads&email=${account.accountName}`);
       
