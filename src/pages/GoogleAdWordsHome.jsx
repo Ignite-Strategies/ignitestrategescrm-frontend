@@ -15,70 +15,33 @@ export default function GoogleAdWordsHome() {
   const hydrateGoogleAdsAccount = async () => {
     try {
       setLoading(true);
-      
-      // Get the Google Ads account ID from localStorage
-      const connectionId = localStorage.getItem('googleOAuthConnection_ads');
-      
-      if (!connectionId) {
-        setError("No Google Ads connection found. Please reconnect.");
-        setLoading(false);
-        return;
-      }
-      
-      console.log('📊 Hydrating Google Ads data for connection:', connectionId);
+      setError(""); // Clear any previous errors
       
       // Get the Google Ads account ID from localStorage
       const accountId = localStorage.getItem('googleAdsAccountId');
       
       if (!accountId) {
-        setError("No Google Ads account found. Please select your account in Settings.");
+        console.warn('⚠️ No Google Ads account ID found in localStorage');
+        setError("No Google Ads account selected.");
         setLoading(false);
         return;
       }
+      
+      console.log('📊 Loading Google Ads data for account:', accountId);
       
       // Call hydration endpoint with real Google Ads API
       const response = await api.get(`/google-ads-hydrate/${accountId}`);
       
       setAccountData(response.data);
       console.log('✅ Google Ads data loaded:', response.data);
-      
+      setError(""); // Clear error on success
       setLoading(false);
     } catch (error) {
-      console.error('❌ Error hydrating Google Ads:', error);
+      console.error('❌ Error loading Google Ads:', error);
       setError(error.response?.data?.details || error.message || 'Failed to load account data');
       setLoading(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading Your Account...</h2>
-          <p className="text-gray-600">Fetching campaigns and performance data</p>
-        </div>
-      </div>
-    );
-  }
-  
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-8">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-          <div className="text-5xl mb-4">❌</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Account</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => navigate('/settings/integrations')}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
-          >
-            Back to Settings
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const strategyTools = [
     {
@@ -130,7 +93,9 @@ export default function GoogleAdWordsHome() {
       <div className="w-64 bg-white border-r border-gray-200 p-6">
         <div className="mb-8">
           <h2 className="text-lg font-bold text-gray-900 mb-1">Google Ads</h2>
-          <p className="text-xs text-gray-600">{accountData?.account?.name}</p>
+          <p className="text-xs text-gray-600">
+            {loading ? 'Loading...' : accountData?.account?.name || 'No account'}
+          </p>
         </div>
         
         <nav className="space-y-2">
