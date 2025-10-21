@@ -33,7 +33,6 @@ import EventPipelineSuccess from "./pages/EventPipelineSuccess.jsx";
 import EventEdit from "./pages/EventEdit.jsx";
 import EngageEmail from "./pages/EngageEmail.jsx";
 import MarketingAnalytics from "./pages/MarketingAnalytics.jsx";
-import ComposeMessage from "./pages/ComposeMessage.jsx";
 import TestAuth from "./pages/TestAuth.jsx";
 import Authenticate from "./pages/Authenticate.jsx";
 import ContactListManager from "./pages/ContactListManager.jsx";
@@ -258,9 +257,6 @@ export default function App() {
         } />
         <Route path="/analytics" element={
           <ProtectedRoute><MarketingAnalytics /></ProtectedRoute>
-        } />
-        <Route path="/compose" element={
-          <ProtectedRoute><ComposeMessage /></ProtectedRoute>
         } />
         <Route path="/test-auth" element={
           <TestAuth />

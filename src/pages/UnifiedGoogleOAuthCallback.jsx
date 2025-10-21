@@ -57,9 +57,17 @@ export default function UnifiedGoogleOAuthCallback() {
         // Check if user is authenticated before redirecting
         const firebaseId = localStorage.getItem("firebaseId");
         if (firebaseId) {
-          // User is authenticated - redirect to integrations
+          // User is authenticated - redirect to useful page based on service
           setTimeout(() => {
-            navigate("/settings/integrations");
+            if (response.data.service === 'gmail') {
+              navigate("/send-email"); // Go to send email page for Gmail
+            } else if (response.data.service === 'youtube') {
+              navigate("/youtube/hub"); // Go to YouTube hub
+            } else if (response.data.service === 'ads') {
+              navigate("/dashboard"); // Go to dashboard for Google Ads
+            } else {
+              navigate("/dashboard"); // Default to dashboard
+            }
           }, 2000);
         } else {
           // User not authenticated - redirect to signup

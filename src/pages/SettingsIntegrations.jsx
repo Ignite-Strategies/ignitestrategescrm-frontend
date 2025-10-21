@@ -288,10 +288,19 @@ export default function SettingsIntegrations() {
                     {integrations.gmail.connected ? (
                       <>
                         <button
-                          onClick={handleTestGmail}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm"
+                          onClick={() => navigate("/send-email")}
+                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm flex items-center gap-2"
                         >
-                          Test Send
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          Send Email
+                        </button>
+                        <button
+                          onClick={handleConnectGmail}
+                          className="px-4 py-2 border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition font-medium text-sm"
+                        >
+                          Add Another Email
                         </button>
                         <button
                           onClick={handleDisconnectGmail}
